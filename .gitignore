@@ -84,3 +84,6 @@ unreal/Plugins/*/Intermediate/*
 DerivedDataCache/*
 unreal/DerivedDataCache/*
 **/.DS_Store
+Intermediate
+Build
+Binaries
