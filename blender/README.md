@@ -28,7 +28,43 @@ For a good example, see [this video](https://www.youtube.com/watch?v=YB1k6-QR7xc
 8. With the object selected, press Shift+S once more
 9. Press 8 to bring the model to the World Origin
 10. Scale the model down to a reasonable size (1 unit in Blender = 1 unit in
-    Unreal)
+    Unreal; it's a good idea to have a light or something positioned in Blender at XYZ 1,-1,2 to give an idea of scale when scaling the model.)
+
+### Materials
+
+To work with materials, you must enable nodes - **but enabling nodes will lose color information, so follow the steps below** and make sure to __copy the color HEX code before clicking the "Use Nodes" button__:
+
+> Note: the steps below are from the video and will give the character /
+> materials a **Plastic Look**. Of course, if you don’t like that look, you can
+> simply paste the color code onto the Base Color.
+
+1. Paste the color code onto the Subsurface Color value, instead of the Base
+   Color one
+2. Turn the Subsurface value all the way up and increase the Subsurface Radius
+   up to 3.5
+3. Turn the Roughness value all the way up.
+4. Repeat the exact same process for all materials that you want to be plastic.
+5. For anything you don't want to look very plastic (e.g. glass), turn the
+   roughness all the way down.
+6. For anything you want to look metallic, well, turn Metallic all the way up.
+7. Finally, it would be a great idea to rename all materials according to what
+   they are used for.
+
+### Cleanup
+
+Check for internal vertices by pressing _alt+z_ in `Edit Mode`. If you see many
+internal vertices (you will), follow these steps:
+
+1. With the model selected, go into edit mode.
+2. Make sure that all vertices are selected (A).
+3. Make sure that X-ray mode is off.
+4. Press C to enable circle select
+5. Sweep the cursor over your model while holding the middle mouse button (or
+   shift) down.
+6. It is VERY IMPORTANT that you unselect all visible vertices - if not, you
+   will end up with holes in your model, so be sure to check into every nook and
+   cranny.
+7. After you’re done, press X --> Vertices.
 
 ## Rigging
 
