@@ -1,3 +1,5 @@
+# copied from https://blender.stackexchange.com/questions/173764/can-i-get-number-of-edges-connected-to-a-vertex
+
 import bpy, bmesh
 # Get selected object's mesh
 mesh = bpy.context.object.data  
