@@ -80,3 +80,4 @@ unreal/DerivedDataCache/*
 **/Build
 **/Binaries
 **/Saved
+*.blend1
