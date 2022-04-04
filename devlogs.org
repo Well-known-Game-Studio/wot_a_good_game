@@ -4,7 +4,7 @@
 
 * Task List
 
-** TODO Game
+** Game
 - [ ] Add effects (butterflies and dust motes) to the scene
 - [ ] Start stubbing out dialogue system
 - [ ] Make door functional (animate / interact) on house
@@ -18,7 +18,7 @@
 - [ ] Add horse (skeletal mesh) model to game
 - [ ] Have horse randomly wander around in the scene (in its pen)
 
-** TODO Models
+** Models
 - [ ] bow model
 - [ ] arrow model
 - [ ] Make chest animation / open model
