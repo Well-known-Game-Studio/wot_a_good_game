@@ -27,6 +27,10 @@
 - [ ] Add Tam Model
 - [ ] Add pen door model (for sheep / horse pen)
 
+* Week of 2022-04-10
+
+- [x] Work on game design document to detail out some of the systems
+
 * Week of 2022-04-03
 
 - [x] Break apart voxel scene into different models
