@@ -30,6 +30,7 @@
 * Week of 2022-04-10
 
 - [x] Work on game design document to detail out some of the systems
+- [x] Update voxelpro plugin to latest version of ProBetaLTS for UE5 Release
 
 * Week of 2022-04-03
 
