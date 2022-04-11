@@ -19,8 +19,6 @@
 - [ ] Have horse randomly wander around in the scene (in its pen)
 
 ** Models
-- [ ] bow model
-- [ ] arrow model
 - [ ] Make chest animation / open model
 - [ ] Animate medium scale models (rand, trolloc)
 - [ ] Animate animal(s)
@@ -31,6 +29,10 @@
 
 - [x] Work on game design document to detail out some of the systems
 - [x] Update voxelpro plugin to latest version of ProBetaLTS for UE5 Release
+- [x] Add mountain goat model
+- [x] Add fox model
+- [x] bow model
+- [x] arrow model
 
 * Week of 2022-04-03
 
