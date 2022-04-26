@@ -1,8 +1,20 @@
 #+title:  Devlog
 #+author: William Emfinger
-#+date:   <2022-04-04 Mon>
+#+date:   <2022-04-25 Mon>
 
 * Task List
+
+** General
+
+- [ ] watch UE learning course (C++, gameplay systems)
+- [ ] prototype voxel destruction of world
+
+** Systems to Learn
+
+- [ ] Environment Query System (EQS)
+- [ ] Gameplay Abilities System
+- [ ] Level Loading System
+- [ ] State Saving / Loading System
 
 ** Game
 - [ ] Add effects (butterflies and dust motes) to the scene
@@ -17,13 +29,31 @@
 - [ ] bow+arrow system in game
 - [ ] Add horse (skeletal mesh) model to game
 - [ ] Have horse randomly wander around in the scene (in its pen)
+- [ ] highlight interactable foliage
+- [ ] add niagara water effects
+- [ ] add niagara smoke effects (campfire / chimney)
+- [ ] add lightning effect
+- [ ] implement action system
 
 ** Models
 - [ ] Make chest animation / open model
 - [ ] Animate medium scale models (rand, trolloc)
-- [ ] Animate animal(s)
-- [ ] Add Tam Model
+- [ ] Animate sheep
+- [ ] Animate horse
+- [ ] animate raccoon
+- [ ] animate duck
 - [ ] Add pen door model (for sheep / horse pen)
+
+* Week of 2022-04-24
+
+
+
+* Week of 2022-04-17
+
+- [x] Add Tam Model
+- [x] Worked on highlighting interactable foliage
+- [x] Separated chest model into top and base
+- [x] Add medium scale sword model
 
 * Week of 2022-04-10
 
