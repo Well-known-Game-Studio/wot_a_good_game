@@ -15,6 +15,7 @@
 - [ ] Gameplay Abilities System
 - [ ] Level Loading System
 - [ ] State Saving / Loading System
+- [ ] Entity spawning system (NPC, items, etc.)
 
 ** Game
 - [ ] Add effects (butterflies and dust motes) to the scene
@@ -37,7 +38,14 @@
 
 ** Models
 - [ ] Make chest animation / open model
+- [ ] rig medium scale flat models (rand, lan, tam)
+- [ ] rig medium scale models (rand, lan, tam)
 - [ ] Animate medium scale models (rand, trolloc)
+- [ ] rig dog
+- [ ] rig horse
+- [ ] rig raccoon
+- [ ] rig duck
+- [ ] rig deer
 - [ ] Animate sheep
 - [ ] Animate horse
 - [ ] animate raccoon
