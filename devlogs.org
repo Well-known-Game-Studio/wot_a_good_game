@@ -6,6 +6,7 @@
 
 ** General
 
+- [ ] [[https://courses.tomlooman.com/p/unrealengine-cpp?coupon_code=COMMUNITY15&_ga=2.38472932.678384283.1651337970-1623431491.1651337970][Tom Looman Professional Game Development in C++ and Unreal Engine]]
 - [ ] watch UE learning course (C++, gameplay systems)
 - [ ] prototype voxel destruction of world
 
