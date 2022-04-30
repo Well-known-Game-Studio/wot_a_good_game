@@ -54,7 +54,7 @@
 
 * Week of 2022-04-24
 
-
+- [x] Update character movement (normalize vector and increase speed)
 
 * Week of 2022-04-17
 
