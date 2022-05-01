@@ -39,11 +39,8 @@ void AWotCharacter::MoveRight(float value)
 	// AddMovementInput(GetActorRightVector(), value);
 }
 
-// Called every frame
-void AWotCharacter::Tick(float DeltaTime)
+void AWotCharacter::HandleMovementInput()
 {
-	Super::Tick(DeltaTime);
-
 	// -- Movement Control -- //
 	auto t = SpringArmComp->GetRelativeTransform();
 	auto r = t.Rotator();
@@ -58,6 +55,14 @@ void AWotCharacter::Tick(float DeltaTime)
 
 	AddMovementInput(right, vector_value.X);
 	AddMovementInput(up, vector_value.Y);
+}
+
+// Called every frame
+void AWotCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	HandleMovementInput();
 
 	// -- Rotation Visualization -- //
 	const float DrawScale = 100.0f;
