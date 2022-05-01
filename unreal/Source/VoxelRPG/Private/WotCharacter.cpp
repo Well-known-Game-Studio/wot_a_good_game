@@ -54,8 +54,12 @@ void AWotCharacter::HandleMovementInput()
 	// now get the user's input movement commands
 	auto up_value = GetInputAxisValue("MoveForward");
 	auto right_value = GetInputAxisValue("MoveRight");
-	// ensure that we normalize them (so that the speed is always constant)
-	auto vector_value = FVector2D(up_value, right_value).GetSafeNormal();
+	auto vector_value = FVector2D(up_value, right_value);
+	// limit the speed of the player to max speed (e.g. vector length should be
+	// <= 1.0)
+	if (vector_value.Size() > 1.0f) {
+		vector_value = vector_value.GetSafeNormal();
+	}
 
 	// tell the pawn controller to actual move accordingly
 	AddMovementInput(right, vector_value.X);
