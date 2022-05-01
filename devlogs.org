@@ -8,6 +8,8 @@
 - [ ] Highlight post process volume doesn't respect bounds (for vegetation highlight)
 - [ ] NPCs fall through the ground when starting the level with VoxelPlugin
 - [ ] Niagara Water (3D) doesn't work
+- [ ] The secret passage stairs don't fit the current 3rd Person Blueprint
+- [ ] The water (river / waterfalls / lakes) doesn't look very good :(
 
 ** General
 
