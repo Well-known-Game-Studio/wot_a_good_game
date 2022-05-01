@@ -26,6 +26,7 @@
 - [ ] Entity spawning system (NPC, items, etc.)
 
 ** Game
+
 - [ ] Add effects (butterflies and dust motes) to the scene
 - [ ] Start stubbing out dialogue system
 - [ ] Make door functional (animate / interact) on house
@@ -43,6 +44,10 @@
 - [ ] add niagara smoke effects (campfire / chimney)
 - [ ] add lightning effect
 - [ ] implement action system
+
+** Code
+
+- [ ] Make new character class (C++)
 
 ** Models
 - [ ] Make chest animation / open model
