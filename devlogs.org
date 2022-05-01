@@ -3,6 +3,11 @@
 #+date:   <2022-04-25 Mon>
 
 * Task List
+** Bugs
+
+- [ ] Highlight post process volume doesn't respect bounds (for vegetation highlight)
+- [ ] NPCs fall through the ground when starting the level with VoxelPlugin
+- [ ] Niagara Water (3D) doesn't work
 
 ** General
 
