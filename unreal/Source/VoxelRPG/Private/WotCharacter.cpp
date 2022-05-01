@@ -31,12 +31,12 @@ void AWotCharacter::BeginPlay()
 
 void AWotCharacter::MoveForward(float value)
 {
-	AddMovementInput(GetActorForwardVector(), value);
+	// AddMovementInput(GetActorForwardVector(), value);
 }
 
 void AWotCharacter::MoveRight(float value)
 {
-	AddMovementInput(GetActorRightVector(), value);
+	// AddMovementInput(GetActorRightVector(), value);
 }
 
 // Called every frame
@@ -47,8 +47,17 @@ void AWotCharacter::Tick(float DeltaTime)
 	// -- Movement Control -- //
 	auto t = SpringArmComp->GetRelativeTransform();
 	auto r = t.Rotator();
-	auto up = UKismetMathLibrary::CreateVectorFromYawPitch(r.Yaw, r.Pitch, 1.0f);
-	auto right = up.RotateAngleAxis(90.0f, {0, 0, 1.0});
+	auto right = UKismetMathLibrary::CreateVectorFromYawPitch(r.Yaw, r.Pitch, 1.0f);
+	auto up = right.RotateAngleAxis(90.0f, {0, 0, 1.0});
+
+	// auto up_value = PlayerInputComponent->GetAxisValue("MoveForward");
+	// auto right_value = PlayerInputComponent->GetAxisValue("MoveRight");
+	auto up_value = GetInputAxisValue("MoveForward");
+	auto right_value = GetInputAxisValue("MoveRight");
+	auto vector_value = FVector2D(up_value, right_value).GetSafeNormal();
+
+	AddMovementInput(right, vector_value.X);
+	AddMovementInput(up, vector_value.Y);
 
 	// -- Rotation Visualization -- //
 	const float DrawScale = 100.0f;
