@@ -42,17 +42,22 @@ void AWotCharacter::MoveRight(float value)
 void AWotCharacter::HandleMovementInput()
 {
 	// -- Movement Control -- //
+
+	// we move the character based on the inputs received in the top-down
+	// camera's coordinate system, so get the camera spring arm transform
+	// (rotation) and determine its 2d vector
 	auto t = SpringArmComp->GetRelativeTransform();
 	auto r = t.Rotator();
 	auto right = UKismetMathLibrary::CreateVectorFromYawPitch(r.Yaw, r.Pitch, 1.0f);
 	auto up = right.RotateAngleAxis(90.0f, {0, 0, 1.0});
 
-	// auto up_value = PlayerInputComponent->GetAxisValue("MoveForward");
-	// auto right_value = PlayerInputComponent->GetAxisValue("MoveRight");
+	// now get the user's input movement commands
 	auto up_value = GetInputAxisValue("MoveForward");
 	auto right_value = GetInputAxisValue("MoveRight");
+	// ensure that we normalize them (so that the speed is always constant)
 	auto vector_value = FVector2D(up_value, right_value).GetSafeNormal();
 
+	// tell the pawn controller to actual move accordingly
 	AddMovementInput(right, vector_value.X);
 	AddMovementInput(up, vector_value.Y);
 }
