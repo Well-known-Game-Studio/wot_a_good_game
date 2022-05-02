@@ -35,6 +35,11 @@ void AWotCharacter::BeginPlay()
 	
 }
 
+void AWotCharacter::Jump()
+{
+
+}
+
 void AWotCharacter::MoveForward(float value)
 {
 	auto control_rot = GetControlRotation();

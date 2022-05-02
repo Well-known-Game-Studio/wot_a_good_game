@@ -33,6 +33,7 @@ protected:
 
 	// Movement
 	void HandleMovementInput();
+	void Jump();
 
 	// Attacking
 	void LightAttack();
