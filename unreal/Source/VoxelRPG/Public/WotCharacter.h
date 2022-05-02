@@ -31,7 +31,16 @@ protected:
 	void MoveForward(float value);
 	void MoveRight(float value);
 
+	// Movement
 	void HandleMovementInput();
+
+	// Attacking
+	void LightAttack();
+	void HeavyAttack();
+
+	// Interaction
+	void Interact();
+	void Drop();
 
 public:	
 	// Called every frame

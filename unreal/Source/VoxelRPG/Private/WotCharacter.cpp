@@ -2,8 +2,9 @@
 
 
 #include "WotCharacter.h"
-#include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // For Debug:
@@ -16,10 +17,15 @@ AWotCharacter::AWotCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
+	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->SetupAttachment(RootComponent);
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	bUseControllerRotationYaw = false;
 }
 
 // Called when the game starts or when spawned
@@ -31,12 +37,40 @@ void AWotCharacter::BeginPlay()
 
 void AWotCharacter::MoveForward(float value)
 {
-	// AddMovementInput(GetActorForwardVector(), value);
+	auto control_rot = GetControlRotation();
+	control_rot.Pitch = 0.0f;
+	control_rot.Roll = 0.0f;
+	AddMovementInput(control_rot.Vector(), value);
 }
 
 void AWotCharacter::MoveRight(float value)
 {
-	// AddMovementInput(GetActorRightVector(), value);
+	auto control_rot = GetControlRotation();
+	control_rot.Pitch = 0.0f;
+	control_rot.Roll = 0.0f;
+
+	// using the kismet (old name for blueprint) math library:
+	// auto right_vector = UKismetMathLibrary::GetRightVector(control_rot);
+
+	// is the same as this:
+	auto right_vector = FRotationMatrix(control_rot).GetScaledAxis(EAxis::Y);
+	AddMovementInput(right_vector, value);
+}
+
+void AWotCharacter::LightAttack()
+{
+}
+
+void AWotCharacter::HeavyAttack()
+{
+}
+
+void AWotCharacter::Interact()
+{
+}
+
+void AWotCharacter::Drop()
+{
 }
 
 void AWotCharacter::HandleMovementInput()
@@ -97,4 +131,7 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AWotCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AWotCharacter::MoveRight);
+
+	// PlayerInputComponent->BindAction("Interact", this, &AWotCharacter::Interact);
+	// PlayerInputComponent->BindAction("Drop", this, &AWotCharacter::Drop);
 }
