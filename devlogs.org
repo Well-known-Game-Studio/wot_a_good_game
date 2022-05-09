@@ -44,13 +44,16 @@
 - [ ] add niagara smoke effects (campfire / chimney)
 - [ ] add lightning effect
 - [ ] implement action system
+- [ ] Work with [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] plugin for water in diorama scene
 
 ** Code
 
 - [ ] Make new character class (C++)
+- [ ] Allow new character to climb ladder
 
 ** Models
 - [ ] Make chest animation / open model
+- [ ] Make ladder
 - [ ] rig medium scale flat models (rand, lan, tam)
 - [ ] rig medium scale models (rand, lan, tam)
 - [ ] Animate medium scale models (rand, trolloc)
@@ -65,71 +68,77 @@
 - [ ] animate duck
 - [ ] Add pen door model (for sheep / horse pen)
 
+* Week of 2022-05-08
+
+- [X] Integrate [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] into the project
+- [X] Add [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] to diorama test scene for pond
+- [X] Add [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] to diorama test scene for waterfall
+
 * Week of 2022-04-24
 
-- [x] Update character movement (normalize vector and increase speed)
+- [X] Update character movement (normalize vector and increase speed)
 
 * Week of 2022-04-17
 
-- [x] Add Tam Model
-- [x] Worked on highlighting interactable foliage
-- [x] Separated chest model into top and base
-- [x] Add medium scale sword model
+- [X] Add Tam Model
+- [X] Worked on highlighting interactable foliage
+- [X] Separated chest model into top and base
+- [X] Add medium scale sword model
 
 * Week of 2022-04-10
 
-- [x] Work on game design document to detail out some of the systems
-- [x] Update voxelpro plugin to latest version of ProBetaLTS for UE5 Release
-- [x] Add mountain goat model
-- [x] Add fox model
-- [x] bow model
-- [x] arrow model
+- [X] Work on game design document to detail out some of the systems
+- [X] Update voxelpro plugin to latest version of ProBetaLTS for UE5 Release
+- [X] Add mountain goat model
+- [X] Add fox model
+- [X] bow model
+- [X] arrow model
 
 * Week of 2022-04-03
 
-- [x] Break apart voxel scene into different models
-- [x] Load separated models into world
-- [x] Load in animals (skeletal meshes) as separate models into the world
-- [x] Add navmesh into scene and test with old enemy classes
-- [x] Use foliage system for trees, bushes, grass, mushrooms
-- [x] Stub out forage-able foliage system
-- [x] Add interaction UI (text)
-- [x] Allow player to remove specific kinds of foliage from environment (mushrooms)
-- [x] Make base NPC blueprint
-- [x] Have sheep randomly move around in the scene (in their pen)
-- [x] Rig animal(s)
-- [x] Add devlogs to repo
+- [X] Break apart voxel scene into different models
+- [X] Load separated models into world
+- [X] Load in animals (skeletal meshes) as separate models into the world
+- [X] Add navmesh into scene and test with old enemy classes
+- [X] Use foliage system for trees, bushes, grass, mushrooms
+- [X] Stub out forage-able foliage system
+- [X] Add interaction UI (text)
+- [X] Allow player to remove specific kinds of foliage from environment (mushrooms)
+- [X] Make base NPC blueprint
+- [X] Have sheep randomly move around in the scene (in their pen)
+- [X] Rig animal(s)
+- [X] Add devlogs to repo
 
 * Week of 2022-03-27
 
-- [x] more models in the world
-- [x] Design a new trolloc model (wolf)
-- [x] Design a new trolloc model (boar)
-- [x] Get world into UE5
-- [x] Update 3rd person camera config (angle, depth-of-field)
-- [x] Add water (pond) to the scene
-- [x] Add water (river) to the scene
-- [x] Add water (waterfalls) to the scene
-- [x] Fix hidden tunnel in diorama
-- [x] Add little eyes to each of the character models
-- [x] Start using GLTF export from voxelmax
-- [x] Separate water from land in dorama scene
+- [X] more models in the world
+- [X] Design a new trolloc model (wolf)
+- [X] Design a new trolloc model (boar)
+- [X] Get world into UE5
+- [X] Update 3rd person camera config (angle, depth-of-field)
+- [X] Add water (pond) to the scene
+- [X] Add water (river) to the scene
+- [X] Add water (waterfalls) to the scene
+- [X] Fix hidden tunnel in diorama
+- [X] Add little eyes to each of the character models
+- [X] Start using GLTF export from voxelmax
+- [X] Separate water from land in dorama scene
 
 * Week of 2022-03-20
 
-- [x] Make new trolloc model (humanoid)
-- [x] Load voxel scene into UE5
-- [x] more tree models
-- [x] bush models
-- [x] mushroom models
-- [x] sheep model
-- [x] horse model
-- [x] duck model
-- [x] bird model
-- [x] campfire model
-- [x] fence model
-- [x] house model
-- [x] dog model
-- [x] deer model
-- [x] raccoon model
-- [x] chest model
+- [X] Make new trolloc model (humanoid)
+- [X] Load voxel scene into UE5
+- [X] more tree models
+- [X] bush models
+- [X] mushroom models
+- [X] sheep model
+- [X] horse model
+- [X] duck model
+- [X] bird model
+- [X] campfire model
+- [X] fence model
+- [X] house model
+- [X] dog model
+- [X] deer model
+- [X] raccoon model
+- [X] chest model
