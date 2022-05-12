@@ -49,7 +49,6 @@
 
 ** Code
 
-- [ ] Make new character class (C++)
 - [ ] Allow new character to climb ladder
 
 ** Models
@@ -75,6 +74,10 @@
 - [X] Integrate [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] into the project
 - [X] Add [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] to diorama test scene for pond
 - [X] Add [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] to diorama test scene for waterfall
+- [X] tutorial: Make new character class (C++)
+- [X] tutorial: Make magic projectile class (C++)
+- [X] tutorial: Make interactible interface (C++)
+- [X] tutorial: Make item chest base class (C++)
 
 * Week of 2022-04-24
 
