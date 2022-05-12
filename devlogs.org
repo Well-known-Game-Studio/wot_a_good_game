@@ -45,6 +45,7 @@
 - [ ] add lightning effect
 - [ ] implement action system
 - [ ] Work with [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] plugin for water in diorama scene
+- [ ] Migrate to [[id:8f6531f6-a56b-47bd-8d26-df9c6de3f08a][Voxel Plugin]] 2.0
 
 ** Code
 
@@ -52,6 +53,7 @@
 - [ ] Allow new character to climb ladder
 
 ** Models
+
 - [ ] Make chest animation / open model
 - [ ] Make ladder
 - [ ] rig medium scale flat models (rand, lan, tam)

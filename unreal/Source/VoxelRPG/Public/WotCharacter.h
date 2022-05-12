@@ -14,6 +14,11 @@ class VOXELRPG_API AWotCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+protected:
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> ProjectileClass;
+
 public:
 	// Sets default values for this character's properties
 	AWotCharacter();
@@ -36,6 +41,7 @@ protected:
 	void Jump();
 
 	// Attacking
+	void PrimaryAttack();
 	void LightAttack();
 	void HeavyAttack();
 

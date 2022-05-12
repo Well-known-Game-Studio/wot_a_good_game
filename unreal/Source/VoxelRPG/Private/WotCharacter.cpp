@@ -62,6 +62,14 @@ void AWotCharacter::MoveRight(float value)
 	AddMovementInput(right_vector, value);
 }
 
+void AWotCharacter::PrimaryAttack()
+{
+	auto SpawnTM = FTransform(GetControlRotation(), GetActorLocation());
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
 void AWotCharacter::LightAttack()
 {
 }
@@ -137,6 +145,8 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveForward", this, &AWotCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AWotCharacter::MoveRight);
 
-	// PlayerInputComponent->BindAction("Interact", this, &AWotCharacter::Interact);
-	// PlayerInputComponent->BindAction("Drop", this, &AWotCharacter::Drop);
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
+
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AWotCharacter::Interact);
+	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &AWotCharacter::Drop);
 }
