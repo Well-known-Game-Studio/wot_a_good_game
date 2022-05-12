@@ -64,7 +64,9 @@ void AWotCharacter::MoveRight(float value)
 
 void AWotCharacter::PrimaryAttack()
 {
-	auto SpawnTM = FTransform(GetControlRotation(), GetActorLocation());
+	auto HandLocation = GetMesh()->GetSocketLocation("Muzzle_1");
+
+	auto SpawnTM = FTransform(GetControlRotation(), HandLocation);
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
