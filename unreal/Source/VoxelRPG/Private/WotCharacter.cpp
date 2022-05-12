@@ -64,7 +64,7 @@ void AWotCharacter::MoveRight(float value)
 
 void AWotCharacter::PrimaryAttack()
 {
-	auto HandLocation = GetMesh()->GetSocketLocation("Muzzle_1");
+	auto HandLocation = GetMesh()->GetSocketLocation("RightHand");
 
 	auto SpawnTM = FTransform(GetControlRotation(), HandLocation);
 	FActorSpawnParameters SpawnParams;
