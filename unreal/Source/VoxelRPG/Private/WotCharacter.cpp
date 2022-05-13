@@ -67,6 +67,13 @@ void AWotCharacter::MoveRight(float value)
 
 void AWotCharacter::PrimaryAttack()
 {
+	PlayAnimMontage(AttackAnim);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AWotCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+}
+
+void AWotCharacter::PrimaryAttack_TimeElapsed()
+{
 	auto HandLocation = GetMesh()->GetSocketLocation("RightHand");
 
 	auto SpawnTM = FTransform(GetControlRotation(), HandLocation);

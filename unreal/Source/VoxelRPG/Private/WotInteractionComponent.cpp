@@ -70,18 +70,19 @@ void UWotInteractionComponent::PrimaryInteract()
 
 	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, FQuat::Identity, ObjectQueryParams, Shape);
 
-	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
-
 	for (auto Hit : Hits) {
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor) {
 			if (HitActor->Implements<UWotGameplayInterface>()) {
 				APawn* MyPawn = Cast<APawn>(MyOwner);
 				IWotGameplayInterface::Execute_Interact(HitActor, MyPawn);
+				DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, FColor::Green, false, 2.0f);
+				break;
 			}
 		}
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, LineColor, false, 2.0f);
+		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, FColor::Red, false, 2.0f);
 	}
 
+	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
 	DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
 }

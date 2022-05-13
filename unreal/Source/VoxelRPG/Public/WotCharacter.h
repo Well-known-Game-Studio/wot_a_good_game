@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class UWotInteractionComponent;
+class UAnimMontage;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -17,8 +18,15 @@ class VOXELRPG_API AWotCharacter : public ACharacter
 
 protected:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackAnim;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
+
+
 
 public:
 	// Sets default values for this character's properties
@@ -46,6 +54,7 @@ protected:
 
 	// Attacking
 	void PrimaryAttack();
+	void PrimaryAttack_TimeElapsed();
 	void LightAttack();
 	void HeavyAttack();
 
