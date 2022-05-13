@@ -18,7 +18,7 @@ AWotItemChest::AWotItemChest()
 
 void AWotItemChest::Interact_Implementation(APawn* InstigatorPawn)
 {
-
+  LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0, 0));
 }
 
 // Called when the game starts or when spawned

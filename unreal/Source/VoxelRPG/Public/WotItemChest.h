@@ -15,6 +15,11 @@ class VOXELRPG_API AWotItemChest : public AActor, public IWotGameplayInterface
 {
 	GENERATED_BODY()
 
+public:
+
+    UPROPERTY(EditAnywhere)
+    float TargetPitch = 110.0f;
+
     void Interact_Implementation(APawn* InstigatorPawn);
 
 protected:

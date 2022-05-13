@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UWotInteractionComponent;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -33,6 +34,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
+	UPROPERTY(VisibleAnywhere)
+	UWotInteractionComponent* InteractionComp;
+
 	void MoveForward(float value);
 	void MoveRight(float value);
 
@@ -46,7 +50,7 @@ protected:
 	void HeavyAttack();
 
 	// Interaction
-	void Interact();
+	void PrimaryInteract();
 	void Drop();
 
 public:	

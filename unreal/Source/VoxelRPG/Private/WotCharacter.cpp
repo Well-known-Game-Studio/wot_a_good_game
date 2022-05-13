@@ -2,6 +2,7 @@
 
 
 #include "WotCharacter.h"
+#include "WotInteractionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -22,6 +23,8 @@ AWotCharacter::AWotCharacter()
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	InteractionComp = CreateDefaultSubobject<UWotInteractionComponent>("InteractionComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -80,8 +83,12 @@ void AWotCharacter::HeavyAttack()
 {
 }
 
-void AWotCharacter::Interact()
+void AWotCharacter::PrimaryInteract()
 {
+	if (InteractionComp)
+	{
+		InteractionComp->PrimaryInteract();
+	}
 }
 
 void AWotCharacter::Drop()
@@ -149,6 +156,6 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
 
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AWotCharacter::Interact);
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &AWotCharacter::Drop);
 }
