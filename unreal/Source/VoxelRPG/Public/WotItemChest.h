@@ -4,17 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WotGameplayInterface.h"
 #include "WotItemChest.generated.h"
 
-class UCameraComponent;
-class USpringArmComponent;
-
 class UStaticMeshComponent;
+class APawn;
 
 UCLASS()
-class VOXELRPG_API AWotItemChest : public AActor
+class VOXELRPG_API AWotItemChest : public AActor, public IWotGameplayInterface
 {
 	GENERATED_BODY()
+
+    void Interact_Implementation(APawn* InstigatorPawn);
 
 protected:
 

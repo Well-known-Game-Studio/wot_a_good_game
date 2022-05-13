@@ -16,6 +16,11 @@ AWotItemChest::AWotItemChest()
   LidMesh->SetupAttachment(BaseMesh);
 }
 
+void AWotItemChest::Interact_Implementation(APawn* InstigatorPawn)
+{
+
+}
+
 // Called when the game starts or when spawned
 void AWotItemChest::BeginPlay()
 {
