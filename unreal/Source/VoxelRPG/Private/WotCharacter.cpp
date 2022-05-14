@@ -3,7 +3,7 @@
 
 #include "WotCharacter.h"
 #include "WotInteractionComponent.h"
-#include "Camera/CameraComponent.h"
+#include "CineCameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -18,11 +18,12 @@ AWotCharacter::AWotCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
-	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->SetupAttachment(RootComponent);
+	SetupSpringArm();
 
-	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
-	CameraComp->SetupAttachment(SpringArmComp);
+	CineCameraComp = CreateDefaultSubobject<UCineCameraComponent>("CineCameraComp");
+	CineCameraComp->SetupAttachment(SpringArmComp);
+	SetupCineCamera();
 
 	InteractionComp = CreateDefaultSubobject<UWotInteractionComponent>("InteractionComp");
 
@@ -38,9 +39,43 @@ void AWotCharacter::BeginPlay()
 	
 }
 
-void AWotCharacter::Jump()
+void AWotCharacter::SetupSpringArm()
 {
+	// SpringArmComp->bUsePawnControlRotation = true;
+	SpringArmComp->TargetArmLength = 1400.0f; // mm
 
+	SpringArmComp->bDoCollisionTest = false;
+
+	SpringArmComp->bInheritPitch = false;
+	SpringArmComp->bInheritYaw = false;
+	SpringArmComp->bInheritRoll = false;
+
+	auto Rotation = FRotator(-50.0f, -30.0f, 0.0f); // PYR
+	SpringArmComp->SetRelativeRotation(Rotation, false, nullptr, ETeleportType::None);
+}
+
+void AWotCharacter::SetupCineCamera()
+{
+	FCameraFilmbackSettings FilmbackSettings;
+	FilmbackSettings.SensorHeight = 500.0f; // mm
+	FilmbackSettings.SensorWidth = 500.0f; // mm
+	CineCameraComp->Filmback = FilmbackSettings;
+
+	FCameraLensSettings LensSettings;
+	LensSettings.MinFocalLength = 4.0f; // mm
+	LensSettings.MaxFocalLength = 1000.0f; // mm
+	LensSettings.MinFStop = 1.2f;
+	LensSettings.MaxFStop = 22.0;
+	LensSettings.DiaphragmBladeCount = 7;
+	CineCameraComp->LensSettings = LensSettings;
+
+	FCameraFocusSettings FocusSettings;
+	// FocusSettings.FocusMethod = ECameraFocusMethod::Manual;
+	FocusSettings.ManualFocusDistance = 1450.0f; // mm
+	CineCameraComp->FocusSettings = FocusSettings;
+
+	CineCameraComp->CurrentFocalLength = 500.0f; // mm
+	CineCameraComp->CurrentAperture = 1.2;
 }
 
 void AWotCharacter::MoveForward(float value)
@@ -158,11 +193,16 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &AWotCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AWotCharacter::MoveRight);
+	// PlayerInputComponent->BindAxis("MoveForward", this, &AWotCharacter::MoveForward);
+	// PlayerInputComponent->BindAxis("MoveRight", this, &AWotCharacter::MoveRight);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &AWotCharacter::Drop);
+
+	// Jump is an action that is already in the base class of ACharacter, so we
+	// don't have to implement it
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AWotCharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AWotCharacter::StopJumping);
 }

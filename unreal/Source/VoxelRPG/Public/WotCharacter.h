@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "WotCharacter.generated.h"
 
-class UCameraComponent;
+class UCineCameraComponent;
 class USpringArmComponent;
 class UWotInteractionComponent;
 class UAnimMontage;
@@ -26,8 +26,6 @@ protected:
 
 	FTimerHandle TimerHandle_PrimaryAttack;
 
-
-
 public:
 	// Sets default values for this character's properties
 	AWotCharacter();
@@ -36,21 +34,23 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
 
-	UPROPERTY(VisibleAnywhere)
-	UCameraComponent* CameraComp;
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	UCineCameraComponent* CineCameraComp;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UWotInteractionComponent* InteractionComp;
+
+	void SetupSpringArm();
+	void SetupCineCamera();
 
 	void MoveForward(float value);
 	void MoveRight(float value);
 
 	// Movement
 	void HandleMovementInput();
-	void Jump();
 
 	// Attacking
 	void PrimaryAttack();

@@ -45,8 +45,10 @@ void UWotInteractionComponent::PrimaryInteract()
 	FVector EyeLocation;
 	FRotator EyeRotation;
 	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+	auto ForwardVector = MyOwner->GetActorForwardVector();
 
-	FVector End = EyeLocation + (EyeRotation.Vector() * 1000);
+	FVector End = EyeLocation + (ForwardVector * InteractionRange);
+	// FVector End = EyeLocation + (EyeRotation.Vector() * 1000);
 
 	// FHitResult Hit;
 	// bool bBlockingHit = GetWorld()->LineTraceSingleByObjectType(Hit, EyeLocation, End, ObjectQueryParams);
@@ -63,7 +65,7 @@ void UWotInteractionComponent::PrimaryInteract()
 
 	TArray<FHitResult> Hits;
 
-	float Radius = 30.0f;
+	float Radius = 100.0f;
 
 	FCollisionShape Shape;
 	Shape.SetSphere(Radius);
@@ -76,13 +78,19 @@ void UWotInteractionComponent::PrimaryInteract()
 			if (HitActor->Implements<UWotGameplayInterface>()) {
 				APawn* MyPawn = Cast<APawn>(MyOwner);
 				IWotGameplayInterface::Execute_Interact(HitActor, MyPawn);
-				DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, FColor::Green, false, 2.0f);
+				if (bDrawDebug) {
+					DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, FColor::Green, false, 2.0f);
+				}
 				break;
 			}
 		}
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, FColor::Red, false, 2.0f);
+		if (bDrawDebug) {
+			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, FColor::Red, false, 2.0f);
+		}
 	}
 
-	FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
-	DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
+	if (bDrawDebug) {
+		FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
+		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
+	}
 }

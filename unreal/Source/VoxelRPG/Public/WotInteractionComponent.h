@@ -17,6 +17,12 @@ class VOXELRPG_API UWotInteractionComponent : public UActorComponent
 
 public:
 
+    UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+    float InteractionRange = 100.0f; // meters
+
+    UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+    bool bDrawDebug = false;
+
     void PrimaryInteract();
 
 protected:
