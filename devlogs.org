@@ -9,7 +9,7 @@
 - [ ] NPCs fall through the ground when starting the level with VoxelPlugin
 - [ ] Niagara Water (3D) doesn't work
 - [ ] The secret passage stairs don't fit the current 3rd Person Blueprint
-- [ ] The water (river / waterfalls / lakes) doesn't look very good :(
+- [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
 
 ** General
 
@@ -31,7 +31,6 @@
 - [ ] Start stubbing out dialogue system
 - [ ] Make door functional (animate / interact) on house
 - [ ] Make pen doors interactable
-- [ ] make chest interact-able
 - [ ] enemies drop items
 - [ ] mushrooms increase health
 - [ ] bow weapon in game
@@ -44,8 +43,6 @@
 - [ ] add niagara smoke effects (campfire / chimney)
 - [ ] add lightning effect
 - [ ] implement action system
-- [ ] Work with [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] plugin for water in diorama scene
-- [ ] Migrate to [[id:8f6531f6-a56b-47bd-8d26-df9c6de3f08a][Voxel Plugin]] 2.0
 
 ** Code
 
@@ -53,7 +50,6 @@
 
 ** Models
 
-- [ ] Make chest animation / open model
 - [ ] Make ladder
 - [ ] rig medium scale flat models (rand, lan, tam)
 - [ ] rig medium scale models (rand, lan, tam)
@@ -71,13 +67,19 @@
 
 * Week of 2022-05-08
 
+- [X] Test VoxelPlugin 2.0 - unfortunately .vox importer is broken :(
+- [X] Work with [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] plugin for water in diorama scene
 - [X] Integrate [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] into the project
 - [X] Add [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] to diorama test scene for pond
 - [X] Add [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] to diorama test scene for waterfall
+- [X] bugfix: The water (river / waterfalls / lakes) doesn't look very good :( - use [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] (above)
 - [X] tutorial: Make new character class (C++)
 - [X] tutorial: Make magic projectile class (C++)
 - [X] tutorial: Make interactible interface (C++)
 - [X] tutorial: Make item chest base class (C++)
+- [X] tutorial: make chest interact-able
+- [X] Make chest animation / open model
+- [X] Reparent ThirdPersonCharacter to WotCharacter
 
 * Week of 2022-04-24
 
