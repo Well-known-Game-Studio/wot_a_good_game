@@ -111,7 +111,7 @@ void AWotCharacter::PrimaryAttack_TimeElapsed()
 {
 	auto HandLocation = GetMesh()->GetSocketLocation("RightHand");
 
-	auto SpawnTM = FTransform(GetControlRotation(), HandLocation);
+	auto SpawnTM = FTransform(GetActorRotation(), HandLocation);
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
