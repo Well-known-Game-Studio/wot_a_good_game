@@ -67,6 +67,13 @@
 - [ ] animate duck
 - [ ] Add pen door model (for sheep / horse pen)
 
+* Week of 2022-05-15
+
+- [X] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] water has to spawn late because of VoxelPlugin
+- [X] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] water simulation starts from scratch at level load
+- [X] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] some areas of the map flood (out of river)
+- [X] Update magic projectile to not have gravity
+
 * Week of 2022-05-08
 
 - [X] Test VoxelPlugin 2.0 - unfortunately .vox importer is broken :(
@@ -84,10 +91,6 @@
 - [X] Reparent ThirdPersonCharacter to WotCharacter
 - [X] Create magic projectile BP class from WotMagicProjectile (C++)
 - [X] Update spawning of projectile from player to use actor rotation (better for fixed camera)
-- [X] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] water has to spawn late because of VoxelPlugin
-- [X] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] water simulation starts from scratch at level load
-- [X] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] some areas of the map flood (out of river)
-- [X] Update magic projectile to not have gravity
 
 * Week of 2022-04-24
 
