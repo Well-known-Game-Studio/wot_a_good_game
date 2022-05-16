@@ -74,6 +74,9 @@
 - [X] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] some areas of the map flood (out of river)
 - [X] Update magic projectile to not have gravity
 - [X] Magic projectile now ignores player (instigator) and explodes on cotact (FX + destroy)
+- [X] Update third person character to use newest Lan model (large scale)
+- [X] Update animation blueprint template to expose animation sequences and blendspaces
+- [X] Use animation blueprint template with new (large scale) Lan model
 
 * Week of 2022-05-08
 
