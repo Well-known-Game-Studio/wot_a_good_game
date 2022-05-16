@@ -109,7 +109,7 @@ void AWotCharacter::PrimaryAttack()
 
 void AWotCharacter::PrimaryAttack_TimeElapsed()
 {
-	auto HandLocation = GetMesh()->GetSocketLocation("RightHand");
+	auto HandLocation = GetMesh()->GetSocketLocation("Hand_R");
 
 	auto SpawnTM = FTransform(GetActorRotation(), HandLocation);
 	FActorSpawnParameters SpawnParams;
