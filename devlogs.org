@@ -31,8 +31,6 @@
 
 - [ ] Add effects (butterflies and dust motes) to the scene
 - [ ] Start stubbing out dialogue system
-- [ ] Make door functional (animate / interact) on house
-- [ ] Make pen doors interactable
 - [ ] enemies drop items
 - [ ] mushrooms increase health
 - [ ] bow weapon in game
@@ -45,6 +43,9 @@
 - [ ] add niagara smoke effects (campfire / chimney)
 - [ ] add lightning effect
 - [ ] implement action system
+- [ ] magic projectile destroys foliage instances
+- [ ] magic projectile sets foliage instances on fire
+- [ ] magic projectile destroys voxel world
 
 ** Code
 
@@ -77,6 +78,8 @@
 - [X] Update third person character to use newest Lan model (large scale)
 - [X] Update animation blueprint template to expose animation sequences and blendspaces
 - [X] Use animation blueprint template with new (large scale) Lan model
+- [X] Make door functional (animate / interact) on house
+- [ ] Make pen doors interactable
 
 * Week of 2022-05-08
 
