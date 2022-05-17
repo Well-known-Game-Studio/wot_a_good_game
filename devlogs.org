@@ -79,7 +79,7 @@
 - [X] Update animation blueprint template to expose animation sequences and blendspaces
 - [X] Use animation blueprint template with new (large scale) Lan model
 - [X] Make door functional (animate / interact) on house
-- [ ] Make pen doors interactable
+- [X] Make pen doors interactable
 
 * Week of 2022-05-08
 
