@@ -85,6 +85,8 @@
 - [X] Update NPC / Enemy to use the same base (so that they can be killed and have the death animation)
 - [X] magic projectile kills enemies
 - [X] magic projectile kills sheep
+- [X] Update player template animation to support attack and properly notify / trigger state exits
+- [X] Update player bluprint to handle events for attacking / stopping
 
 * Week of 2022-05-08
 
