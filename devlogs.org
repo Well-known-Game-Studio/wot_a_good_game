@@ -46,6 +46,8 @@
 - [ ] magic projectile destroys foliage instances
 - [ ] magic projectile sets foliage instances on fire
 - [ ] magic projectile destroys voxel world
+- [ ] Add particle effects to waterfall (top & bottom)
+- [ ] Update magic projectile to use niagara instead of Cascade (legacy)
 
 ** Code
 
