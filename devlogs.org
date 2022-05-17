@@ -82,6 +82,9 @@
 - [X] Use animation blueprint template with new (large scale) Lan model
 - [X] Make door functional (animate / interact) on house
 - [X] Make pen doors interactable
+- [X] Update NPC / Enemy to use the same base (so that they can be killed and have the death animation)
+- [X] magic projectile kills enemies
+- [X] magic projectile kills sheep
 
 * Week of 2022-05-08
 
