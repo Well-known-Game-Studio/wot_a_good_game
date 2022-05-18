@@ -87,6 +87,9 @@
 - [X] magic projectile kills sheep
 - [X] Update player template animation to support attack and properly notify / trigger state exits
 - [X] Update player bluprint to handle events for attacking / stopping
+- [X] Update niagara kill effect / material to allow it to be set when spawned for better control
+- [X] Updated NPC base to create material instance & set the texture parameter appropriately
+- [X] Update sheep blender file to bake materials to unwrapped UV texture file
 
 * Week of 2022-05-08
 
