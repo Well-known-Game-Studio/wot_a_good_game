@@ -50,7 +50,7 @@ void AWotCharacter::SetupSpringArm()
 	SpringArmComp->bInheritYaw = false;
 	SpringArmComp->bInheritRoll = false;
 
-	auto Rotation = FRotator(-50.0f, -30.0f, 0.0f); // PYR
+	auto Rotation = FRotator(-50.0f, -45.0f, 0.0f); // PYR
 	SpringArmComp->SetRelativeRotation(Rotation, false, nullptr, ETeleportType::None);
 }
 

@@ -8,7 +8,6 @@
 - [ ] Highlight post process volume doesn't respect bounds (for vegetation highlight)
 - [ ] NPCs fall through the ground when starting the level with VoxelPlugin
 - [ ] Niagara Water (3D) doesn't work
-- [ ] The secret passage stairs don't fit the current 3rd Person Blueprint
 - [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] some areas of the map have water when they shouldn't (e.g. water coming from rocks)
@@ -90,6 +89,7 @@
 - [X] Update niagara kill effect / material to allow it to be set when spawned for better control
 - [X] Updated NPC base to create material instance & set the texture parameter appropriately
 - [X] Update sheep blender file to bake materials to unwrapped UV texture file
+- [X] The secret passage stairs don't fit the current 3rd Person Blueprint
 
 * Week of 2022-05-08
 
