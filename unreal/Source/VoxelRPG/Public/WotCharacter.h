@@ -53,13 +53,19 @@ protected:
 	void HandleMovementInput();
 
 	// Attacking
+	UFUNCTION(BlueprintCallable)
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
+
+	UFUNCTION(BlueprintCallable)
 	void LightAttack();
+	UFUNCTION(BlueprintCallable)
 	void HeavyAttack();
 
 	// Interaction
+	UFUNCTION(BlueprintCallable)
 	void PrimaryInteract();
+	UFUNCTION(BlueprintCallable)
 	void Drop();
 
 public:	
