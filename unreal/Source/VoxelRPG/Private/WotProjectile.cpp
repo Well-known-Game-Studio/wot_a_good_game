@@ -55,6 +55,8 @@ void AWotProjectile::BeginPlay()
     // Parameters can be set like this:
     // NiagaraComp->SetNiagaraVariableFloat(FString("StrengthCoef"), CoefStrength);
   }
+  SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+  SetLifeSpan(1.0f);
 }
 
 // Called every frame
