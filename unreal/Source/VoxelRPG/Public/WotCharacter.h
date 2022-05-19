@@ -6,10 +6,11 @@
 #include "GameFramework/Character.h"
 #include "WotCharacter.generated.h"
 
+class UAnimMontage;
 class UCineCameraComponent;
 class USpringArmComponent;
 class UWotInteractionComponent;
-class UAnimMontage;
+class UWotAttributeComponent;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -42,6 +43,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
 	UWotInteractionComponent* InteractionComp;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
+	UWotAttributeComponent* AttributeComp;
 
 	void SetupSpringArm();
 	void SetupCineCamera();

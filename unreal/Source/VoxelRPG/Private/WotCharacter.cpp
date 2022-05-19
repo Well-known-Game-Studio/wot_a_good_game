@@ -2,6 +2,7 @@
 
 
 #include "WotCharacter.h"
+#include "WotAttributeComponent.h"
 #include "WotInteractionComponent.h"
 #include "CineCameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -26,6 +27,8 @@ AWotCharacter::AWotCharacter()
 	SetupCineCamera();
 
 	InteractionComp = CreateDefaultSubobject<UWotInteractionComponent>("InteractionComp");
+
+	AttributeComp = CreateDefaultSubobject<UWotAttributeComponent>("AttributeComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -109,14 +112,16 @@ void AWotCharacter::PrimaryAttack()
 
 void AWotCharacter::PrimaryAttack_TimeElapsed()
 {
-	auto HandLocation = GetMesh()->GetSocketLocation("Hand_R");
+	if (ensure(ProjectileClass)) {
+		auto HandLocation = GetMesh()->GetSocketLocation("Hand_R");
 
-	auto SpawnTM = FTransform(GetActorRotation(), HandLocation);
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
+		auto SpawnTM = FTransform(GetActorRotation(), HandLocation);
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
 
-	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	}
 }
 
 void AWotCharacter::LightAttack()
