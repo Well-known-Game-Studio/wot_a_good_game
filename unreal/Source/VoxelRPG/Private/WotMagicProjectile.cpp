@@ -14,11 +14,9 @@ AWotMagicProjectile::AWotMagicProjectile()
   PrimaryActorTick.bCanEverTick = true;
 
   SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
-  /*
-  SphereComp->SetCollisionObjectType(ECC_WorldDynamic);
-  SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-  SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-  */
+  // SphereComp->SetCollisionObjectType(ECC_WorldDynamic);
+  // SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+  // SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
   SphereComp->SetCollisionProfileName("Projectile");
   SphereComp->OnComponentBeginOverlap.AddDynamic(this, &AWotMagicProjectile::OnActorOverlap);
   RootComponent = SphereComp;
@@ -42,7 +40,6 @@ void AWotMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponen
     }
   }
 }
-
 
 // Called when the game starts or when spawned
 void AWotMagicProjectile::BeginPlay()
