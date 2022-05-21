@@ -42,7 +42,7 @@
 - [ ] magic projectile sets foliage instances on fire
 - [ ] magic projectile destroys voxel world
 - [ ] Add particle effects to waterfall (top & bottom)
-- [ ] collectable arrow items
+- [ ] collectible arrow items
 - [ ] arrow drops from enemies
 
 ** Code
@@ -95,6 +95,9 @@
 - [X] add medium scale flat rand model to game
 - [X] add small scale rand model to game
 - [X] bow weapon in game
+- [X] Add hit flash to enemies when they are hit
+- [X] Update Lan V1 to use instance of textured_voxel_subsurface_material
+- [X] Update Trolloc to use instance of textured_voxel_subsurface_material
 - [ ] bow+arrow system in game
 
 * Week of 2022-05-08
