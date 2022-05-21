@@ -22,7 +22,7 @@ All modeling is done with `VoxelMax`, make sure in the settings to select
 
 1. Model the character(s) in `VoxelMax`
 2. Export as `GLTF`
-3. Scale the object to `0.065`
+3. Scale the object to `0.25`
 4. Import into `Blender` to rig - see the
    [./blender/README.md](./blender/README.md) for further instructions on
    rigging and export as FBX into UE5.

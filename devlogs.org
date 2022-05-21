@@ -10,7 +10,6 @@
 - [ ] Niagara Water (3D) doesn't work
 - [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
-- [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] some areas of the map have water when they shouldn't (e.g. water coming from rocks)
 
 ** General
 
@@ -32,9 +31,6 @@
 - [ ] Start stubbing out dialogue system
 - [ ] enemies drop items
 - [ ] mushrooms increase health
-- [ ] bow weapon in game
-- [ ] arrow drops from enemies
-- [ ] bow+arrow system in game
 - [ ] Add horse (skeletal mesh) model to game
 - [ ] Have horse randomly wander around in the scene (in its pen)
 - [ ] highlight interactable foliage
@@ -46,7 +42,6 @@
 - [ ] magic projectile sets foliage instances on fire
 - [ ] magic projectile destroys voxel world
 - [ ] Add particle effects to waterfall (top & bottom)
-- [ ] Update magic projectile to use niagara instead of Cascade (legacy)
 
 ** Code
 
@@ -55,8 +50,8 @@
 ** Models
 
 - [ ] Make ladder
-- [ ] rig medium scale flat models (rand, lan, tam)
-- [ ] rig medium scale models (rand, lan, tam)
+- [ ] rig medium scale flat models (lan, tam)
+- [ ] rig medium scale models (lan, tam)
 - [ ] Animate medium scale models (rand, trolloc)
 - [ ] rig dog
 - [ ] rig horse
@@ -90,6 +85,16 @@
 - [X] Updated NPC base to create material instance & set the texture parameter appropriately
 - [X] Update sheep blender file to bake materials to unwrapped UV texture file
 - [X] The secret passage stairs don't fit the current 3rd Person Blueprint
+- [X] Update magic projectile to use niagara instead of Cascade (legacy)
+- [X] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] some areas of the map have water when they shouldn't (e.g. water coming from rocks)
+- [X] rig medium scale rand model
+- [X] rig medium scale flat rand model
+- [X] add medium scale rand model to game
+- [X] add medium scale flat rand model to game
+- [X] add small scale rand model to game
+- [ ] bow weapon in game
+- [ ] arrow drops from enemies
+- [ ] bow+arrow system in game
 
 * Week of 2022-05-08
 
