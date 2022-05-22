@@ -42,11 +42,28 @@ petting, etc.)
 *** Friendlies
 *** Foes
 *** Neutrals
+** Systems
+*** [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]]
+*** [[id:7c97af90-c259-440a-8518-df390ccf7af5][Foliage System]]
 ** Items
-*** Interactible (chests, doors, etc.)
-*** Foragable (mushrooms, plants, rocks, etc.)
-*** Droppable (health, meat, weapons, armor, etc.)
-*** Holdable (weapons, torches, etc.)
+*** [[id:e6426ec5-890d-4bbd-be5b-734e43c41e4d][Interactible]] (chests, doors, etc.)
+Exposes:
+- `PrimaryInteract()`
+- `SecondaryInteract()`
+*** [[id:be1e7ceb-f42a-44b0-a1c1-d34747c666f2][Foragable Item]] (mushrooms, plants, rocks, etc.)
+Spawned into the world from an interaction with the world (e.g. hitting a rock
+with an axe) or may already exist within the world (e.g. if it is part of the
+[[id:7c97af90-c259-440a-8518-df390ccf7af5][Foliage System]])
+
+Disappears from the world when `PrimaryInteract()` is called and is then placed
+into the [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]] of the interaction instigator.
+*** [[id:13d88159-d84a-4949-83dd-039bc4f7f268][Droppable Item]] (health, meat, weapons, armor, etc.)
+Can be any item which in the [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]] system and therefore can be placed back
+into the world. This contains the set of [[id:be1e7ceb-f42a-44b0-a1c1-d34747c666f2][Foragable Item]], [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]], and
+others.
+*** [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] (weapons, torches, etc.)
+Can be placed onto the bone of a pawn (e.g. NPC, player) and may optionally
+implement the [[id:e6426ec5-890d-4bbd-be5b-734e43c41e4d][Interactible]] interface.
 ** Status Effects
 *** In-world / Area of Effects (weather, spell, etc.)
 *** Applied (buff, drain, etc.)
