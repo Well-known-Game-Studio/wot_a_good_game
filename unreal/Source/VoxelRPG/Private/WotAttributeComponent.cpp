@@ -6,7 +6,9 @@
 // Sets default values for this component's properties
 UWotAttributeComponent::UWotAttributeComponent()
 {
-	Health = 100;
+	Health = HealthMax;
+	Stamina = StaminaMax;
+	Strength = StrengthMax;
 }
 
 bool UWotAttributeComponent::IsAlive() const
@@ -16,7 +18,7 @@ bool UWotAttributeComponent::IsAlive() const
 
 bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 {
-	Health += Delta;
+	Health += std::clamp(Health+Delta, 0.0f, HealthMax);
 	OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
 	return true;
 }
