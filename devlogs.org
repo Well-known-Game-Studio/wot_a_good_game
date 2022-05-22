@@ -48,6 +48,8 @@
 ** Code
 
 - [ ] Allow new character to climb ladder
+- [ ] Create equippable interface
+- [ ] Create weapon interface
 
 ** Models
 
@@ -70,6 +72,8 @@
 
 - [X] Re-export Lan models to have textures
 - [X] Rig medium and small scale lan models
+- [X] Re-rig / update large lan model
+- [X] Update magic projectile to have a radial force component to apply when it explodes
 - [ ] bow+arrow system in game
 
 * Week of 2022-05-15
