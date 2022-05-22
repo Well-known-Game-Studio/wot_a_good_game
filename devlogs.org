@@ -52,6 +52,7 @@
 ** Models
 
 - [ ] Make ladder
+- [ ] Make axe
 - [ ] rig medium scale flat models (lan, tam)
 - [ ] rig medium scale models (lan, tam)
 - [ ] Animate medium scale models (rand, trolloc)
@@ -64,7 +65,6 @@
 - [ ] Animate horse
 - [ ] animate raccoon
 - [ ] animate duck
-- [ ] Add pen door model (for sheep / horse pen)
 
 * Week of 2022-05-15
 
@@ -77,6 +77,7 @@
 - [X] Update animation blueprint template to expose animation sequences and blendspaces
 - [X] Use animation blueprint template with new (large scale) Lan model
 - [X] Make door functional (animate / interact) on house
+- [X] Add pen door model (for sheep / horse pen)
 - [X] Make pen doors interactable
 - [X] Update NPC / Enemy to use the same base (so that they can be killed and have the death animation)
 - [X] magic projectile kills enemies
