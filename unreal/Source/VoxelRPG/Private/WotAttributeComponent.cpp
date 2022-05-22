@@ -9,6 +9,10 @@ UWotAttributeComponent::UWotAttributeComponent()
 	Health = 100;
 }
 
+bool UWotAttributeComponent::IsAlive() const
+{
+	return Health > 0.0f;
+}
 
 bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 {

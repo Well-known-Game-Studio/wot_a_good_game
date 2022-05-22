@@ -35,6 +35,12 @@ AWotCharacter::AWotCharacter()
 	bUseControllerRotationYaw = false;
 }
 
+void AWotCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	AttributeComp->OnHealthChanged.AddDynamic(this, &AWotCharacter::OnHealthChanged);
+}
+
 // Called when the game starts or when spawned
 void AWotCharacter::BeginPlay()
 {
@@ -212,4 +218,12 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// don't have to implement it
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AWotCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AWotCharacter::StopJumping);
+}
+
+void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+	if (NewHealth <= 0.0f && Delta < 0.0f) {
+		auto PC = Cast<APlayerController>(GetController());
+		DisableInput(PC);
+	}
 }

@@ -72,6 +72,11 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void Drop();
 
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+	virtual void PostInitializeComponents() override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
