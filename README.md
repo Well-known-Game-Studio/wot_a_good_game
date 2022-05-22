@@ -11,6 +11,12 @@ All modeling is done with `VoxelMax`, make sure in the settings to select
 `Optimize Mesh` and to configure the `Minimum Texture Size` to at least
 1024x1024.
 
+If you have exported from `VoxelMax` and get multiple materials in blender, then
+you can fix that by baking those materials into a single texture following [this
+guide](https://blender.stackexchange.com/questions/218406/how-to-bake-multiple-materials-on-a-single-texture)
+or [this
+guide](https://gamefromscratch.com/baking-blender-materials-to-texture-to-make-them-usable-in-a-game-engine/)
+
 #### Land and other Voxel / Destructable Assets
 
 1. Model the land / object in `VoxelMax`
