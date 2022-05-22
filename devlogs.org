@@ -44,7 +44,6 @@
 - [ ] Add particle effects to waterfall (top & bottom)
 - [ ] collectible arrow items
 - [ ] arrow drops from enemies
-- [ ] magic projectile destroys voxel world
 
 ** Code
 
@@ -76,6 +75,7 @@
 - [X] Rig medium and small scale lan models
 - [X] Re-rig / update large lan model
 - [X] Update magic projectile to have a radial force component to apply when it explodes
+- [X] magic projectile destroys voxel world
 - [ ] bow+arrow system in game
 
 * Week of 2022-05-15
