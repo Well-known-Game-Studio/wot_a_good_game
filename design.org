@@ -1,6 +1,6 @@
 #+title:  Design
 #+author: William Emfinger
-#+date:   <2022-04-10 Sun>
+#+date:   <2022-05-22 Sun>
 
 * Overall Design
 ** World
@@ -64,6 +64,8 @@ others.
 *** [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] (weapons, torches, etc.)
 Can be placed onto the bone of a pawn (e.g. NPC, player) and may optionally
 implement the [[id:e6426ec5-890d-4bbd-be5b-734e43c41e4d][Interactible]] interface.
+*** [[id:29b8dcc5-dfb0-4085-b03d-48630efb54cf][Weapon]]
+*** [[id:dee4bfdb-1e10-4303-ab20-d26b1250d365][Projectile]]
 ** Status Effects
 *** In-world / Area of Effects (weather, spell, etc.)
 *** Applied (buff, drain, etc.)

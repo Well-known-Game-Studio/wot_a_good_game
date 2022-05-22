@@ -44,20 +44,22 @@
 - [ ] Add particle effects to waterfall (top & bottom)
 - [ ] collectible arrow items
 - [ ] arrow drops from enemies
+- [ ] magic projectile destroys voxel world
 
 ** Code
 
 - [ ] Allow new character to climb ladder
-- [ ] Create equippable interface
+- [ ] Create [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] interface
 - [ ] Create weapon interface
+- [ ] Create [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]] system
+- [ ] Migrate equippable code from BP to C++
+- [ ] Migrate attack code from BP to C++
 
 ** Models
 
 - [ ] Make ladder
 - [ ] Make axe
-- [ ] rig medium scale flat models (lan, tam)
-- [ ] rig medium scale models (lan, tam)
-- [ ] Animate medium scale models (rand, trolloc)
+- [ ] Animate medium scale models
 - [ ] rig dog
 - [ ] rig horse
 - [ ] rig raccoon
