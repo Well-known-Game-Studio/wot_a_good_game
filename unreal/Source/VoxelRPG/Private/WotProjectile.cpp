@@ -40,9 +40,20 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
   if (OtherActor && OtherActor != GetInstigator()) {
     UWotAttributeComponent* AttributeComp = Cast<UWotAttributeComponent>(OtherActor->GetComponentByClass(UWotAttributeComponent::StaticClass()));
     if (AttributeComp) {
-      AttributeComp->ApplyHealthChange(-20.0f);
+      AttributeComp->ApplyHealthChange(Damage);
       Destroy();
     }
+  }
+}
+
+void AWotProjectile::PostInitializeComponents()
+{
+  Super::PostInitializeComponents();
+  SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+  if (NiagaraSystem) {
+    NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, SphereComp, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
+    // Parameters can be set like this:
+    // NiagaraComp->SetNiagaraVariableFloat(FString("StrengthCoef"), CoefStrength);
   }
 }
 
@@ -50,13 +61,7 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
 void AWotProjectile::BeginPlay()
 {
   Super::BeginPlay();
-  if (NiagaraSystem) {
-    NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, SphereComp, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
-    // Parameters can be set like this:
-    // NiagaraComp->SetNiagaraVariableFloat(FString("StrengthCoef"), CoefStrength);
-  }
-  SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
-  SetLifeSpan(1.0f);
+  SetLifeSpan(LifeSpan);
 }
 
 // Called every frame

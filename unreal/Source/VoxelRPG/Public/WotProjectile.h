@@ -23,10 +23,16 @@ public:
 protected:
 
   UFUNCTION()
-  void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+  virtual void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
   USphereComponent* SphereComp;
+
+  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Damage")
+  float Damage = -20.0f;
+
+  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
+  float LifeSpan = 1.0f;
 
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
   UProjectileMovementComponent* MovementComp;
@@ -42,6 +48,8 @@ protected:
 
   // Called when the game starts or when spawned
   virtual void BeginPlay() override;
+
+  virtual void PostInitializeComponents() override;
 
 public:
   // called every frame
