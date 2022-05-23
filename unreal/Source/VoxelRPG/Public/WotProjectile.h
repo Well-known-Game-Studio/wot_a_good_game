@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WotProjectile.generated.h"
-class USphereComponent;
+class UAudioComponent;
 class UProjectileMovementComponent;
+class USoundBase;
+class USphereComponent;
 class UStaticMeshComponent;
 class UNiagaraSystem;
 class UNiagaraComponent;
@@ -37,19 +39,33 @@ protected:
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
   UProjectileMovementComponent* MovementComp;
 
+  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Audio Effects")
+  UAudioComponent* EffectAudioComp;
+
+  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
+  USoundBase* ImpactSound;
+
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Visual Effects")
   UStaticMeshComponent* StaticMeshComp;
 
   UPROPERTY(EditDefaultsOnly, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
-  UNiagaraSystem* NiagaraSystem;
+  UNiagaraSystem* EffectNiagaraSystem;
 
   UPROPERTY()
-  UNiagaraComponent* NiagaraComp;
+  UNiagaraComponent* EffectNiagaraComp;
+
+  UPROPERTY(EditDefaultsOnly, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
+  UNiagaraSystem* ImpactNiagaraSystem;
 
   // Called when the game starts or when spawned
   virtual void BeginPlay() override;
 
   virtual void PostInitializeComponents() override;
+
+  // BlueprintNativeEvent = C++ base implementation, can be expanded in Blueprints
+  // BlueprintCallable to allow child classes to trigger explosions
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void Explode();
 
 public:
   // called every frame

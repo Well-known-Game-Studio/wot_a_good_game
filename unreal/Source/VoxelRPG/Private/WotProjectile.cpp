@@ -3,10 +3,11 @@
 
 #include "WotProjectile.h"
 #include "WotAttributeComponent.h"
+#include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
@@ -26,8 +27,11 @@ AWotProjectile::AWotProjectile()
   StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComp");
   StaticMeshComp->SetupAttachment(SphereComp);
 
-  NiagaraComp = CreateDefaultSubobject<UNiagaraComponent>("NiagaraComp");
-  NiagaraComp->SetupAttachment(SphereComp);
+  EffectAudioComp = CreateDefaultSubobject<UAudioComponent>("EffectAudioComp");
+  EffectAudioComp->SetupAttachment(SphereComp);
+
+  EffectNiagaraComp = CreateDefaultSubobject<UNiagaraComponent>("EffectNiagaraComp");
+  EffectNiagaraComp->SetupAttachment(SphereComp);
 
   MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>("MovementComp");
   MovementComp->InitialSpeed = 1000.0f;
@@ -41,8 +45,9 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
     UWotAttributeComponent* AttributeComp = Cast<UWotAttributeComponent>(OtherActor->GetComponentByClass(UWotAttributeComponent::StaticClass()));
     if (AttributeComp) {
       AttributeComp->ApplyHealthChange(Damage);
-      Destroy();
+      // Destroy();
     }
+    // Explode();
   }
 }
 
@@ -50,10 +55,10 @@ void AWotProjectile::PostInitializeComponents()
 {
   Super::PostInitializeComponents();
   SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
-  if (NiagaraSystem) {
-    NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(NiagaraSystem, SphereComp, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
+  if (EffectNiagaraSystem) {
+    EffectNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(EffectNiagaraSystem, SphereComp, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
     // Parameters can be set like this:
-    // NiagaraComp->SetNiagaraVariableFloat(FString("StrengthCoef"), CoefStrength);
+    // EffectNiagaraComp->SetNiagaraVariableFloat(FString("StrengthCoef"), CoefStrength);
   }
 }
 
@@ -62,6 +67,30 @@ void AWotProjectile::BeginPlay()
 {
   Super::BeginPlay();
   SetLifeSpan(LifeSpan);
+  EffectAudioComp->Play();
+}
+
+
+// _Implementation from it being marked as BlueprintNativeEvent
+void AWotProjectile::Explode_Implementation()
+{
+  // Check to make sure we aren't already being 'destroyed'
+  // Adding ensure to see if we encounter this situation at all
+  if (ensure(!IsPendingKill())) {
+    if (ImpactNiagaraSystem) {
+      auto ImpactNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,
+                                                                              ImpactNiagaraSystem,
+                                                                              GetActorLocation(),
+                                                                              GetActorRotation());
+    }
+    EffectNiagaraComp->Deactivate();
+    MovementComp->StopMovementImmediately();
+    SetActorEnableCollision(false);
+    if (ImpactSound) {
+      UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), 1.0f, 1.0f, 0.0f);
+    }
+    Destroy();
+  }
 }
 
 // Called every frame
