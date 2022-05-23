@@ -40,7 +40,6 @@
 - [ ] implement action system
 - [ ] magic projectile destroys foliage instances
 - [ ] magic projectile sets foliage instances on fire
-- [ ] magic projectile destroys voxel world
 - [ ] Add particle effects to waterfall (top & bottom)
 - [ ] collectible arrow items
 - [ ] arrow drops from enemies
@@ -68,6 +67,8 @@
 - [ ] Animate horse
 - [ ] animate raccoon
 - [ ] animate duck
+- [ ] Health item (food?)
+- [ ] Armor item (helmet?)
 
 * Week of 2022-05-22
 
@@ -76,6 +77,11 @@
 - [X] Re-rig / update large lan model
 - [X] Update magic projectile to have a radial force component to apply when it explodes
 - [X] magic projectile destroys voxel world
+- [X] added sound to projectile base class
+- [X] Moved impact logic for projectile from BP into C++
+- [X] Added damage popup with animation that is triggered by new attribute / health system
+- [X] have hit flash colored - where the color lerps depending on current health
+- [X] Have hit flash work for player character
 - [ ] bow+arrow system in game
 
 * Week of 2022-05-15
