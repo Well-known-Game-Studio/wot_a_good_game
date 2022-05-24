@@ -29,6 +29,7 @@ AWotProjectile::AWotProjectile()
 
   EffectAudioComp = CreateDefaultSubobject<UAudioComponent>("EffectAudioComp");
   EffectAudioComp->SetupAttachment(SphereComp);
+  EffectAudioComp->SetSound(EffectSound);
 
   EffectNiagaraComp = CreateDefaultSubobject<UNiagaraComponent>("EffectNiagaraComp");
   EffectNiagaraComp->SetupAttachment(SphereComp);

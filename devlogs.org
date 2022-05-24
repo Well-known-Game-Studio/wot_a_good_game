@@ -112,7 +112,9 @@
 - [X] Add stun attribute and logic to UWotAttribute (C++) class
 - [X] Add OnKilled event to UWotAttribute (C++) class
 - [X] Migrate killed event from HealthComponent (BP) to AttributeComponent (C++) in NPC and player character
-- [X] Only show damae popup if owner is still around (error output when character is killed)
+- [X] Only show damage popup if owner is still around (error output when character is killed)
+- [X] Updated projectile base class to properly have both effect and impact sound
+- [X] Set effect/impact sounds for magic projectile
 - [ ] bow+arrow system in game
 
 * Week of 2022-05-15

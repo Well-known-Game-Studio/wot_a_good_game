@@ -39,10 +39,13 @@ protected:
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
   UProjectileMovementComponent* MovementComp;
 
-  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Audio Effects")
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
+  USoundBase* EffectSound;
+
+  UPROPERTY()
   UAudioComponent* EffectAudioComp;
 
-  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
   USoundBase* ImpactSound;
 
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Visual Effects")
