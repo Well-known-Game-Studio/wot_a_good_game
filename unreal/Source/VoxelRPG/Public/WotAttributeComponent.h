@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "WotAttributeComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKilled, AActor*, InstigatorActor, UWotAttributeComponent*, OwningComp);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, InstigatorActor, UWotAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -26,6 +27,16 @@ protected:
     float HealthMax = 100.0f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+    bool bIsStunned = false;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+    float StunDuration = 1.0f;
+
+	FTimerHandle TimerHandle_Stunned;
+
+    void Stunned_TimeElapsed();
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
     float Stamina;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
@@ -42,8 +53,14 @@ public:
     UFUNCTION(BlueprintCallable)
     bool IsAlive() const;
 
+    UFUNCTION(BlueprintCallable)
+    bool IsStunned() const;
+
     UPROPERTY(BlueprintAssignable)
     FOnHealthChanged OnHealthChanged;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnKilled OnKilled;
 
     UFUNCTION(BlueprintCallable, Category = "Attributes")
     bool ApplyHealthChange(float Delta);

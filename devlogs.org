@@ -43,6 +43,8 @@
 - [ ] Add particle effects to waterfall (top & bottom)
 - [ ] collectible arrow items
 - [ ] arrow drops from enemies
+- [ ] gamepad support (movement, camera rotation, attack, interact, projectile)
+- [ ] mouse + keyboard support (to aim where mouse looks)
 
 ** Code
 
@@ -82,6 +84,10 @@
 - [X] Added damage popup with animation that is triggered by new attribute / health system
 - [X] have hit flash colored - where the color lerps depending on current health
 - [X] Have hit flash work for player character
+- [X] Add stun attribute and logic to UWotAttribute (C++) class
+- [X] Add OnKilled event to UWotAttribute (C++) class
+- [X] Migrate killed event from HealthComponent (BP) to AttributeComponent (C++) in NPC and player character
+- [X] Only show damae popup if owner is still around (error output when character is killed)
 - [ ] bow+arrow system in game
 
 * Week of 2022-05-15
