@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Math/Color.h"
 
 // For Debug:
 #include "DrawDebugHelpers.h"
@@ -220,10 +221,29 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AWotCharacter::StopJumping);
 }
 
+void AWotCharacter::HitFlash()
+{
+	auto Mesh = GetMesh();
+	// register that we were hit now
+	Mesh->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
+	// what color should we flash (emissive) - use the health to make it
+	// transition from yellow to red
+	auto DangerColor = FLinearColor(1.0f, 0.0f, 0.460229f, 1.0f);
+	auto WarningColor = FLinearColor(0.815215f, 1.0f, 0.0f, 1.0f);
+	auto Progress = AttributeComp->GetHealth() / AttributeComp->GetHealthMax();
+	auto LinearColor = FLinearColor::LerpUsingHSV(DangerColor, WarningColor, Progress);
+	auto HitColor = FVector4(LinearColor);
+	Mesh->SetVectorParameterValueOnMaterials("HitColor", HitColor);
+	// how quickly the flash should fade (1.0 = 1 second, 2.0 = 0.5 seconds)
+	Mesh->SetScalarParameterValueOnMaterials("FlashTimeFactor", 2.0f);
+}
+
 void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
 	if (NewHealth <= 0.0f && Delta < 0.0f) {
 		auto PC = Cast<APlayerController>(GetController());
 		DisableInput(PC);
+	} else if (NewHealth > 0.0f && Delta < 0.0f) {
+		HitFlash();
 	}
 }

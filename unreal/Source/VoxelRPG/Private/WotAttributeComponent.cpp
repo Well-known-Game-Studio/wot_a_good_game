@@ -11,6 +11,16 @@ UWotAttributeComponent::UWotAttributeComponent()
 	Strength = StrengthMax;
 }
 
+float UWotAttributeComponent::GetHealth() const
+{
+	return Health;
+}
+
+float UWotAttributeComponent::GetHealthMax() const
+{
+	return HealthMax;
+}
+
 bool UWotAttributeComponent::IsAlive() const
 {
 	return Health > 0.0f;

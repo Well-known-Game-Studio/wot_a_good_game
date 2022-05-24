@@ -72,6 +72,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void Drop();
 
+	UFUNCTION(BlueprintCallable)
+	void HitFlash();
+
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta);
 
