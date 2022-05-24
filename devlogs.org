@@ -69,8 +69,33 @@
 - [ ] Animate horse
 - [ ] animate raccoon
 - [ ] animate duck
-- [ ] Health item (food?)
+- [ ] Health item (food, potion, etc.)
 - [ ] Armor item (helmet?)
+- [ ] Crate
+- [ ] Barrel
+- [ ] Winespring Inn
+- [ ] Rand house interior
+- [ ] Perrin's Forge
+- [ ] Pig
+- [ ] Crops (corn, wheat, pumpkins)
+- [ ] Fruit (apples, bananas, oranges, pears)
+
+** Audio
+
+- [ ] Arrow shoot
+- [ ] Arrow Impact
+- [ ] Death (voxel explode)
+- [ ] Sheep
+- [ ] Walking
+- [ ] Melee Swing
+- [ ] Melee Hit
+- [ ] Magic Shoot
+- [ ] Magic Hit
+- [ ] Forage
+- [ ] Door
+- [ ] Chest
+- [ ] Item Drop (player)
+- [ ] Item Drop (NPC)
 
 * Week of 2022-05-22
 
