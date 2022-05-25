@@ -71,7 +71,6 @@
 - [ ] animate duck
 - [ ] Health item (food, potion, etc.)
 - [ ] Armor item (helmet?)
-- [ ] Crate
 - [ ] Barrel
 - [ ] Winespring Inn
 - [ ] Rand house interior
@@ -115,6 +114,10 @@
 - [X] Only show damage popup if owner is still around (error output when character is killed)
 - [X] Updated projectile base class to properly have both effect and impact sound
 - [X] Set effect/impact sounds for magic projectile
+- [X] add health potion model
+- [X] add crate model
+- [X] add health potion mesh to UE4
+- [X] Create health potion class (C++) with cooldown of 10s (hide/disable collision)
 - [ ] bow+arrow system in game
 
 * Week of 2022-05-15

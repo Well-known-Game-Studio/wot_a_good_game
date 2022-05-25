@@ -35,6 +35,8 @@ void AWotItemHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
   AttributeComp->ApplyHealthChange(HealingAmount);
   // set IsInteractible to false
   bIsInteractible = false;
+  BaseMesh->SetVisibility(false, true);
+  BaseMesh->SetCollisionProfileName("NoCollision");
   // start cooldown timer
 	GetWorldTimerManager().SetTimer(TimerHandle_Cooldown, this, &AWotItemHealthPotion::Cooldown_TimeElapsed, CooldownTime);
 }
@@ -42,6 +44,8 @@ void AWotItemHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 void AWotItemHealthPotion::Cooldown_TimeElapsed()
 {
   bIsInteractible = true;
+  BaseMesh->SetVisibility(true, true);
+  BaseMesh->SetCollisionProfileName("BlockAllDynamic");
 }
 
 // Called when the game starts or when spawned
