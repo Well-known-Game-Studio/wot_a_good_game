@@ -19,11 +19,13 @@
 
 ** Systems to Learn
 
-- [ ] Environment Query System (EQS)
-- [ ] Gameplay Abilities System
+- [ ] [[id:2646bd9e-c7f4-4542-b702-f0a209fe7c60][Gameplay Abilities System]]
 - [ ] Level Loading System
 - [ ] State Saving / Loading System
 - [ ] Entity spawning system (NPC, items, etc.)
+- [ ] AI / [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] in UE
+- [ ] [[id:7402039e-763b-4c5f-a1ab-a9e0609c61db][Blackboard]] - memory / storage of AI, no logic
+- [ ] [[id:9bce7262-b02d-48e9-b133-a6fde84730cb][Environment Query System (EQS)]]
 
 ** Game
 
@@ -78,6 +80,7 @@
 - [ ] Pig
 - [ ] Crops (corn, wheat, pumpkins)
 - [ ] Fruit (apples, bananas, oranges, pears)
+- [ ] Fade / Myrdraal enemy model
 
 ** Audio
 
