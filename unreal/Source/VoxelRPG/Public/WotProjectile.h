@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "WotProjectile.generated.h"
 class UAudioComponent;
+class UCameraShakeBase;
 class UProjectileMovementComponent;
 class USoundBase;
 class USphereComponent;
@@ -59,6 +60,16 @@ protected:
 
   UPROPERTY(EditDefaultsOnly, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
   UNiagaraSystem* ImpactNiagaraSystem;
+
+  UPROPERTY(EditDefaultsOnly, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
+  TSubclassOf<UCameraShakeBase> CameraShakeEffect;
+
+  UPROPERTY(EditDefaultsOnly, Category = "Visual Effects")
+  float CameraShakeInnerRadius;
+  UPROPERTY(EditDefaultsOnly, Category = "Visual Effects")
+  float CameraShakeOuterRadius;
+  UPROPERTY(EditDefaultsOnly, Category = "Visual Effects")
+  float CameraShakeFalloff;
 
   // Called when the game starts or when spawned
   virtual void BeginPlay() override;

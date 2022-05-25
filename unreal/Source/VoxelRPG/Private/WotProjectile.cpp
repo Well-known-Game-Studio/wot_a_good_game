@@ -3,6 +3,7 @@
 
 #include "WotProjectile.h"
 #include "WotAttributeComponent.h"
+#include "Camera/CameraShakeBase.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -46,9 +47,8 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
     UWotAttributeComponent* AttributeComp = Cast<UWotAttributeComponent>(OtherActor->GetComponentByClass(UWotAttributeComponent::StaticClass()));
     if (AttributeComp) {
       AttributeComp->ApplyHealthChange(Damage);
-      // Destroy();
+      Explode();
     }
-    // Explode();
   }
 }
 
@@ -89,6 +89,14 @@ void AWotProjectile::Explode_Implementation()
     SetActorEnableCollision(false);
     if (ImpactSound) {
       UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), 1.0f, 1.0f, 0.0f);
+    }
+    if (CameraShakeEffect) {
+      UGameplayStatics::PlayWorldCameraShake(this,
+                                             CameraShakeEffect,
+                                             GetActorLocation(),
+                                             CameraShakeInnerRadius,
+                                             CameraShakeOuterRadius,
+                                             CameraShakeFalloff);
     }
     Destroy();
   }
