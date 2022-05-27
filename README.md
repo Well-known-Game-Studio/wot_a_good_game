@@ -17,6 +17,11 @@ guide](https://blender.stackexchange.com/questions/218406/how-to-bake-multiple-m
 or [this
 guide](https://gamefromscratch.com/baking-blender-materials-to-texture-to-make-them-usable-in-a-game-engine/)
 
+> :warning: NOTE: you need to be in the object edit mode when you export assets
+> from VoxelMax, otherwise the origin / pivot point of the mesh will not be the
+> local origin of the model, but will instead be the origin of the scene and
+> you'll have to import with tralsation, rotation as well as scale.
+
 #### Land and other Voxel / Destructable Assets
 
 1. Model the land / object in `VoxelMax`
@@ -37,6 +42,6 @@ guide](https://gamefromscratch.com/baking-blender-materials-to-texture-to-make-t
 
 1. Model the object in `VoxelMax`
 2. Export as `FBX`
-3. Import into UE5, with import scale to be `20`
+3. Import into UE5, with import scale to be `25`
 4. You will likely have to import with a translation as well to get the pivot to
    be in the correct place on the object.
