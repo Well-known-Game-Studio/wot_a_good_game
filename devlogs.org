@@ -121,6 +121,9 @@
 - [X] add crate model
 - [X] add health potion mesh to UE4
 - [X] Create health potion class (C++) with cooldown of 10s (hide/disable collision)
+- [X] start developing behavior tree AI system
+- [X] Rig medium-flat trolloc_boar model
+- [X] Add MinionRanged (BP) class, using medium-flat trolloc_boar
 - [ ] bow+arrow system in game
 
 * Week of 2022-05-15
