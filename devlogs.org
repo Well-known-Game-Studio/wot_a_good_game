@@ -99,6 +99,13 @@
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 
+* Week of 2022-05-29
+
+- [X] Set up behavior tree to move to goal then wait
+- [X] Set up MinionRanged (BP) class to use behavior tree
+- [X] Add behavior tree service (C++) to check attack range and line of sight
+- [ ] bow+arrow system in game
+
 * Week of 2022-05-22
 
 - [X] Re-export Lan models to have textures
@@ -124,7 +131,6 @@
 - [X] start developing behavior tree AI system
 - [X] Rig medium-flat trolloc_boar model
 - [X] Add MinionRanged (BP) class, using medium-flat trolloc_boar
-- [ ] bow+arrow system in game
 
 * Week of 2022-05-15
 

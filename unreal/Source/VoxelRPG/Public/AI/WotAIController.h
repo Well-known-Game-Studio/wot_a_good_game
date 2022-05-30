@@ -8,4 +8,11 @@ UCLASS()
 class VOXELRPG_API AWotAIController : public AAIController
 {
   GENERATED_BODY()
+
+protected:
+
+  UPROPERTY(EditDefaultsOnly, Category = "AI")
+  UBehaviorTree* BehaviorTree;
+
+  virtual void BeginPlay() override;
 };

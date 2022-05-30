@@ -12,7 +12,8 @@
 				"Engine",
 				"CinematicCamera",
 				"Niagara",
-				"AIModule"
+				"AIModule",
+				"GameplayTasks"
 			]
 		}
 	],
