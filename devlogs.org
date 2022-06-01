@@ -10,6 +10,9 @@
 - [ ] Niagara Water (3D) doesn't work
 - [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
+- [ ] Arrows do not trigger overlaps with foliage
+- [ ] Arrows do not trigger overlaps with static meshes
+- [ ] Arrows do not trigger overlaps with VoxelWorld
 
 ** General
 
@@ -81,6 +84,7 @@
 - [ ] Crops (corn, wheat, pumpkins)
 - [ ] Fruit (apples, bananas, oranges, pears)
 - [ ] Fade / Myrdraal enemy model
+- [ ] Update flat models to have a more clearly defined front
 
 ** Audio
 
