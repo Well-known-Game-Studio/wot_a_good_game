@@ -104,7 +104,7 @@
 - [X] Set up behavior tree to move to goal then wait
 - [X] Set up MinionRanged (BP) class to use behavior tree
 - [X] Add behavior tree service (C++) to check attack range and line of sight
-- [ ] bow+arrow system in game
+- [X] bow+arrow system in game - quiver, pull back, reload, recover arrows, etc.
 
 * Week of 2022-05-22
 

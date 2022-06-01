@@ -31,10 +31,10 @@ protected:
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
   USphereComponent* SphereComp;
 
-  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Damage")
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Damage")
   float Damage = -20.0f;
 
-  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
   float LifeSpan = 1.0f;
 
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
