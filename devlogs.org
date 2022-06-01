@@ -115,6 +115,8 @@
 - [X] Arrows damage NPCs
 - [X] Arrows are destroyed if attached actor is destroyed
 - [X] WIP bow animation, can fire wile standing
+- [X] Update player interaction to have Primary Attack and Secondary Attack
+- [X] Update weapon base to support specific primary attack and secondary attack actions
 
 * Week of 2022-05-22
 
