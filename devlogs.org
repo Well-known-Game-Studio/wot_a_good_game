@@ -49,6 +49,7 @@
 - [ ] gamepad support (movement, camera rotation, attack, interact, projectile)
 - [ ] mouse + keyboard support (to aim where mouse looks)
 - [ ] Make blendspace 2d for holding bow, walking, idling
+- [ ] Move player camera farther out for better view
 
 ** Code
 
@@ -84,7 +85,6 @@
 - [ ] Fruit (apples, bananas, oranges, pears)
 - [ ] Fade / Myrdraal enemy model
 - [ ] Update flat models to have a more clearly defined front
-- [ ] Make bow holding pose
 
 ** Audio
 
@@ -117,6 +117,8 @@
 - [X] WIP bow animation, can fire wile standing
 - [X] Update player interaction to have Primary Attack and Secondary Attack
 - [X] Update weapon base to support specific primary attack and secondary attack actions
+- [X] Make bow holding pose (unreal engine)
+- [X] Add bow holding animation / pose and apply it in the anim BP / graph
 
 * Week of 2022-05-22
 
