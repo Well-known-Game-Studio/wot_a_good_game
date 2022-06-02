@@ -35,7 +35,7 @@ protected:
   float Damage = -20.0f;
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")
-  float LifeSpan = 1.0f;
+  float ProjectileLifeSpan = 1.0f;
 
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
   UProjectileMovementComponent* MovementComp;
@@ -43,7 +43,7 @@ protected:
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
   USoundBase* EffectSound;
 
-  UPROPERTY()
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects")
   UAudioComponent* EffectAudioComp;
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))

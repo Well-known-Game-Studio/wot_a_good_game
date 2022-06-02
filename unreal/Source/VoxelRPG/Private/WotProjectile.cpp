@@ -61,13 +61,14 @@ void AWotProjectile::PostInitializeComponents()
     // Parameters can be set like this:
     // EffectNiagaraComp->SetNiagaraVariableFloat(FString("StrengthCoef"), CoefStrength);
   }
+
+  SetLifeSpan(ProjectileLifeSpan);
 }
 
 // Called when the game starts or when spawned
 void AWotProjectile::BeginPlay()
 {
   Super::BeginPlay();
-  SetLifeSpan(LifeSpan);
   EffectAudioComp->Play();
 }
 

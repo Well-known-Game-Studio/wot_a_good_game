@@ -52,7 +52,7 @@ void AWotCharacter::BeginPlay()
 void AWotCharacter::SetupSpringArm()
 {
 	// SpringArmComp->bUsePawnControlRotation = true;
-	SpringArmComp->TargetArmLength = 1400.0f; // mm
+	SpringArmComp->TargetArmLength = CameraDistance; // mm
 
 	SpringArmComp->bDoCollisionTest = false;
 
@@ -81,7 +81,7 @@ void AWotCharacter::SetupCineCamera()
 
 	FCameraFocusSettings FocusSettings;
 	// FocusSettings.FocusMethod = ECameraFocusMethod::Manual;
-	FocusSettings.ManualFocusDistance = 1450.0f; // mm
+	FocusSettings.ManualFocusDistance = CameraDistance; // mm
 	CineCameraComp->FocusSettings = FocusSettings;
 
 	CineCameraComp->CurrentFocalLength = 500.0f; // mm
