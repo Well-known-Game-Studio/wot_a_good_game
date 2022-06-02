@@ -49,6 +49,8 @@
 - [ ] gamepad support (movement, camera rotation, attack, interact, projectile)
 - [ ] mouse + keyboard support (to aim where mouse looks)
 - [ ] Make blendspace 2d for holding bow, walking, idling
+- [ ] Add UI for healing (health ui update)
+- [ ] Add UI for picking up arrow (+1)
 
 ** Code
 
