@@ -23,6 +23,8 @@ EBTNodeResult::Type UWotBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent&
 
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    // Set the instigator so the projectile doesn't interact / damage the owner pawn
+    Params.Instigator = MyPawn;
 
     AActor* NewProj = GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, MuzzleRotation, Params);
 

@@ -89,15 +89,11 @@
 
 ** Audio
 
-- [ ] Arrow shoot
-- [ ] Arrow Impact
 - [ ] Death (voxel explode)
 - [ ] Sheep
 - [ ] Walking
 - [ ] Melee Swing
 - [ ] Melee Hit
-- [ ] Magic Shoot
-- [ ] Magic Hit
 - [ ] Forage
 - [ ] Door
 - [ ] Chest
@@ -123,8 +119,16 @@
 - [X] Move player camera farther out for better view
 - [X] Update the magic projectile effects
 - [X] Add arrow flying & impact sound effects
+- [X] Arrow shoot audio
+- [X] Arrow Impact audio
+- [X] Magic Shoot audio
+- [X] Magic Hit audio
 - [X] Update arrow to play sound effects
 - [X] Add magic projectile sound effects
+- [X] Add attribute component to MinionRangedBP
+- [X] Add kill, particles, and ui to MinionRangedBP
+- [X] Enable CPU access for particle effect for TrollocBoar model
+- [X] Ensure magic projectile shot by MinionRangedBP doesn't interact with that minonrangedBP.
 
 * Week of 2022-05-22
 
