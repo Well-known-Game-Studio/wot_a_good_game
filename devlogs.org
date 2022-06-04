@@ -49,7 +49,6 @@
 - [ ] gamepad support (movement, camera rotation, attack, interact, projectile)
 - [ ] mouse + keyboard support (to aim where mouse looks)
 - [ ] Make blendspace 2d for holding bow, walking, idling
-- [ ] Add UI for picking up arrow (+1)
 
 ** Code
 
@@ -129,6 +128,7 @@
 - [X] Enable CPU access for particle effect for TrollocBoar model
 - [X] Ensure magic projectile shot by MinionRangedBP doesn't interact with that minonrangedBP.
 - [X] Add UI for healing (health ui update)
+- [X] Add UI for picking up arrow (+1)
 
 * Week of 2022-05-22
 
