@@ -13,7 +13,6 @@
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] surfaces trigger overlap events with projectiles
 - [ ] Arrows do not trigger overlaps with static meshes
-- [ ] WotAIController (C++) doesn't handle when player dies (so won't attack newly spawned player)
 
 ** General
 
@@ -133,6 +132,8 @@
 - [X] Add horse (skeletal mesh) model to game
 - [X] Create horse NPC
 - [X] Have horse randomly wander around in the scene (in its pen)
+- [X] Move AI controller to use pawn sensing component
+- [X] WotAIController (C++) handles when player dies (using new pawn sensing component)
 
 * Week of 2022-05-22
 
