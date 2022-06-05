@@ -92,6 +92,13 @@
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 
+* Week of 2022-06-05
+
+- [X] Rig deer model and make NPC out of it
+- [X] Rig fox model and make NPC out of it
+- [X] Rig goat model and make NPC out of it
+- [X] Update navmesh bounds so that goat can wander around little patch at the top of the mountain
+
 * Week of 2022-05-29
 
 - [X] Set up behavior tree to move to goal then wait
@@ -133,11 +140,6 @@
 - [X] Have horse randomly wander around in the scene (in its pen)
 - [X] Move AI controller to use pawn sensing component
 - [X] WotAIController (C++) handles when player dies (using new pawn sensing component)
-- [X] rig deer
-- [X] Add deer (skeletal mesh) model to game
-- [X] Create deer NPC
-- [X] Have deer randomly wander around in the scene
-- [X] Rig fox model and make NPC out of it
 
 * Week of 2022-05-22
 
