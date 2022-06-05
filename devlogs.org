@@ -63,7 +63,6 @@
 - [ ] rig dog
 - [ ] rig raccoon
 - [ ] rig duck
-- [ ] rig deer
 - [ ] Animate sheep
 - [ ] Animate horse
 - [ ] animate raccoon
@@ -134,6 +133,10 @@
 - [X] Have horse randomly wander around in the scene (in its pen)
 - [X] Move AI controller to use pawn sensing component
 - [X] WotAIController (C++) handles when player dies (using new pawn sensing component)
+- [X] rig deer
+- [X] Add deer (skeletal mesh) model to game
+- [X] Create deer NPC
+- [X] Have deer randomly wander around in the scene
 
 * Week of 2022-05-22
 
