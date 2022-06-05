@@ -137,6 +137,7 @@
 - [X] Add deer (skeletal mesh) model to game
 - [X] Create deer NPC
 - [X] Have deer randomly wander around in the scene
+- [X] Rig fox model and make NPC out of it
 
 * Week of 2022-05-22
 

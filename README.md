@@ -37,6 +37,7 @@ guide](https://gamefromscratch.com/baking-blender-materials-to-texture-to-make-t
 4. Import into `Blender` to rig - see the
    [./blender/README.md](./blender/README.md) for further instructions on
    rigging and export as FBX into UE5.
+5. After importing, make sure to enable `CPU Access` in the skeletal mesh's settings in UE
    
 #### Props, Foliage, and Non-Rigged Static Mesh Assets
 
