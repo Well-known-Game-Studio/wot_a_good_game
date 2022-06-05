@@ -6,10 +6,12 @@
 ** Bugs
 
 - [ ] Highlight post process volume doesn't respect bounds (for vegetation highlight)
+- [ ] Player interaction (foliage / weapon) bounding box triggers overlap with projectile / weapon causing damage
 - [ ] NPCs fall through the ground when starting the level with VoxelPlugin
 - [ ] Niagara Water (3D) doesn't work
 - [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
+- [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] surfaces trigger overlap events with projectiles
 - [ ] Arrows do not trigger overlaps with static meshes
 - [ ] WotAIController (C++) doesn't handle when player dies (so won't attack newly spawned player)
 
@@ -25,9 +27,6 @@
 - [ ] Level Loading System
 - [ ] State Saving / Loading System
 - [ ] Entity spawning system (NPC, items, etc.)
-- [ ] AI / [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] in UE
-- [ ] [[id:7402039e-763b-4c5f-a1ab-a9e0609c61db][Blackboard]] - memory / storage of AI, no logic
-- [ ] [[id:9bce7262-b02d-48e9-b133-a6fde84730cb][Environment Query System (EQS)]]
 
 ** Game
 
@@ -35,8 +34,6 @@
 - [ ] Start stubbing out dialogue system
 - [ ] enemies drop items
 - [ ] mushrooms increase health
-- [ ] Add horse (skeletal mesh) model to game
-- [ ] Have horse randomly wander around in the scene (in its pen)
 - [ ] highlight interactable foliage
 - [ ] add niagara water effects
 - [ ] add niagara smoke effects (campfire / chimney)
@@ -45,7 +42,6 @@
 - [ ] magic projectile destroys foliage instances
 - [ ] magic projectile sets foliage instances on fire
 - [ ] Add particle effects to waterfall (top & bottom)
-- [ ] collectible arrow items
 - [ ] arrow drops from enemies
 - [ ] gamepad support (movement, camera rotation, attack, interact, projectile)
 - [ ] mouse + keyboard support (to aim where mouse looks)
@@ -66,7 +62,6 @@
 - [ ] Make axe
 - [ ] Animate medium scale models
 - [ ] rig dog
-- [ ] rig horse
 - [ ] rig raccoon
 - [ ] rig duck
 - [ ] rig deer
@@ -109,6 +104,7 @@
 - [X] Arrows trigger overlaps with VoxelWorld
 - [X] Arrows properly stick into enemies and objects
 - [X] Arrows damage NPCs
+- [X] Shot arrows can be collected by player
 - [X] Arrows are destroyed if attached actor is destroyed
 - [X] WIP bow animation, can fire wile standing
 - [X] Update player interaction to have Primary Attack and Secondary Attack
@@ -130,6 +126,13 @@
 - [X] Ensure magic projectile shot by MinionRangedBP doesn't interact with that minonrangedBP.
 - [X] Add UI for healing (health ui update)
 - [X] Add UI for picking up arrow (+1)
+- [X] AI / [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] in UE
+- [X] [[id:7402039e-763b-4c5f-a1ab-a9e0609c61db][Blackboard]] - memory / storage of AI, no logic
+- [X] [[id:9bce7262-b02d-48e9-b133-a6fde84730cb][Environment Query System (EQS)]]
+- [X] rig horse
+- [X] Add horse (skeletal mesh) model to game
+- [X] Create horse NPC
+- [X] Have horse randomly wander around in the scene (in its pen)
 
 * Week of 2022-05-22
 
