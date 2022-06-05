@@ -1,17 +1,26 @@
 #include "AI/WotAICharacter.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Perception/PawnSensingComponent.h"
+#include "AIController.h"
+#include "DrawDebugHelpers.h"
 
 AWotAICharacter::AWotAICharacter()
 {
-  // Set this parameter to call Tick() every frame. You can turn this off to improve performance if you don't need it.
-  PrimaryActorTick.bCanEverTick = true;
+  PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComp");
 }
 
-void AWotAICharacter::BeginPlay()
+void AWotAICharacter::PostInitializeComponents()
 {
-  Super::BeginPlay();
+  Super::PostInitializeComponents();
+  PawnSensingComp->OnSeePawn.AddDynamic(this, &AWotAICharacter::OnPawnSeen);
 }
 
-void AWotAICharacter::Tick(float DeltaTime)
+void AWotAICharacter::OnPawnSeen(APawn* Pawn)
 {
-  Super::Tick(DeltaTime);
+  AAIController* AIC = Cast<AAIController>(GetController());
+  if (AIC) {
+    UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
+    BBComp->SetValueAsObject("TargetActor", Pawn);
+    DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
+  }
 }

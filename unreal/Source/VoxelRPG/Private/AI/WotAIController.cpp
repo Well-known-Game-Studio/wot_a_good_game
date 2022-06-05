@@ -8,8 +8,10 @@ void AWotAIController::BeginPlay()
 
   RunBehaviorTree(BehaviorTree);
 
+  /*
   auto PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
   if (PlayerPawn) {
     GetBlackboardComponent()->SetValueAsObject("TargetActor", PlayerPawn);
   }
+  */
 }
