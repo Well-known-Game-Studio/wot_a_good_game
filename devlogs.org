@@ -11,6 +11,7 @@
 - [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
 - [ ] Arrows do not trigger overlaps with static meshes
+- [ ] WotAIController (C++) doesn't handle when player dies (so won't attack newly spawned player)
 
 ** General
 

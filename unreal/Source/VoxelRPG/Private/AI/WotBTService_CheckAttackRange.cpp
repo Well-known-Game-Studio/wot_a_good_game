@@ -6,6 +6,9 @@ void UWotBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp,
 {
   Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
+  bool bWithinRange = false;
+  bool bHasLineOfSight = false;
+
   // check distance between AI pawn and target actor
   UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
   if (ensure(BlackboardComp)) {
@@ -16,16 +19,14 @@ void UWotBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp,
         APawn* AIPawn = MyController->GetPawn();
         if (ensure(AIPawn)) {
           float DistanceTo = FVector::Distance(TargetActor->GetActorLocation(), AIPawn->GetActorLocation());
-          bool bWithinRange = DistanceTo < AttackRange;
+          bWithinRange = DistanceTo < AttackRange;
 
-          bool bHasLineOfSight = false;
           if (bWithinRange) {
             bHasLineOfSight = MyController->LineOfSightTo(TargetActor);
           }
-
-          BlackboardComp->SetValueAsBool(AttackRangeKey.SelectedKeyName, (bWithinRange && bHasLineOfSight));
         }
       }
     }
   }
+  BlackboardComp->SetValueAsBool(AttackRangeKey.SelectedKeyName, (bWithinRange && bHasLineOfSight));
 }
