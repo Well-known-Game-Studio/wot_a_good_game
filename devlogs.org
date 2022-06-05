@@ -1,6 +1,6 @@
 #+title:  Devlog
 #+author: William Emfinger
-#+date:   <2022-05-22 Sun>
+#+date:   <2022-06-05 Sun>
 
 * Task List
 ** Bugs
