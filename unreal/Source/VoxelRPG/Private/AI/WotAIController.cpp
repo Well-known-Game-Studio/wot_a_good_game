@@ -6,7 +6,9 @@ void AWotAIController::BeginPlay()
 {
   Super::BeginPlay();
 
-  RunBehaviorTree(BehaviorTree);
+  if (ensureMsgf(BehaviorTree, TEXT("BehaviorTree is nullptr! Please assign BehaviorTree in your AI Controller!"))) {
+    RunBehaviorTree(BehaviorTree);
+  }
 
   /*
   auto PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
