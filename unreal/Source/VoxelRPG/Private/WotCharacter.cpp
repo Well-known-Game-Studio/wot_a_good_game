@@ -34,6 +34,8 @@ AWotCharacter::AWotCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
+
+	HandSocketName = "Hand_R";
 }
 
 void AWotCharacter::PostInitializeComponents()
@@ -120,7 +122,7 @@ void AWotCharacter::PrimaryAttack()
 void AWotCharacter::PrimaryAttack_TimeElapsed()
 {
 	if (ensure(ProjectileClass)) {
-		auto HandLocation = GetMesh()->GetSocketLocation("Hand_R");
+		auto HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
 
 		auto SpawnTM = FTransform(GetActorRotation(), HandLocation);
 		FActorSpawnParameters SpawnParams;

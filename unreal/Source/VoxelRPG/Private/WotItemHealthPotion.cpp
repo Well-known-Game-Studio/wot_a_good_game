@@ -5,6 +5,9 @@
 
 void AWotItemHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
 {
+  if (!ensure(InstigatorPawn)) {
+    return;
+  }
   // get the attribute component of the instigating pawn
   UWotAttributeComponent* AttributeComp =
     Cast<UWotAttributeComponent>(InstigatorPawn->GetComponentByClass(UWotAttributeComponent::StaticClass()));
@@ -13,11 +16,12 @@ void AWotItemHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
     return;
   }
   // if the pawn is at full health, do nothing
-  if (AttributeComp->GetHealth() == AttributeComp->GetHealthMax()) {
+  if (AttributeComp->IsFullHealth()) {
     return;
   }
   // apply healing amount
-  AttributeComp->ApplyHealthChange(HealingAmount);
-  // Now prevent further interaction
-  HideAndCooldownPowerup();
+  if (AttributeComp->ApplyHealthChange(HealingAmount)) {
+    // If we successfully healed, go into cooldown
+    HideAndCooldownPowerup();
+  }
 }

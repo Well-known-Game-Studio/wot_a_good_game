@@ -31,6 +31,11 @@ bool UWotAttributeComponent::IsStunned() const
 	return bIsStunned;
 }
 
+bool UWotAttributeComponent::IsFullHealth() const
+{
+	return Health == HealthMax;
+}
+
 bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 {
 	// we cannot be damaged if we are currently stunned
@@ -39,14 +44,15 @@ bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 	}
 	const auto PriorHealth = Health;
 	Health = std::clamp(Health+Delta, 0.0f, HealthMax);
-	if (PriorHealth != Health) {
-		OnHealthChanged.Broadcast(nullptr, this, Health, Delta);
+	const auto ActualDelta = Health - PriorHealth;
+	if (ActualDelta != 0) {
+		OnHealthChanged.Broadcast(nullptr, this, Health, ActualDelta);
 		if (Health <= 0.0f) {
 			// Health drops to or below 0, trigger kill event
 			OnKilled.Broadcast(nullptr, this);
 		}
 	}
-	if (Delta < 0.0f) {
+	if (ActualDelta < 0.0f) {
 		// if we are being damaged, set stunned flag so we can't get damaged
 		// again too soon
 		bIsStunned = true;
@@ -55,13 +61,13 @@ bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 											   this,
 											   &UWotAttributeComponent::Stunned_TimeElapsed,
 											   StunDuration);
-	} else if (Delta > 0.0f) {
+	} else if (ActualDelta > 0.0f) {
 		// if we are being healed, reset the stunned flag
 		bIsStunned = false;
 		// and cancel the stunned timer
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Stunned);
 	}
-	return true;
+	return ActualDelta != 0;
 }
 
 void UWotAttributeComponent::Stunned_TimeElapsed()

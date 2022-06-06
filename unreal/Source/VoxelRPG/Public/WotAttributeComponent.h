@@ -62,6 +62,9 @@ public:
     UFUNCTION(BlueprintCallable)
     bool IsStunned() const;
 
+    UFUNCTION(BlueprintCallable)
+    bool IsFullHealth() const;
+
     UPROPERTY(BlueprintAssignable)
     FOnHealthChanged OnHealthChanged;
 

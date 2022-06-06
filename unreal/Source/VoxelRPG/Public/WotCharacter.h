@@ -22,6 +22,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "View Camera")
 	float CameraDistance = 2000.0f;
 
+	UPROPERTY(VisibleAnywhere, Category = "Attack")
+	FName HandSocketName;
+
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<AActor> ProjectileClass;
 

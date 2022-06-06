@@ -48,6 +48,8 @@
 - [ ] Allow player to pet animals (animal base class and interaction)
 - [ ] Update animals to use [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] - avoid player until after petting
 - [ ] Allow each animal to have a different amount of player avoidance
+- [ ] Enemy flee behavior (to hidden location away from player, close to AI)
+- [ ] Enemy heal while hidden
 
 ** Code
 
