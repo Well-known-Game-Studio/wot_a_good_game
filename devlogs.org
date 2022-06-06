@@ -103,6 +103,8 @@
 - [X] Rig fox model and make NPC out of it
 - [X] Rig goat model and make NPC out of it
 - [X] Update navmesh bounds so that goat can wander around little patch at the top of the mountain
+- [X] bug: Player can attack with handheld weapon while in air and gets stuck
+- [X] WIP bot spawn query system using [[id:9bce7262-b02d-48e9-b133-a6fde84730cb][Environment Query System (EQS)]]
 
 * Week of 2022-05-29
 
@@ -133,12 +135,12 @@
 - [X] Add attribute component to MinionRangedBP
 - [X] Add kill, particles, and ui to MinionRangedBP
 - [X] Enable CPU access for particle effect for TrollocBoar model
-- [X] Ensure magic projectile shot by MinionRangedBP doesn't interact with that minonrangedBP.
+- [X] bug: Ensure magic projectile shot by MinionRangedBP doesn't interact with that minonrangedBP.
 - [X] Add UI for healing (health ui update)
 - [X] Add UI for picking up arrow (+1)
-- [X] AI / [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] in UE
-- [X] [[id:7402039e-763b-4c5f-a1ab-a9e0609c61db][Blackboard]] - memory / storage of AI, no logic
-- [X] [[id:9bce7262-b02d-48e9-b133-a6fde84730cb][Environment Query System (EQS)]]
+- [X] learn: AI / [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] in UE
+- [X] learn: [[id:7402039e-763b-4c5f-a1ab-a9e0609c61db][Blackboard]] - memory / storage of AI, no logic
+- [X] learn: [[id:9bce7262-b02d-48e9-b133-a6fde84730cb][Environment Query System (EQS)]]
 - [X] rig horse
 - [X] Add horse (skeletal mesh) model to game
 - [X] Create horse NPC
