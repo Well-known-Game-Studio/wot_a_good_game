@@ -25,7 +25,6 @@
 - [ ] [[id:2646bd9e-c7f4-4542-b702-f0a209fe7c60][Gameplay Abilities System]]
 - [ ] Level Loading System
 - [ ] State Saving / Loading System
-- [ ] Entity spawning system (NPC, items, etc.)
 
 ** Game
 
@@ -48,8 +47,6 @@
 - [ ] Allow player to pet animals (animal base class and interaction)
 - [ ] Update animals to use [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] - avoid player until after petting
 - [ ] Allow each animal to have a different amount of player avoidance
-- [ ] Enemy flee behavior (to hidden location away from player, close to AI)
-- [ ] Enemy heal while hidden
 
 ** Code
 
@@ -105,6 +102,11 @@
 - [X] Update navmesh bounds so that goat can wander around little patch at the top of the mountain
 - [X] bug: Player can attack with handheld weapon while in air and gets stuck
 - [X] WIP bot spawn query system using [[id:9bce7262-b02d-48e9-b133-a6fde84730cb][Environment Query System (EQS)]]
+- [X] Enemy flee behavior (to hidden location away from player, close to AI)
+- [X] Enemy heal while hidden
+- [X] Add WotGameModeBase (C++) Which spawns bots using [[id:9bce7262-b02d-48e9-b133-a6fde84730cb][Environment Query System (EQS)]]
+- [X] learn: Entity spawning system (NPC, items, etc.)
+- [X] bug: player respawn tied directly to specific game mode (doesn't need to be)
 
 * Week of 2022-05-29
 

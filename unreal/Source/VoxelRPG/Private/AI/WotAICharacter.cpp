@@ -7,6 +7,7 @@
 AWotAICharacter::AWotAICharacter()
 {
   PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComp");
+  AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void AWotAICharacter::PostInitializeComponents()
