@@ -3,12 +3,15 @@
 
 #include "WotCharacter.h"
 #include "WotAttributeComponent.h"
+#include "WotDeathEffectComponent.h"
 #include "WotInteractionComponent.h"
 #include "CineCameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Math/Color.h"
+#include "Engine/EngineTypes.h"
 
 // For Debug:
 #include "DrawDebugHelpers.h"
@@ -31,6 +34,8 @@ AWotCharacter::AWotCharacter()
 
 	AttributeComp = CreateDefaultSubobject<UWotAttributeComponent>("AttributeComp");
 
+	DeathEffectComp = CreateDefaultSubobject<UWotDeathEffectComponent>("DeathEffectComp");
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
@@ -42,13 +47,13 @@ void AWotCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	AttributeComp->OnHealthChanged.AddDynamic(this, &AWotCharacter::OnHealthChanged);
+	AttributeComp->OnKilled.AddDynamic(this, &AWotCharacter::OnKilled);
 }
 
 // Called when the game starts or when spawned
 void AWotCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AWotCharacter::SetupSpringArm()
@@ -90,28 +95,6 @@ void AWotCharacter::SetupCineCamera()
 	CineCameraComp->CurrentAperture = 1.2;
 }
 
-void AWotCharacter::MoveForward(float value)
-{
-	auto control_rot = GetControlRotation();
-	control_rot.Pitch = 0.0f;
-	control_rot.Roll = 0.0f;
-	AddMovementInput(control_rot.Vector(), value);
-}
-
-void AWotCharacter::MoveRight(float value)
-{
-	auto control_rot = GetControlRotation();
-	control_rot.Pitch = 0.0f;
-	control_rot.Roll = 0.0f;
-
-	// using the kismet (old name for blueprint) math library:
-	// auto right_vector = UKismetMathLibrary::GetRightVector(control_rot);
-
-	// is the same as this:
-	auto right_vector = FRotationMatrix(control_rot).GetScaledAxis(EAxis::Y);
-	AddMovementInput(right_vector, value);
-}
-
 void AWotCharacter::PrimaryAttack()
 {
 	PlayAnimMontage(AttackAnim);
@@ -131,14 +114,6 @@ void AWotCharacter::PrimaryAttack_TimeElapsed()
 
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
 	}
-}
-
-void AWotCharacter::LightAttack()
-{
-}
-
-void AWotCharacter::HeavyAttack()
-{
 }
 
 void AWotCharacter::PrimaryInteract()
@@ -186,31 +161,12 @@ void AWotCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	HandleMovementInput();
-
-	// -- Rotation Visualization -- //
-	const float DrawScale = 100.0f;
-	const float Thickness = 5.0f;
-
-	FVector LineStart = GetActorLocation();
-	// Offset to the right of pawn
-	LineStart += GetActorRightVector() * 100.0f;
-	// Set line end in direction of the actor's forward
-	FVector ActorDirection_LineEnd = LineStart + (GetActorForwardVector() * 100.0f);
-	// Draw Actor's Direction
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ActorDirection_LineEnd, DrawScale, FColor::Yellow, false, 0.0f, 0, Thickness);
-
-	FVector ControllerDirection_LineEnd = LineStart + (GetControlRotation().Vector() * 100.0f);
-	// Draw 'Controller' Rotation ('PlayerController' that 'possessed' this character)
-	DrawDebugDirectionalArrow(GetWorld(), LineStart, ControllerDirection_LineEnd, DrawScale, FColor::Green, false, 0.0f, 0, Thickness);
 }
 
 // Called to bind functionality to input
 void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	// PlayerInputComponent->BindAxis("MoveForward", this, &AWotCharacter::MoveForward);
-	// PlayerInputComponent->BindAxis("MoveRight", this, &AWotCharacter::MoveRight);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
 
@@ -242,10 +198,46 @@ void AWotCharacter::HitFlash()
 
 void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
-	if (NewHealth <= 0.0f && Delta < 0.0f) {
-		auto PC = Cast<APlayerController>(GetController());
-		DisableInput(PC);
-	} else if (NewHealth > 0.0f && Delta < 0.0f) {
+	if (Delta < 0.0f) {
 		HitFlash();
 	}
+	if (NewHealth <= 0.0f) {
+		auto PC = Cast<APlayerController>(GetController());
+		DisableInput(PC);
+	}
+}
+
+void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp)
+{
+	// turn off collision & physics
+	TurnOff(); // freezes the pawn state
+	GetCapsuleComponent()->SetSimulatePhysics(false);
+	GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
+	SetActorEnableCollision(false);
+	// ragdoll the mesh
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionProfileName("Ragdoll", true);
+	// detatch any attached actors and enable physics on them
+	TArray<AActor*> AttachedActors;
+	GetAttachedActors(AttachedActors, false, true);
+	for (auto& attached : AttachedActors) {
+		// detach actor
+		attached->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		// TODO: get primitive component
+		// enable physics collision
+		// attached->SetCollisionEnabled();
+		// TODO: set simulate physics
+		// attached->SetSimulatePhysics(true);
+	}
+	// Play the death component animation
+	DeathEffectComp->Play();
+	// hide the mesh so only the death animation plays
+	GetMesh()->SetVisibility(false, false);
+	// Then destroy after a delay
+	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, this, &AWotCharacter::Destroy_TimeElapsed, KilledDestroyDelay);
+}
+
+void AWotCharacter::Destroy_TimeElapsed()
+{
+	Destroy();
 }

@@ -58,8 +58,6 @@ void AWotProjectile::PostInitializeComponents()
   SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
   if (EffectNiagaraSystem) {
     EffectNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(EffectNiagaraSystem, SphereComp, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
-    // Parameters can be set like this:
-    // EffectNiagaraComp->SetNiagaraVariableFloat(FString("StrengthCoef"), CoefStrength);
   }
 
   SetLifeSpan(ProjectileLifeSpan);

@@ -11,6 +11,7 @@ class UCineCameraComponent;
 class USpringArmComponent;
 class UWotInteractionComponent;
 class UWotAttributeComponent;
+class UWotDeathEffectComponent;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -41,23 +42,23 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
 	USpringArmComponent* SpringArmComp;
 
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
 	UCineCameraComponent* CineCameraComp;
 
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
 	UWotInteractionComponent* InteractionComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotAttributeComponent* AttributeComp;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
+	UWotDeathEffectComponent* DeathEffectComp;
+
 	void SetupSpringArm();
 	void SetupCineCamera();
-
-	void MoveForward(float value);
-	void MoveRight(float value);
 
 	// Movement
 	void HandleMovementInput();
@@ -66,11 +67,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
-
-	UFUNCTION(BlueprintCallable)
-	void LightAttack();
-	UFUNCTION(BlueprintCallable)
-	void HeavyAttack();
 
 	// Interaction
 	UFUNCTION(BlueprintCallable)
@@ -83,6 +79,13 @@ protected:
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta);
+
+	UFUNCTION()
+	void OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp);
+
+	float KilledDestroyDelay = 2.0f;
+	FTimerHandle TimerHandle_Destroy;
+	void Destroy_TimeElapsed();
 
 	virtual void PostInitializeComponents() override;
 
