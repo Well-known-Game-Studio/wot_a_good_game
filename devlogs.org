@@ -52,9 +52,6 @@
 - [ ] Allow each animal to have a different amount of player avoidance
 - [ ] Move to using WotCharacter instead of ThirdPersonCharacter (migrate code)
 - [ ] Fade objects between camera and player
-- [ ] Add start menu
-- [ ] Add pause menu
-- [ ] Add death / respawn menu
 
 ** Code
 
@@ -64,9 +61,16 @@
 - [ ] Create [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]] system
 - [ ] Migrate equippable code from BP to C++
 - [ ] Migrate attack code from BP to C++
+- [ ] Character death should respawn (C++)
+
+** GUI
+
+- [ ] Add start menu
+- [ ] Add pause menu
+- [ ] Add death / respawn menu
 - [ ] Migrate UI code from BP to C++ to allow c++ to create / manage UI widgets (healthbar, popup, interaction text)
 - [ ] Create HUD (C++) https://benui.ca/unreal/ui-setup/
-- [ ] Character death should respawn (C++)
+- [ ] Add Isle Of Lore 2 Icons to UI
 
 ** Models
 
