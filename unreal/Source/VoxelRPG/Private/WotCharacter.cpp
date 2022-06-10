@@ -6,15 +6,16 @@
 #include "WotDeathEffectComponent.h"
 #include "WotInteractionComponent.h"
 #include "CineCameraComponent.h"
+#include "GameFramework/GameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Math/Color.h"
 #include "Engine/EngineTypes.h"
-
-// For Debug:
-#include "DrawDebugHelpers.h"
+#include "Blueprint/UserWidget.h"
+#include "UI/WotUWHealthBar.h"
 
 // Sets default values
 AWotCharacter::AWotCharacter()
@@ -209,6 +210,7 @@ void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeCompon
 
 void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp)
 {
+	// TODO: Disable movement
 	// turn off collision & physics
 	TurnOff(); // freezes the pawn state
 	GetCapsuleComponent()->SetSimulatePhysics(false);
@@ -237,7 +239,31 @@ void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* Ow
 	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, this, &AWotCharacter::Destroy_TimeElapsed, KilledDestroyDelay);
 }
 
+void AWotCharacter::ShowHealthBarWidget(float NewHealth, float Delta, float Duration)
+{
+	UUserWidget* HealthBarWidget = CreateWidget<UUserWidget>(GetWorld(), HealthBarWidgetClass);
+	HealthBarWidget->AddToViewport();
+}
+
+void AWotCharacter::ShowPopupWidget(FString Text, float Duration)
+{
+	UUserWidget* PopupWidget = CreateWidget<UUserWidget>(GetWorld(), PopupWidgetClass);
+	PopupWidget->AddToViewport();
+}
+
+void AWotCharacter::ShowActionTextWidget(FString Text, float Duration)
+{
+	UUserWidget* ActionTextWidget = CreateWidget<UUserWidget>(GetWorld(), ActionTextWidgetClass);
+	ActionTextWidget->AddToViewport();
+}
+
 void AWotCharacter::Destroy_TimeElapsed()
 {
+	// Destroy the current player
 	Destroy();
+	// And restart
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
+	if (ensure(GameMode)) {
+		GameMode->RestartPlayer(GetController());
+	}
 }

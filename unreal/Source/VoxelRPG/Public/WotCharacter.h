@@ -12,6 +12,8 @@ class USpringArmComponent;
 class UWotInteractionComponent;
 class UWotAttributeComponent;
 class UWotDeathEffectComponent;
+class UUserWidget;
+class UWotUWHealthBar;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -31,6 +33,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UWotUWHealthBar> HealthBarWidgetClass;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> PopupWidgetClass;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UUserWidget> ActionTextWidgetClass;
 
 	FTimerHandle TimerHandle_PrimaryAttack;
 
@@ -82,6 +93,15 @@ protected:
 
 	UFUNCTION()
 	void OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowHealthBarWidget(float NewHealth, float Delta, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowPopupWidget(FString Text, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowActionTextWidget(FString Text, float Duration);
 
 	float KilledDestroyDelay = 2.0f;
 	FTimerHandle TimerHandle_Destroy;

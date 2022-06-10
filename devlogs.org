@@ -13,6 +13,7 @@
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] surfaces trigger overlap events with projectiles
 - [ ] Arrows do not trigger overlaps with static meshes
+- [ ] Magic effects are not currently within the git repo
 
 ** General
 
@@ -25,6 +26,8 @@
 - [ ] [[id:2646bd9e-c7f4-4542-b702-f0a209fe7c60][Gameplay Abilities System]]
 - [ ] Level Loading System
 - [ ] State Saving / Loading System
+- [ ] [[id:bc1ba8f2-0c28-4b6a-9409-7b4e7cb3daec][Unreal Engine Data Tables]]
+- [ ] [[id:bed29d32-6d95-499c-8f49-0ed2d3cc627e][Unreal Engine Subsystem Framework]] (lifetime managed singletons)
 
 ** Game
 
@@ -48,6 +51,10 @@
 - [ ] Update animals to use [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] - avoid player until after petting
 - [ ] Allow each animal to have a different amount of player avoidance
 - [ ] Move to using WotCharacter instead of ThirdPersonCharacter (migrate code)
+- [ ] Fade objects between camera and player
+- [ ] Add start menu
+- [ ] Add pause menu
+- [ ] Add death / respawn menu
 
 ** Code
 
@@ -57,6 +64,9 @@
 - [ ] Create [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]] system
 - [ ] Migrate equippable code from BP to C++
 - [ ] Migrate attack code from BP to C++
+- [ ] Migrate UI code from BP to C++ to allow c++ to create / manage UI widgets (healthbar, popup, interaction text)
+- [ ] Create HUD (C++) https://benui.ca/unreal/ui-setup/
+- [ ] Character death should respawn (C++)
 
 ** Models
 
@@ -108,6 +118,7 @@
 - [X] Add WotGameModeBase (C++) Which spawns bots using [[id:9bce7262-b02d-48e9-b133-a6fde84730cb][Environment Query System (EQS)]]
 - [X] learn: Entity spawning system (NPC, items, etc.)
 - [X] bug: player respawn tied directly to specific game mode (doesn't need to be)
+- [X] Restart player on death (c++)
 
 * Week of 2022-05-29
 
