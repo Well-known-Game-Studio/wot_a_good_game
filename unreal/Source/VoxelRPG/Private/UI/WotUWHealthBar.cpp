@@ -1,26 +1,59 @@
 #include "UI/WotUWHealthBar.h"
 #include "UI/WotProgressBar.h"
 #include "UI/WotTextBlock.h"
-#include "WotAttributeComponent.h"
 
 void UWotUWHealthBar::NativeConstruct()
 {
   Super::NativeConstruct();
 }
 
+void UWotUWHealthBar::SetFillColor(FLinearColor& NewFillColor)
+{
+  HealthBar->SetFillColorAndOpacity(NewFillColor);
+}
+
+void UWotUWHealthBar::SetDuration(float NewDuration) {
+  TimeRemaining = Duration;
+  Super::SetDuration(NewDuration);
+}
+
+void UWotUWHealthBar::SetHealth(float NewHealthStart, float NewHealthEnd, float NewHealthMax)
+{
+  HealthStart = NewHealthStart;
+  HealthCurrent = HealthStart;
+  HealthEnd = NewHealthEnd;
+  HealthMax = NewHealthMax;
+  // Set the health text and progress
+  UpdateHealth(1.0f);
+}
+
+void UWotUWHealthBar::UpdateHealth(float Interpolation)
+{
+  // Lerp current health between Start/End based on Interpolation
+  HealthCurrent = (HealthStart - HealthEnd) * Interpolation + HealthEnd;
+  HealthBar->SetPercent(HealthCurrent / HealthMax);
+  FNumberFormattingOptions Opts;
+  Opts.SetMaximumFractionalDigits(0);
+  CurrentHealthLabel->SetText(FText::AsNumber(HealthCurrent, &Opts));
+  MaxHealthLabel->SetText(FText::AsNumber(HealthMax, &Opts));
+}
+
 void UWotUWHealthBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
   Super::NativeTick(MyGeometry, InDeltaTime);
 
-  if (!OwnerAttributeComp.IsValid()) {
+  if (!AttachTo.IsValid()) {
     return;
   }
-
-  float CurrentHealth = OwnerAttributeComp->GetHealth();
-  float MaxHealth = OwnerAttributeComp->GetHealthMax();
-  HealthBar->SetPercent(CurrentHealth / MaxHealth);
-  FNumberFormattingOptions Opts;
-  Opts.SetMaximumFractionalDigits(0);
-  CurrentHealthLabel->SetText(FText::AsNumber(CurrentHealth, &Opts));
-  MaxHealthLabel->SetText(FText::AsNumber(MaxHealth, &Opts));
+  // Use the duration as the interpolation
+  TimeRemaining = std::max(TimeRemaining - InDeltaTime, 0.0f);
+  float Interpolation = 0;
+  if (Duration > 0) {
+    Interpolation = TimeRemaining / Duration;
+  }
+  // Lerp the Health
+  UpdateHealth(Interpolation);
+  // now draw it in the right place (based on location of AttachTo actor)
+  FVector Location = AttachTo->GetActorLocation() + Offset;
+  SetPosition(Location);
 }

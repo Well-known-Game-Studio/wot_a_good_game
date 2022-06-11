@@ -14,7 +14,16 @@ class VOXELRPG_API UWotUWHealthBar : public UWotUserWidget
     GENERATED_BODY()
 
 public:
-    void SetOwnerAttributeComponent(UWotAttributeComponent* InAttributeComponent) { OwnerAttributeComp = InAttributeComponent; }
+    void SetAttachTo(AActor* InAttachTo) { AttachTo = InAttachTo; }
+    void SetOffset(const FVector& NewOffset) { Offset = NewOffset; }
+
+    UFUNCTION(BlueprintCallable)
+    void SetHealth(float NewHealthStart, float NewHealthEnd, float HealthMax);
+
+    UFUNCTION(BlueprintCallable)
+    void SetFillColor(FLinearColor& NewFillColor);
+
+    virtual void SetDuration(float NewDuration) override;
 
 protected:
     // Doing setup in the C++ constructor is not as
@@ -23,7 +32,7 @@ protected:
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-    TWeakObjectPtr<UWotAttributeComponent> OwnerAttributeComp;
+    TWeakObjectPtr<AActor> AttachTo;
 
     UPROPERTY( meta = ( BindWidget ) )
     UWotProgressBar* HealthBar;
@@ -33,4 +42,16 @@ protected:
 
     UPROPERTY( meta = ( BindWidget ) )
     UWotTextBlock* MaxHealthLabel;
+
+    UPROPERTY( EditAnywhere, BlueprintReadWrite )
+    FVector Offset = FVector(0, 0, 100.0f);
+
+    float HealthStart;
+    float HealthCurrent;
+    float HealthEnd;
+    float HealthMax;
+    float TimeRemaining{0};
+
+    UFUNCTION()
+    void UpdateHealth(float Interpolation);
 };

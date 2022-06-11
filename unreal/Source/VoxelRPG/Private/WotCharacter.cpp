@@ -204,6 +204,7 @@ void AWotCharacter::HitFlash()
 
 void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+	ShowHealthBarWidget(NewHealth, Delta, 1.0f);
 	if (Delta < 0.0f) {
 		HitFlash();
 	}
@@ -246,7 +247,14 @@ void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* Ow
 
 void AWotCharacter::ShowHealthBarWidget(float NewHealth, float Delta, float Duration)
 {
-	UUserWidget* HealthBarWidget = CreateWidget<UUserWidget>(GetWorld(), HealthBarWidgetClass);
+	// AController* Controller = GetController();
+	UWotUWHealthBar* HealthBarWidget = CreateWidget<UWotUWHealthBar>(GetWorld(), HealthBarWidgetClass);
+	HealthBarWidget->SetDuration(Duration);
+	float HealthMax = AttributeComp->GetHealthMax();
+	float HealthStart = NewHealth - Delta;
+	float HealthEnd = NewHealth;
+	HealthBarWidget->SetHealth(HealthStart, HealthEnd, HealthMax);
+	HealthBarWidget->SetAttachTo(this);
 	HealthBarWidget->AddToViewport();
 }
 
