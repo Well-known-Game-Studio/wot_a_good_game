@@ -61,7 +61,6 @@
 - [ ] Create [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]] system
 - [ ] Migrate equippable code from BP to C++
 - [ ] Migrate attack code from BP to C++
-- [ ] Character death should respawn (C++)
 
 ** GUI
 
@@ -123,6 +122,8 @@
 - [X] learn: Entity spawning system (NPC, items, etc.)
 - [X] bug: player respawn tied directly to specific game mode (doesn't need to be)
 - [X] Restart player on death (c++)
+- [X] bugfix: Character death should respawn (C++)
+- [X] bugfix: movement not bound in character c++
 
 * Week of 2022-05-29
 

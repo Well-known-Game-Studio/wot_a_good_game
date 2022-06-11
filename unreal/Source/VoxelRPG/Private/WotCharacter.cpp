@@ -169,6 +169,11 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// We're interested in knowing the axis value, but don't need a delegate for
+	// it (we read it in the tick event)
+	PlayerInputComponent->BindAxis("MoveForward");
+	PlayerInputComponent->BindAxis("MoveRight");
+
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
@@ -259,11 +264,13 @@ void AWotCharacter::ShowActionTextWidget(FString Text, float Duration)
 
 void AWotCharacter::Destroy_TimeElapsed()
 {
+	// Store the controller reference
+	AController* Controller = GetController();
 	// Destroy the current player
 	Destroy();
 	// And restart
 	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
 	if (ensure(GameMode)) {
-		GameMode->RestartPlayer(GetController());
+		GameMode->RestartPlayer(Controller);
 	}
 }
