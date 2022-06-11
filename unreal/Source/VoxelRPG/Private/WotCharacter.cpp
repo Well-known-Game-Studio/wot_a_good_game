@@ -16,7 +16,7 @@
 #include "Engine/EngineTypes.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/WotUWHealthBar.h"
-#include "UI/WotUWPopup.h"
+#include "UI/WotUWPopupNumber.h"
 
 // Sets default values
 AWotCharacter::AWotCharacter()
@@ -206,11 +206,7 @@ void AWotCharacter::HitFlash()
 void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
 	ShowHealthBarWidget(NewHealth, Delta, 1.0f);
-	FNumberFormattingOptions Opts;
-	Opts.AlwaysSign = true;
-	Opts.SetMaximumFractionalDigits(0);
-	FText PopupText = FText::AsNumber(Delta, &Opts);
-	ShowPopupWidget(PopupText, 1.0f);
+	ShowPopupWidgetNumber(Delta, 1.0f);
 	if (Delta < 0.0f) {
 		HitFlash();
 	}
@@ -263,6 +259,18 @@ void AWotCharacter::ShowHealthBarWidget(float NewHealth, float Delta, float Dura
 		HealthBarWidget->SetAttachTo(this);
 		HealthBarWidget->PlayTextUpdateAnimation();
 		HealthBarWidget->AddToViewport();
+	}
+}
+
+void AWotCharacter::ShowPopupWidgetNumber(int Number, float Duration)
+{
+	if (PopupWidgetClass) {
+		UWotUWPopupNumber* PopupWidget = CreateWidget<UWotUWPopupNumber>(GetWorld(), PopupWidgetClass);
+		PopupWidget->SetDuration(Duration);
+		PopupWidget->SetNumber(Number);
+		PopupWidget->SetAttachTo(this);
+		PopupWidget->PlayPopupAnimation();
+		PopupWidget->AddToViewport();
 	}
 }
 

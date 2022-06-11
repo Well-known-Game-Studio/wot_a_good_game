@@ -7,6 +7,8 @@
 class UPawnSensingComponent;
 class UWotAttributeComponent;
 class UWotDeathEffectComponent;
+class UWotUWHealthBar;
+class UWotUWPopupNumber;
 
 UCLASS()
 class VOXELRPG_API AWotAICharacter : public ACharacter
@@ -30,6 +32,15 @@ protected:
 
   virtual void PostInitializeComponents() override;
 
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowHealthBarWidget(float NewHealth, float Delta, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowPopupWidget(const FText& Text, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowPopupWidgetNumber(int Number, float Duration);
+
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotAttributeComponent* AttributeComp;
 
@@ -38,6 +49,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotDeathEffectComponent* DeathEffectComp;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UWotUWHealthBar> HealthBarWidgetClass;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UWotUWPopupNumber> PopupWidgetClass;
 
   UFUNCTION()
   void OnPawnSeen(APawn* Pawn);

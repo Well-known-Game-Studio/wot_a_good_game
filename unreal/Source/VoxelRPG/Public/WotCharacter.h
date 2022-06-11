@@ -14,7 +14,7 @@ class UWotAttributeComponent;
 class UWotDeathEffectComponent;
 class UUserWidget;
 class UWotUWHealthBar;
-class UWotUWPopup;
+class UWotUWPopupNumber;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -39,7 +39,7 @@ protected:
 	TSubclassOf<UWotUWHealthBar> HealthBarWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<UWotUWPopup> PopupWidgetClass;
+	TSubclassOf<UWotUWPopupNumber> PopupWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UUserWidget> ActionTextWidgetClass;
@@ -100,6 +100,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowPopupWidget(const FText& Text, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowPopupWidgetNumber(int Number, float Duration);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowActionTextWidget(FString Text, float Duration);

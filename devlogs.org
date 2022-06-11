@@ -67,7 +67,6 @@
 - [ ] Add start menu
 - [ ] Add pause menu
 - [ ] Add death / respawn menu
-- [ ] Migrate UI code from BP to C++ to allow c++ to create / manage UI widgets (healthbar, popup, interaction text)
 - [ ] Create HUD (C++) https://benui.ca/unreal/ui-setup/
 - [ ] Add Isle Of Lore 2 Icons to UI
 
@@ -124,6 +123,10 @@
 - [X] Restart player on death (c++)
 - [X] bugfix: Character death should respawn (C++)
 - [X] bugfix: movement not bound in character c++
+- [X] Migrate UI code from BP to C++ to allow c++ to create / manage UI widgets (healthbar, popup, interaction text)
+- [X] Update so WotCharacter (c++) shows health progress bar widget and damage/healing popup widget
+- [X] Update so RangedMinion (c++) has health widgets
+- [X] Create BP subclasses of WotUWPopupNumber and WotUWHealthBar and add them to the character & minion classes
 
 * Week of 2022-05-29
 

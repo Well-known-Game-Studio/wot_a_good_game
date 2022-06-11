@@ -3,12 +3,12 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
-#include "DrawDebugHelpers.h"
 #include "WotAttributeComponent.h"
 #include "WotDeathEffectComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/EngineTypes.h"
-
+#include "UI/WotUWHealthBar.h"
+#include "UI/WotUWPopupNumber.h"
 
 AWotAICharacter::AWotAICharacter()
 {
@@ -34,7 +34,6 @@ void AWotAICharacter::OnPawnSeen(APawn* Pawn)
   if (AIC) {
     UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
     BBComp->SetValueAsObject("TargetActor", Pawn);
-    DrawDebugString(GetWorld(), GetActorLocation(), "PLAYER SPOTTED", nullptr, FColor::White, 4.0f, true);
   }
 }
 
@@ -55,9 +54,49 @@ void AWotAICharacter::HitFlash()
 	Mesh->SetScalarParameterValueOnMaterials("FlashTimeFactor", 2.0f);
 }
 
+void AWotAICharacter::ShowHealthBarWidget(float NewHealth, float Delta, float Duration)
+{
+	if (HealthBarWidgetClass) {
+		UWotUWHealthBar* HealthBarWidget = CreateWidget<UWotUWHealthBar>(GetWorld(), HealthBarWidgetClass);
+		HealthBarWidget->SetDuration(Duration);
+		float HealthMax = AttributeComp->GetHealthMax();
+		float HealthStart = NewHealth - Delta;
+		float HealthEnd = NewHealth;
+		HealthBarWidget->SetHealth(HealthStart, HealthEnd, HealthMax);
+		HealthBarWidget->SetAttachTo(this);
+		HealthBarWidget->PlayTextUpdateAnimation();
+		HealthBarWidget->AddToViewport();
+	}
+}
+
+void AWotAICharacter::ShowPopupWidgetNumber(int Number, float Duration)
+{
+	if (PopupWidgetClass) {
+		UWotUWPopupNumber* PopupWidget = CreateWidget<UWotUWPopupNumber>(GetWorld(), PopupWidgetClass);
+		PopupWidget->SetDuration(Duration);
+		PopupWidget->SetNumber(Number);
+		PopupWidget->SetAttachTo(this);
+		PopupWidget->PlayPopupAnimation();
+		PopupWidget->AddToViewport();
+	}
+}
+
+void AWotAICharacter::ShowPopupWidget(const FText& Text, float Duration)
+{
+	if (PopupWidgetClass) {
+		UWotUWPopup* PopupWidget = CreateWidget<UWotUWPopup>(GetWorld(), PopupWidgetClass);
+		PopupWidget->SetDuration(Duration);
+		PopupWidget->SetText(Text);
+		PopupWidget->SetAttachTo(this);
+		PopupWidget->PlayPopupAnimation();
+		PopupWidget->AddToViewport();
+	}
+}
 
 void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+	ShowHealthBarWidget(NewHealth, Delta, 1.0f);
+	ShowPopupWidgetNumber(Delta, 1.0f);
   if (Delta < 0.0f) {
 		HitFlash();
     // TODO: how do we want to apply stun effect?
