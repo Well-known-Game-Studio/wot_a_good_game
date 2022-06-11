@@ -25,6 +25,9 @@ public:
 
     virtual void SetDuration(float NewDuration) override;
 
+    UFUNCTION(BlueprintCallable)
+    void PlayTextUpdateAnimation();
+
 protected:
     // Doing setup in the C++ constructor is not as
     // useful as using NativeConstruct.
@@ -42,6 +45,9 @@ protected:
 
     UPROPERTY( meta = ( BindWidget ) )
     UWotTextBlock* MaxHealthLabel;
+
+    UPROPERTY( Transient, meta = ( BindWidgetAnimOptional ) )
+    UWidgetAnimation* TextUpdateAnim;
 
     UPROPERTY( EditAnywhere, BlueprintReadWrite )
     FVector Offset = FVector(0, 0, 100.0f);

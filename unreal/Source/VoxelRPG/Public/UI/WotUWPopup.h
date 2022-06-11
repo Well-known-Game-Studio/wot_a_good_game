@@ -21,6 +21,9 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetColor(FLinearColor& NewColor);
 
+    UFUNCTION(BlueprintCallable)
+    void PlayPopupAnimation();
+
 protected:
     // Doing setup in the C++ constructor is not as
     // useful as using NativeConstruct.
@@ -29,6 +32,9 @@ protected:
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
     TWeakObjectPtr<AActor> AttachTo;
+
+    UPROPERTY( Transient, meta = ( BindWidgetAnimOptional ) )
+    UWidgetAnimation* PopupAnim;
 
     UPROPERTY( meta = ( BindWidget ) )
     UWotTextBlock* TextWidget;

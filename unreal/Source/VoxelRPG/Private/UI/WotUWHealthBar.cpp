@@ -27,6 +27,17 @@ void UWotUWHealthBar::SetHealth(float NewHealthStart, float NewHealthEnd, float 
   UpdateHealth(1.0f);
 }
 
+void UWotUWHealthBar::PlayTextUpdateAnimation()
+{
+  if (TextUpdateAnim) {
+    float StartAtTime = 0.0f;
+    int NumLoops = 1;
+    EUMGSequencePlayMode::Type PlayMode = EUMGSequencePlayMode::Type::Forward;
+    float PlaybackSpeed = 1.0f;
+    PlayAnimation(TextUpdateAnim, StartAtTime, NumLoops, PlayMode, PlaybackSpeed);
+  }
+}
+
 void UWotUWHealthBar::UpdateHealth(float Interpolation)
 {
   // Lerp current health between Start/End based on Interpolation
