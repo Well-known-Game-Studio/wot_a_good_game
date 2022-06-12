@@ -48,7 +48,6 @@
 - [ ] mouse + keyboard support (to aim where mouse looks)
 - [ ] Make blendspace 2d for holding bow, walking, idling
 - [ ] Allow player to pet animals (animal base class and interaction)
-- [ ] Update animals to use [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] - avoid player until after petting
 - [ ] Allow each animal to have a different amount of player avoidance
 - [ ] Move to using WotCharacter instead of ThirdPersonCharacter (migrate code)
 - [ ] Fade objects between camera and player
@@ -106,6 +105,7 @@
 - [ ] Chest
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
+
 * Week of 2022-06-12
 
 - [X] Update so that base NPC class extends WotGameplayInterface for interaction
