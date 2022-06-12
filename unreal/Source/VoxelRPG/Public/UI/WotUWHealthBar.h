@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "UI/WotUserWidget.h"
-#include "WotAttributeComponent.h"
 #include "WotUWHealthBar.generated.h"
 
 class UWotProgressBar;

@@ -51,6 +51,7 @@
 - [ ] Allow each animal to have a different amount of player avoidance
 - [ ] Move to using WotCharacter instead of ThirdPersonCharacter (migrate code)
 - [ ] Fade objects between camera and player
+- [ ] Allow character to tell NPC to stay put after having them follow
 
 ** Code
 
@@ -68,6 +69,7 @@
 - [ ] Add death / respawn menu
 - [ ] Create HUD (C++) https://benui.ca/unreal/ui-setup/
 - [ ] Add Isle Of Lore 2 Icons to UI
+- [ ] Inventory widgets https://benui.ca/unreal/ui-synchronize-properties/
 
 ** Models
 
