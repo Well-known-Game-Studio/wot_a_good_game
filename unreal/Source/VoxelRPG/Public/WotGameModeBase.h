@@ -39,6 +39,9 @@ protected:
   UPROPERTY(EditDefaultsOnly, Category = "AI")
   float SpawnTimerInterval;
 
+  UPROPERTY(EditDefaultsOnly, Category = "AI")
+  float SpawnTimerInitialDelay;
+
   UFUNCTION()
   void SpawnBotTimerElapsed();
 };

@@ -16,7 +16,7 @@ void AWotGameModeBase::StartPlay()
 
   // Continuous timer to spawn more bots. Actual amount of bots and whether it
   // is allowed to spawn determined by logic later in the chain...
-  GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AWotGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+  GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AWotGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true, SpawnTimerInitialDelay);
 }
 
 void AWotGameModeBase::SpawnBotTimerElapsed()
