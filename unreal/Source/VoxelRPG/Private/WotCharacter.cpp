@@ -112,6 +112,7 @@ void AWotCharacter::PrimaryAttack_TimeElapsed()
 		auto SpawnTM = FTransform(GetActorRotation(), HandLocation);
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		// Set the instigator so the projectile doesn't interact / damage the owner pawn
 		SpawnParams.Instigator = this;
 
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);

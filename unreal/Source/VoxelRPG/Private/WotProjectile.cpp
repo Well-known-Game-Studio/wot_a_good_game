@@ -46,7 +46,7 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
   if (OtherActor && OtherActor != GetInstigator()) {
     UWotAttributeComponent* AttributeComp = Cast<UWotAttributeComponent>(OtherActor->GetComponentByClass(UWotAttributeComponent::StaticClass()));
     if (AttributeComp) {
-      AttributeComp->ApplyHealthChange(Damage);
+      AttributeComp->ApplyHealthChangeInstigator(GetInstigator(), Damage);
       Explode();
     }
   }

@@ -38,6 +38,11 @@ bool UWotAttributeComponent::IsFullHealth() const
 
 bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 {
+	return ApplyHealthChangeInstigator(nullptr, Delta);
+}
+
+bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor, float Delta)
+{
 	// we cannot be damaged if we are currently stunned
 	if (bIsStunned && Delta < 0.0f) {
 		return false;
@@ -46,10 +51,10 @@ bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 	Health = std::clamp(Health+Delta, 0.0f, HealthMax);
 	const auto ActualDelta = Health - PriorHealth;
 	if (ActualDelta != 0) {
-		OnHealthChanged.Broadcast(nullptr, this, Health, ActualDelta);
+		OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
 		if (Health <= 0.0f) {
 			// Health drops to or below 0, trigger kill event
-			OnKilled.Broadcast(nullptr, this);
+			OnKilled.Broadcast(InstigatorActor, this);
 		}
 	}
 	if (ActualDelta < 0.0f) {

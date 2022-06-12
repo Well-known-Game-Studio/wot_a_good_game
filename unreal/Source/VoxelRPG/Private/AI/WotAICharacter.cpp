@@ -95,8 +95,23 @@ void AWotAICharacter::ShowPopupWidget(const FText& Text, float Duration)
 
 void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
+  // set the instigator as the damage actor
+  AAIController* AIC = Cast<AAIController>(GetController());
+  if (AIC) {
+    UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
+    UE_LOG(LogTemp, Warning, TEXT("Setting DamageActor!"));
+    APawn* InstigatorPawn = Cast<APawn>(InstigatorActor);
+    if (InstigatorPawn) {
+      UE_LOG(LogTemp, Warning, TEXT("Set DamageActor to pawn!"));
+    } else {
+      UE_LOG(LogTemp, Warning, TEXT("Could not get pawn for actor: %s"), *AActor::GetDebugName(InstigatorActor));
+    }
+    BBComp->SetValueAsObject("DamageActor", InstigatorPawn);
+  }
+  // and show the health widgets
 	ShowHealthBarWidget(NewHealth, Delta, 1.0f);
 	ShowPopupWidgetNumber(Delta, 1.0f);
+  // and flash that we were hit
   if (Delta < 0.0f) {
 		HitFlash();
     // TODO: how do we want to apply stun effect?
