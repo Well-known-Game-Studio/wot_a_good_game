@@ -99,14 +99,13 @@ void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComp
   AAIController* AIC = Cast<AAIController>(GetController());
   if (AIC) {
     UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
-    UE_LOG(LogTemp, Warning, TEXT("Setting DamageActor!"));
     APawn* InstigatorPawn = Cast<APawn>(InstigatorActor);
-    if (InstigatorPawn) {
-      UE_LOG(LogTemp, Warning, TEXT("Set DamageActor to pawn!"));
-    } else {
-      UE_LOG(LogTemp, Warning, TEXT("Could not get pawn for actor: %s"), *AActor::GetDebugName(InstigatorActor));
-    }
     BBComp->SetValueAsObject("DamageActor", InstigatorPawn);
+    // Then destroy after a delay
+    GetWorldTimerManager().SetTimer(TimerHandle_ForgetDamageActor,
+                                    this,
+                                    &AWotAICharacter::ForgetDamageActor_TimeElapsed,
+                                    DamageActorForgetDelay);
   }
   // and show the health widgets
 	ShowHealthBarWidget(NewHealth, Delta, 1.0f);
@@ -151,4 +150,13 @@ void AWotAICharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* 
 void AWotAICharacter::Destroy_TimeElapsed()
 {
 	Destroy();
+}
+
+void AWotAICharacter::ForgetDamageActor_TimeElapsed()
+{
+  AAIController* AIC = Cast<AAIController>(GetController());
+  if (AIC) {
+    UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
+    BBComp->SetValueAsObject("DamageActor", nullptr);
+  }
 }

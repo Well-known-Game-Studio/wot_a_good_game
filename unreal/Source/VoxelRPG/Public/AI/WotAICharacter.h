@@ -59,6 +59,10 @@ protected:
   UFUNCTION()
   void OnPawnSeen(APawn* Pawn);
 
+	float DamageActorForgetDelay = 5.0f;
+	FTimerHandle TimerHandle_ForgetDamageActor;
+	void ForgetDamageActor_TimeElapsed();
+
 	float KilledDestroyDelay = 2.0f;
 	FTimerHandle TimerHandle_Destroy;
 	void Destroy_TimeElapsed();
