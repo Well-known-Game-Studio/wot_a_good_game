@@ -39,6 +39,7 @@ void UWotInteractionComponent::PrimaryInteract()
 {
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
 
 	AActor* MyOwner = GetOwner();
 
@@ -82,6 +83,8 @@ void UWotInteractionComponent::PrimaryInteract()
 					DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, FColor::Green, false, 2.0f);
 				}
 				break;
+			} else {
+				// get all components and see if they implement it
 			}
 		}
 		if (bDrawDebug) {

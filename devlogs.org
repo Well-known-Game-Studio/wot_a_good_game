@@ -106,6 +106,15 @@
 - [ ] Chest
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
+* Week of 2022-06-12
+
+- [X] Update so that base NPC class extends WotGameplayInterface for interaction
+- [X] Update NPC Behavior Tree to have a FollowActor which it follows if set
+- [X] Added query context for finding location around FollowActor
+- [X] Added Behavior Tree Task (BP) for clearing the FollowActor if the NPC is damaged
+- [X] Update so the NPC_Base (BP) class implements the interaction response and sets the FollowActor
+- [X] Added Herding_TestMap for testing herding and petting of animals
+- [X] Update Interaction component to interact with pawns as well
 
 * Week of 2022-06-05
 
@@ -127,6 +136,9 @@
 - [X] Update so WotCharacter (c++) shows health progress bar widget and damage/healing popup widget
 - [X] Update so RangedMinion (c++) has health widgets
 - [X] Create BP subclasses of WotUWPopupNumber and WotUWHealthBar and add them to the character & minion classes
+- [X] Update NPCs to use the WotAICharacter base class with their own [[id:0d87b52e-b537-4e31-9425-389518e8af59][Behavior Trees]] (flee, follow, random)
+- [X] Update projectile base class to trigger evasion / flee response on NPCs
+- [X] Update arrow to trigger NPC evasion / flee response
 
 * Week of 2022-05-29
 

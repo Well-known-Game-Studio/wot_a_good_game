@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "WotGameplayInterface.h"
 #include "WotAICharacter.generated.h"
 
 class UPawnSensingComponent;
@@ -11,7 +12,7 @@ class UWotUWHealthBar;
 class UWotUWPopupNumber;
 
 UCLASS()
-class VOXELRPG_API AWotAICharacter : public ACharacter
+class VOXELRPG_API AWotAICharacter : public ACharacter, public IWotGameplayInterface
 {
   GENERATED_BODY()
 
