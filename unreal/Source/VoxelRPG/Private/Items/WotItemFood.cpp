@@ -1,6 +1,7 @@
 #include "Items/WotItemFood.h"
 #include "GameFramework/Character.h"
 #include "WotAttributeComponent.h"
+#include "WotInventoryComponent.h"
 
 UWotItemFood::UWotItemFood()
 {
@@ -20,4 +21,10 @@ void UWotItemFood::Use(ACharacter* Character)
   }
   // And Heal Them
   AttributeComp->ApplyHealthChange(HealingAmount);
+  // remove it from the inventory
+  if (OwningInventory) {
+    OwningInventory->RemoveItem(this);
+  }
+  // then destroy?
+  ConditionalBeginDestroy();
 }
