@@ -30,8 +30,8 @@ void UWotUWInventoryPanel::SynchronizeProperties()
         UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), ItemWidgetClass);
         if (Widget) {
           UUniformGridSlot* GridSlot = Grid->AddChildToUniformGrid(Widget, row, col);
-          GridSlot->SetColumn(col);
-          GridSlot->SetRow(row);
+          // GridSlot->SetColumn(col);
+          // GridSlot->SetRow(row);
         }
       }
     }

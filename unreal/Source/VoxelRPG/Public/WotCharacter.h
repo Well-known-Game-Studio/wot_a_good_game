@@ -15,6 +15,7 @@ class UWotDeathEffectComponent;
 class UUserWidget;
 class UWotUWHealthBar;
 class UWotUWPopupNumber;
+class UWotItem;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -83,6 +84,10 @@ protected:
 	// Interaction
 	UFUNCTION(BlueprintCallable)
 	void PrimaryInteract();
+
+	UFUNCTION(BlueprintCallable)
+	void UseItem(UWotItem* Item);
+
 	UFUNCTION(BlueprintCallable)
 	void Drop();
 

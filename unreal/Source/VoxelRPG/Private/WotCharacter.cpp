@@ -17,6 +17,7 @@
 #include "Blueprint/UserWidget.h"
 #include "UI/WotUWHealthBar.h"
 #include "UI/WotUWPopupNumber.h"
+#include "Items/WotItem.h"
 
 // Sets default values
 AWotCharacter::AWotCharacter()
@@ -124,6 +125,14 @@ void AWotCharacter::PrimaryInteract()
 	if (InteractionComp)
 	{
 		InteractionComp->PrimaryInteract();
+	}
+}
+
+void AWotCharacter::UseItem(UWotItem* Item)
+{
+	if (Item) {
+		Item->Use(this);
+		Item->OnUse(this); // blueprint version
 	}
 }
 
