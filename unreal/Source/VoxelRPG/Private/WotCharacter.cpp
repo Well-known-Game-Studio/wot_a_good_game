@@ -3,6 +3,7 @@
 
 #include "WotCharacter.h"
 #include "WotAttributeComponent.h"
+#include "WotInventoryComponent.h"
 #include "WotDeathEffectComponent.h"
 #include "WotInteractionComponent.h"
 #include "CineCameraComponent.h"
@@ -36,6 +37,8 @@ AWotCharacter::AWotCharacter()
 	InteractionComp = CreateDefaultSubobject<UWotInteractionComponent>("InteractionComp");
 
 	AttributeComp = CreateDefaultSubobject<UWotAttributeComponent>("AttributeComp");
+
+	InventoryComp = CreateDefaultSubobject<UWotInventoryComponent>("InventoryComp");
 
 	DeathEffectComp = CreateDefaultSubobject<UWotDeathEffectComponent>("DeathEffectComp");
 

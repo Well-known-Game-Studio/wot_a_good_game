@@ -10,6 +10,7 @@ class UStaticMesh;
 class UTexture2D;
 class UWotInventoryComponent;
 class ACharacter;
+class UWorld;
 
 UCLASS( Abstract, BlueprintType, Blueprintable, EditInlineNew, DefaultToInstanced)
 class VOXELRPG_API UWotItem : public UObject
@@ -19,6 +20,11 @@ class VOXELRPG_API UWotItem : public UObject
 public:
 	// Sets default values for this component's properties
 	UWotItem();
+
+    virtual UWorld* GetWorld() const { return World; }
+
+    UPROPERTY(Transient)
+    UWorld* World;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item")
     FText UseActionText;

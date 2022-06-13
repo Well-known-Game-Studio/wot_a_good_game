@@ -76,7 +76,7 @@ void AWotProjectile::Explode_Implementation()
 {
   // Check to make sure we aren't already being 'destroyed'
   // Adding ensure to see if we encounter this situation at all
-  if (ensure(!IsPendingKill())) {
+  if (ensure(IsValid(this))) {
     if (ImpactNiagaraSystem) {
       auto ImpactNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,
                                                                               ImpactNiagaraSystem,
