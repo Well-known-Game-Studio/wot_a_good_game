@@ -23,7 +23,10 @@ public:
     // Called when the game starts
     virtual void BeginPlay() override;
 
+    UFUNCTION(BlueprintCallable)
     bool AddItem(UWotItem* Item);
+
+    UFUNCTION(BlueprintCallable)
     bool RemoveItem(UWotItem* Item);
 
     UPROPERTY(BlueprintAssignable, Category = "Inventory")
