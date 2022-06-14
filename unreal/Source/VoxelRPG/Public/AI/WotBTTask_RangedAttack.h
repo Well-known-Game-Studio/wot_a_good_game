@@ -14,5 +14,12 @@ class VOXELRPG_API UWotBTTask_RangedAttack : public UBTTaskNode
 protected:
 
   UPROPERTY(EditAnywhere, Category = "AI")
+  float MaxProjectileSpread;
+
+  UPROPERTY(EditAnywhere, Category = "AI")
   TSubclassOf<AActor> ProjectileClass;
+
+public:
+
+  UWotBTTask_RangedAttack();
 };

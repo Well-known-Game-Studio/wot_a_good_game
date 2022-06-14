@@ -2,6 +2,12 @@
 #include "AIController.h"
 #include "GameFramework/Character.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "WotAttributeComponent.h"
+
+UWotBTTask_RangedAttack::UWotBTTask_RangedAttack()
+{
+  MaxProjectileSpread = 2.0f;
+}
 
 EBTNodeResult::Type UWotBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -18,8 +24,16 @@ EBTNodeResult::Type UWotBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent&
       return EBTNodeResult::Failed;
     }
 
+    if (!UWotAttributeComponent::IsActorAlive(TargetActor)) {
+      return EBTNodeResult::Failed;
+    }
+
     FVector Direction = TargetActor->GetActorLocation() - MuzzleLocation;
     FRotator MuzzleRotation = Direction.Rotation();
+
+    // Don't want them to shoot down (into the floor), it looks bad
+    MuzzleRotation.Pitch += FMath::RandRange(0.0f, MaxProjectileSpread);
+    MuzzleRotation.Yaw += FMath::RandRange(-MaxProjectileSpread, MaxProjectileSpread);
 
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;

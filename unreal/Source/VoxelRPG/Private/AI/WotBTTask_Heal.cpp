@@ -13,8 +13,7 @@ EBTNodeResult::Type UWotBTTask_Heal::ExecuteTask(UBehaviorTreeComponent& OwnerCo
       return EBTNodeResult::Failed;
     }
     // get the attribute component of the AI pawn
-    UWotAttributeComponent* AttributeComp =
-      Cast<UWotAttributeComponent>(MyPawn->GetComponentByClass(UWotAttributeComponent::StaticClass()));
+    UWotAttributeComponent* AttributeComp = UWotAttributeComponent::GetAttributes(MyPawn);
     // if there's no attribute component, fail
     if (!AttributeComp) {
       return EBTNodeResult::Failed;
