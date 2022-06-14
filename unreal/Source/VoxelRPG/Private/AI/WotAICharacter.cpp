@@ -9,6 +9,7 @@
 #include "Engine/EngineTypes.h"
 #include "UI/WotUWHealthBar.h"
 #include "UI/WotUWPopupNumber.h"
+#include "BrainComponent.h"
 
 AWotAICharacter::AWotAICharacter()
 {
@@ -30,11 +31,7 @@ void AWotAICharacter::PostInitializeComponents()
 
 void AWotAICharacter::OnPawnSeen(APawn* Pawn)
 {
-  AAIController* AIC = Cast<AAIController>(GetController());
-  if (AIC) {
-    UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
-    BBComp->SetValueAsObject("TargetActor", Pawn);
-  }
+  SetBlackboardActor("TargetActor", Pawn);
 }
 
 void AWotAICharacter::HitFlash()
@@ -93,20 +90,26 @@ void AWotAICharacter::ShowPopupWidget(const FText& Text, float Duration)
 	}
 }
 
-void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
+void AWotAICharacter::SetBlackboardActor(const FString BlackboardKeyName, AActor* Actor)
 {
   // set the instigator as the damage actor
   AAIController* AIC = Cast<AAIController>(GetController());
   if (AIC) {
     UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
-    APawn* InstigatorPawn = Cast<APawn>(InstigatorActor);
-    BBComp->SetValueAsObject("DamageActor", InstigatorPawn);
-    // Then destroy after a delay
-    GetWorldTimerManager().SetTimer(TimerHandle_ForgetDamageActor,
-                                    this,
-                                    &AWotAICharacter::ForgetDamageActor_TimeElapsed,
-                                    DamageActorForgetDelay);
+    BBComp->SetValueAsObject(FName(*BlackboardKeyName), Actor);
   }
+}
+
+void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
+{
+  // set the instigator as the damage actor
+  SetBlackboardActor("DamageActor", InstigatorActor);
+  SetBlackboardActor("TargetActor", InstigatorActor);
+  // Then forget damage actor after a delay
+  GetWorldTimerManager().SetTimer(TimerHandle_ForgetDamageActor,
+                                  this,
+                                  &AWotAICharacter::ForgetDamageActor_TimeElapsed,
+                                  DamageActorForgetDelay);
   // and show the health widgets
 	ShowHealthBarWidget(NewHealth, Delta, 1.0f);
 	ShowPopupWidgetNumber(Delta, 1.0f);
@@ -139,11 +142,19 @@ void AWotAICharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* 
 		// TODO: set simulate physics
 		// attached->SetSimulatePhysics(true);
 	}
+  // Stop the behavior tree
+	AAIController* AIC = Cast<AAIController>(GetController());
+  if (AIC) {
+    AIC->GetBrainComponent()->StopLogic("Killed");
+  }
+  // If we wanted to ragdoll we could call
+	// GetMesh()->SetAllBodiesSimulatePhysics(true);
+	// GetMesh()->SetCollisionProfileName("Ragdoll");
 	// Play the death component animation
 	DeathEffectComp->Play();
 	// hide the mesh so only the death animation plays
 	GetMesh()->SetVisibility(false, false);
-	// Then destroy after a delay
+	// Then destroy after a delay (could also use SetLifeSpan(...) instead of timer)
 	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, this, &AWotAICharacter::Destroy_TimeElapsed, KilledDestroyDelay);
 }
 
@@ -154,9 +165,5 @@ void AWotAICharacter::Destroy_TimeElapsed()
 
 void AWotAICharacter::ForgetDamageActor_TimeElapsed()
 {
-  AAIController* AIC = Cast<AAIController>(GetController());
-  if (AIC) {
-    UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
-    BBComp->SetValueAsObject("DamageActor", nullptr);
-  }
+  SetBlackboardActor("DamageActor", nullptr);
 }

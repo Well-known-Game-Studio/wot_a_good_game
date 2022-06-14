@@ -33,6 +33,9 @@ protected:
 
   virtual void PostInitializeComponents() override;
 
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	void SetBlackboardActor(const FString BlackboardKeyName, AActor* Actor);
+
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowHealthBarWidget(float NewHealth, float Delta, float Duration);
 
