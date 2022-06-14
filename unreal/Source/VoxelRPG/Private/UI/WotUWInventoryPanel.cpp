@@ -1,7 +1,6 @@
 #include "UI/WotUWInventoryPanel.h"
 #include "UI/WotTextBlock.h"
-#include "Components/UniformGridPanel.h"
-#include "Components/UniformGridSlot.h"
+#include "Components/WrapBox.h"
 
 void UWotUWInventoryPanel::NativeConstruct()
 {
@@ -22,17 +21,14 @@ void UWotUWInventoryPanel::SynchronizeProperties()
 
 
   // Again, null checks are required
-  if (Grid && ItemWidgetClass) {
-    Grid->ClearChildren();
+  if (ItemBox && ItemWidgetClass) {
+    ItemBox->ClearChildren();
 
-    for (int32 row = 0; row < Rows; ++row) {
-      for (int32 col = 0; col < Columns; ++col) {
-        UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), ItemWidgetClass);
-        if (Widget) {
-          UUniformGridSlot* GridSlot = Grid->AddChildToUniformGrid(Widget, row, col);
-          // GridSlot->SetColumn(col);
-          // GridSlot->SetRow(row);
-        }
+    int NumTestWidgets = 12;
+    for (int i = 0; i < NumTestWidgets; ++i) {
+      UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), ItemWidgetClass);
+      if (Widget) {
+        ItemBox->AddChildToWrapBox(Widget);
       }
     }
   }

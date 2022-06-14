@@ -5,7 +5,7 @@
 #include "WotUWInventoryPanel.generated.h"
 
 class UWotTextBlock;
-class UUniformGridPanel;
+class UWrapBox;
 
 UCLASS()
 class VOXELRPG_API UWotUWInventoryPanel : public UWotUserWidget
@@ -21,19 +21,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Inventory Panel")
 	TSubclassOf<UWotUserWidget> ItemWidgetClass = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Inventory Panel")
-	int32 Columns = 4;
-
-	UPROPERTY(EditAnywhere, Category = "Inventory Panel")
-	int32 Rows = 3;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory Panel",
 		meta=(BindWidget))
 	UWotTextBlock* Label = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory Panel",
 		meta=(BindWidget))
-	UUniformGridPanel* Grid = nullptr;
+	UWrapBox* ItemBox = nullptr;
 
 protected:
     // Doing setup in the C++ constructor is not as
