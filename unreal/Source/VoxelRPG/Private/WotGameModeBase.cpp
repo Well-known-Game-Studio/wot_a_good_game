@@ -21,23 +21,10 @@ void AWotGameModeBase::StartPlay()
 
 void AWotGameModeBase::SpawnBotTimerElapsed()
 {
-  UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
-  if (ensure(QueryInstance) && ensure(MinionClass)) {
-    QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &AWotGameModeBase::OnQueryCompleted);
-  }
-}
-
-void AWotGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
-{
-  if (QueryStatus != EEnvQueryStatus::Success) {
-    UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS query failed!"));
-    return;
-  }
-
   int32 NumberBotsAlive = 0;
   for (TActorIterator<AWotAICharacter> It(GetWorld()); It; ++It) {
     AWotAICharacter* Bot = *It;
-    UWotAttributeComponent* AttributeComp = Cast<UWotAttributeComponent>(Bot->GetComponentByClass(UWotAttributeComponent::StaticClass()));
+    UWotAttributeComponent* AttributeComp = UWotAttributeComponent::GetAttributes(Bot);
     if (AttributeComp && AttributeComp->IsAlive()) {
       NumberBotsAlive++;
     }
@@ -50,6 +37,19 @@ void AWotGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Query
   }
 
   if (NumberBotsAlive >= MaxBotCount) {
+    return;
+  }
+
+  UEnvQueryInstanceBlueprintWrapper* QueryInstance = UEnvQueryManager::RunEQSQuery(this, SpawnBotQuery, this, EEnvQueryRunMode::RandomBest5Pct, nullptr);
+  if (ensure(QueryInstance) && ensure(MinionClass)) {
+    QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &AWotGameModeBase::OnQueryCompleted);
+  }
+}
+
+void AWotGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
+{
+  if (QueryStatus != EEnvQueryStatus::Success) {
+    UE_LOG(LogTemp, Warning, TEXT("Spawn bot EQS query failed!"));
     return;
   }
 
