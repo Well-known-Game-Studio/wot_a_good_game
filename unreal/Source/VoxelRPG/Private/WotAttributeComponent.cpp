@@ -79,3 +79,20 @@ void UWotAttributeComponent::Stunned_TimeElapsed()
 {
 	bIsStunned = false;
 }
+
+UWotAttributeComponent* UWotAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if (FromActor) {
+		return Cast<UWotAttributeComponent>(FromActor->GetComponentByClass(UWotAttributeComponent::StaticClass()));
+	}
+	return nullptr;
+}
+
+bool UWotAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	UWotAttributeComponent* AttributeComp = GetAttributes(Actor);
+	if (AttributeComp) {
+		return AttributeComp->IsAlive();
+	}
+	return false;
+}
