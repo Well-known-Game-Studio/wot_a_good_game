@@ -34,7 +34,7 @@ public:
 
 protected:
 
-    UPROPERTY(EditDefaultsOnly, Instanced)
+    UPROPERTY(EditAnywhere, Instanced)
     TArray<UWotItem*> DefaultItems;
     // TMap<TSubclassOf<UWotItem>, int> DefaultItems;
 
