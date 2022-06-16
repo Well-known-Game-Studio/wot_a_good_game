@@ -41,14 +41,40 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item", meta = (MultiLine = true))
     FText ItemDescription;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item", meta = (ClampMin = 0))
+    int Count;
+
+    // MaxCount == 0 implies no limit
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item", meta = (ClampMin = 0))
+    int MaxCount;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item", meta = (ClampMin = 0.0))
     float Weight;
 
     UPROPERTY()
     UWotInventoryComponent* OwningInventory;
 
-    virtual void Use(ACharacter* Character) PURE_VIRTUAL(UWotItem, );
+    // returns how many we were able to add
+    UFUNCTION(BlueprintCallable)
+    int Add(int AddedCount);
+
+    // returns how many we were able to remove
+    UFUNCTION(BlueprintCallable)
+    int Remove(int RemovedCount);
+
+    /*
+     *  Use the item, return true if it should be destroyed / lost on use
+     */
+    virtual void Use(ACharacter* Character) PURE_VIRTUAL(UWotItem::Use, );
+
+    virtual void Drop(ACharacter* Character, int DropCount = 1) PURE_VIRTUAL(UWotItem::Drop, );
 
     UFUNCTION(BlueprintImplementableEvent)
     void OnUse(ACharacter* Character);
+
+    UFUNCTION(BlueprintImplementableEvent)
+    void OnDrop(ACharacter* Character);
+
+    bool operator==(const UWotItem& rhs);
+    bool operator!=(const UWotItem& rhs);
 };

@@ -22,7 +22,11 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Details",
 		meta=(BindWidget))
-	UWotTextBlock* Label = nullptr;
+	UWotTextBlock* NameLabel = nullptr;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Details",
+		meta=(BindWidget))
+	UWotTextBlock* CountLabel = nullptr;
 
 protected:
     // Doing setup in the C++ constructor is not as

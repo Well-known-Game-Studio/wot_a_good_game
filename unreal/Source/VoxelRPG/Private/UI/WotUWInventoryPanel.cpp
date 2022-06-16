@@ -5,6 +5,7 @@
 void UWotUWInventoryPanel::NativeConstruct()
 {
   Super::NativeConstruct();
+  LabelText = FText::FromString("Your Items");
 }
 
 // This is called every time that the widget is compiled,
@@ -18,7 +19,6 @@ void UWotUWInventoryPanel::SynchronizeProperties()
   if (Label) {
     Label->SetText(LabelText);
   }
-
 
   // Again, null checks are required
   if (ItemBox && ItemWidgetClass) {

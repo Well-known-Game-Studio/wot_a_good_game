@@ -4,24 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "Items/WotItem.h"
-#include "WotItemFood.generated.h"
+#include "WotItemWeapon.generated.h"
 
 UCLASS()
-class VOXELRPG_API UWotItemFood : public UWotItem
+class VOXELRPG_API UWotItemWeapon : public UWotItem
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UWotItemFood();
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attributes", meta = (ClampMin = 0.0))
-    float HealingAmount;
+	UWotItemWeapon();
 
 protected:
 
     virtual void Use(ACharacter* Character) override;
 
-    virtual void Drop(ACharacter* Character, int DropCount = 1) override;
+    virtual void Drop(ACharacter* Character, int DropCount) override;
 
 };

@@ -27,7 +27,7 @@ public:
     bool AddItem(UWotItem* Item);
 
     UFUNCTION(BlueprintCallable)
-    bool RemoveItem(UWotItem* Item);
+    bool RemoveItem(UWotItem* Item, int RemoveCount);
 
     UPROPERTY(BlueprintAssignable, Category = "Inventory")
     FOnInventoryUpdated OnInventoryUpdated;
@@ -36,10 +36,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Instanced)
     TArray<UWotItem*> DefaultItems;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory", meta = (ClampMin = 0))
-    int Capacity;
+    // TMap<TSubclassOf<UWotItem>, int> DefaultItems;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
     TArray<UWotItem*> Items;
+    // TMap<TSubclassOf<UWotItem>, int> Items;
 };
