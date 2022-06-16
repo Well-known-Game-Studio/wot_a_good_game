@@ -5,6 +5,12 @@
 
 UWotItemWeapon::UWotItemWeapon()
 {
+  UseActionText = FText::FromString("Equip");
+  DamageAmount = 10.0f;
+  Count = 1;
+  // TODO: do we want a max count of one for weapons?
+  MaxCount = 1;
+	EquipSocketName = "Hand_R";
 }
 
 void UWotItemWeapon::Use(ACharacter* Character)

@@ -34,7 +34,6 @@
 - [ ] Add effects (butterflies and dust motes) to the scene
 - [ ] Start stubbing out dialogue system
 - [ ] enemies drop items
-- [ ] mushrooms increase health
 - [ ] highlight interactable foliage
 - [ ] add niagara water effects
 - [ ] add niagara smoke effects (campfire / chimney)
@@ -47,18 +46,17 @@
 - [ ] gamepad support (movement, camera rotation, attack, interact, projectile)
 - [ ] mouse + keyboard support (to aim where mouse looks)
 - [ ] Make blendspace 2d for holding bow, walking, idling
-- [ ] Allow player to pet animals (animal base class and interaction)
 - [ ] Allow each animal to have a different amount of player avoidance
 - [ ] Move to using WotCharacter instead of ThirdPersonCharacter (migrate code)
 - [ ] Fade objects between camera and player
 - [ ] Allow character to tell NPC to stay put after having them follow
+- [ ] Different UI / inventory system / filtering by item type (food, weapons, armor, quest, etc.)
+- [ ] Add inventory component to chests and allow them to be looted
 
 ** Code
 
 - [ ] Allow new character to climb ladder
-- [ ] Create [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] interface
 - [ ] Create weapon interface
-- [ ] Create [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]] system
 - [ ] Migrate equippable code from BP to C++
 - [ ] Migrate attack code from BP to C++
 
@@ -69,7 +67,6 @@
 - [ ] Add death / respawn menu
 - [ ] Create HUD (C++) https://benui.ca/unreal/ui-setup/
 - [ ] Add Isle Of Lore 2 Icons to UI
-- [ ] Inventory widgets https://benui.ca/unreal/ui-synchronize-properties/
 
 ** Models
 
@@ -117,6 +114,19 @@
 - [X] Update so the NPC_Base (BP) class implements the interaction response and sets the FollowActor
 - [X] Added Herding_TestMap for testing herding and petting of animals
 - [X] Update Interaction component to interact with pawns as well
+- [X] bugfix: RangedAttack BTTask used invalid socket name - correct it and expose it
+- [X] Add inventory component for holding items and interacting with them
+- [X] Add base item class with weapon and food subclasses
+- [X] Added mushroom food item BP subclasses
+- [X] ThirdPersonCharacter now creates Food mushroom food items and adds to inventory when foraging
+- [X] Create Food UMG widget (C++ & BP)
+- [X] Create Inventory Panel UMG widget (C++ & BP)
+- [X] mushrooms increase health
+- [X] Allow player to pet animals (animal base class and interaction)
+- [X] Create [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]] system
+- [X] Inventory widgets https://benui.ca/unreal/ui-synchronize-properties/
+- [ ] Create [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] interface
+- [ ] Added sword, bow, and axe weapon item BP subclasses
 
 * Week of 2022-06-05
 

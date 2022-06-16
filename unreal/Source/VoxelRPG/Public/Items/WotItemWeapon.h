@@ -15,6 +15,12 @@ public:
 	// Sets default values for this component's properties
 	UWotItemWeapon();
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wewapon", meta = (ClampMin = 0.0))
+    float DamageAmount;
+
+    UPROPERTY(VisibleAnywhere, Category = "Weapon")
+    FName EquipSocketName;
+
 protected:
 
     virtual void Use(ACharacter* Character) override;

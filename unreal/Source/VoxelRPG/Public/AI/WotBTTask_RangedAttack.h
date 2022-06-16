@@ -17,6 +17,9 @@ protected:
   float MaxProjectileSpread;
 
   UPROPERTY(EditAnywhere, Category = "AI")
+  FName SpawnSocketName;
+
+  UPROPERTY(EditAnywhere, Category = "AI")
   TSubclassOf<AActor> ProjectileClass;
 
 public:

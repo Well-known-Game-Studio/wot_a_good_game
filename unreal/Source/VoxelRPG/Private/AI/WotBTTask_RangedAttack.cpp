@@ -7,6 +7,7 @@
 UWotBTTask_RangedAttack::UWotBTTask_RangedAttack()
 {
   MaxProjectileSpread = 2.0f;
+	SpawnSocketName = "Hand_R";
 }
 
 EBTNodeResult::Type UWotBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -18,7 +19,7 @@ EBTNodeResult::Type UWotBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent&
       return EBTNodeResult::Failed;
     }
 
-    FVector MuzzleLocation = MyPawn->GetMesh()->GetSocketLocation("Muzzle_01");
+    FVector SpawnLocation = MyPawn->GetMesh()->GetSocketLocation(SpawnSocketName);
     AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("TargetActor"));
     if (TargetActor == nullptr) {
       return EBTNodeResult::Failed;
@@ -28,19 +29,19 @@ EBTNodeResult::Type UWotBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent&
       return EBTNodeResult::Failed;
     }
 
-    FVector Direction = TargetActor->GetActorLocation() - MuzzleLocation;
-    FRotator MuzzleRotation = Direction.Rotation();
+    FVector Direction = TargetActor->GetActorLocation() - SpawnLocation;
+    FRotator SpawnRotation = Direction.Rotation();
 
     // Don't want them to shoot down (into the floor), it looks bad
-    MuzzleRotation.Pitch += FMath::RandRange(0.0f, MaxProjectileSpread);
-    MuzzleRotation.Yaw += FMath::RandRange(-MaxProjectileSpread, MaxProjectileSpread);
+    SpawnRotation.Pitch += FMath::RandRange(0.0f, MaxProjectileSpread);
+    SpawnRotation.Yaw += FMath::RandRange(-MaxProjectileSpread, MaxProjectileSpread);
 
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     // Set the instigator so the projectile doesn't interact / damage the owner pawn
     Params.Instigator = MyPawn;
 
-    AActor* NewProj = GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, MuzzleRotation, Params);
+    AActor* NewProj = GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation, Params);
 
     return NewProj ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
   }
