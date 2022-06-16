@@ -9,6 +9,7 @@
 
 class UStaticMeshComponent;
 class APawn;
+class UWotInventoryComponent;
 
 UCLASS()
 class VOXELRPG_API AWotItemChest : public AActor, public IWotGameplayInterface
@@ -29,6 +30,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere)
     UStaticMeshComponent* LidMesh;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
+	UWotInventoryComponent* InventoryComp;
 
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;

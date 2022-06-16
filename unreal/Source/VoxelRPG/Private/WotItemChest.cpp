@@ -2,6 +2,7 @@
 
 #include "WotItemChest.h"
 #include "Components/StaticMeshComponent.h"
+#include "WotInventoryComponent.h"
 
 // Sets default values
 AWotItemChest::AWotItemChest()
@@ -14,6 +15,8 @@ AWotItemChest::AWotItemChest()
 
   LidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LidMesh"));
   LidMesh->SetupAttachment(BaseMesh);
+
+	InventoryComp = CreateDefaultSubobject<UWotInventoryComponent>("InventoryComp");
 }
 
 void AWotItemChest::Interact_Implementation(APawn* InstigatorPawn)
