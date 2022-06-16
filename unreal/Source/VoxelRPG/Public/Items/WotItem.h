@@ -62,11 +62,12 @@ public:
     UFUNCTION(BlueprintCallable)
     int Remove(int RemovedCount);
 
-    /*
-     *  Use the item, return true if it should be destroyed / lost on use
-     */
+    bool UseAddedToInventory(ACharacter* Character);
+
+    UFUNCTION(BlueprintCallable)
     virtual void Use(ACharacter* Character) PURE_VIRTUAL(UWotItem::Use, );
 
+    UFUNCTION(BlueprintCallable)
     virtual void Drop(ACharacter* Character, int DropCount = 1) PURE_VIRTUAL(UWotItem::Drop, );
 
     UFUNCTION(BlueprintImplementableEvent)

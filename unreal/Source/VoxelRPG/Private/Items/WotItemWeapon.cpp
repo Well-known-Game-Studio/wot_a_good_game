@@ -20,6 +20,10 @@ void UWotItemWeapon::Use(ACharacter* Character)
     UE_LOG(LogTemp, Warning, TEXT("Character is null!"));
     return;
   }
+  if (UseAddedToInventory(Character)) {
+    UE_LOG(LogTemp, Warning, TEXT("Added to inventory!"));
+    return;
+  }
   // TODO: equip it to the player
   // we don't destroy the item when we use it
 }

@@ -1,4 +1,6 @@
 #include "Items/WotItem.h"
+#include "WotInventoryComponent.h"
+#include "GameFramework/Character.h"
 
 UWotItem::UWotItem()
 {
@@ -8,6 +10,27 @@ UWotItem::UWotItem()
   Weight = 1.0f;
   Count = 1;
   MaxCount = 0;
+}
+
+bool UWotItem::UseAddedToInventory(ACharacter* Character)
+{
+  if (!Character) {
+    return false;
+  }
+  UWotInventoryComponent* NewInventory = UWotInventoryComponent::GetInventory(Cast<AActor>(Character));
+  if (!NewInventory) {
+    return false;
+  }
+  if (NewInventory == OwningInventory) {
+    return false;
+  }
+  // Remove from current inventory
+  if (OwningInventory) {
+    OwningInventory->RemoveItem(this, this->Count);
+  }
+  // And add to new character inventory
+  NewInventory->AddItem(this);
+  return true;
 }
 
 int UWotItem::Add(int AddedCount)

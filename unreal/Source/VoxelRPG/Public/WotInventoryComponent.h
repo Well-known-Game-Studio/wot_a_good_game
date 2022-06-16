@@ -17,6 +17,10 @@ class VOXELRPG_API UWotInventoryComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+    static UWotInventoryComponent* GetInventory(AActor* FromActor);
+
 	// Sets default values for this component's properties
 	UWotInventoryComponent();
 

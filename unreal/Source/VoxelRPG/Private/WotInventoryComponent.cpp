@@ -78,3 +78,11 @@ bool UWotInventoryComponent::RemoveItem(UWotItem* Item, int RemoveCount)
   // TODO: what do we do if NumRemoved < Item->Count?
   return NumRemoved > 0;
 }
+
+UWotInventoryComponent* UWotInventoryComponent::GetInventory(AActor* FromActor)
+{
+	if (FromActor) {
+		return Cast<UWotInventoryComponent>(FromActor->GetComponentByClass(UWotInventoryComponent::StaticClass()));
+	}
+	return nullptr;
+}

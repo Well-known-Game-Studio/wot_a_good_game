@@ -21,6 +21,10 @@ void UWotItemFood::Use(ACharacter* Character)
     UE_LOG(LogTemp, Warning, TEXT("Character is null!"));
     return;
   }
+  if (UseAddedToInventory(Character)) {
+    UE_LOG(LogTemp, Warning, TEXT("Added to inventory!"));
+    return;
+  }
   // Get the Attribute Component for this character
   UWotAttributeComponent* AttributeComp = UWotAttributeComponent::GetAttributes(Character);
   if (!AttributeComp) {
