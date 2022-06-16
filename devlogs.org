@@ -71,7 +71,6 @@
 ** Models
 
 - [ ] Make ladder
-- [ ] Make axe
 - [ ] Animate medium scale models
 - [ ] rig dog
 - [ ] rig raccoon
@@ -125,6 +124,8 @@
 - [X] Allow player to pet animals (animal base class and interaction)
 - [X] Create [[id:7d5a755b-0806-4982-8f7b-4655056c1108][Inventory]] system
 - [X] Inventory widgets https://benui.ca/unreal/ui-synchronize-properties/
+- [X] Make axe
+- [X] Add inventory component to WotItemChest (C++) and allow instances to set the DefaultItems
 - [ ] Create [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] interface
 - [ ] Added sword, bow, and axe weapon item BP subclasses
 
