@@ -15,7 +15,7 @@ class VOXELRPG_API UWotUWInventoryPanel : public UWotUserWidget
 public:
 	virtual void SynchronizeProperties() override;
 
-	UPROPERTY(EditAnywhere, Category = "Inventory Panel")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Inventory Panel",  meta = (ExposeOnSpawn=true))
 	FText LabelText;
 
 	UPROPERTY(EditAnywhere, Category = "Inventory Panel")
