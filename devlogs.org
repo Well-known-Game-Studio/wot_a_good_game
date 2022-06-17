@@ -51,7 +51,6 @@
 - [ ] Fade objects between camera and player
 - [ ] Allow character to tell NPC to stay put after having them follow
 - [ ] Different UI / inventory system / filtering by item type (food, weapons, armor, quest, etc.)
-- [ ] Add inventory component to chests and allow them to be looted
 
 ** Code
 
@@ -126,6 +125,8 @@
 - [X] Inventory widgets https://benui.ca/unreal/ui-synchronize-properties/
 - [X] Make axe
 - [X] Add inventory component to WotItemChest (C++) and allow instances to set the DefaultItems
+- [X] Add drop interface to inventory / item UI
+- [X] Add inventory component to chests and allow them to be looted
 - [ ] Create [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] interface
 - [ ] Added sword, bow, and axe weapon item BP subclasses
 

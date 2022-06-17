@@ -26,9 +26,9 @@ bool UWotItem::UseAddedToInventory(ACharacter* Character)
   }
   // Remove from current inventory
   if (OwningInventory) {
-    OwningInventory->RemoveItem(this, this->Count);
+    OwningInventory->DeleteItem(this);
   }
-  // And add to new character inventory
+  // Add to new character inventory
   NewInventory->AddItem(this);
   return true;
 }

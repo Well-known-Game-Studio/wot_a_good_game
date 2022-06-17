@@ -22,14 +22,17 @@ bool UWotInventoryComponent::AddItem(UWotItem* Item)
 
   int NumAdded = 0;
   // find by predicate returns pointer to element found
-  UWotItem** OurItem = Items.FindByPredicate([Item](UWotItem* TestItem){
+  int32 Index = Items.IndexOfByPredicate([Item](UWotItem* TestItem){
     return *Item == *TestItem;
   });
-  if (OurItem) {
+  UE_LOG(LogTemp, Warning, TEXT("Adding %d items"), Item->Count);
+  if (Index != INDEX_NONE) {
+    UWotItem* OurItem = Items[Index];
     // increment the count of items we have like that, up to the max count we
     // can have;
-    NumAdded = (*OurItem)->Add(Item->Count);
+    NumAdded = OurItem->Add(Item->Count);
     // TODO: should we destroy the passed in item?
+    UE_LOG(LogTemp, Warning, TEXT("Destroying Item!"));
     Item->ConditionalBeginDestroy();
   } else {
     // Ensure the item knows what inventory it belongs to
@@ -39,6 +42,8 @@ bool UWotInventoryComponent::AddItem(UWotItem* Item)
     Items.Add(Item);
     NumAdded = Item->Count;
   }
+
+  UE_LOG(LogTemp, Warning, TEXT("Added %d items"), NumAdded);
 
   // Update UI and other interested parties
   OnInventoryUpdated.Broadcast();
@@ -53,30 +58,39 @@ bool UWotInventoryComponent::RemoveItem(UWotItem* Item, int RemoveCount)
     return false;
   }
 
-  // TODO: for now the item will always exist ing the inventory, registering
-  // that it has been picked up, even if the count goes to 0; Should this be the
-  // case? If so, do we ever actually _remove_ items from the inventory?
-
-  // Item->OwningInventory = nullptr;
-  // Item->World = nullptr;
-
   int NumRemoved = 0;
   // find by predicate returns pointer to element found
-  UWotItem** OurItem = Items.FindByPredicate([Item](UWotItem* TestItem){
+  int32 Index = Items.IndexOfByPredicate([Item](UWotItem* TestItem){
     return *Item == *TestItem;
   });
-  if (OurItem) {
+  if (Index != INDEX_NONE) {
+    UWotItem* OurItem = Items[Index];
     // decrement the count of items
-    NumRemoved = (*OurItem)->Remove(RemoveCount);
+    NumRemoved = OurItem->Remove(RemoveCount);
   } else {
     // It wasn't in the list, do nothing
   }
+
+  UE_LOG(LogTemp, Warning, TEXT("Removed %d items"), NumRemoved);
 
   // Update UI and other interested parties
   OnInventoryUpdated.Broadcast();
 
   // TODO: what do we do if NumRemoved < Item->Count?
   return NumRemoved > 0;
+}
+
+void UWotInventoryComponent::DeleteItem(UWotItem* Item) {
+  int32 Index = Items.IndexOfByPredicate([Item](UWotItem* TestItem){
+    return *Item == *TestItem;
+  });
+  if (Index != INDEX_NONE) {
+    Items.RemoveAt(Index);
+    // Item->OwningInventory = nullptr;
+    // Item->World = nullptr;
+  }
+  // Update UI and other interested parties
+  OnInventoryUpdated.Broadcast();
 }
 
 UWotInventoryComponent* UWotInventoryComponent::GetInventory(AActor* FromActor)
