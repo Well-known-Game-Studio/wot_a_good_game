@@ -9,6 +9,23 @@ UWotItemFood::UWotItemFood()
   Count = 1;
 }
 
+void UWotItemFood::Copy(const UWotItem* OtherItem) {
+  Super::Copy(OtherItem);
+  // Specialization
+  const UWotItemFood* OtherFood = Cast<UWotItemFood>(OtherItem);
+  if (OtherFood) {
+    HealingAmount = OtherFood->HealingAmount;
+  }
+}
+
+UWotItem* UWotItemFood::Clone(UObject* Outer, const UWotItem* Item) {
+  // create the new object
+  UWotItemFood* NewFood = NewObject<UWotItemFood>(Outer, UWotItemFood::StaticClass());
+  // Copy the properties
+  NewFood->Copy(this);
+  return NewFood;
+}
+
 void UWotItemFood::Use(ACharacter* Character)
 {
   // Make sure there are items to use
@@ -44,13 +61,4 @@ void UWotItemFood::Use(ACharacter* Character)
   // TODO: then destroy?
   // ConditionalBeginDestroy();
   // we consume the food on use, so destroy it
-}
-
-void UWotItemFood::Drop(ACharacter* Character, int DropCount)
-{
-  // remove it from the inventory
-  if (OwningInventory) {
-    OwningInventory->RemoveItem(this, DropCount);
-  }
-  // TODO: spawn it into the world?
 }

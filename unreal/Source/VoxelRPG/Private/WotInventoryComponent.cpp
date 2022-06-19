@@ -93,6 +93,13 @@ void UWotInventoryComponent::DeleteItem(UWotItem* Item) {
   OnInventoryUpdated.Broadcast();
 }
 
+void UWotInventoryComponent::DropAll() {
+  for (auto Item : Items) {
+    FVector Location = GetOwner()->GetActorLocation();
+    Item->Drop(Location, Item->Count);
+  }
+}
+
 UWotInventoryComponent* UWotInventoryComponent::GetInventory(AActor* FromActor)
 {
 	if (FromActor) {

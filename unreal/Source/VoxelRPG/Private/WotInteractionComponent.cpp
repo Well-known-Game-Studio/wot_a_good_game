@@ -9,30 +9,6 @@
 // Sets default values for this component's properties
 UWotInteractionComponent::UWotInteractionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
-}
-
-
-// Called when the game starts
-void UWotInteractionComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
-
-// Called every frame
-void UWotInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
 void UWotInteractionComponent::PrimaryInteract()
@@ -49,27 +25,13 @@ void UWotInteractionComponent::PrimaryInteract()
 	auto ForwardVector = MyOwner->GetActorForwardVector();
 
 	FVector End = EyeLocation + (ForwardVector * InteractionRange);
-	// FVector End = EyeLocation + (EyeRotation.Vector() * 1000);
-
-	// FHitResult Hit;
-	// bool bBlockingHit = GetWorld()->LineTraceSingleByObjectType(Hit, EyeLocation, End, ObjectQueryParams);
-
-	// AActor* HitActor = Hit.GetActor();
-	// if (HitActor)
-	// {
-	// 	if (HitActor->Implements<UWotGameplayInterface>())
-	// 	{
-	// 		APawn* MyPawn = Cast<APawn>(MyOwner);
-	// 		IWotGameplayInterface::Execute_Interact(HitActor, MyPawn);
-	// 	}
-	// }
 
 	TArray<FHitResult> Hits;
 
-	float Radius = 100.0f;
-
 	FCollisionShape Shape;
-	Shape.SetSphere(Radius);
+	Chaos::TVector<float, 3> HalfExtent = Chaos::TVector<float, 3>(32.0f, 32.0f, 100.0f);
+    FVector Extent = FVector(HalfExtent.X, HalfExtent.Y, HalfExtent.Z);
+	Shape.SetBox(HalfExtent);
 
 	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, FQuat::Identity, ObjectQueryParams, Shape);
 
@@ -80,20 +42,20 @@ void UWotInteractionComponent::PrimaryInteract()
 				APawn* MyPawn = Cast<APawn>(MyOwner);
 				IWotGameplayInterface::Execute_Interact(HitActor, MyPawn);
 				if (bDrawDebug) {
-					DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, FColor::Green, false, 2.0f);
+					DrawDebugBox(GetWorld(), Hit.ImpactPoint, Extent, EyeRotation.Quaternion(), FColor::Green, false, 2.0f, 0, 2.0f);
 				}
 				break;
 			} else {
-				// get all components and see if they implement it
+				// TODO: get all components and see if they implement it
 			}
 		}
 		if (bDrawDebug) {
-			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, Radius, 32, FColor::Red, false, 2.0f);
+			DrawDebugBox(GetWorld(), Hit.ImpactPoint, Extent, EyeRotation.Quaternion(), FColor::Red, false, 2.0f, 0, 2.0f);
 		}
 	}
 
 	if (bDrawDebug) {
 		FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
-		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 2.0f, 0, 2.0f);
+		DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 5.0f, 0, 10.0f);
 	}
 }

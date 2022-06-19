@@ -15,13 +15,15 @@ public:
 	// Sets default values for this component's properties
 	UWotItemFood();
 
+    virtual void Copy(const UWotItem* OtherItem) override;
+
+    virtual UWotItem* Clone(UObject* Outer, const UWotItem* Item);
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Attributes", meta = (ClampMin = 0.0))
     float HealingAmount;
 
 protected:
 
     virtual void Use(ACharacter* Character) override;
-
-    virtual void Drop(ACharacter* Character, int DropCount = 1) override;
 
 };

@@ -4,17 +4,21 @@
 #include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
 #include "WotAttributeComponent.h"
+#include "WotInventoryComponent.h"
 #include "WotDeathEffectComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/EngineTypes.h"
 #include "UI/WotUWHealthBar.h"
 #include "UI/WotUWPopupNumber.h"
 #include "BrainComponent.h"
+#include "Items/WotItem.h"
 
 AWotAICharacter::AWotAICharacter()
 {
   PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComp");
   AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	InventoryComp = CreateDefaultSubobject<UWotInventoryComponent>("InventoryComp");
 
   AttributeComp = CreateDefaultSubobject<UWotAttributeComponent>("AttributeComp");
 
@@ -154,6 +158,8 @@ void AWotAICharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* 
 	DeathEffectComp->Play();
 	// hide the mesh so only the death animation plays
 	GetMesh()->SetVisibility(false, false);
+  // Drop all items the character is carrying
+  InventoryComp->DropAll();
 	// Then destroy after a delay (could also use SetLifeSpan(...) instead of timer)
 	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, this, &AWotAICharacter::Destroy_TimeElapsed, KilledDestroyDelay);
 }

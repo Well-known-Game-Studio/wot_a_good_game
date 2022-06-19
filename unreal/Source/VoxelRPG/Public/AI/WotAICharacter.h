@@ -6,6 +6,7 @@
 #include "WotAICharacter.generated.h"
 
 class UPawnSensingComponent;
+class UWotInventoryComponent;
 class UWotAttributeComponent;
 class UWotDeathEffectComponent;
 class UWotUWHealthBar;
@@ -47,6 +48,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotAttributeComponent* AttributeComp;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
+	UWotInventoryComponent* InventoryComp;
 
   UPROPERTY(VisibleAnywhere, Category = "Components")
   UPawnSensingComponent* PawnSensingComp;

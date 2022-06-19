@@ -15,6 +15,10 @@ public:
 	// Sets default values for this component's properties
 	UWotItemWeapon();
 
+    virtual void Copy(const UWotItem* OtherItem) override;
+
+    virtual UWotItem* Clone(UObject* Outer, const UWotItem* Item);
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Wewapon", meta = (ClampMin = 0.0))
     float DamageAmount;
 
@@ -24,7 +28,5 @@ public:
 protected:
 
     virtual void Use(ACharacter* Character) override;
-
-    virtual void Drop(ACharacter* Character, int DropCount) override;
 
 };

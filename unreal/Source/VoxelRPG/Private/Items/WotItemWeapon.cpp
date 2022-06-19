@@ -13,6 +13,24 @@ UWotItemWeapon::UWotItemWeapon()
 	EquipSocketName = "Hand_R";
 }
 
+void UWotItemWeapon::Copy(const UWotItem* OtherItem) {
+  Super::Copy(OtherItem);
+  // Specialization
+  const UWotItemWeapon* OtherWeapon = Cast<UWotItemWeapon>(OtherItem);
+  if (OtherWeapon) {
+    DamageAmount = OtherWeapon->DamageAmount;
+    EquipSocketName = OtherWeapon->EquipSocketName;
+  }
+}
+
+UWotItem* UWotItemWeapon::Clone(UObject* Outer, const UWotItem* Item) {
+  // create the new object
+  UWotItemWeapon* NewWeapon = NewObject<UWotItemWeapon>(Outer, UWotItemWeapon::StaticClass());
+  // Copy the properties
+  NewWeapon->Copy(this);
+  return NewWeapon;
+}
+
 void UWotItemWeapon::Use(ACharacter* Character)
 {
   // Make sure this is still a valid character
@@ -26,13 +44,4 @@ void UWotItemWeapon::Use(ACharacter* Character)
   }
   // TODO: equip it to the player
   // we don't destroy the item when we use it
-}
-
-void UWotItemWeapon::Drop(ACharacter* Character, int DropCount)
-{
-  // remove it from the inventory
-  if (OwningInventory) {
-    OwningInventory->RemoveItem(this, DropCount);
-  }
-  // TODO: spawn into the world?
 }

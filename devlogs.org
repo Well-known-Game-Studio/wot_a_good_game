@@ -1,6 +1,6 @@
 #+title:  Devlog
 #+author: William Emfinger
-#+date:   <2022-06-05 Sun>
+#+date:   <2022-06-19 Sun>
 
 * Task List
 ** Bugs
@@ -17,9 +17,9 @@
 
 ** General
 
-- [ ] [[https://courses.tomlooman.com/p/unrealengine-cpp?coupon_code=COMMUNITY15&_ga=2.38472932.678384283.1651337970-1623431491.1651337970][Tom Looman Professional Game Development in C++ and Unreal Engine]]
-- [ ] watch UE learning course (C++, gameplay systems)
-- [ ] prototype voxel destruction of world
+- [X] [[https://courses.tomlooman.com/p/unrealengine-cpp?coupon_code=COMMUNITY15&_ga=2.38472932.678384283.1651337970-1623431491.1651337970][Tom Looman Professional Game Development in C++ and Unreal Engine]]
+- [X] watch UE learning course (C++, gameplay systems)
+- [X] prototype voxel destruction of world
 
 ** Systems to Learn
 
@@ -33,7 +33,6 @@
 
 - [ ] Add effects (butterflies and dust motes) to the scene
 - [ ] Start stubbing out dialogue system
-- [ ] enemies drop items
 - [ ] highlight interactable foliage
 - [ ] add niagara water effects
 - [ ] add niagara smoke effects (campfire / chimney)
@@ -42,7 +41,6 @@
 - [ ] magic projectile destroys foliage instances
 - [ ] magic projectile sets foliage instances on fire
 - [ ] Add particle effects to waterfall (top & bottom)
-- [ ] arrow drops from enemies
 - [ ] gamepad support (movement, camera rotation, attack, interact, projectile)
 - [ ] mouse + keyboard support (to aim where mouse looks)
 - [ ] Make blendspace 2d for holding bow, walking, idling
@@ -103,6 +101,15 @@
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 
+* Week of 2022-06-19
+
+- [X] Add drop interface to inventory / item UI
+- [X] Add inventory component to chests and allow them to be looted
+- [X] Dropped items spawn into the world and can be picked up
+- [X] enemies drop items / arrow drops from enemies
+- [X] Added sword, bow, and axe weapon item BP subclasses
+- [ ] Create [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] interface
+
 * Week of 2022-06-12
 
 - [X] Update so that base NPC class extends WotGameplayInterface for interaction
@@ -125,10 +132,6 @@
 - [X] Inventory widgets https://benui.ca/unreal/ui-synchronize-properties/
 - [X] Make axe
 - [X] Add inventory component to WotItemChest (C++) and allow instances to set the DefaultItems
-- [X] Add drop interface to inventory / item UI
-- [X] Add inventory component to chests and allow them to be looted
-- [ ] Create [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] interface
-- [ ] Added sword, bow, and axe weapon item BP subclasses
 
 * Week of 2022-06-05
 

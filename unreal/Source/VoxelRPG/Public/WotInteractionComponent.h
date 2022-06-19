@@ -18,21 +18,14 @@ class VOXELRPG_API UWotInteractionComponent : public UActorComponent
 public:
 
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    float InteractionRange = 100.0f; // meters
+    float InteractionRange = 200.0f; // meters
 
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
     bool bDrawDebug = false;
 
     void PrimaryInteract();
 
-protected:
-
-    // Called when the game starts or when spawned
-    virtual void BeginPlay() override;
-
 public:
-    // Called every frame
-    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
     // Sets default values for this actor's properties
     UWotInteractionComponent();

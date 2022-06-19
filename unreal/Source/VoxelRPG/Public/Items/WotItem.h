@@ -21,6 +21,14 @@ public:
 	// Sets default values for this component's properties
 	UWotItem();
 
+	// Sets default values for this component's properties
+	UWotItem(const UWotItem* Other);
+
+	virtual void Copy(const UWotItem* Other);
+
+    UFUNCTION(BlueprintCallable)
+    virtual UWotItem* Clone(UObject* Outer, const UWotItem* Item) PURE_VIRTUAL(UWotItem::Clone, return nullptr;);
+
     virtual UWorld* GetWorld() const { return World; }
 
     UPROPERTY(Transient)
@@ -68,7 +76,7 @@ public:
     virtual void Use(ACharacter* Character) PURE_VIRTUAL(UWotItem::Use, );
 
     UFUNCTION(BlueprintCallable)
-    virtual void Drop(ACharacter* Character, int DropCount = 1) PURE_VIRTUAL(UWotItem::Drop, );
+    virtual void Drop(FVector Location, int DropCount = 1);
 
     UFUNCTION(BlueprintImplementableEvent)
     void OnUse(ACharacter* Character);

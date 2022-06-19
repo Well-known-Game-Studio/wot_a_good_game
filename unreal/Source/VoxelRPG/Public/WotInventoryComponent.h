@@ -36,6 +36,9 @@ public:
     UFUNCTION(BlueprintCallable)
     void DeleteItem(UWotItem* Item);
 
+    UFUNCTION(BlueprintCallable)
+    void DropAll();
+
     UPROPERTY(BlueprintAssignable, Category = "Inventory")
     FOnInventoryUpdated OnInventoryUpdated;
 

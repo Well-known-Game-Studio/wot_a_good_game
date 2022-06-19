@@ -1,6 +1,7 @@
 #include "Items/WotItem.h"
 #include "WotInventoryComponent.h"
 #include "GameFramework/Character.h"
+#include "Items/WotItemInteractible.h"
 
 UWotItem::UWotItem()
 {
@@ -10,6 +11,27 @@ UWotItem::UWotItem()
   Weight = 1.0f;
   Count = 1;
   MaxCount = 0;
+}
+
+UWotItem::UWotItem(const UWotItem* Other)
+{
+  if (Other != this) {
+    Copy(Other);
+  }
+}
+
+void UWotItem::Copy(const UWotItem* Other)
+{
+  World = Other->World;
+  UseActionText = Other->UseActionText;
+  PickupMesh = Other->PickupMesh;
+  Thumbnail = Other->Thumbnail;
+  ItemDisplayName = Other->ItemDisplayName;
+  ItemDescription = Other->ItemDescription;
+  Count = Other->Count;
+  MaxCount = Other->MaxCount;
+  Weight = Other->Weight;
+  OwningInventory = Other->OwningInventory;
 }
 
 bool UWotItem::UseAddedToInventory(ACharacter* Character)
@@ -59,6 +81,31 @@ int UWotItem::Remove(int RemovedCount)
   int ActualRemoved = std::min(Count, RemovedCount);
   Count -= ActualRemoved;
   return ActualRemoved;
+}
+
+void UWotItem::Drop(FVector Location, int DropCount)
+{
+  // remove it from the inventory
+  if (OwningInventory) {
+    OwningInventory->RemoveItem(this, DropCount);
+  }
+  // spawn it into the world as a WotItemInteractible
+  FActorSpawnParameters SpawnParams;
+  SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+  // Spawn one actor for each item dropped
+  for (int i=0; i < DropCount; ++i) {
+    AWotItemInteractible* InteractibleItem =
+      GetWorld()->SpawnActor<AWotItemInteractible>(AWotItemInteractible::StaticClass(),
+                                                   Location,
+                                                   FRotator::ZeroRotator,
+                                                   SpawnParams);
+    // create an Item for this
+    UWotItem* DroppedItem = Clone(InteractibleItem, this);
+    // Set the properties of the dropped item accordingly
+    DroppedItem->OwningInventory = nullptr;
+    DroppedItem->Count = 1;
+    InteractibleItem->SetItem(DroppedItem);
+  }
 }
 
 bool UWotItem::operator==(const UWotItem& rhs)
