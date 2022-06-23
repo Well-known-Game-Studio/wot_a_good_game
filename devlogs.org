@@ -54,7 +54,6 @@
 
 - [ ] Allow new character to climb ladder
 - [ ] Create weapon interface
-- [ ] Migrate equippable code from BP to C++
 - [ ] Migrate attack code from BP to C++
 
 ** GUI
@@ -108,7 +107,8 @@
 - [X] Dropped items spawn into the world and can be picked up
 - [X] enemies drop items / arrow drops from enemies
 - [X] Added sword, bow, and axe weapon item BP subclasses
-- [ ] Create [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] interface
+- [X] Create [[id:300caa98-236b-400d-9929-3d467ffc8b5c][Equippable Item]] interface
+- [X] Migrate equippable code from BP to C++
 
 * Week of 2022-06-12
 

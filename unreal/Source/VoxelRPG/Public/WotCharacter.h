@@ -11,6 +11,7 @@ class UCineCameraComponent;
 class USpringArmComponent;
 class UWotInteractionComponent;
 class UWotAttributeComponent;
+class UWotEquipmentComponent;
 class UWotInventoryComponent;
 class UWotDeathEffectComponent;
 class UUserWidget;
@@ -67,6 +68,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotAttributeComponent* AttributeComp;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
+	UWotEquipmentComponent* EquipmentComp;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
 	UWotInventoryComponent* InventoryComp;

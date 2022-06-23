@@ -3,6 +3,7 @@
 
 #include "WotCharacter.h"
 #include "WotAttributeComponent.h"
+#include "WotEquipmentComponent.h"
 #include "WotInventoryComponent.h"
 #include "WotDeathEffectComponent.h"
 #include "WotInteractionComponent.h"
@@ -37,6 +38,8 @@ AWotCharacter::AWotCharacter()
 	InteractionComp = CreateDefaultSubobject<UWotInteractionComponent>("InteractionComp");
 
 	AttributeComp = CreateDefaultSubobject<UWotAttributeComponent>("AttributeComp");
+
+	EquipmentComp = CreateDefaultSubobject<UWotEquipmentComponent>("EquipmentComp");
 
 	InventoryComp = CreateDefaultSubobject<UWotInventoryComponent>("InventoryComp");
 
@@ -231,7 +234,6 @@ void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeCompon
 
 void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp)
 {
-	// TODO: Disable movement
 	// turn off collision & physics
 	TurnOff(); // freezes the pawn state
 	GetCapsuleComponent()->SetSimulatePhysics(false);
@@ -256,6 +258,8 @@ void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* Ow
 	DeathEffectComp->Play();
 	// hide the mesh so only the death animation plays
 	GetMesh()->SetVisibility(false, false);
+	// Drop all items the character is carrying
+	InventoryComp->DropAll();
 	// Then destroy after a delay
 	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, this, &AWotCharacter::Destroy_TimeElapsed, KilledDestroyDelay);
 }

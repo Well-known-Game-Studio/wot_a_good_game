@@ -6,6 +6,7 @@
 #include "Items/WotItemWeapon.h"
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/EngineTypes.h"
 
 // Sets default values
 UWotWeaponComponent::UWotWeaponComponent()
@@ -13,6 +14,7 @@ UWotWeaponComponent::UWotWeaponComponent()
   Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
   // Set physics enabled on this actor
   Mesh->SetCollisionProfileName("Item");
+  RegisterComponent();
 }
 
 void UWotWeaponComponent::SetItem(UWotItemWeapon* NewItemWeapon) {
@@ -37,7 +39,10 @@ void UWotWeaponComponent::SetItem(UWotItemWeapon* NewItemWeapon) {
     return;
   }
   // Set attachment point of owner
-  FAttachmentTransformRules AttachmentRules = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+  FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget,
+                                            EAttachmentRule::SnapToTarget,
+                                            EAttachmentRule::KeepWorld,
+                                            true);
   Mesh->AttachToComponent(CharacterMesh, AttachmentRules, ItemWeapon->EquipSocketName);
 }
 
