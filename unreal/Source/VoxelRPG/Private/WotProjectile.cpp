@@ -18,11 +18,6 @@ AWotProjectile::AWotProjectile()
   PrimaryActorTick.bCanEverTick = true;
 
   SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
-  // SphereComp->SetCollisionObjectType(ECC_WorldDynamic);
-  // SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
-  // SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
-  SphereComp->SetCollisionProfileName("Projectile");
-  SphereComp->OnComponentBeginOverlap.AddDynamic(this, &AWotProjectile::OnActorOverlap);
   RootComponent = SphereComp;
 
   StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>("StaticMeshComp");
@@ -44,7 +39,7 @@ AWotProjectile::AWotProjectile()
 void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
   if (OtherActor && OtherActor != GetInstigator()) {
-    UWotAttributeComponent* AttributeComp = Cast<UWotAttributeComponent>(OtherActor->GetComponentByClass(UWotAttributeComponent::StaticClass()));
+    UWotAttributeComponent* AttributeComp = UWotAttributeComponent::GetAttributes(OtherActor);
     if (AttributeComp) {
       AttributeComp->ApplyHealthChangeInstigator(GetInstigator(), Damage);
       Explode();
@@ -55,7 +50,14 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
 void AWotProjectile::PostInitializeComponents()
 {
   Super::PostInitializeComponents();
-  SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+  if (bUseSphereForCollisionAndOverlap) {
+    SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
+    // SphereComp->SetCollisionObjectType(ECC_WorldDynamic);
+    // SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+    // SphereComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+    SphereComp->SetCollisionProfileName(CollisionProfileName);
+    SphereComp->OnComponentBeginOverlap.AddDynamic(this, &AWotProjectile::OnActorOverlap);
+  }
   if (EffectNiagaraSystem) {
     EffectNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(EffectNiagaraSystem, SphereComp, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
   }

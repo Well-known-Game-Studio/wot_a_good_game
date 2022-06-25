@@ -49,6 +49,9 @@
 - [ ] Fade objects between camera and player
 - [ ] Allow character to tell NPC to stay put after having them follow
 - [ ] Different UI / inventory system / filtering by item type (food, weapons, armor, quest, etc.)
+- [ ] Lock / Key System
+- [ ] Action / Event / Trigger (e.g. hidden doors, buttons, and such)
+- [ ] Puzzles (ideas, systems, prototypes)
 
 ** Code
 

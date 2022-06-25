@@ -28,7 +28,13 @@ protected:
   UFUNCTION()
   virtual void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-  UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
+  bool bUseSphereForCollisionAndOverlap = true;
+
+  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
+  FName CollisionProfileName = "Projectile";
+
+  UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
   USphereComponent* SphereComp;
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Damage")
