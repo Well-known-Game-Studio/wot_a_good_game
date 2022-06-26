@@ -115,8 +115,6 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
     return;
   }
 
-  UE_LOG(LogTemp, Warning, TEXT("ArrowProjectile::HandleCollision hit %s"), *OtherActor->GetActorLabel());
-
   switch (CurrentState) {
     case EWotArrowState::Default: {
       break;
@@ -125,7 +123,6 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
       break;
     }
     case EWotArrowState::InAir: {
-      UE_LOG(LogTemp, Warning, TEXT("Creating new item and attaching!"));
       FVector CurrentLocation = GetActorLocation();
       FRotator CurrentRotation = GetActorRotation();
       // set new state to unobtained
