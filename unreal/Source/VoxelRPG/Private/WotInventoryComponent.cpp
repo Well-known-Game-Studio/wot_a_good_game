@@ -14,6 +14,19 @@ void UWotInventoryComponent::BeginPlay()
   }
 }
 
+UWotItem* UWotInventoryComponent::FindItem(TSubclassOf<UWotItem> ItemClass)
+{
+  // find by predicate returns pointer to element found
+  int32 Index = Items.IndexOfByPredicate([ItemClass](UWotItem* TestItem){
+    return ItemClass == TestItem->GetClass();
+  });
+  if (Index != INDEX_NONE) {
+    return Items[Index];
+  }
+  // didn't find it, return nullptr
+  return nullptr;
+}
+
 bool UWotInventoryComponent::AddItem(UWotItem* Item)
 {
   if (!Item) {

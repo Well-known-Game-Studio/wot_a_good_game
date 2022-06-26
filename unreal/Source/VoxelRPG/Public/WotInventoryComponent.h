@@ -28,6 +28,9 @@ public:
     virtual void BeginPlay() override;
 
     UFUNCTION(BlueprintCallable)
+    UWotItem* FindItem(TSubclassOf<UWotItem> ItemClass);
+
+    UFUNCTION(BlueprintCallable)
     bool AddItem(UWotItem* Item);
 
     UFUNCTION(BlueprintCallable)
