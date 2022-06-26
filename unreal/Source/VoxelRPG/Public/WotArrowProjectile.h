@@ -47,6 +47,9 @@ protected:
   virtual void Explode_Implementation() override;
 
   UFUNCTION(BlueprintCallable)
+  void SetArrowState(EWotArrowState NewArrowState);
+
+  UFUNCTION(BlueprintCallable)
   void Fire(AActor* NewShooter, float NewBowCharge);
 
   UFUNCTION()
@@ -59,9 +62,6 @@ protected:
   virtual void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 private:
-
-  UFUNCTION()
-  void SetArrowState(EWotArrowState NewArrowState);
 
   UFUNCTION()
   void OnStateBegin(EWotArrowState BeginArrowState);

@@ -11,9 +11,7 @@ AWotItemInteractible::AWotItemInteractible()
   Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
   RootComponent = Mesh;
   // Set physics enabled on this actor
-  Mesh->SetCollisionProfileName("Item");
-  Mesh->SetSimulatePhysics(true);
-  SetActorEnableCollision(true);
+  SetPhysicsAndCollision("Item", true, true);
 }
 
 void AWotItemInteractible::SetItem(UWotItem* NewItem) {
@@ -22,6 +20,13 @@ void AWotItemInteractible::SetItem(UWotItem* NewItem) {
   if (Item->PickupMesh) {
     Mesh->SetStaticMesh(Item->PickupMesh);
   }
+}
+
+void AWotItemInteractible::SetPhysicsAndCollision(FName CollisionProfileName, bool EnablePhysics, bool EnableCollision)
+{
+  Mesh->SetCollisionProfileName(CollisionProfileName);
+  SetActorEnableCollision(EnableCollision);
+  Mesh->SetSimulatePhysics(EnablePhysics);
 }
 
 void AWotItemInteractible::Interact_Implementation(APawn* InstigatorPawn)

@@ -107,6 +107,13 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
   if (OtherActor == GetInstigator()) {
     return;
   }
+  if (OtherActor == Shooter) {
+    return;
+  }
+  if (!ensure(ItemClass)) {
+    UE_LOG(LogTemp, Error, TEXT("ArrowProjectile::ItemClass is null!"));
+    return;
+  }
 
   UE_LOG(LogTemp, Warning, TEXT("ArrowProjectile::HandleCollision hit %s"), *OtherActor->GetActorLabel());
 
@@ -118,7 +125,9 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
       break;
     }
     case EWotArrowState::InAir: {
+      UE_LOG(LogTemp, Warning, TEXT("Creating new item and attaching!"));
       FVector CurrentLocation = GetActorLocation();
+      FRotator CurrentRotation = GetActorRotation();
       // set new state to unobtained
       SetArrowState(EWotArrowState::Unobtained);
       // play impact sound
@@ -126,9 +135,20 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
       // set the location
       FVector NewLocation = CurrentLocation + GetActorForwardVector() * PenetrationDepth;
       SetActorLocation(NewLocation, false, nullptr, ETeleportType::ResetPhysics);
-      // TODO: create WotItemArrow
-      AWotItemInteractible* NewItemInteractible = NewObject<AWotItemInteractible>(GetWorld(), AWotItemInteractible::StaticClass());
+      // Create WotItemInteractible (Actor in world)
+      FActorSpawnParameters SpawnParams;
+      SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+      // Spawn one actor for each item dropped
+      AWotItemInteractible* NewItemInteractible =
+        GetWorld()->SpawnActor<AWotItemInteractible>(AWotItemInteractible::StaticClass(),
+                                                     NewLocation,
+                                                     CurrentRotation,
+                                                     SpawnParams);
+      // and create WotItem (for collecting into inventory)
       UWotItem* NewItem = NewObject<UWotItem>(NewItemInteractible, ItemClass);
+      NewItem->OwningInventory = nullptr;
+      NewItem->Count = 1;
+      NewItemInteractible->SetPhysicsAndCollision("Projectile", false, true);
       NewItemInteractible->SetItem(NewItem);
       // attach new item interactible to other (collided) actor
       FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepWorld,

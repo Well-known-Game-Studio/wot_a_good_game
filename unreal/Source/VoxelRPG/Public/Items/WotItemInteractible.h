@@ -23,6 +23,8 @@ public:
 
 	void SetItem(UWotItem* NewItem);
 
+	void SetPhysicsAndCollision(FName CollisionProfileName, bool EnablePhysics, bool EnableCollision);
+
 	AWotItemInteractible();
 
 protected:

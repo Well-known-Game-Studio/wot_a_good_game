@@ -33,7 +33,12 @@ void UWotInteractionComponent::PrimaryInteract()
     FVector Extent = FVector(HalfExtent.X, HalfExtent.Y, HalfExtent.Z);
 	Shape.SetBox(HalfExtent);
 
-	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits, EyeLocation, End, FQuat::Identity, ObjectQueryParams, Shape);
+	bool bBlockingHit = GetWorld()->SweepMultiByObjectType(Hits,
+														   EyeLocation,
+														   End,
+														   FQuat::Identity,
+														   ObjectQueryParams,
+														   Shape);
 
 	for (auto Hit : Hits) {
 		AActor* HitActor = Hit.GetActor();
