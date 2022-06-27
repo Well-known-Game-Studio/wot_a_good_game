@@ -20,6 +20,14 @@ AWotArrowProjectile::AWotArrowProjectile()
   CurrentState = EWotArrowState::Default;
 }
 
+void AWotArrowProjectile::BeginPlay()
+{
+  Super::BeginPlay();
+  // The parent class starts the effect audio comp in its BeginPlay, but we
+  // don't want the effect audio to play until we fire
+  EffectAudioComp->Stop();
+}
+
 void AWotArrowProjectile::Fire(AActor* NewShooter, float NewBowCharge)
 {
   Shooter = NewShooter;
@@ -49,7 +57,7 @@ void AWotArrowProjectile::OnStateBegin(EWotArrowState BeginArrowState)
     }
     case EWotArrowState::InAir: {
       StaticMeshComp->SetCollisionProfileName("OverlapAll", true);
-      EffectAudioComp->Play();
+      EffectAudioComp->Play(0);
       if (IsValid(MovementComp)) {
         FVector ForwardVector = GetActorForwardVector();
         float Velocity = FMath::Lerp(MinVelocity, MaxVelocity, BowCharge);

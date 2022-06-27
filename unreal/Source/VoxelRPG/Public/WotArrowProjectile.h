@@ -42,6 +42,9 @@ protected:
   UPROPERTY(EditAnywhere)
   float PenetrationDepth = 50.0f;
 
+  // Called when the game starts or when spawned
+  virtual void BeginPlay() override;
+
   virtual void PostInitializeComponents() override;
 
   virtual void Explode_Implementation() override;

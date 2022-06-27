@@ -140,11 +140,15 @@ void AWotAICharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* 
 	for (auto& attached : AttachedActors) {
 		// detach actor
 		attached->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		// TODO: get primitive component
-		// enable physics collision
-		// attached->SetCollisionEnabled();
-		// TODO: set simulate physics
-		// attached->SetSimulatePhysics(true);
+    // get primitive components of this actor
+    TArray<UPrimitiveComponent*> PrimitiveComps;
+    attached->GetComponents(PrimitiveComps, false);
+    for (auto& PrimitiveComp : PrimitiveComps) {
+      // TODO: this is a hack to make arrows and such simulate again; probably
+      // should only do this for specific actor types and use helper functions?
+      PrimitiveComp->SetCollisionProfileName("Item");
+      PrimitiveComp->SetSimulatePhysics(true);
+    }
 	}
   // Stop the behavior tree
 	AAIController* AIC = Cast<AAIController>(GetController());
