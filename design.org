@@ -69,3 +69,41 @@ implement the [[id:e6426ec5-890d-4bbd-be5b-734e43c41e4d][Interactible]] interfac
 ** Status Effects
 *** In-world / Area of Effects (weather, spell, etc.)
 *** Applied (buff, drain, etc.)
+** Class / Actor Hierarchy
+*** Character (ACharacter)
+**** InteractionComponent (UActorComponent)
+**** AttributeComponent (UActorComponent)
+**** EquipmentComponent (UActorComponent)
+***** TArray<FName> ArmorSocketNames
+***** TArray<FName> WeaponSocketNames
+***** TMap<FName, AWotEquippedArmor> ArmorItems
+***** TMap<FName, AWotEquippedWeapon> WeaponItems
+Determines which of the Items in the character's InventoryComponent are actually
+equipped. Provides interfaces for getting the defense stats of the player (based
+on all equipped armor), as well as the equipped weapon for performing attacks
+using the weapon.
+**** InventoryComponent (UActorComponent)
+***** TArray<UWotItem> Items (UObject)
+**** DeathEffectComponent (UActorComponent)
+*** Item (AActor)
+**** ItemEquipment (WotItem)
+***** ItemWeapon (WotItemEquipment)
+***** ItemArmor (WotItemEquipment)
+*** ItemInteractible (AActor)
+**** Item (UWotItem)
+**** Mesh (UStaticMeshComponent)
+*** Projectile (AActor)
+*** ArrowProjectile (WotProjectile)
+**** TSubclassOf<UWotItem> ItemClass
+*** ItemActor (AActor)
+**** Item (UWotItem)
+**** Mesh (UStaticMeshComponent)
+Contains the item and renderable mesh. Implements SetItem() which will configure
+the mesh component to render the item's static mesh.
+*** InteractibleItemActor (ItemActor, IWotGameplayInterface)
+*** EquippedArmor (ItemActor)
+Implements GetDefense(), GetWear(), ApplyWear(), etc.
+*** EquippedWeapon (ItemActor)
+Implements PrimaryAttackStart, PrimaryAttackStop, SecondaryAttackStart,
+SecondaryAttackStop to allow owning player pawn to generically pass those events
+to the weapon to handle them. Held by the EquipmentComponent.

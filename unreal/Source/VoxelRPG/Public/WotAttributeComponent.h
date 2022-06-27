@@ -55,6 +55,12 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
     float StrengthMax = 100.0f;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+    float Magic;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+    float MagicMax = 100.0f;
+
 public:
 
     UFUNCTION(BlueprintCallable)
@@ -72,6 +78,12 @@ public:
     UFUNCTION(BlueprintCallable)
     bool IsFullHealth() const;
 
+    UFUNCTION(BlueprintCallable)
+    float GetMagic() const;
+
+    UFUNCTION(BlueprintCallable)
+    float GetMagicMax() const;
+
     UPROPERTY(BlueprintAssignable)
     FOnHealthChanged OnHealthChanged;
 
@@ -83,4 +95,10 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Attributes")
     bool ApplyHealthChangeInstigator(AActor* InstigatorActor, float Delta);
+
+    UFUNCTION(BlueprintCallable, Category = "Attributes")
+    bool ApplyMagicChange(float Delta);
+
+    UFUNCTION(BlueprintCallable, Category = "Attributes")
+    bool ApplyMagicChangeInstigator(AActor* InstigatorActor, float Delta);
 };

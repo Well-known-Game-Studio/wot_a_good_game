@@ -52,12 +52,11 @@
 - [ ] Lock / Key System
 - [ ] Action / Event / Trigger (e.g. hidden doors, buttons, and such)
 - [ ] Puzzles (ideas, systems, prototypes)
+- [ ] Update Arrow Projectile to be Physical projectile working for spears and such as well
 
 ** Code
 
 - [ ] Allow new character to climb ladder
-- [ ] Create weapon interface
-- [ ] Migrate attack code from BP to C++
 
 ** GUI
 
@@ -102,6 +101,14 @@
 - [ ] Chest
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
+
+* Week of 2022-06-26
+
+- [X] Migrate Arrow actor code from BP to C++
+- [X] Refactor equipment / equippable items (weapons / armor)
+- [X] Migrate Bow / Sword code from BP to C++
+- [X] Create weapon interface
+- [X] Migrate attack code from BP to C++
 
 * Week of 2022-06-19
 

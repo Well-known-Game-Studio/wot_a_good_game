@@ -11,6 +11,7 @@ class UTexture2D;
 class UWotInventoryComponent;
 class ACharacter;
 class UWorld;
+class AWotItemActor;
 
 UCLASS( Abstract, BlueprintType, Blueprintable, EditInlineNew, DefaultToInstanced)
 class VOXELRPG_API UWotItem : public UObject
@@ -33,6 +34,12 @@ public:
 
     UPROPERTY(Transient)
     UWorld* World;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item")
+    TSubclassOf<AWotItemActor> ItemActorClass;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item")
+    AWotItemActor* ItemActor;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item")
     FText UseActionText;

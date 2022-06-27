@@ -21,4 +21,16 @@ public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ClampMin = 0.0))
     float DamageAmount;
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    bool PrimaryAttackStart();
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    bool PrimaryAttackStop();
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    bool SecondaryAttackStart();
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    bool SecondaryAttackStop();
 };

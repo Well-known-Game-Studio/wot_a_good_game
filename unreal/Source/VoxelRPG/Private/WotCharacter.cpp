@@ -20,6 +20,7 @@
 #include "UI/WotUWHealthBar.h"
 #include "UI/WotUWPopupNumber.h"
 #include "Items/WotItem.h"
+#include "Items/WotItemWeapon.h"
 
 // Sets default values
 AWotCharacter::AWotCharacter()
@@ -106,9 +107,14 @@ void AWotCharacter::SetupCineCamera()
 
 void AWotCharacter::PrimaryAttack()
 {
-	PlayAnimMontage(AttackAnim);
-
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AWotCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
+	if (EquippedWeapon) {
+		EquippedWeapon->PrimaryAttackStart();
+	} else {
+		// We don't have a weapon, use magic instead :P
+		PlayAnimMontage(AttackAnim);
+		GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AWotCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+	}
 }
 
 void AWotCharacter::PrimaryAttack_TimeElapsed()
@@ -123,6 +129,15 @@ void AWotCharacter::PrimaryAttack_TimeElapsed()
 		SpawnParams.Instigator = this;
 
 		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+	}
+}
+
+void AWotCharacter::PrimaryAttackStop()
+{
+	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
+	if (EquippedWeapon) {
+		EquippedWeapon->PrimaryAttackStop();
+	} else {
 	}
 }
 
@@ -192,6 +207,7 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveRight");
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AWotCharacter::PrimaryAttackStop);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
 	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &AWotCharacter::Drop);

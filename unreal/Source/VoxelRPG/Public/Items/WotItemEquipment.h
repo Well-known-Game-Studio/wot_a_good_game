@@ -25,8 +25,18 @@ public:
     UPROPERTY(VisibleAnywhere, Category = "Equipment")
     bool IsEquipped;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Equipment")
+    bool CanBeEquipped = true;
+
+    // Creates the ItemActor from ItemActorClass on the character's EquipSocketName
+    UFUNCTION(BlueprintCallable)
+    virtual void Equip(ACharacter* Character);
+
+    // Removes the ItemActor (deleting it) from the character's EquipSocketName
+    UFUNCTION(BlueprintCallable)
+    virtual void Unequip(ACharacter* Character);
+
 protected:
 
     virtual void Use(ACharacter* Character) override;
-
 };

@@ -2,7 +2,7 @@
 #include "WotArrowProjectile.h"
 #include "WotAttributeComponent.h"
 #include "Items/WotItem.h"
-#include "Items/WotItemInteractible.h"
+#include "Items/WotItemInteractibleActor.h"
 #include "Camera/CameraShakeBase.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
@@ -132,15 +132,15 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
       // set the location
       FVector NewLocation = CurrentLocation + GetActorForwardVector() * PenetrationDepth;
       SetActorLocation(NewLocation, false, nullptr, ETeleportType::ResetPhysics);
-      // Create WotItemInteractible (Actor in world)
+      // Create WotItemInteractibleActor (Actor in world)
       FActorSpawnParameters SpawnParams;
       SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
       // Spawn one actor for each item dropped
-      AWotItemInteractible* NewItemInteractible =
-        GetWorld()->SpawnActor<AWotItemInteractible>(AWotItemInteractible::StaticClass(),
-                                                     NewLocation,
-                                                     CurrentRotation,
-                                                     SpawnParams);
+      AWotItemInteractibleActor* NewItemInteractible =
+        GetWorld()->SpawnActor<AWotItemInteractibleActor>(AWotItemInteractibleActor::StaticClass(),
+                                                          NewLocation,
+                                                          CurrentRotation,
+                                                          SpawnParams);
       // and create WotItem (for collecting into inventory)
       UWotItem* NewItem = NewObject<UWotItem>(NewItemInteractible, ItemClass);
       NewItem->OwningInventory = nullptr;

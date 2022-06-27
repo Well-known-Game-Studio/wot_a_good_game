@@ -89,6 +89,9 @@ protected:
 	void PrimaryAttack();
 	void PrimaryAttack_TimeElapsed();
 
+	UFUNCTION(BlueprintCallable)
+	void PrimaryAttackStop();
+
 	// Interaction
 	UFUNCTION(BlueprintCallable)
 	void PrimaryInteract();

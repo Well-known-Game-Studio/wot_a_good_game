@@ -9,6 +9,7 @@ UWotAttributeComponent::UWotAttributeComponent()
 	Health = HealthMax;
 	Stamina = StaminaMax;
 	Strength = StrengthMax;
+	Magic = MagicMax;
 }
 
 float UWotAttributeComponent::GetHealth() const
@@ -34,6 +35,16 @@ bool UWotAttributeComponent::IsStunned() const
 bool UWotAttributeComponent::IsFullHealth() const
 {
 	return Health == HealthMax;
+}
+
+float UWotAttributeComponent::GetMagic() const
+{
+	return Magic;
+}
+
+float UWotAttributeComponent::GetMagicMax() const
+{
+	return MagicMax;
 }
 
 bool UWotAttributeComponent::ApplyHealthChange(float Delta)
@@ -78,6 +89,19 @@ bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor
 void UWotAttributeComponent::Stunned_TimeElapsed()
 {
 	bIsStunned = false;
+}
+
+bool UWotAttributeComponent::ApplyMagicChange(float Delta)
+{
+	return ApplyMagicChangeInstigator(nullptr, Delta);
+}
+
+bool UWotAttributeComponent::ApplyMagicChangeInstigator(AActor* InstigatorActor, float Delta)
+{
+	const auto PriorMagic = Magic;
+	Magic = std::clamp(Magic+Delta, 0.0f, MagicMax);
+	const auto ActualDelta = Magic - PriorMagic;
+	return ActualDelta != 0;
 }
 
 UWotAttributeComponent* UWotAttributeComponent::GetAttributes(AActor* FromActor)

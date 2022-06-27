@@ -6,9 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "WotEquipmentComponent.generated.h"
 
-class UWotItemArmor;
-class UWotItemWeapon;
-class UStaticMeshComponent;
+class AWotEquippedArmorActor;
+class AWotEquippedWeaponActor;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class VOXELRPG_API UWotEquipmentComponent : public UActorComponent
@@ -19,6 +18,9 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Equipment")
     static UWotEquipmentComponent* GetEquipment(AActor* FromActor);
+
+    UFUNCTION(BlueprintCallable, Category = "Equipment")
+    static UWotItemWeapon* GetEquippedWeaponFromActor(AActor* FromActor);
 
 	// Sets default values for this component's properties
 	UWotEquipmentComponent();
@@ -43,6 +45,9 @@ public:
     UFUNCTION(BlueprintCallable)
 	void UnequipWeapon(UWotItemWeapon* NewItemWeapon);
 
+    UFUNCTION(BlueprintCallable)
+	UWotItemWeapon* GetEquippedWeapon();
+
 protected:
 
     UPROPERTY(EditAnywhere, Category = "Equipment")
@@ -53,11 +58,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Equipment")
     TMap<FName, UWotItemArmor*> ArmorItems;
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Equipment")
-    TMap<FName, UStaticMeshComponent*> ArmorComponents;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Equipment")
     TMap<FName, UWotItemWeapon*> WeaponItems;
-	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Equipment")
-    TMap<FName, UStaticMeshComponent*> WeaponComponents;
 };
