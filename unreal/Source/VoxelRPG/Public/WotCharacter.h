@@ -127,6 +127,9 @@ protected:
 	FTimerHandle TimerHandle_Destroy;
 	void Destroy_TimeElapsed();
 
+	UFUNCTION(Exec)
+	void HealSelf(float Amount = 100.0f);
+
 	virtual void PostInitializeComponents() override;
 
 public:	

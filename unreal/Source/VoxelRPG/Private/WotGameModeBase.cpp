@@ -61,3 +61,15 @@ void AWotGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Query
   SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
   GetWorld()->SpawnActor<AActor>(MinionClass, Locations[0] + FVector(0,0,10), FRotator::ZeroRotator, SpawnParams);
 }
+
+void AWotGameModeBase::KillAll()
+{
+  int32 NumberBotsAlive = 0;
+  for (TActorIterator<AWotAICharacter> It(GetWorld()); It; ++It) {
+    AWotAICharacter* Bot = *It;
+    UWotAttributeComponent* AttributeComp = UWotAttributeComponent::GetAttributes(Bot);
+    if (AttributeComp && AttributeComp->IsAlive()) {
+      AttributeComp->Kill(this); // @fixme: pass in player for kill credit?
+    }
+  }
+}

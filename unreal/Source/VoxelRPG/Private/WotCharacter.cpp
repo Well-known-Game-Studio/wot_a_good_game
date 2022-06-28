@@ -235,6 +235,11 @@ void AWotCharacter::HitFlash()
 	Mesh->SetScalarParameterValueOnMaterials("FlashTimeFactor", 2.0f);
 }
 
+void AWotCharacter::HealSelf(float Amount /* = 100 */)
+{
+	AttributeComp->ApplyHealthChangeInstigator(this, Amount);
+}
+
 void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
 	ShowHealthBarWidget(NewHealth, Delta, 1.0f);

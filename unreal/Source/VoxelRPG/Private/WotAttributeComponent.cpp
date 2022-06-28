@@ -12,6 +12,11 @@ UWotAttributeComponent::UWotAttributeComponent()
 	Magic = MagicMax;
 }
 
+bool UWotAttributeComponent::Kill(AActor* InstigatorActor)
+{
+	return ApplyHealthChangeInstigator(InstigatorActor, -GetHealthMax());
+}
+
 float UWotAttributeComponent::GetHealth() const
 {
 	return Health;
@@ -54,6 +59,9 @@ bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 
 bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor, float Delta)
 {
+	if (!GetOwner()->CanBeDamaged()) {
+		return false;
+	}
 	// we cannot be damaged if we are currently stunned
 	if (bIsStunned && Delta < 0.0f) {
 		return false;
