@@ -6,6 +6,8 @@
 // For Debug:
 #include "DrawDebugHelpers.h"
 
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("wot.DebugDrawInteraction"), true, TEXT("Enable DebugDrawing for Interaction Component"), ECVF_Cheat);
+
 // Sets default values for this component's properties
 UWotInteractionComponent::UWotInteractionComponent()
 {
@@ -39,6 +41,8 @@ void UWotInteractionComponent::PrimaryInteract()
 														   FQuat::Identity,
 														   ObjectQueryParams,
 														   Shape);
+
+	bool bDrawDebug = CVarDebugDrawInteraction.GetValueOnGameThread();
 
 	for (auto Hit : Hits) {
 		AActor* HitActor = Hit.GetActor();

@@ -20,9 +20,6 @@ public:
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
     float InteractionRange = 200.0f; // meters
 
-    UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    bool bDrawDebug = false;
-
     void PrimaryInteract();
 
 public:

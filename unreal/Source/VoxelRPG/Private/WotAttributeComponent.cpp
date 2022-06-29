@@ -2,6 +2,8 @@
 #include "WotAttributeComponent.h"
 #include "WotGameModeBase.h"
 
+static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("wot.DamageMultiplier"), 1.0f, TEXT("Multiplier for damage in AttributeComponent."), ECVF_Cheat);
+
 // Sets default values for this component's properties
 UWotAttributeComponent::UWotAttributeComponent()
 {
@@ -65,6 +67,12 @@ bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor
 	if (bIsStunned && Delta < 0.0f) {
 		return false;
 	}
+
+	if (Delta < 0.0f) {
+		float DamageMultiplier = CVarDamageMultiplier.GetValueOnGameThread();
+		Delta *= DamageMultiplier;
+	}
+
 	const auto PriorHealth = Health;
 	Health = std::clamp(Health+Delta, 0.0f, HealthMax);
 	const auto ActualDelta = Health - PriorHealth;

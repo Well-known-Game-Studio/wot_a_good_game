@@ -6,6 +6,8 @@
 #include "WotAttributeComponent.h"
 #include "EngineUtils.h"
 
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("wot.SpawnBots"), true, TEXT("Enable spawning of bots via timer"), ECVF_Cheat);
+
 AWotGameModeBase::AWotGameModeBase()
 {
   SpawnTimerInterval = 2.0f;
@@ -44,6 +46,11 @@ void AWotGameModeBase::RespawnPlayerTimerElapsed(AController* Controller)
 
 void AWotGameModeBase::SpawnBotTimerElapsed()
 {
+  if (!CVarSpawnBots.GetValueOnGameThread()) {
+    UE_LOG(LogTemp, Warning, TEXT("Bot spawning disabled via cvar 'CVarSpawnBots'."));
+    return;
+  }
+
   int32 NumberBotsAlive = 0;
   for (TActorIterator<AWotAICharacter> It(GetWorld()); It; ++It) {
     AWotAICharacter* Bot = *It;
