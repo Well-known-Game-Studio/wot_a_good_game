@@ -16,9 +16,14 @@ class VOXELRPG_API AWotGameModeBase : public AGameModeBase
 
 public:
 
+  virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
+
   AWotGameModeBase();
 
   virtual void StartPlay() override;
+
+  UFUNCTION(Exec)
+  void KillAll();
 
 protected:
 
@@ -45,6 +50,6 @@ protected:
   UFUNCTION()
   void SpawnBotTimerElapsed();
 
-  UFUNCTION(Exec)
-  void KillAll();
+  UFUNCTION()
+  void RespawnPlayerTimerElapsed(AController* Controller);
 };

@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "WotAttributeComponent.h"
+#include "WotGameModeBase.h"
 
 // Sets default values for this component's properties
 UWotAttributeComponent::UWotAttributeComponent()
@@ -74,6 +73,10 @@ bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor
 		if (Health <= 0.0f) {
 			// Health drops to or below 0, trigger kill event
 			OnKilled.Broadcast(InstigatorActor, this);
+		}
+		AWotGameModeBase* GM = GetWorld()->GetAuthGameMode<AWotGameModeBase>();
+		if (GM) {
+			GM->OnActorKilled(GetOwner(), InstigatorActor);
 		}
 	}
 	if (ActualDelta < 0.0f) {

@@ -2,6 +2,7 @@
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
 #include "AI/WotAICharacter.h"
+#include "WotCharacter.h"
 #include "WotAttributeComponent.h"
 #include "EngineUtils.h"
 
@@ -17,6 +18,28 @@ void AWotGameModeBase::StartPlay()
   // Continuous timer to spawn more bots. Actual amount of bots and whether it
   // is allowed to spawn determined by logic later in the chain...
   GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AWotGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true, SpawnTimerInitialDelay);
+}
+
+void AWotGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
+{
+  AWotCharacter* Player = Cast<AWotCharacter>(VictimActor);
+  if (Player) {
+    FTimerHandle TimerHandle_RespawnDelay;
+    FTimerDelegate Delegate;
+    Delegate.BindUFunction(this, "RespawnPlayerTimerElapsed", Player->GetController());
+    float RespawnDelay = 2.0f;
+    GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
+  }
+  UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim: %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
+}
+
+void AWotGameModeBase::RespawnPlayerTimerElapsed(AController* Controller)
+{
+  if (Controller) {
+    // Detatch controller so that we will get a new copy of the character
+    Controller->UnPossess();
+    RestartPlayer(Controller);
+  }
 }
 
 void AWotGameModeBase::SpawnBotTimerElapsed()
