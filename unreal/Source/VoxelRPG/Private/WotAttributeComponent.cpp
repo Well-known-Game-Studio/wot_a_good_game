@@ -61,6 +61,7 @@ bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor, float Delta)
 {
 	if (!GetOwner()->CanBeDamaged()) {
+		UE_LOG(LogTemp, Warning, TEXT("Owner cannot be damaged, not applying health change"));
 		return false;
 	}
 	// we cannot be damaged if we are currently stunned
@@ -81,10 +82,10 @@ bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor
 		if (Health <= 0.0f) {
 			// Health drops to or below 0, trigger kill event
 			OnKilled.Broadcast(InstigatorActor, this);
-		}
-		AWotGameModeBase* GM = GetWorld()->GetAuthGameMode<AWotGameModeBase>();
-		if (GM) {
-			GM->OnActorKilled(GetOwner(), InstigatorActor);
+			AWotGameModeBase* GM = GetWorld()->GetAuthGameMode<AWotGameModeBase>();
+			if (GM) {
+				GM->OnActorKilled(GetOwner(), InstigatorActor);
+			}
 		}
 	}
 	if (ActualDelta < 0.0f) {

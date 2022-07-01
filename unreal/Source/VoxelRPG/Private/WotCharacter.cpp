@@ -338,9 +338,4 @@ void AWotCharacter::Destroy_TimeElapsed()
 	AController* Controller = GetController();
 	// Destroy the current player
 	Destroy();
-	// And restart
-	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
-	if (ensure(GameMode)) {
-		GameMode->RestartPlayer(Controller);
-	}
 }

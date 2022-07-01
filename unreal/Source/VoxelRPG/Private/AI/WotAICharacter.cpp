@@ -31,6 +31,10 @@ void AWotAICharacter::PostInitializeComponents()
   PawnSensingComp->OnSeePawn.AddDynamic(this, &AWotAICharacter::OnPawnSeen);
 	AttributeComp->OnHealthChanged.AddDynamic(this, &AWotAICharacter::OnHealthChanged);
 	AttributeComp->OnKilled.AddDynamic(this, &AWotAICharacter::OnKilled);
+  // TODO: hack for projectile / collision - should actually set up proper
+  // channels with responses!
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+  GetMesh()->SetGenerateOverlapEvents(true);
 }
 
 void AWotAICharacter::OnPawnSeen(APawn* Pawn)
@@ -98,16 +102,19 @@ void AWotAICharacter::SetBlackboardActor(const FString BlackboardKeyName, AActor
 {
   // set the instigator as the damage actor
   AAIController* AIC = Cast<AAIController>(GetController());
-  if (AIC) {
-    UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
-    BBComp->SetValueAsObject(FName(*BlackboardKeyName), Actor);
+  if (!AIC) {
+    UE_LOG(LogTemp, Warning, TEXT("Could not get AI Controller for SetBlackboardActor!"));
+    return;
   }
+  UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
+  BBComp->SetValueAsObject(FName(*BlackboardKeyName), Actor);
 }
 
 void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
   // set the instigator as the damage actor
   SetBlackboardActor("DamageActor", InstigatorActor);
+  UE_LOG(LogTemp, Warning, TEXT("Run away from %s"), *GetNameSafe(InstigatorActor));
   SetBlackboardActor("TargetActor", InstigatorActor);
   // Then forget damage actor after a delay
   GetWorldTimerManager().SetTimer(TimerHandle_ForgetDamageActor,
@@ -132,7 +139,7 @@ void AWotAICharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* 
 	GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
 	SetActorEnableCollision(false);
 	// ragdoll the mesh
-	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetAllBodiesSimulatePhysics(true);
 	GetMesh()->SetCollisionProfileName("Ragdoll", true);
 	// detatch any attached actors and enable physics on them
 	TArray<AActor*> AttachedActors;
@@ -155,10 +162,7 @@ void AWotAICharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* 
   if (AIC) {
     AIC->GetBrainComponent()->StopLogic("Killed");
   }
-  // If we wanted to ragdoll we could call
-	// GetMesh()->SetAllBodiesSimulatePhysics(true);
-	// GetMesh()->SetCollisionProfileName("Ragdoll");
-	// Play the death component animation
+  // Play the death component animation
 	DeathEffectComp->Play();
 	// hide the mesh so only the death animation plays
 	GetMesh()->SetVisibility(false, false);

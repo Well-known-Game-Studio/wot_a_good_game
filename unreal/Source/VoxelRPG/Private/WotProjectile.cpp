@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "WotGameplayFunctionLibrary.h"
 
 AWotProjectile::AWotProjectile()
 {
@@ -38,12 +39,15 @@ AWotProjectile::AWotProjectile()
 
 void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+  // TODO: this is a hack to ignore overlap with the fluid flux surfaces /
+  // actors!
+  if (GetNameSafe(OtherActor).Contains("flux")) {
+    return;
+  }
+  UE_LOG(LogTemp, Warning, TEXT("Overlapped with %s"), *GetNameSafe(OtherActor));
   if (OtherActor && OtherActor != GetInstigator()) {
-    UWotAttributeComponent* AttributeComp = UWotAttributeComponent::GetAttributes(OtherActor);
-    if (AttributeComp) {
-      AttributeComp->ApplyHealthChangeInstigator(GetInstigator(), Damage);
-      Explode();
-    }
+    UWotGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
+    Explode();
   }
 }
 
