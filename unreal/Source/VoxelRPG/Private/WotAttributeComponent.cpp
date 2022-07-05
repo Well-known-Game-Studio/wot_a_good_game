@@ -60,8 +60,8 @@ bool UWotAttributeComponent::ApplyHealthChange(float Delta)
 
 bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor, float Delta)
 {
-	if (!GetOwner()->CanBeDamaged()) {
-		UE_LOG(LogTemp, Warning, TEXT("Owner cannot be damaged, not applying health change"));
+	if (!GetOwner()->CanBeDamaged() && Delta < 0.0f) {
+		UE_LOG(LogTemp, Warning, TEXT("Owner cannot be damaged, not applying damage"));
 		return false;
 	}
 	// we cannot be damaged if we are currently stunned
