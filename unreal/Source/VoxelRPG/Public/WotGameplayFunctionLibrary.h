@@ -18,4 +18,10 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Gameplay")
     static bool ApplyDirectionalDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FHitResult&HitResult);
+
+    static FString GetFloatAsStringWithPrecision(float TheFloat, int32 Precision, bool IncludeLeadingZero=true);
+    static FText GetFloatAsTextWithPrecision(float TheFloat, int32 Precision, bool IncludeLeadingZero=true);
+
+    static FString GetIntAsString(int TheNumber);
+    static FText GetIntAsText(int TheNumber);
 };

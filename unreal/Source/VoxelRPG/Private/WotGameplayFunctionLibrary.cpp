@@ -23,3 +23,33 @@ bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, A
   }
   return false;
 }
+
+FText UWotGameplayFunctionLibrary::GetFloatAsTextWithPrecision(float TheFloat, int32 Precision, bool IncludeLeadingZero)
+{
+  FNumberFormattingOptions NumberFormat;
+  NumberFormat.MinimumIntegralDigits = (IncludeLeadingZero) ? 1 : 0;
+  NumberFormat.MaximumIntegralDigits = 10000;
+  NumberFormat.MinimumFractionalDigits = Precision;
+  NumberFormat.MaximumFractionalDigits = Precision;
+  return FText::AsNumber(TheFloat, &NumberFormat);
+}
+
+FString UWotGameplayFunctionLibrary::GetFloatAsStringWithPrecision(float TheFloat, int32 Precision, bool IncludeLeadingZero)
+{
+  return GetFloatAsTextWithPrecision(TheFloat, Precision, IncludeLeadingZero).ToString();
+}
+
+FText UWotGameplayFunctionLibrary::GetIntAsText(int TheNumber)
+{
+  FNumberFormattingOptions NumberFormat;
+  NumberFormat.MinimumIntegralDigits = 1;
+  NumberFormat.MaximumIntegralDigits = 10000;
+  NumberFormat.MinimumFractionalDigits = 0;
+  NumberFormat.MaximumFractionalDigits = 0;
+  return FText::AsNumber(TheNumber, &NumberFormat);
+}
+
+FString UWotGameplayFunctionLibrary::GetIntAsString(int TheNumber)
+{
+  return GetIntAsText(TheNumber).ToString();
+}

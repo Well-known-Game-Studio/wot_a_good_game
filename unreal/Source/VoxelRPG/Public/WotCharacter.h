@@ -15,6 +15,7 @@ class UWotEquipmentComponent;
 class UWotInventoryComponent;
 class UWotDeathEffectComponent;
 class UUserWidget;
+class UWotUWInventoryPanel;
 class UWotUWHealthBar;
 class UWotUWPopupNumber;
 class UWotItem;
@@ -37,6 +38,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackAnim;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UWotUWInventoryPanel> InventoryWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UWotUWHealthBar> HealthBarWidgetClass;
@@ -97,12 +101,6 @@ protected:
 	void PrimaryInteract();
 
 	UFUNCTION(BlueprintCallable)
-	void UseItem(UWotItem* Item);
-
-	UFUNCTION(BlueprintCallable)
-	void Drop();
-
-	UFUNCTION(BlueprintCallable)
 	void HitFlash();
 
 	UFUNCTION()
@@ -110,6 +108,12 @@ protected:
 
 	UFUNCTION()
 	void OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp);
+
+	UFUNCTION(BlueprintCallable, Category = "Camera")
+	void RotateCamera();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowInventoryWidget();
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowHealthBarWidget(float NewHealth, float Delta, float Duration);
@@ -131,6 +135,8 @@ protected:
 	void HealSelf(float Amount = 100.0f);
 
 	virtual void PostInitializeComponents() override;
+
+	virtual FVector GetPawnViewLocation() const override;
 
 public:	
 	// Called every frame

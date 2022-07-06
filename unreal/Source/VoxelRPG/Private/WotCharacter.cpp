@@ -17,6 +17,7 @@
 #include "Math/Color.h"
 #include "Engine/EngineTypes.h"
 #include "Blueprint/UserWidget.h"
+#include "UI/WotUWInventoryPanel.h"
 #include "UI/WotUWHealthBar.h"
 #include "UI/WotUWPopupNumber.h"
 #include "Items/WotItem.h"
@@ -105,6 +106,13 @@ void AWotCharacter::SetupCineCamera()
 	CineCameraComp->CurrentAperture = 1.2;
 }
 
+FVector AWotCharacter::GetPawnViewLocation() const
+{
+	// for now we'll keep using the parent's version, which will return actor
+	// location + eye height offset
+	return Super::GetPawnViewLocation();
+}
+
 void AWotCharacter::PrimaryAttack()
 {
 	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
@@ -147,18 +155,6 @@ void AWotCharacter::PrimaryInteract()
 	{
 		InteractionComp->PrimaryInteract();
 	}
-}
-
-void AWotCharacter::UseItem(UWotItem* Item)
-{
-	if (Item) {
-		Item->Use(this);
-		Item->OnUse(this); // blueprint version
-	}
-}
-
-void AWotCharacter::Drop()
-{
 }
 
 void AWotCharacter::HandleMovementInput()
@@ -210,12 +206,14 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AWotCharacter::PrimaryAttackStop);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
-	PlayerInputComponent->BindAction("Drop", IE_Pressed, this, &AWotCharacter::Drop);
-
 	// Jump is an action that is already in the base class of ACharacter, so we
 	// don't have to implement it
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AWotCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AWotCharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AWotCharacter::ShowInventoryWidget);
+
+	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &AWotCharacter::RotateCamera);
 }
 
 void AWotCharacter::HitFlash()
@@ -283,6 +281,22 @@ void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* Ow
 	InventoryComp->DropAll();
 	// Then destroy after a delay
 	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, this, &AWotCharacter::Destroy_TimeElapsed, KilledDestroyDelay);
+}
+
+void AWotCharacter::ShowInventoryWidget()
+{
+	if (InventoryWidgetClass) {
+		UWotUWInventoryPanel* InventoryWidget = CreateWidget<UWotUWInventoryPanel>(GetWorld(), InventoryWidgetClass);
+		InventoryWidget->SetInventory(InventoryComp, FText::FromString("Your Items"));
+		InventoryWidget->AddToViewport();
+	}
+}
+
+void AWotCharacter::RotateCamera()
+{
+	FRotator Rotation = SpringArmComp->GetRelativeRotation();
+	Rotation.Yaw += 90;
+	SpringArmComp->SetRelativeRotation(Rotation, false, nullptr, ETeleportType::None);
 }
 
 void AWotCharacter::ShowHealthBarWidget(float NewHealth, float Delta, float Duration)

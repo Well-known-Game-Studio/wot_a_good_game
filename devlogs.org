@@ -102,6 +102,15 @@
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 
+* Week of 2022-07-03
+
+- [X] Moved Inventory Panel Widget code from BP to C++
+- [X] Moved Item Widget code from BP to C++
+- [X] Added Player Controller BP class
+- [X] Added some cheats / commands to the game
+- [X] Changed to WotCharacter from ThirdPersonCharacter
+- [X] Cleaned up WotCharacter code some (removed unneeded / unused functions)
+
 * Week of 2022-06-26
 
 - [X] Migrate Arrow actor code from BP to C++
