@@ -8,7 +8,7 @@ void UWotUWInventoryPanel::NativeConstruct()
 {
   Super::NativeConstruct();
   LabelText = FText::FromString("Your Items");
-  SetInventory(InventoryComp, LabelText);
+  Setup();
 }
 
 // This is called every time that the widget is compiled,
@@ -47,6 +47,10 @@ void UWotUWInventoryPanel::SetInventory(UWotInventoryComponent* NewInventoryComp
   // Store the values
   InventoryComp = NewInventoryComp;
   LabelText = NewLabelText;
+}
+
+void UWotUWInventoryPanel::Setup()
+{
   if (!InventoryComp) {
     return;
   }

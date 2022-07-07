@@ -41,6 +41,8 @@ public:
     void UpdateInventory();
 
 protected:
+    void Setup();
+
     // Doing setup in the C++ constructor is not as
     // useful as using NativeConstruct.
 	void NativeConstruct() override;
