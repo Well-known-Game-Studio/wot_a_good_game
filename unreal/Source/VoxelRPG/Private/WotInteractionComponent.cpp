@@ -31,7 +31,7 @@ void UWotInteractionComponent::PrimaryInteract()
 	TArray<FHitResult> Hits;
 
 	FCollisionShape Shape;
-	Chaos::TVector<float, 3> HalfExtent = Chaos::TVector<float, 3>(32.0f, 32.0f, 100.0f);
+	Chaos::TVector<float, 3> HalfExtent = InteractionBoxQueryHalfExtent;
     FVector Extent = FVector(HalfExtent.X, HalfExtent.Y, HalfExtent.Z);
 	Shape.SetBox(HalfExtent);
 

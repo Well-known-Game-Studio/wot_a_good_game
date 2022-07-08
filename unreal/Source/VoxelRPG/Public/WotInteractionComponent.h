@@ -20,6 +20,9 @@ public:
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
     float InteractionRange = 200.0f; // meters
 
+    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+    FVector InteractionBoxQueryHalfExtent{32.0f, 32.0f, 100.0f};
+
     void PrimaryInteract();
 
 public:
