@@ -40,6 +40,9 @@ public:
 	void EquipWeapon(UWotItemWeapon* NewItemWeapon);
 
     UFUNCTION(BlueprintCallable)
+    void UnequipAll();
+
+    UFUNCTION(BlueprintCallable)
 	void UnequipArmor(UWotItemArmor* NewItemArmor);
 
     UFUNCTION(BlueprintCallable)

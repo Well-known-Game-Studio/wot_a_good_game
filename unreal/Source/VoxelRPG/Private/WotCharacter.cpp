@@ -277,6 +277,8 @@ void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* Ow
 	DeathEffectComp->Play();
 	// hide the mesh so only the death animation plays
 	GetMesh()->SetVisibility(false, false);
+	// Unequip all items, so they can be dropped
+	EquipmentComp->UnequipAll();
 	// Drop all items the character is carrying
 	InventoryComp->DropAll();
 	// Then destroy after a delay

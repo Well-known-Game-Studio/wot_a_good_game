@@ -44,7 +44,6 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
   if (GetNameSafe(OtherActor).Contains("flux")) {
     return;
   }
-  UE_LOG(LogTemp, Warning, TEXT("Overlapped with %s"), *GetNameSafe(OtherActor));
   if (OtherActor && OtherActor != GetInstigator()) {
     UWotGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
     Explode();

@@ -23,6 +23,8 @@ UWotItem::UWotItem(const UWotItem* Other)
 void UWotItem::Copy(const UWotItem* Other)
 {
   World = Other->World;
+  ItemActorClass = Other->ItemActorClass;
+  // TODO: do we need to copy the ItemActor as well?
   UseActionText = Other->UseActionText;
   PickupMesh = Other->PickupMesh;
   Thumbnail = Other->Thumbnail;

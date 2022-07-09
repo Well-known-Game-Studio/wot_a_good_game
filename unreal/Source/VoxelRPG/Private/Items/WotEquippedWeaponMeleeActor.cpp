@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Engine/EngineTypes.h"
 
-static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("wot.DebugDrawMeleeHitBox"), false, TEXT("Enable DebugDrawing for Equipped Weapon Melee Actor"), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarDebugDrawHitBox(TEXT("wot.DebugDrawMeleeHitBox"), false, TEXT("Enable DebugDrawing for Equipped Weapon Melee Actor"), ECVF_Cheat);
 
 // Sets default values
 AWotEquippedWeaponMeleeActor::AWotEquippedWeaponMeleeActor() : AWotEquippedWeaponActor()
@@ -59,7 +59,7 @@ void AWotEquippedWeaponMeleeActor::PrimaryAttackStart_Implementation()
                                                          ObjectQueryParams,
                                                          Shape);
 
-	bool bDrawDebug = CVarDebugDrawInteraction.GetValueOnGameThread();
+	bool bDrawDebug = CVarDebugDrawHitBox.GetValueOnGameThread();
 
   // Get damage to use
   UWotItemWeapon* ItemWeapon = Cast<UWotItemWeapon>(Item);

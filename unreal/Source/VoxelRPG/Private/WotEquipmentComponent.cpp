@@ -89,6 +89,21 @@ void UWotEquipmentComponent::EquipWeapon(UWotItemWeapon* NewItemWeapon) {
   NewItemWeapon->Equip(Cast<ACharacter>(GetOwner()));
 }
 
+void UWotEquipmentComponent::UnequipAll() {
+  for (auto& Elem : ArmorItems) {
+    auto ArmorItem = Elem.Value;
+    if (ArmorItem) {
+      ArmorItem->Unequip(Cast<ACharacter>(GetOwner()));
+    }
+  }
+  for (auto& Elem : WeaponItems) {
+    auto WeaponItem = Elem.Value;
+    if (WeaponItem) {
+      WeaponItem->Unequip(Cast<ACharacter>(GetOwner()));
+    }
+  }
+}
+
 void UWotEquipmentComponent::UnequipArmor(UWotItemArmor* NewItemArmor) {
   FName SocketName = NewItemArmor->EquipSocketName;
   if (!ArmorSocketNames.Contains(SocketName)) {

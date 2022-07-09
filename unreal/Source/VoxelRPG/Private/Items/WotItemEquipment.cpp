@@ -21,6 +21,7 @@ void UWotItemEquipment::Copy(const UWotItem* OtherItem) {
   if (OtherEquipment) {
     EquipSocketName = OtherEquipment->EquipSocketName;
     IsEquipped = OtherEquipment->IsEquipped;
+    CanBeEquipped = OtherEquipment->CanBeEquipped;
   }
 }
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Animation/AnimInstance.h"
 #include "WotCharacterAnimInstance.generated.h"
 
