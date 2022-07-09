@@ -6,7 +6,7 @@
 // For Debug:
 #include "DrawDebugHelpers.h"
 
-static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("wot.DebugDrawInteraction"), true, TEXT("Enable DebugDrawing for Interaction Component"), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("wot.DebugDrawInteraction"), false, TEXT("Enable DebugDrawing for Interaction Component"), ECVF_Cheat);
 
 // Sets default values for this component's properties
 UWotInteractionComponent::UWotInteractionComponent()

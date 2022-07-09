@@ -24,13 +24,17 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     void PrimaryAttackStart();
+    virtual void PrimaryAttackStart_Implementation();
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     void PrimaryAttackStop();
+    virtual void PrimaryAttackStop_Implementation();
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     void SecondaryAttackStart();
+    virtual void SecondaryAttackStart_Implementation();
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     void SecondaryAttackStop();
+    virtual void SecondaryAttackStop_Implementation();
 };
