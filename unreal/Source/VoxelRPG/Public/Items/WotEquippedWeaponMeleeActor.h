@@ -18,10 +18,10 @@ class VOXELRPG_API AWotEquippedWeaponMeleeActor : public AWotEquippedWeaponActor
 
 public:
 
-    UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
     float AttackRange = 200.0f; // meters
 
-    UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
     FVector HitBoxHalfExtent{20.0f, 100.0f, 50.0f};
 
 	// Sets default values for this component's properties

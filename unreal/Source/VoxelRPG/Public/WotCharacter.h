@@ -118,15 +118,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowHealthBarWidget(float NewHealth, float Delta, float Duration);
 
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowPopupWidget(const FText& Text, float Duration);
-
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowPopupWidgetNumber(int Number, float Duration);
-
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowActionTextWidget(FString Text, float Duration);
-
 	float KilledDestroyDelay = 2.0f;
 	FTimerHandle TimerHandle_Destroy;
 	void Destroy_TimeElapsed();
@@ -138,7 +129,17 @@ protected:
 
 	virtual FVector GetPawnViewLocation() const override;
 
-public:	
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowPopupWidget(const FText& Text, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowPopupWidgetNumber(int Number, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowActionTextWidget(FString Text, float Duration);
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

@@ -52,6 +52,7 @@
 - [ ] Action / Event / Trigger (e.g. hidden doors, buttons, and such)
 - [ ] Puzzles (ideas, systems, prototypes)
 - [ ] Update Arrow Projectile to be Physical projectile working for spears and such as well
+- [ ] Add opening cutscene (player walking out of house into world with fade-in)
 
 ** Code
 
@@ -68,11 +69,11 @@
 ** Models
 
 - [ ] Make ladder
-- [ ] Animate medium scale models
+- [X] Animate medium scale models
 - [ ] rig dog
 - [ ] rig raccoon
 - [ ] rig duck
-- [ ] Animate sheep
+- [X] Animate sheep
 - [ ] Animate horse
 - [ ] animate raccoon
 - [ ] animate duck
