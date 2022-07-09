@@ -45,7 +45,6 @@
 - [ ] mouse + keyboard support (to aim where mouse looks)
 - [ ] Make blendspace 2d for holding bow, walking, idling
 - [ ] Allow each animal to have a different amount of player avoidance
-- [ ] Move to using WotCharacter instead of ThirdPersonCharacter (migrate code)
 - [ ] Fade objects between camera and player
 - [ ] Allow character to tell NPC to stay put after having them follow
 - [ ] Different UI / inventory system / filtering by item type (food, weapons, armor, quest, etc.)
@@ -110,6 +109,12 @@
 - [X] Added some cheats / commands to the game
 - [X] Changed to WotCharacter from ThirdPersonCharacter
 - [X] Cleaned up WotCharacter code some (removed unneeded / unused functions)
+- [X] Move to using WotCharacter instead of ThirdPersonCharacter (migrate code)
+- [X] Added WotEquippedWeaponMeleeActor which implements box sweep for attack
+- [X] Reexported rand, tam, lan, and moiraine models from voxel max
+- [X] Re-rigged Rand medium and medium flat models
+- [X] Re-imported rand medium flat skeletal mesh
+- [X] Created walking and light attack animations (in ue) for rand medium flat
 
 * Week of 2022-06-26
 
