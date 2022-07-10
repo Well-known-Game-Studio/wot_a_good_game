@@ -29,4 +29,6 @@ public:
 
     // Sets default values for this actor's properties
     UWotInteractionComponent();
+
+    virtual void BeginPlay() override;
 };

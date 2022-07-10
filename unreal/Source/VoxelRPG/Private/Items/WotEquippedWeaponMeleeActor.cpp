@@ -6,6 +6,9 @@
 #include "GameFramework/Character.h"
 #include "Engine/EngineTypes.h"
 
+// For Debug:
+#include "DrawDebugHelpers.h"
+
 static TAutoConsoleVariable<bool> CVarDebugDrawHitBox(TEXT("wot.DebugDrawMeleeHitBox"), false, TEXT("Enable DebugDrawing for Equipped Weapon Melee Actor"), ECVF_Cheat);
 
 // Sets default values
