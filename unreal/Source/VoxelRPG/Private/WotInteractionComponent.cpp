@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "WotInteractionComponent.h"
+#include "WotCharacter.h"
 #include "WotGameplayInterface.h"
+#include "WotInventoryComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Items/WotItem.h"
 
@@ -81,8 +83,8 @@ void UWotInteractionComponent::PrimaryInteract()
 				}
 				break;
 			} else {
-				// TODO: implement the foliage interaction here
-				UInstancedStaticMeshComponent* ISMC = Cast<UInstancedStaticMeshComponent>(HitActor->GetComponentByClass(UInstancedStaticMeshComponent::StaticClass()));
+				// Handle foliage interaction here
+				UInstancedStaticMeshComponent* ISMC = Cast<UInstancedStaticMeshComponent>(Hit.GetComponent());
 				if (ISMC) {
 					UStaticMesh* StaticMesh = ISMC->GetStaticMesh();
 					// loop through the foragable types and check if their mesh
@@ -91,13 +93,29 @@ void UWotInteractionComponent::PrimaryInteract()
 						   *GetNameSafe(ISMC),
 						   *GetNameSafe(StaticMesh));
 					for (auto& ItemClass : ItemClasses) {
-						// UWotItem* ItemClass = Cast<UWotItem>(ItemClass);
+						// See if the this is an interactible instance (e.g. if
+						// there is an item whose mesh matches)
 						UWotItem* DefaultObject = Cast<UWotItem>(ItemClass->GetDefaultObject());
 						if (DefaultObject->PickupMesh == StaticMesh) {
-							UE_LOG(LogTemp, Warning, TEXT("GOT ONE: %s (%s == %s)"),
+							UE_LOG(LogTemp, Warning, TEXT("GOT ONE: %s (%s == %s), instance: %d"),
 								   *GetNameSafe(DefaultObject),
 								   *GetNameSafe(DefaultObject->PickupMesh),
-								   *GetNameSafe(StaticMesh));
+								   *GetNameSafe(StaticMesh),
+								   Hit.Item);
+							// now remove the ISM instance
+							ISMC->RemoveInstance(Hit.Item);
+							// add one of these items to the player's inventory
+							UWotInventoryComponent* InventoryComp = UWotInventoryComponent::GetInventory(MyOwner);
+							if (InventoryComp) {
+								UWotItem* NewItem = NewObject<UWotItem>(MyOwner, ItemClass);
+								InventoryComp->AddItem(NewItem);
+							}
+							// Show UI
+							AWotCharacter* MyWotOwner = Cast<AWotCharacter>(MyOwner);
+							if (MyWotOwner) {
+								MyWotOwner->ShowPopupWidgetNumber(1, 1.0f);
+							}
+							// Draw debug info showing the hit / bounding box
 							if (bDrawDebug) {
 								FVector HitActorLocation;
 								FVector HitBoxExtent;
@@ -107,6 +125,8 @@ void UWotInteractionComponent::PrimaryInteract()
 								// draw a point for the hit location itself
 								DrawDebugPoint(GetWorld(), Hit.ImpactPoint, 10, FColor::Red, false, 2.0f, 100);
 							}
+							// now break out of this loop!
+							break;
 						}
 					}
 				}

@@ -117,6 +117,7 @@
 - [X] Re-imported rand medium flat skeletal mesh
 - [X] Created walking and light attack animations (in ue) for rand medium flat
 - [X] NPCs now can be told to stop following
+- [X] InteractionComponent handles foliage interaction
 
 * Week of 2022-06-26
 
