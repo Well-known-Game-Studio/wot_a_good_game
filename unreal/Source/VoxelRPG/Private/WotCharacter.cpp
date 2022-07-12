@@ -7,6 +7,7 @@
 #include "WotInventoryComponent.h"
 #include "WotDeathEffectComponent.h"
 #include "WotInteractionComponent.h"
+#include "WotActionComponent.h"
 #include "CineCameraComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -46,6 +47,8 @@ AWotCharacter::AWotCharacter()
 	InventoryComp = CreateDefaultSubobject<UWotInventoryComponent>("InventoryComp");
 
 	DeathEffectComp = CreateDefaultSubobject<UWotDeathEffectComponent>("DeathEffectComp");
+
+	ActionComp = CreateDefaultSubobject<UWotActionComponent>("ActionComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -191,6 +194,16 @@ void AWotCharacter::HandleMovementInput()
 	AddMovementInput(up, vector_value.Y);
 }
 
+void AWotCharacter::SprintStart()
+{
+	ActionComp->StartActionByName(this, "Sprint");
+}
+
+void AWotCharacter::SprintStop()
+{
+	ActionComp->StopActionByName(this, "Sprint");
+}
+
 // Called every frame
 void AWotCharacter::Tick(float DeltaTime)
 {
@@ -208,6 +221,9 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// it (we read it in the tick event)
 	PlayerInputComponent->BindAxis("MoveForward");
 	PlayerInputComponent->BindAxis("MoveRight");
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AWotCharacter::SprintStart);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AWotCharacter::SprintStop);
+
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AWotCharacter::PrimaryAttackStop);

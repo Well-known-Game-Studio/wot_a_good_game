@@ -14,6 +14,7 @@ class UWotAttributeComponent;
 class UWotEquipmentComponent;
 class UWotInventoryComponent;
 class UWotDeathEffectComponent;
+class UWotActionComponent;
 class UUserWidget;
 class UWotUWInventoryPanel;
 class UWotUWHealthBar;
@@ -82,11 +83,18 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotDeathEffectComponent* DeathEffectComp;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
+	UWotActionComponent* ActionComp;
+
 	void SetupSpringArm();
 	void SetupCineCamera();
 
 	// Movement
 	void HandleMovementInput();
+
+	void SprintStart();
+
+	void SprintStop();
 
 	// Attacking
 	UFUNCTION(BlueprintCallable)

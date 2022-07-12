@@ -21,6 +21,14 @@
 - [X] watch UE learning course (C++, gameplay systems)
 - [X] prototype voxel destruction of world
 
+** Assignments
+
+- [ ] Credits / Money system - stored in PlayerState derived class to remain after player death
+- [ ] Killing minions grants credits, using health potions costs credits
+- [ ] Coin pick-up
+- [ ] Credist widget hooked up to show current credits in HUD
+- [ ] Randomly spawn coin and health potions throughout the level at game start (EQS)
+
 ** Systems to Learn
 
 - [ ] [[id:2646bd9e-c7f4-4542-b702-f0a209fe7c60][Gameplay Abilities System]]
