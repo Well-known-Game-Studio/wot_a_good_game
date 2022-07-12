@@ -24,4 +24,8 @@ public:
 
     static FString GetIntAsString(int TheNumber);
     static FText GetIntAsText(int TheNumber);
+
+    static void GetAllCppSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray);
+    static void GetAllBlueprintSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray);
+
 };

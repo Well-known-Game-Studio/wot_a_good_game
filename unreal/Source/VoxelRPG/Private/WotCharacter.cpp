@@ -65,6 +65,13 @@ void AWotCharacter::PostInitializeComponents()
 void AWotCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	// TODO: this causes a crash on respawn for some reason, so we've actually
+	// put this into the PlayerControllerBP
+	/*
+	// Override audio listener location
+	auto PC = Cast<APlayerController>(GetController());
+	PC->SetAudioListenerOverride(GetCapsuleComponent(), FVector(), FRotator());
+	*/
 }
 
 void AWotCharacter::SetupSpringArm()

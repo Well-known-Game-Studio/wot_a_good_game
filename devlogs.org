@@ -1,6 +1,6 @@
 #+title:  Devlog
 #+author: William Emfinger
-#+date:   <2022-06-19 Sun>
+#+date:   <2022-07-10 Sun>
 
 * Task List
 ** Bugs
@@ -102,6 +102,12 @@
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 
+* Week of 2022-07-10
+
+- [X] Added HUD class and add it in player controller
+- [X] Update WotCharacter to override the audio listener
+- [X] Update InventoryComponent to use AssetManager to find all blueprint subclasses of UWotItem
+
 * Week of 2022-07-03
 
 - [X] Moved Inventory Panel Widget code from BP to C++
@@ -116,6 +122,9 @@
 - [X] Re-rigged Rand medium and medium flat models
 - [X] Re-imported rand medium flat skeletal mesh
 - [X] Created walking and light attack animations (in ue) for rand medium flat
+- [X] Created walking and idle animations for sheep
+- [X] Created walking and idle animations for horse
+- [X] Created walking and idle animations for trolloc_boar
 - [X] NPCs now can be told to stop following
 - [X] InteractionComponent handles foliage interaction
 

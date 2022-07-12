@@ -6,6 +6,7 @@
 #include "WotInventoryComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Items/WotItem.h"
+#include "WotGameplayFunctionLibrary.h"
 
 // For Debug:
 #include "DrawDebugHelpers.h"
@@ -24,9 +25,18 @@ void UWotInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	if (ItemClasses.Num() == 0) {
-		UE_LOG(LogTemp, Warning, TEXT("Getting all subclasses of UWotItem"));
-		bool bRecursive = true;
-		GetDerivedClasses(UWotItem::StaticClass(), ItemClasses, bRecursive);
+		TArray<UClass*> BlueprintClasses;
+		UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UWotItem::StaticClass(), BlueprintClasses);
+		// ItemClasses.Append(BlueprintClasses);
+		for (auto Class : BlueprintClasses) {
+			ItemClasses.AddUnique(Class);
+		}
+		TArray<UClass*> CppClasses;
+		UWotGameplayFunctionLibrary::GetAllCppSubclasses(UWotItem::StaticClass(), CppClasses);
+		// ItemClasses.Append(CppClasses);
+		for (auto Class : CppClasses) {
+			ItemClasses.AddUnique(Class);
+		}
 		UE_LOG(LogTemp, Warning, TEXT("Got %d subclasses of UWotItem"), ItemClasses.Num());
 	}
 }
@@ -96,6 +106,10 @@ void UWotInteractionComponent::PrimaryInteract()
 						// See if the this is an interactible instance (e.g. if
 						// there is an item whose mesh matches)
 						UWotItem* DefaultObject = Cast<UWotItem>(ItemClass->GetDefaultObject());
+						if (!DefaultObject) {
+							UE_LOG(LogTemp, Error, TEXT("Invalid default object for class %s"), *ItemClass->GetFName().ToString());
+							continue;
+						}
 						if (DefaultObject->PickupMesh == StaticMesh) {
 							UE_LOG(LogTemp, Warning, TEXT("GOT ONE: %s (%s == %s), instance: %d"),
 								   *GetNameSafe(DefaultObject),
