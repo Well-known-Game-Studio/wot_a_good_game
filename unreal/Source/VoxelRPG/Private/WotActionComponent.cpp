@@ -38,6 +38,12 @@ bool UWotActionComponent::StartActionByName(AActor* Instigator, FName ActionName
 {
   for (UWotAction* Action : Actions) {
     if (Action && Action->ActionName == ActionName) {
+      if (!Action->CanStart(Instigator)) {
+        FString FailedMsg = FString::Printf(TEXT("Failed to run: %s"), *ActionName.ToString());
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FailedMsg);
+        // can't start this action, so continue on to the next action in the array
+        continue;
+      }
       Action->Start(Instigator);
       return true;
     }
@@ -49,8 +55,10 @@ bool UWotActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 {
   for (UWotAction* Action : Actions) {
     if (Action && Action->ActionName == ActionName) {
-      Action->Stop(Instigator);
-      return true;
+      if (Action->IsRunning()) {
+        Action->Stop(Instigator);
+        return true;
+      }
     }
   }
   return false;

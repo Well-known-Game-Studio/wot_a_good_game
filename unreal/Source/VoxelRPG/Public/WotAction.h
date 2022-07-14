@@ -26,15 +26,18 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Tags")
     FGameplayTagContainer BlockedTags;
 
+    UPROPERTY(VisibleAnywhere, Category = "Action")
+    bool bIsRunning;
+
 public:
 	// Sets default values for this component's properties
 	UWotAction();
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Action")
-    FName ActionName;
+    UFUNCTION(BlueprintCallable, Category = "Action")
+    bool IsRunning() const;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Action", meta = (MultiLine = true))
-    FName ActionDescription;
+    UFUNCTION(BlueprintCallable, Category = "Action")
+    bool CanStart(AActor* Instigator);
 
     UFUNCTION(BlueprintNativeEvent, Category = "Action")
     void Start(AActor* Instigator);
@@ -50,4 +53,9 @@ public:
     // reference to world
     virtual UWorld* GetWorld() const override;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Action")
+    FName ActionName;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Action", meta = (MultiLine = true))
+    FName ActionDescription;
 };
