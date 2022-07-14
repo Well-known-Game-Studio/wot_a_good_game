@@ -53,8 +53,6 @@ AWotCharacter::AWotCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
-
-	HandSocketName = "Hand_R";
 }
 
 void AWotCharacter::PostInitializeComponents()
@@ -129,24 +127,7 @@ void AWotCharacter::PrimaryAttack()
 	if (EquippedWeapon) {
 		EquippedWeapon->PrimaryAttackStart();
 	} else {
-		// We don't have a weapon, use magic instead :P
-		PlayAnimMontage(AttackAnim);
-		GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &AWotCharacter::PrimaryAttack_TimeElapsed, 0.2f);
-	}
-}
-
-void AWotCharacter::PrimaryAttack_TimeElapsed()
-{
-	if (ensure(ProjectileClass)) {
-		auto HandLocation = GetMesh()->GetSocketLocation(HandSocketName);
-
-		auto SpawnTM = FTransform(GetActorRotation(), HandLocation);
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		// Set the instigator so the projectile doesn't interact / damage the owner pawn
-		SpawnParams.Instigator = this;
-
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+		ActionComp->StartActionByName(this, "PrimaryAttack");
 	}
 }
 

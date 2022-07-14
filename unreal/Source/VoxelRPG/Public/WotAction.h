@@ -6,6 +6,8 @@
 #include "UObject/NoExportTypes.h"
 #include "WotAction.generated.h"
 
+class UWorld;
+
 UCLASS(Blueprintable)
 class VOXELRPG_API UWotAction : public UObject
 {
@@ -24,6 +26,15 @@ public:
     UFUNCTION(BlueprintNativeEvent, Category = "Action")
     void Start(AActor* Instigator);
 
+    virtual void Start_Implementation(AActor* Instigator);
+
     UFUNCTION(BlueprintNativeEvent, Category = "Action")
     void Stop(AActor* Instigator);
+
+    virtual void Stop_Implementation(AActor* Instigator);
+
+    // Allows spawning of objects and things in BP as long as we can get
+    // reference to world
+    virtual UWorld* GetWorld() const override;
+
 };

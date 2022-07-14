@@ -9,6 +9,10 @@ UWotActionComponent::UWotActionComponent()
 void UWotActionComponent::BeginPlay()
 {
   Super::BeginPlay();
+  // Start the owning actor with the default actions
+  for (auto& ActionClass : DefaultActions) {
+    AddAction(ActionClass);
+  }
 }
 
 void UWotActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

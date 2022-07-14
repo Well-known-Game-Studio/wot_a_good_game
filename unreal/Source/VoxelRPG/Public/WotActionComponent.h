@@ -35,6 +35,9 @@ public:
 
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+    UPROPERTY(EditAnywhere, Category = "Actions")
+    TArray<TSubclassOf<UWotAction>> DefaultActions;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Actions")
     TArray<UWotAction*> Actions;
 };

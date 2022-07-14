@@ -28,10 +28,10 @@ public:
     virtual void InitializeComponent() override;
 
     UFUNCTION(BlueprintCallable)
-    void EquipItem(UWotItemEquipment* NewItemEquipment);
+    void EquipItem(UWotItem* NewItem);
 
     UFUNCTION(BlueprintCallable)
-    void UnequipItem(UWotItemEquipment* NewItemEquipment);
+    void UnequipItem(UWotItem* NewItem);
 
     UFUNCTION(BlueprintCallable)
 	void EquipArmor(UWotItemArmor* NewItemArmor);

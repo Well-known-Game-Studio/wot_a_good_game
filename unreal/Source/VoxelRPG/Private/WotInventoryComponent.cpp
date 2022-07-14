@@ -27,7 +27,7 @@ UWotItem* UWotInventoryComponent::FindItem(TSubclassOf<UWotItem> ItemClass)
   return nullptr;
 }
 
-bool UWotInventoryComponent::AddItem(UWotItem* Item)
+int32 UWotInventoryComponent::AddItem(UWotItem* Item)
 {
   if (!Item) {
     return false;
@@ -40,15 +40,21 @@ bool UWotInventoryComponent::AddItem(UWotItem* Item)
   });
   UE_LOG(LogTemp, Warning, TEXT("Adding %d items"), Item->Count);
   if (Index != INDEX_NONE) {
+    // We already have one in our inventory, so increment count and destroy the
+    // old item
     UWotItem* OurItem = Items[Index];
     // increment the count of items we have like that, up to the max count we
-    // can have;
+    // can have
     NumAdded = OurItem->Add(Item->Count);
-    // TODO: should we destroy the passed in item?
-    UE_LOG(LogTemp, Warning, TEXT("Destroying Item!"));
-    Item->ConditionalBeginDestroy();
+    // Inform the original item of how many were removed
+    Item->Remove(NumAdded);
   } else {
-    // Ensure the item knows what inventory it belongs to
+    if (Item->OwningInventory) {
+      // Remove from original inventory
+      Item->OwningInventory->DeleteItem(Item);
+    }
+    // We don't have this item, so move (all of) it over to our inventory -
+    // ensure the item knows what inventory it belongs to
     Item->OwningInventory = this;
     Item->World = GetWorld();
     // add it to the list
@@ -61,8 +67,7 @@ bool UWotInventoryComponent::AddItem(UWotItem* Item)
   // Update UI and other interested parties
   OnInventoryUpdated.Broadcast();
 
-  // TODO: what do we do if NumAdded < Item->Count?
-  return NumAdded > 0;
+  return NumAdded;
 }
 
 bool UWotInventoryComponent::RemoveItem(UWotItem* Item, int RemoveCount)
@@ -89,15 +94,19 @@ bool UWotInventoryComponent::RemoveItem(UWotItem* Item, int RemoveCount)
   // Update UI and other interested parties
   OnInventoryUpdated.Broadcast();
 
-  // TODO: what do we do if NumRemoved < Item->Count?
   return NumRemoved > 0;
 }
 
 void UWotInventoryComponent::DeleteItem(UWotItem* Item) {
+  if (!Item || Items.Num() == 0) {
+    return;
+  }
+
   int32 Index = Items.IndexOfByPredicate([Item](UWotItem* TestItem){
     return *Item == *TestItem;
   });
   if (Index != INDEX_NONE) {
+    UE_LOG(LogTemp, Warning, TEXT("Deleted Item %s"), *Item->ItemDisplayName.ToString());
     Items.RemoveAt(Index);
     // Item->OwningInventory = nullptr;
     // Item->World = nullptr;
@@ -107,8 +116,11 @@ void UWotInventoryComponent::DeleteItem(UWotItem* Item) {
 }
 
 void UWotInventoryComponent::DropAll() {
-  for (auto Item : Items) {
-    FVector Location = GetOwner()->GetActorLocation();
+  FVector Location = GetOwner()->GetActorLocation();
+  // TODO: cannot use range-based for loop here since Drop() will remove it from
+  // our array
+  while (Items.Num()) {
+    UWotItem* Item = Items[0];
     Item->Drop(Location, Item->Count);
   }
 }

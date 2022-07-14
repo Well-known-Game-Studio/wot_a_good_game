@@ -33,13 +33,13 @@ void UWotItemFood::Use(ACharacter* Character)
     UE_LOG(LogTemp, Warning, TEXT("No more food!"));
     return;
   }
-  // Make sure this is still a valid character
-  if (!Character) {
-    UE_LOG(LogTemp, Warning, TEXT("Character is null!"));
-    return;
-  }
+  // Try to add to their inventory if possible
   if (UseAddedToInventory(Character)) {
     UE_LOG(LogTemp, Warning, TEXT("Added to inventory!"));
+    return;
+  }
+  // See if it can be used by this character
+  if (!CanBeUsedBy(Character)) {
     return;
   }
   // Get the Attribute Component for this character

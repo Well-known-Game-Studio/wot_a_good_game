@@ -35,13 +35,17 @@ UWotItem* UWotItemEquipment::Clone(UObject* Outer, const UWotItem* Item) {
 
 void UWotItemEquipment::Use(ACharacter* Character)
 {
-  // Make sure this is still a valid character
-  if (!Character) {
-    UE_LOG(LogTemp, Warning, TEXT("Character is null!"));
+  if (Count <= 0) {
+    UE_LOG(LogTemp, Warning, TEXT("Count <= 0, cannot use!"));
     return;
   }
+  // Make sure this is still a valid character
   if (UseAddedToInventory(Character)) {
     UE_LOG(LogTemp, Warning, TEXT("Added to inventory!"));
+    return;
+  }
+  // See if it can be used by this character
+  if (!CanBeUsedBy(Character)) {
     return;
   }
   if (!CanBeEquipped) {
@@ -71,6 +75,10 @@ void UWotItemEquipment::Equip(ACharacter* Character)
   }
   if (IsEquipped) {
     UE_LOG(LogTemp, Warning, TEXT("Already equipped, not equipping!"));
+    return;
+  }
+  if (Count <= 0) {
+    UE_LOG(LogTemp, Warning, TEXT("Count <= 0, not equipping!"));
     return;
   }
   // Create the ItemActor from the ItemActorClass and attach to the character's EquipSocketName

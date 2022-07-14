@@ -31,7 +31,7 @@ public:
     UWotItem* FindItem(TSubclassOf<UWotItem> ItemClass);
 
     UFUNCTION(BlueprintCallable)
-    bool AddItem(UWotItem* Item);
+    int32 AddItem(UWotItem* Item);
 
     UFUNCTION(BlueprintCallable)
     bool RemoveItem(UWotItem* Item, int RemoveCount);

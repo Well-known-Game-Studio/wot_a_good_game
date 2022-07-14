@@ -116,14 +116,18 @@ void UWotInteractionComponent::PrimaryInteract()
 								   *GetNameSafe(DefaultObject->PickupMesh),
 								   *GetNameSafe(StaticMesh),
 								   Hit.Item);
-							// now remove the ISM instance
-							ISMC->RemoveInstance(Hit.Item);
 							// add one of these items to the player's inventory
 							UWotInventoryComponent* InventoryComp = UWotInventoryComponent::GetInventory(MyOwner);
 							if (InventoryComp) {
 								UWotItem* NewItem = NewObject<UWotItem>(MyOwner, ItemClass);
-								InventoryComp->AddItem(NewItem);
+								int32 NumAdded = InventoryComp->AddItem(NewItem);
+								if (NumAdded == 0) {
+									UE_LOG(LogTemp, Warning, TEXT("Didn't add to inventory, skipping!"));
+									continue;
+								}
 							}
+							// now remove the ISM instance
+							ISMC->RemoveInstance(Hit.Item);
 							// Show UI
 							AWotCharacter* MyWotOwner = Cast<AWotCharacter>(MyOwner);
 							if (MyWotOwner) {
@@ -139,14 +143,17 @@ void UWotInteractionComponent::PrimaryInteract()
 								// draw a point for the hit location itself
 								DrawDebugPoint(GetWorld(), Hit.ImpactPoint, 10, FColor::Red, false, 2.0f, 100);
 							}
-							// now break out of this loop!
-							break;
+							// now break out of this loop; since we're actually
+							// in multiple loops, we will use a goto instead of
+							// a break!
+							goto found_hit;
 						}
 					}
 				}
 			}
 		}
 	}
+found_hit:
 
 	if (bDrawDebug) {
 		FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;

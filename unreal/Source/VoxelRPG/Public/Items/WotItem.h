@@ -30,7 +30,9 @@ public:
     UFUNCTION(BlueprintCallable)
     virtual UWotItem* Clone(UObject* Outer, const UWotItem* Item) PURE_VIRTUAL(UWotItem::Clone, return nullptr;);
 
-    virtual UWorld* GetWorld() const { return World; }
+    // Allows spawning of objects and things in BP as long as we can get
+    // reference to world
+    virtual UWorld* GetWorld() const override;
 
     UPROPERTY(Transient)
     UWorld* World;
@@ -77,6 +79,10 @@ public:
     UFUNCTION(BlueprintCallable)
     int Remove(int RemovedCount);
 
+    UFUNCTION(BlueprintCallable)
+    bool CanBeUsedBy(ACharacter* Character);
+
+    UFUNCTION(BlueprintCallable)
     bool UseAddedToInventory(ACharacter* Character);
 
     UFUNCTION(BlueprintCallable)

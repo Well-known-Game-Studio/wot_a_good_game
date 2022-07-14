@@ -21,7 +21,12 @@ void UWotEquipmentComponent::InitializeComponent()
   Super::InitializeComponent();
 }
 
-void UWotEquipmentComponent::UnequipItem(UWotItemEquipment* NewItemEquipment) {
+void UWotEquipmentComponent::UnequipItem(UWotItem* NewItem) {
+  UWotItemEquipment* NewItemEquipment = Cast<UWotItemEquipment>(NewItem);
+  if (!NewItemEquipment) {
+    UE_LOG(LogTemp, Warning, TEXT("Not a valid ItemEquipment!"));
+    return;
+  }
   if (NewItemEquipment->EquipSocketName.IsNone()) {
     UE_LOG(LogTemp, Warning, TEXT("No Equip socket name to unequip from!"));
     return;
@@ -37,7 +42,12 @@ void UWotEquipmentComponent::UnequipItem(UWotItemEquipment* NewItemEquipment) {
   }
 }
 
-void UWotEquipmentComponent::EquipItem(UWotItemEquipment* NewItemEquipment) {
+void UWotEquipmentComponent::EquipItem(UWotItem* NewItem) {
+  UWotItemEquipment* NewItemEquipment = Cast<UWotItemEquipment>(NewItem);
+  if (!NewItemEquipment) {
+    UE_LOG(LogTemp, Warning, TEXT("Not a valid ItemEquipment!"));
+    return;
+  }
   if (NewItemEquipment->EquipSocketName.IsNone()) {
     UE_LOG(LogTemp, Warning, TEXT("No Equip socket name!"));
     return;

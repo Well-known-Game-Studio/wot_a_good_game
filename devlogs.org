@@ -115,6 +115,24 @@
 - [X] Added HUD class and add it in player controller
 - [X] Update WotCharacter to override the audio listener
 - [X] Update InventoryComponent to use AssetManager to find all blueprint subclasses of UWotItem
+- [X] bugfix: can drop items after 0 count
+- [X] bugfix: items are deleted from other inventory even if they cannnot fit in player's inventory (for count restriction)
+- [X] bugfix: ensure equipped items are unequipped when dropped
+- [X] bugfix: player can destroy dropped items if they try to pick them up but the inventory cannot take them (for count restriction)
+- [X] bugfix: prevent non-owners of items from using them - prevent character from accidentally using an item in a chest if they cannot take any more of them (for count restriction)
+- [X] add action C++ base class
+- [X] add action_projectile C++ class
+- [X] Add action component and update WotCharacter to use it for spawning projectiles
+- [X] Add defaults actions to action component
+- [X] Added sprint BP action
+- [X] Added Magic Projectile BP action
+- [X] Added Dash BP action
+- [X] Added Blackhole BP action
+- [X] bugfix: Update force direction in ApplyDirectionalDamage
+- [X] bugfix: Update so foliage interaction only picks up one of the currently interactible instances instead of all
+- [X] bugfix: Update so foliage instances are only removed if they can be picked up by the player (e.g. count restriction)
+- [X] cleaned up character class from action refactor
+- [X] removed outdated models from repo and cleaned up structure some
 
 * Week of 2022-07-03
 
