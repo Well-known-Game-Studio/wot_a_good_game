@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "WotActionComponent.generated.h"
 
 class UWotAction;
@@ -14,6 +15,9 @@ class VOXELRPG_API UWotActionComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Actions")
+    FGameplayTagContainer ActiveGameplayTags;
 
     UFUNCTION(BlueprintCallable, Category = "Actions")
     void AddAction(TSubclassOf<UWotAction> Action);

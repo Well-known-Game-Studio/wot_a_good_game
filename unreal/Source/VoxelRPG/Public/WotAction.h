@@ -4,14 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "GameplayTagContainer.h"
 #include "WotAction.generated.h"
 
 class UWorld;
+class UWotActionComponent;
 
 UCLASS(Blueprintable)
 class VOXELRPG_API UWotAction : public UObject
 {
 	GENERATED_BODY()
+
+protected:
+
+    UFUNCTION(BlueprintCallable, Category = "Action")
+    UWotActionComponent* GetOwningComponent() const;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Tags")
+    FGameplayTagContainer GrantsTags;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Tags")
+    FGameplayTagContainer BlockedTags;
 
 public:
 	// Sets default values for this component's properties

@@ -14,7 +14,8 @@
 				"Niagara",
 				"AIModule",
 				"GameplayTasks",
-				"UMG"
+				"UMG",
+				"GameplayTags"
 			]
 		}
 	],
