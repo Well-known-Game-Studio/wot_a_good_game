@@ -25,10 +25,13 @@ void UWotAction_ProjectileAttack::Start_Implementation(AActor* Instigator)
 
   // We don't require a casting system, so don't ensure it
   if (CastingNiagaraSystem) {
-    auto CastingNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,
-                                                                             CastingNiagaraSystem,
-                                                                             Character->GetActorLocation(),
-                                                                             Character->GetActorRotation());
+    auto CastingNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(CastingNiagaraSystem,
+                                                                           Character->GetMesh(),
+                                                                           HandSocketName,
+                                                                           FVector(0.f),
+                                                                           FRotator(0.f),
+                                                                           EAttachLocation::Type::KeepRelativeOffset,
+                                                                           true);
   }
 
   // Start the timer for launching the projectile
