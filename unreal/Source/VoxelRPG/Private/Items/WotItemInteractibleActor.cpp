@@ -27,7 +27,7 @@ void AWotItemInteractibleActor::Interact_Implementation(APawn* InstigatorPawn)
       WotCharacter->ShowPopupWidgetNumber(NumAdded, 1.0f);
     }
     if (NumAdded == TotalCount) {
-      UE_LOG(LogTemp, Warning, TEXT("Nothing left to see here, folks!"));
+      UE_LOG(LogTemp, Log, TEXT("InteractibleActor: We've added all our items, destroying!"));
       // destroy this object
       Destroy();
     }

@@ -12,7 +12,6 @@
 - [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] surfaces trigger overlap events with projectiles
-- [ ] Arrows do not trigger overlaps with static meshes
 - [ ] Magic effects are not currently within the git repo
 
 ** General
@@ -133,6 +132,11 @@
 - [X] bugfix: Update so foliage instances are only removed if they can be picked up by the player (e.g. count restriction)
 - [X] cleaned up character class from action refactor
 - [X] removed outdated models from repo and cleaned up structure some
+- [X] bugfix: Arrows do not trigger overlaps with static meshes - use Hit event to handle static mesh collision
+- [X] bugfix: dropping arrows while bow is equipped causes magic projectile to fire when trying to attack afterwards - better checks when unequipping items when dropping them to ensure they could even have been equipped in the first place
+- [X] bugfix: If player is holding bow + arrow (while charging for instance) and they drop the bow, the arrow stays suspended in place
+- [X] bugfix: If player goes into the menu holding the bow while charging an arrow, when they leave the menu if they then charge again, they will delete / lose one arrow - added destruction override to EW_Bow to drop an arrow if it is equipped and destroy the arrow projectile
+- [X] bugfix: player can go into menu while pressing / holding attack - which causes the attack animation / pose to stay
 
 * Week of 2022-07-03
 

@@ -15,11 +15,7 @@ public:
 	// Sets default values for this component's properties
 	UWotItemEquipment();
 
-    virtual void Copy(const UWotItem* OtherItem) override;
-
-    virtual UWotItem* Clone(UObject* Outer, const UWotItem* Item);
-
-    UPROPERTY(VisibleAnywhere, Category = "Equipment")
+    UPROPERTY(EditDefaultsOnly, Category = "Equipment")
     FName EquipSocketName;
 
     UPROPERTY(VisibleAnywhere, Category = "Equipment")

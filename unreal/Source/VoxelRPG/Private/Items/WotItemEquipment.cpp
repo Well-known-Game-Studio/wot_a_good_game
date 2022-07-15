@@ -10,27 +10,8 @@ UWotItemEquipment::UWotItemEquipment() : UWotItem()
   // TODO: do we want a max count of one for equipment?
   MaxCount = 1;
   // TODO: Handle multiple possible socket names (e.g. left/right hands)
-  EquipSocketName = "Hand_R";
+  EquipSocketName = "";
   IsEquipped = false;
-}
-
-void UWotItemEquipment::Copy(const UWotItem* OtherItem) {
-  Super::Copy(OtherItem);
-  // Specialization
-  const UWotItemEquipment* OtherEquipment = Cast<UWotItemEquipment>(OtherItem);
-  if (OtherEquipment) {
-    EquipSocketName = OtherEquipment->EquipSocketName;
-    IsEquipped = OtherEquipment->IsEquipped;
-    CanBeEquipped = OtherEquipment->CanBeEquipped;
-  }
-}
-
-UWotItem* UWotItemEquipment::Clone(UObject* Outer, const UWotItem* Item) {
-  // create the new object
-  UWotItemEquipment* NewEquipment = NewObject<UWotItemEquipment>(Outer, UWotItemEquipment::StaticClass());
-  // Copy the properties
-  NewEquipment->Copy(this);
-  return NewEquipment;
 }
 
 void UWotItemEquipment::Use(ACharacter* Character)

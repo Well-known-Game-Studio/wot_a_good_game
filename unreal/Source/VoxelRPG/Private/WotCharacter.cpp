@@ -53,6 +53,7 @@ AWotCharacter::AWotCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
+	bCanOpenMenu = true;
 }
 
 void AWotCharacter::PostInitializeComponents()
@@ -66,13 +67,7 @@ void AWotCharacter::PostInitializeComponents()
 void AWotCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	// TODO: this causes a crash on respawn for some reason, so we've actually
-	// put this into the PlayerControllerBP
-	/*
-	// Override audio listener location
-	auto PC = Cast<APlayerController>(GetController());
-	PC->SetAudioListenerOverride(GetCapsuleComponent(), FVector(), FRotator());
-	*/
+	bCanOpenMenu = true;
 }
 
 void AWotCharacter::SetupSpringArm()
@@ -123,16 +118,24 @@ FVector AWotCharacter::GetPawnViewLocation() const
 
 void AWotCharacter::PrimaryAttack()
 {
+	// TODO: probably a better way of doing this?
+	bCanOpenMenu = false;
+	// TODO: for now we determine whether to use weapon or action based on if we
+	// have weapon equipped; there's gotta be a better way..
 	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
 	if (EquippedWeapon) {
+		UE_LOG(LogTemp, Log, TEXT("Got Equipped Weapon %s"), *GetNameSafe(EquippedWeapon));
 		EquippedWeapon->PrimaryAttackStart();
 	} else {
+		UE_LOG(LogTemp, Log, TEXT("No weapon equipped starting action 'PrimaryAttack'"));
 		ActionComp->StartActionByName(this, "PrimaryAttack");
 	}
 }
 
 void AWotCharacter::PrimaryAttackStop()
 {
+	// TODO: probably a better way of doing this?
+	bCanOpenMenu = true;
 	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
 	if (EquippedWeapon) {
 		EquippedWeapon->PrimaryAttackStop();
@@ -177,11 +180,15 @@ void AWotCharacter::HandleMovementInput()
 
 void AWotCharacter::SprintStart()
 {
+	// TODO: probably a better way of doing this?
+	bCanOpenMenu = false;
 	ActionComp->StartActionByName(this, "Sprint");
 }
 
 void AWotCharacter::SprintStop()
 {
+	// TODO: probably a better way of doing this?
+	bCanOpenMenu = true;
 	ActionComp->StopActionByName(this, "Sprint");
 }
 
@@ -257,6 +264,7 @@ void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeCompon
 
 void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp)
 {
+	bCanOpenMenu = false;
 	// turn off collision & physics
 	TurnOff(); // freezes the pawn state
 	GetCapsuleComponent()->SetSimulatePhysics(false);
@@ -291,7 +299,8 @@ void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* Ow
 
 void AWotCharacter::ShowInventoryWidget()
 {
-	if (InventoryWidgetClass) {
+	// Now actually try to open the menu
+	if (bCanOpenMenu && InventoryWidgetClass) {
 		UWotUWInventoryPanel* InventoryWidget = CreateWidget<UWotUWInventoryPanel>(GetWorld(), InventoryWidgetClass);
 		InventoryWidget->SetInventory(InventoryComp, FText::FromString("Your Items"));
 		InventoryWidget->AddToViewport();

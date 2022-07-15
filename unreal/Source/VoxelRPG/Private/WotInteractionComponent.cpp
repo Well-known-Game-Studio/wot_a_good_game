@@ -83,13 +83,7 @@ void UWotInteractionComponent::PrimaryInteract()
 				APawn* MyPawn = Cast<APawn>(MyOwner);
 				IWotGameplayInterface::Execute_Interact(HitActor, MyPawn);
 				if (bDrawDebug) {
-					FVector HitActorLocation;
-					FVector HitBoxExtent;
-					HitActor->GetActorBounds(false, HitActorLocation, HitBoxExtent, false);
-					// draw a box around what was hit
-					DrawDebugBox(GetWorld(), HitActorLocation, HitBoxExtent, HitActor->GetActorRotation().Quaternion(), FColor::Green, false, 2.0f, 0, 2.0f);
-					// draw a point for the hit location itself
-					DrawDebugPoint(GetWorld(), Hit.ImpactPoint, 10, FColor::Red, false, 2.0f, 100);
+					UWotGameplayFunctionLibrary::DrawHitPointAndBounds(HitActor, Hit);
 				}
 				break;
 			} else {
@@ -135,13 +129,7 @@ void UWotInteractionComponent::PrimaryInteract()
 							}
 							// Draw debug info showing the hit / bounding box
 							if (bDrawDebug) {
-								FVector HitActorLocation;
-								FVector HitBoxExtent;
-								HitActor->GetActorBounds(false, HitActorLocation, HitBoxExtent, false);
-								// draw a box around what was hit
-								DrawDebugBox(GetWorld(), HitActorLocation, HitBoxExtent, HitActor->GetActorRotation().Quaternion(), FColor::Green, false, 2.0f, 0, 2.0f);
-								// draw a point for the hit location itself
-								DrawDebugPoint(GetWorld(), Hit.ImpactPoint, 10, FColor::Red, false, 2.0f, 100);
+								UWotGameplayFunctionLibrary::DrawHitPointAndBounds(HitActor, Hit);
 							}
 							// now break out of this loop; since we're actually
 							// in multiple loops, we will use a goto instead of

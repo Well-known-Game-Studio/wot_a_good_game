@@ -75,6 +75,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotActionComponent* ActionComp;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Actions")
+	bool bCanOpenMenu;
+
 	void SetupSpringArm();
 	void SetupCineCamera();
 

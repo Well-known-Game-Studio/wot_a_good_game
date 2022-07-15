@@ -37,19 +37,6 @@ AWotProjectile::AWotProjectile()
   MovementComp->bInitialVelocityInLocalSpace = true;
 }
 
-void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-  // TODO: this is a hack to ignore overlap with the fluid flux surfaces /
-  // actors!
-  if (GetNameSafe(OtherActor).Contains("flux")) {
-    return;
-  }
-  if (OtherActor && OtherActor != GetInstigator()) {
-    UWotGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
-    Explode();
-  }
-}
-
 void AWotProjectile::PostInitializeComponents()
 {
   Super::PostInitializeComponents();
@@ -75,6 +62,19 @@ void AWotProjectile::BeginPlay()
   EffectAudioComp->Play();
 }
 
+
+void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+  // TODO: this is a hack to ignore overlap with the fluid flux surfaces /
+  // actors!
+  if (GetNameSafe(OtherActor).Contains("flux")) {
+    return;
+  }
+  if (OtherActor && OtherActor != GetInstigator()) {
+    UWotGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
+    Explode();
+  }
+}
 
 // _Implementation from it being marked as BlueprintNativeEvent
 void AWotProjectile::Explode_Implementation()

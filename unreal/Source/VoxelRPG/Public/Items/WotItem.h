@@ -25,11 +25,6 @@ public:
 	// Sets default values for this component's properties
 	UWotItem(const UWotItem* Other);
 
-	virtual void Copy(const UWotItem* Other);
-
-    UFUNCTION(BlueprintCallable)
-    virtual UWotItem* Clone(UObject* Outer, const UWotItem* Item) PURE_VIRTUAL(UWotItem::Clone, return nullptr;);
-
     // Allows spawning of objects and things in BP as long as we can get
     // reference to world
     virtual UWorld* GetWorld() const override;

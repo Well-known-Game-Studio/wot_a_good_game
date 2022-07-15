@@ -14,42 +14,19 @@ UWotItem::UWotItem()
   MaxCount = 0;
 }
 
-UWotItem::UWotItem(const UWotItem* Other)
-{
-  if (Other != this) {
-    Copy(Other);
-  }
-}
-
-void UWotItem::Copy(const UWotItem* Other)
-{
-  World = Other->World;
-  ItemActorClass = Other->ItemActorClass;
-  // TODO: do we need to copy the ItemActor as well?
-  UseActionText = Other->UseActionText;
-  PickupMesh = Other->PickupMesh;
-  Thumbnail = Other->Thumbnail;
-  ItemDisplayName = Other->ItemDisplayName;
-  ItemDescription = Other->ItemDescription;
-  Count = Other->Count;
-  MaxCount = Other->MaxCount;
-  Weight = Other->Weight;
-  OwningInventory = Other->OwningInventory;
-}
-
 bool UWotItem::CanBeUsedBy(ACharacter* Character)
 {
   if (!Character) {
-    UE_LOG(LogTemp, Warning, TEXT("Cannot be used, not a valid character!"));
+    UE_LOG(LogTemp, Log, TEXT("Cannot be used, not a valid character!"));
     return false;
   }
   UWotInventoryComponent* InventoryComp = UWotInventoryComponent::GetInventory(Character);
   if (!InventoryComp) {
-    UE_LOG(LogTemp, Warning, TEXT("Cannot be used, not a valid inventory!"));
+    UE_LOG(LogTemp, Log, TEXT("Cannot be used, not a valid inventory!"));
     return false;
   }
   if (InventoryComp != OwningInventory) {
-    UE_LOG(LogTemp, Warning, TEXT("Cannot be used, not owner!"));
+    UE_LOG(LogTemp, Log, TEXT("Cannot be used, not owner!"));
     return false;
   }
   return true;
@@ -58,16 +35,16 @@ bool UWotItem::CanBeUsedBy(ACharacter* Character)
 bool UWotItem::UseAddedToInventory(ACharacter* Character)
 {
   if (!Character) {
-    UE_LOG(LogTemp, Warning, TEXT("Cannot add to inventory, invalid character!"));
+    UE_LOG(LogTemp, Log, TEXT("Cannot add to inventory, invalid character!"));
     return false;
   }
   UWotInventoryComponent* NewInventory = UWotInventoryComponent::GetInventory(Cast<AActor>(Character));
   if (!NewInventory) {
-    UE_LOG(LogTemp, Warning, TEXT("Cannot add to inventory, invalid NewInventory!"));
+    UE_LOG(LogTemp, Log, TEXT("Cannot add to inventory, invalid NewInventory!"));
     return false;
   }
   if (NewInventory == OwningInventory) {
-    UE_LOG(LogTemp, Warning, TEXT("Cannot add to inventory, NewInventory == OwningInventory!"));
+    UE_LOG(LogTemp, Log, TEXT("Cannot add to inventory, NewInventory == OwningInventory!"));
     return false;
   }
   // Add to new character inventory
@@ -95,20 +72,20 @@ int UWotItem::Add(int AddedCount)
 
 int UWotItem::Remove(int RemovedCount)
 {
-  UE_LOG(LogTemp, Warning, TEXT("Trying to remove %d"), RemovedCount);
+  UE_LOG(LogTemp, Log, TEXT("Trying to remove %d"), RemovedCount);
   if (Count <= 0) {
     return 0;
   }
   int ActualRemoved = std::min(Count, RemovedCount);
   Count -= ActualRemoved;
   if (Count == 0) {
-    UE_LOG(LogTemp, Warning, TEXT("Count reached 0, removing and destroying Item!"));
+    UE_LOG(LogTemp, Log, TEXT("Count reached 0, removing and destroying Item!"));
     if (OwningInventory) {
       OwningInventory->DeleteItem(this);
     }
     ConditionalBeginDestroy();
   }
-  UE_LOG(LogTemp, Warning, TEXT("Removed %d"), ActualRemoved);
+  UE_LOG(LogTemp, Log, TEXT("Removed %d"), ActualRemoved);
 
   return ActualRemoved;
 }
@@ -116,7 +93,7 @@ int UWotItem::Remove(int RemovedCount)
 void UWotItem::Drop(FVector Location, int DropCount)
 {
   if (Count <= 0) {
-    UE_LOG(LogTemp, Warning, TEXT("Cannot drop any more, Count <= 0"));
+    UE_LOG(LogTemp, Log, TEXT("Cannot drop any more, Count <= 0"));
     return;
   }
   if (OwningInventory) {
@@ -142,7 +119,7 @@ void UWotItem::Drop(FVector Location, int DropCount)
                                                         FRotator::ZeroRotator,
                                                         SpawnParams);
     // create an Item for this
-    UWotItem* DroppedItem = Clone(InteractibleItem, this);
+    UWotItem* DroppedItem = DuplicateObject(this, InteractibleItem);
     // Set the properties of the dropped item accordingly
     DroppedItem->OwningInventory = nullptr;
     DroppedItem->Count = 1;

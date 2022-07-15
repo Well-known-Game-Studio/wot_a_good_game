@@ -18,6 +18,7 @@ UWotItem* UWotInventoryComponent::FindItem(TSubclassOf<UWotItem> ItemClass)
 {
   // find by predicate returns pointer to element found
   int32 Index = Items.IndexOfByPredicate([ItemClass](UWotItem* TestItem){
+    UE_LOG(LogTemp, Log, TEXT("Testing to see if %s == %s"), *GetNameSafe(ItemClass), *GetNameSafe(TestItem->GetClass()));
     return ItemClass == TestItem->GetClass();
   });
   if (Index != INDEX_NONE) {
@@ -38,7 +39,7 @@ int32 UWotInventoryComponent::AddItem(UWotItem* Item)
   int32 Index = Items.IndexOfByPredicate([Item](UWotItem* TestItem){
     return *Item == *TestItem;
   });
-  UE_LOG(LogTemp, Warning, TEXT("Adding %d items"), Item->Count);
+  UE_LOG(LogTemp, Log, TEXT("Adding %d items"), Item->Count);
   if (Index != INDEX_NONE) {
     // We already have one in our inventory, so increment count and destroy the
     // old item
@@ -62,7 +63,7 @@ int32 UWotInventoryComponent::AddItem(UWotItem* Item)
     NumAdded = Item->Count;
   }
 
-  UE_LOG(LogTemp, Warning, TEXT("Added %d items"), NumAdded);
+  UE_LOG(LogTemp, Log, TEXT("Added %d items"), NumAdded);
 
   // Update UI and other interested parties
   OnInventoryUpdated.Broadcast();
@@ -89,7 +90,7 @@ bool UWotInventoryComponent::RemoveItem(UWotItem* Item, int RemoveCount)
     // It wasn't in the list, do nothing
   }
 
-  UE_LOG(LogTemp, Warning, TEXT("Removed %d items"), NumRemoved);
+  UE_LOG(LogTemp, Log, TEXT("Removed %d items"), NumRemoved);
 
   // Update UI and other interested parties
   OnInventoryUpdated.Broadcast();
@@ -106,7 +107,7 @@ void UWotInventoryComponent::DeleteItem(UWotItem* Item) {
     return *Item == *TestItem;
   });
   if (Index != INDEX_NONE) {
-    UE_LOG(LogTemp, Warning, TEXT("Deleted Item %s"), *Item->ItemDisplayName.ToString());
+    UE_LOG(LogTemp, Log, TEXT("Deleted Item %s"), *Item->ItemDisplayName.ToString());
     Items.RemoveAt(Index);
     // Item->OwningInventory = nullptr;
     // Item->World = nullptr;

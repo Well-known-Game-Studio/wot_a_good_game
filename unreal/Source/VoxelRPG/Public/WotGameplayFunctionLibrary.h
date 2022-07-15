@@ -13,6 +13,9 @@ class VOXELRPG_API UWotGameplayFunctionLibrary : public UBlueprintFunctionLibrar
 
 public:
 
+    UFUNCTION(BlueprintCallable, Category = "Debug")
+    static void DrawHitPointAndBounds(AActor* HitActor, const FHitResult& Hit);
+
     UFUNCTION(BlueprintCallable, Category = "Gameplay")
     static bool ApplyDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount);
 

@@ -22,9 +22,14 @@ void UWotEquipmentComponent::InitializeComponent()
 }
 
 void UWotEquipmentComponent::UnequipItem(UWotItem* NewItem) {
-  UWotItemEquipment* NewItemEquipment = Cast<UWotItemEquipment>(NewItem);
+  UE_LOG(LogTemp, Log, TEXT("Unequipping Item %s"), *GetNameSafe(NewItem));
+ UWotItemEquipment* NewItemEquipment = Cast<UWotItemEquipment>(NewItem);
   if (!NewItemEquipment) {
     UE_LOG(LogTemp, Warning, TEXT("Not a valid ItemEquipment!"));
+    return;
+  }
+  if (!NewItemEquipment->CanBeEquipped) {
+    UE_LOG(LogTemp, Warning, TEXT("Item cannot be equipped, not unequipping!"));
     return;
   }
   if (NewItemEquipment->EquipSocketName.IsNone()) {
@@ -43,9 +48,14 @@ void UWotEquipmentComponent::UnequipItem(UWotItem* NewItem) {
 }
 
 void UWotEquipmentComponent::EquipItem(UWotItem* NewItem) {
+  UE_LOG(LogTemp, Log, TEXT("Equipping Item %s"), *GetNameSafe(NewItem));
   UWotItemEquipment* NewItemEquipment = Cast<UWotItemEquipment>(NewItem);
   if (!NewItemEquipment) {
     UE_LOG(LogTemp, Warning, TEXT("Not a valid ItemEquipment!"));
+    return;
+  }
+  if (!NewItemEquipment->CanBeEquipped) {
+    UE_LOG(LogTemp, Warning, TEXT("Item cannot be equipped, not equipping!"));
     return;
   }
   if (NewItemEquipment->EquipSocketName.IsNone()) {
@@ -144,6 +154,7 @@ UWotItemWeapon* UWotEquipmentComponent::GetEquippedWeapon()
     auto It = WeaponItems.CreateConstIterator();
     return It->Value;
   }
+  UE_LOG(LogTemp, Log, TEXT("No weapon equipped!"));
   return nullptr;
 }
 
