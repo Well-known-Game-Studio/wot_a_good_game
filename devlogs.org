@@ -5,8 +5,6 @@
 * Task List
 ** Bugs
 
-- [ ] Highlight post process volume doesn't respect bounds (for vegetation highlight)
-- [ ] Player interaction (foliage / weapon) bounding box triggers overlap with projectile / weapon causing damage
 - [ ] NPCs fall through the ground when starting the level with VoxelPlugin
 - [ ] Niagara Water (3D) doesn't work
 - [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
@@ -25,7 +23,7 @@
 - [ ] Credits / Money system - stored in PlayerState derived class to remain after player death
 - [ ] Killing minions grants credits, using health potions costs credits
 - [ ] Coin pick-up
-- [ ] Credist widget hooked up to show current credits in HUD
+- [ ] Credits widget hooked up to show current credits in HUD
 - [ ] Randomly spawn coin and health potions throughout the level at game start (EQS)
 
 ** Systems to Learn
@@ -40,11 +38,10 @@
 
 - [ ] Add effects (butterflies and dust motes) to the scene
 - [ ] Start stubbing out dialogue system
-- [ ] highlight interactable foliage
+- [ ] highlight interactable objects & foliage
 - [ ] add niagara water effects
 - [ ] add niagara smoke effects (campfire / chimney)
 - [ ] add lightning effect
-- [ ] implement action system
 - [ ] magic projectile destroys foliage instances
 - [ ] magic projectile sets foliage instances on fire
 - [ ] Add particle effects to waterfall (top & bottom)
@@ -119,6 +116,7 @@
 - [X] bugfix: ensure equipped items are unequipped when dropped
 - [X] bugfix: player can destroy dropped items if they try to pick them up but the inventory cannot take them (for count restriction)
 - [X] bugfix: prevent non-owners of items from using them - prevent character from accidentally using an item in a chest if they cannot take any more of them (for count restriction)
+- [X] implement action system
 - [X] add action C++ base class
 - [X] add action_projectile C++ class
 - [X] Add action component and update WotCharacter to use it for spawning projectiles
