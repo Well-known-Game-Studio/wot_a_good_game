@@ -10,7 +10,6 @@
 - [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] surfaces trigger overlap events with projectiles
-- [ ] Magic effects are not currently within the git repo
 
 ** General
 
@@ -136,6 +135,7 @@
 - [X] bugfix: If player is holding bow + arrow (while charging for instance) and they drop the bow, the arrow stays suspended in place
 - [X] bugfix: If player goes into the menu holding the bow while charging an arrow, when they leave the menu if they then charge again, they will delete / lose one arrow - added destruction override to EW_Bow to drop an arrow if it is equipped and destroy the arrow projectile
 - [X] bugfix: player can go into menu while pressing / holding attack - which causes the attack animation / pose to stay
+- [X] bugfix: Magic effects are not currently within the git repo
 
 * Week of 2022-07-03
 
