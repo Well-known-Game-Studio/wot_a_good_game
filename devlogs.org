@@ -44,7 +44,6 @@
 - [ ] magic projectile destroys foliage instances
 - [ ] magic projectile sets foliage instances on fire
 - [ ] Add particle effects to waterfall (top & bottom)
-- [ ] gamepad support (movement, camera rotation, attack, interact, projectile)
 - [ ] mouse + keyboard support (to aim where mouse looks)
 - [ ] Make blendspace 2d for holding bow, walking, idling
 - [ ] Allow each animal to have a different amount of player avoidance
@@ -136,6 +135,7 @@
 - [X] bugfix: If player goes into the menu holding the bow while charging an arrow, when they leave the menu if they then charge again, they will delete / lose one arrow - added destruction override to EW_Bow to drop an arrow if it is equipped and destroy the arrow projectile
 - [X] bugfix: player can go into menu while pressing / holding attack - which causes the attack animation / pose to stay
 - [X] bugfix: Magic effects are not currently within the git repo
+- [X] gamepad support (movement, camera rotation, attack, interact, projectile, inventory)
 
 * Week of 2022-07-03
 
