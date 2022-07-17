@@ -161,7 +161,20 @@ void AWotCharacter::HandleMovementInput()
 	auto t = SpringArmComp->GetRelativeTransform();
 	auto r = t.Rotator();
 	auto right = UKismetMathLibrary::CreateVectorFromYawPitch(r.Yaw, r.Pitch, 1.0f);
+	right.Z = 0;
 	auto up = right.RotateAngleAxis(90.0f, {0, 0, 1.0});
+	up.Z = 0;
+
+	// now get the user's input turn commands
+	auto look_up_value = GetInputAxisValue("LookUp");
+	auto look_right_value = GetInputAxisValue("LookRight");
+	auto look_vector = up * look_right_value + right * look_up_value;
+
+	// use these as turn inputs if they are large enough (meaning player is
+	// actually providing input)
+	if (look_vector.Size() > 0.25f) {
+		SetActorRotation(look_vector.ToOrientationRotator());
+	}
 
 	// now get the user's input movement commands
 	auto up_value = GetInputAxisValue("MoveForward");
@@ -209,6 +222,8 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// it (we read it in the tick event)
 	PlayerInputComponent->BindAxis("MoveForward");
 	PlayerInputComponent->BindAxis("MoveRight");
+	PlayerInputComponent->BindAxis("LookUp");
+	PlayerInputComponent->BindAxis("LookRight");
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AWotCharacter::SprintStart);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AWotCharacter::SprintStop);
 

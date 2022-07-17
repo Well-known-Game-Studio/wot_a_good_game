@@ -10,6 +10,7 @@
 - [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] surfaces trigger overlap events with projectiles
+- [ ] Sprint & inventory UI don't interact well
 
 ** General
 
@@ -136,6 +137,7 @@
 - [X] bugfix: player can go into menu while pressing / holding attack - which causes the attack animation / pose to stay
 - [X] bugfix: Magic effects are not currently within the git repo
 - [X] gamepad support (movement, camera rotation, attack, interact, projectile, inventory)
+- [X] added support for gamepad right thumbstick controlling pawn rotation
 
 * Week of 2022-07-03
 
