@@ -35,6 +35,7 @@ void AWotArrowProjectile::PostInitializeComponents()
   // The parent class enables collision in postinitialize, but we want to
   // disable collision until we're fired
   SphereComp->SetCollisionProfileName("NoCollision");
+  SphereComp->OnComponentHit.AddDynamic(this, &AWotArrowProjectile::OnComponentHit);
 }
 
 void AWotArrowProjectile::Fire(AActor* NewShooter, float NewBowCharge)
@@ -71,7 +72,6 @@ void AWotArrowProjectile::OnStateBegin(EWotArrowState BeginArrowState)
       UE_LOG(LogTemp, Log, TEXT("On State Begin: InAir"));
       // standard projectile collision
       SphereComp->SetCollisionProfileName(CollisionProfileName);
-      SphereComp->OnComponentHit.AddDynamic(this, &AWotArrowProjectile::OnComponentHit);
       EffectAudioComp->SetSound(EffectSound);
       // TODO: offset for this specific sound
       EffectAudioComp->Play(0.2);
