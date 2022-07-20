@@ -5,34 +5,33 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WotGameplayInterface.h"
-#include "WotItemGate.generated.h"
+#include "WotOpenable.generated.h"
 
 class USceneComponent;
-class UStaticMeshComponent;
 class APawn;
 
 UCLASS()
-class VOXELRPG_API AWotItemGate : public AActor, public IWotGameplayInterface
+class VOXELRPG_API AWotOpenable : public AActor, public IWotGameplayInterface
 {
 	GENERATED_BODY()
 
 public:
 
-    UPROPERTY(EditAnywhere)
-    FRotator TargetRotation;
-
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
     bool bIsOpen = false;
 
-    void Interact_Implementation(APawn* InstigatorPawn);
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
+    USoundBase* OpenSound;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
+    USoundBase* CloseSound;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects")
+    UAudioComponent* EffectAudioComp;
+
+    virtual void Interact_Implementation(APawn* InstigatorPawn);
 
 protected:
-
-    UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    UStaticMeshComponent* LeftMesh;
-
-    UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    UStaticMeshComponent* RightMesh;
 
     UPROPERTY(VisibleAnywhere)
     USceneComponent* BaseSceneComp;
@@ -45,5 +44,5 @@ public:
     virtual void Tick(float DeltaTime) override;
 
     // Sets default values for this actor's properties
-    AWotItemGate();
+    AWotOpenable();
 };

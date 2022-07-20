@@ -3,16 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "WotGameplayInterface.h"
-#include "WotItemChest.generated.h"
+#include "WotOpenable.h"
+#include "WotOpenableChest.generated.h"
 
 class UStaticMeshComponent;
 class APawn;
 class UWotInventoryComponent;
 
 UCLASS()
-class VOXELRPG_API AWotItemChest : public AActor, public IWotGameplayInterface
+class VOXELRPG_API AWotOpenableChest : public AWotOpenable
 {
 	GENERATED_BODY()
 
@@ -21,7 +20,7 @@ public:
     UPROPERTY(EditAnywhere)
     float TargetPitch = 110.0f;
 
-    void Interact_Implementation(APawn* InstigatorPawn);
+    virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
 protected:
 
@@ -42,5 +41,5 @@ public:
     virtual void Tick(float DeltaTime) override;
 
     // Sets default values for this actor's properties
-    AWotItemChest();
+    AWotOpenableChest();
 };

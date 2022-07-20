@@ -1,36 +1,33 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "WotItemDoor.h"
+#include "WotOpenableDoor.h"
 #include "Components/StaticMeshComponent.h"
 
 // Sets default values
-AWotItemDoor::AWotItemDoor()
+AWotOpenableDoor::AWotOpenableDoor() : AWotOpenable()
 {
-  // Set this actor to call Tick() every frame. You can turn this off to improve performance if you don't need it.
-  PrimaryActorTick.bCanEverTick = true;
-
   DoorMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorMesh"));
-  RootComponent = DoorMesh;
+  DoorMesh->SetupAttachment(RootComponent);
 }
 
-void AWotItemDoor::Interact_Implementation(APawn* InstigatorPawn)
+void AWotOpenableDoor::Interact_Implementation(APawn* InstigatorPawn)
 {
+  Super::Interact_Implementation(InstigatorPawn);
   if (bIsOpen) {
     DoorMesh->AddLocalRotation(TargetRotation);
   } else {
     DoorMesh->AddLocalRotation(TargetRotation.GetInverse());
   }
-  bIsOpen = !bIsOpen;
 }
 
 // Called when the game starts or when spawned
-void AWotItemDoor::BeginPlay()
+void AWotOpenableDoor::BeginPlay()
 {
   Super::BeginPlay();
 }
 
 // Called every frame
-void AWotItemDoor::Tick(float DeltaTime)
+void AWotOpenableDoor::Tick(float DeltaTime)
 {
   Super::Tick(DeltaTime);
 }

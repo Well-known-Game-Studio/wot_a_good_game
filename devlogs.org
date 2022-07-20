@@ -97,12 +97,12 @@
 
 - [ ] Death (voxel explode)
 - [ ] Sheep
-- [ ] Walking
+- [X] Walking
 - [ ] Melee Swing
 - [ ] Melee Hit
 - [ ] Forage
-- [ ] Door
-- [ ] Chest
+- [X] Door
+- [X] Chest
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 

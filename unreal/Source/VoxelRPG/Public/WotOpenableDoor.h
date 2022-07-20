@@ -3,15 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "WotGameplayInterface.h"
-#include "WotItemDoor.generated.h"
+#include "WotOpenable.h"
+#include "WotOpenableDoor.generated.h"
 
 class UStaticMeshComponent;
 class APawn;
 
 UCLASS()
-class VOXELRPG_API AWotItemDoor : public AActor, public IWotGameplayInterface
+class VOXELRPG_API AWotOpenableDoor : public AWotOpenable
 {
 	GENERATED_BODY()
 
@@ -20,10 +19,7 @@ public:
     UPROPERTY(EditAnywhere)
     FRotator TargetRotation;
 
-    UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-    bool bIsOpen = false;
-
-    void Interact_Implementation(APawn* InstigatorPawn);
+    virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
 protected:
 
@@ -38,5 +34,5 @@ public:
     virtual void Tick(float DeltaTime) override;
 
     // Sets default values for this actor's properties
-    AWotItemDoor();
+    AWotOpenableDoor();
 };
