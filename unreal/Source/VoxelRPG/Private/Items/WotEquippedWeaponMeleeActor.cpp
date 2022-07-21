@@ -5,6 +5,7 @@
 #include "WotCharacterAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "Engine/EngineTypes.h"
+#include "Components/AudioComponent.h"
 
 // For Debug:
 #include "DrawDebugHelpers.h"
@@ -14,6 +15,8 @@ static TAutoConsoleVariable<bool> CVarDebugDrawHitBox(TEXT("wot.DebugDrawMeleeHi
 // Sets default values
 AWotEquippedWeaponMeleeActor::AWotEquippedWeaponMeleeActor() : AWotEquippedWeaponActor()
 {
+	EffectAudioComp = CreateDefaultSubobject<UAudioComponent>("EffectAudioComp");
+	EffectAudioComp->SetupAttachment(RootComponent);
 }
 
 void AWotEquippedWeaponMeleeActor::PrimaryAttackStart_Implementation()
@@ -36,7 +39,18 @@ void AWotEquippedWeaponMeleeActor::PrimaryAttackStart_Implementation()
     UE_LOG(LogTemp, Warning, TEXT("Could not attack!"));
     return;
   }
+  // Start the timer for actually handling the attack
+  FTimerHandle TimerHandle_AttackDelay;
+  GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, this, &AWotEquippedWeaponMeleeActor::AttackSweep, HitDelay);
+}
 
+void AWotEquippedWeaponMeleeActor::AttackSweep()
+{
+	AActor* MyOwner = GetAttachParentActor();
+  if (!MyOwner) {
+    UE_LOG(LogTemp, Warning, TEXT("Not a valid owning actor!"));
+    return;
+  }
   // Now perform the sweep
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
@@ -72,13 +86,15 @@ void AWotEquippedWeaponMeleeActor::PrimaryAttackStart_Implementation()
   }
   float Damage = -ItemWeapon->DamageAmount;
 
+  bool bDidDamage = false;
+
 	for (auto Hit : Hits) {
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor && HitActor != MyOwner) {
       // if the actor is damage-able, then damage them
       UWotAttributeComponent* AttributeComp = UWotAttributeComponent::GetAttributes(HitActor);
       if (AttributeComp) {
-        AttributeComp->ApplyHealthChangeInstigator(MyOwner, Damage);
+        bDidDamage |= AttributeComp->ApplyHealthChangeInstigator(MyOwner, Damage);
 				if (bDrawDebug) {
           FVector HitActorLocation;
           FVector HitBoxExtent;
@@ -91,6 +107,12 @@ void AWotEquippedWeaponMeleeActor::PrimaryAttackStart_Implementation()
       }
 		}
 	}
+
+  // if we damaged somebody, play the sound already!
+  if (bDidDamage) {
+    EffectAudioComp->SetSound(HitSound);
+    EffectAudioComp->Play(0);
+  }
 
 	if (bDrawDebug) {
 		FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
