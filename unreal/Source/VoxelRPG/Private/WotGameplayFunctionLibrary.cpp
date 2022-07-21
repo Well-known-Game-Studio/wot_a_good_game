@@ -76,7 +76,7 @@ FString UWotGameplayFunctionLibrary::GetIntAsString(int TheNumber)
 void UWotGameplayFunctionLibrary::GetAllCppSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray)
 {
 	FName BaseClassName = BaseClass->GetFName();
-	UE_LOG(LogTemp, Warning, TEXT("Getting all c++ subclasses of '%s'"), *BaseClassName.ToString());
+	UE_LOG(LogTemp, Log, TEXT("Getting all c++ subclasses of '%s'"), *BaseClassName.ToString());
   bool bRecursive = true;
   GetDerivedClasses(BaseClass, ClassArray, bRecursive);
 }
@@ -84,7 +84,7 @@ void UWotGameplayFunctionLibrary::GetAllCppSubclasses(UClass* BaseClass, TArray<
 void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray)
 {
 	FName BaseClassName = BaseClass->GetFName();
-	UE_LOG(LogTemp, Warning, TEXT("Getting all blueprint subclasses of '%s'"), *BaseClassName.ToString());
+	UE_LOG(LogTemp, Log, TEXT("Getting all blueprint subclasses of '%s'"), *BaseClassName.ToString());
 
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
@@ -137,7 +137,7 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 				UE_LOG(LogTemp, Error, TEXT("Could not cast '%s' to blueprint class"), *ObjectClassName);
 			}
 			if (Class) {
-				UE_LOG(LogTemp, Warning, TEXT("Got subclass '%s'"), *ObjectClassName);
+				UE_LOG(LogTemp, Log, TEXT("Got subclass '%s'"), *ObjectClassName);
 				ClassArray.Add(Class);
 			} else {
 				UE_LOG(LogTemp, Error, TEXT("Invalid BP Class Data!"));
