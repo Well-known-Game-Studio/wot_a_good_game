@@ -95,10 +95,10 @@
 
 ** Audio
 
-- [ ] Death (voxel explode)
+- [X] Death (voxel explode)
 - [ ] Sheep
 - [X] Walking
-- [ ] Melee Swing
+- [X] Melee Swing
 - [ ] Melee Hit
 - [X] Forage
 - [X] Door
