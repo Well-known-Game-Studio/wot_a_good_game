@@ -73,11 +73,9 @@
 ** Models
 
 - [ ] Make ladder
-- [X] Animate medium scale models
 - [ ] rig dog
 - [ ] rig raccoon
 - [ ] rig duck
-- [X] Animate sheep
 - [ ] Animate horse
 - [ ] animate raccoon
 - [ ] animate duck
@@ -95,19 +93,23 @@
 
 ** Audio
 
-- [X] Death (voxel explode)
 - [ ] Sheep
-- [X] Walking
-- [X] Melee Swing
 - [ ] Melee Hit
-- [X] Forage
-- [X] Door
-- [X] Chest
-- [X] Item Get (player)
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 
 * Week of 2022-07-17
+
+- [X] Audio: Death (voxel explode)
+- [X] Audio: Walking
+- [X] Audio: Melee Swing
+- [X] Audio: Forage
+- [X] refactor: door, gate, and chest to have base Openable classes (with sounds)
+- [X] Audio: Door
+- [X] Audio: Chest
+- [X] Audio: Pen
+- [X] Audio: Item Get (player)
+- [X] refactor: move chest inventory UI into base (C++) class
 
 * Week of 2022-07-10
 
