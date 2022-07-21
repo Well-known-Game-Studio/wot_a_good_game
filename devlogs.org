@@ -96,8 +96,6 @@
 - [ ] Sheep
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
-- [ ] NPC follow (positive)
-- [ ] NPC stop follow (negative)
 
 * Week of 2022-07-17
 
@@ -113,6 +111,8 @@
 - [X] refactor: move chest inventory UI into base (C++) class
 - [X] Audio: Melee Hit added to weapon melee actor
 - [X] updated weapon melee actor to have delay between start of attack and sweep
+- [X] Audio: NPC follow (positive)
+- [X] Audio: NPC stop follow (negative)
 
 * Week of 2022-07-10
 
