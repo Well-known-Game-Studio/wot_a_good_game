@@ -37,7 +37,7 @@ void UWotAction::Start_Implementation(AActor* Instigator)
 
 void UWotAction::Stop_Implementation(AActor* Instigator)
 {
-  UE_LOG(LogTemp, Log, TEXT("Stopping   : %s"), *GetNameSafe(this));
+  UE_LOG(LogTemp, Log, TEXT("Stopping: %s"), *GetNameSafe(this));
 
   ensureAlways(bIsRunning);
 
