@@ -37,7 +37,7 @@ void UWotInteractionComponent::BeginPlay()
 		for (auto Class : CppClasses) {
 			ItemClasses.AddUnique(Class);
 		}
-		UE_LOG(LogTemp, Warning, TEXT("Got %d subclasses of UWotItem"), ItemClasses.Num());
+		UE_LOG(LogTemp, Log, TEXT("Got %d subclasses of UWotItem"), ItemClasses.Num());
 	}
 }
 
@@ -93,7 +93,7 @@ void UWotInteractionComponent::PrimaryInteract()
 					UStaticMesh* StaticMesh = ISMC->GetStaticMesh();
 					// loop through the foragable types and check if their mesh
 					// matches this mesh; if so, create the
-					UE_LOG(LogTemp, Warning, TEXT("Got ISMC (%s) with static mesh (%s)!"),
+					UE_LOG(LogTemp, Log, TEXT("Got ISMC (%s) with static mesh (%s)!"),
 						   *GetNameSafe(ISMC),
 						   *GetNameSafe(StaticMesh));
 					for (auto& ItemClass : ItemClasses) {
@@ -105,7 +105,7 @@ void UWotInteractionComponent::PrimaryInteract()
 							continue;
 						}
 						if (DefaultObject->PickupMesh == StaticMesh) {
-							UE_LOG(LogTemp, Warning, TEXT("GOT ONE: %s (%s == %s), instance: %d"),
+							UE_LOG(LogTemp, Log, TEXT("GOT ONE: %s (%s == %s), instance: %d"),
 								   *GetNameSafe(DefaultObject),
 								   *GetNameSafe(DefaultObject->PickupMesh),
 								   *GetNameSafe(StaticMesh),
@@ -116,7 +116,7 @@ void UWotInteractionComponent::PrimaryInteract()
 								UWotItem* NewItem = NewObject<UWotItem>(MyOwner, ItemClass);
 								int32 NumAdded = InventoryComp->AddItem(NewItem);
 								if (NumAdded == 0) {
-									UE_LOG(LogTemp, Warning, TEXT("Didn't add to inventory, skipping!"));
+									UE_LOG(LogTemp, Log, TEXT("Didn't add to inventory, skipping!"));
 									continue;
 								}
 							}
@@ -126,6 +126,7 @@ void UWotInteractionComponent::PrimaryInteract()
 							AWotCharacter* MyWotOwner = Cast<AWotCharacter>(MyOwner);
 							if (MyWotOwner) {
 								MyWotOwner->ShowPopupWidgetNumber(1, 1.0f);
+								MyWotOwner->PlaySoundGet();
 							}
 							// Draw debug info showing the hit / bounding box
 							if (bDrawDebug) {

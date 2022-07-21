@@ -100,9 +100,10 @@
 - [X] Walking
 - [ ] Melee Swing
 - [ ] Melee Hit
-- [ ] Forage
+- [X] Forage
 - [X] Door
 - [X] Chest
+- [X] Item Get (player)
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 

@@ -25,6 +25,7 @@ void AWotItemInteractibleActor::Interact_Implementation(APawn* InstigatorPawn)
     AWotCharacter* WotCharacter = Cast<AWotCharacter>(InstigatorPawn);
     if (WotCharacter) {
       WotCharacter->ShowPopupWidgetNumber(NumAdded, 1.0f);
+      WotCharacter->PlaySoundGet();
     }
     if (NumAdded == TotalCount) {
       UE_LOG(LogTemp, Log, TEXT("InteractibleActor: We've added all our items, destroying!"));

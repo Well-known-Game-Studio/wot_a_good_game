@@ -23,6 +23,7 @@
 #include "UI/WotUWPopupNumber.h"
 #include "Items/WotItem.h"
 #include "Items/WotItemWeapon.h"
+#include "Components/AudioComponent.h"
 
 // Sets default values
 AWotCharacter::AWotCharacter()
@@ -51,6 +52,9 @@ AWotCharacter::AWotCharacter()
 	ActionComp = CreateDefaultSubobject<UWotActionComponent>("ActionComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	EffectAudioComp = CreateDefaultSubobject<UAudioComponent>("EffectAudioComp");
+	EffectAudioComp->SetupAttachment(RootComponent);
 
 	bUseControllerRotationYaw = false;
 	bCanOpenMenu = true;
@@ -320,6 +324,12 @@ void AWotCharacter::ShowInventoryWidget()
 		InventoryWidget->SetInventory(InventoryComp, FText::FromString("Your Items"));
 		InventoryWidget->AddToViewport();
 	}
+}
+
+void AWotCharacter::PlaySoundGet()
+{
+    EffectAudioComp->SetSound(GetSound);
+    EffectAudioComp->Play(0);
 }
 
 void AWotCharacter::RotateCamera()

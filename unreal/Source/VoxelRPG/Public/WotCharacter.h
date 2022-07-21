@@ -20,6 +20,8 @@ class UWotUWInventoryPanel;
 class UWotUWHealthBar;
 class UWotUWPopupNumber;
 class UWotItem;
+class USoundBase;
+class UAudioComponent;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -74,6 +76,13 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotActionComponent* ActionComp;
+
+	// Sound effect for when the character gets something
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
+    USoundBase* GetSound;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects")
+    UAudioComponent* EffectAudioComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Actions")
 	bool bCanOpenMenu;
@@ -138,6 +147,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowActionTextWidget(FString Text, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "SFX")
+	void PlaySoundGet();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
