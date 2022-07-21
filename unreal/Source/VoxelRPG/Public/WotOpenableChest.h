@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class APawn;
 class UWotInventoryComponent;
+class UWotUWInventoryPanel;
 
 UCLASS()
 class VOXELRPG_API AWotOpenableChest : public AWotOpenable
@@ -23,6 +24,12 @@ public:
     virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
 protected:
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	TSubclassOf<UWotUWInventoryPanel> InventoryWidgetClass;
+
+	UPROPERTY(EditAnywhere, Category = "UI")
+	FName InventoryPanelTitle = "Chest Loot";
 
     UPROPERTY(VisibleAnywhere)
     UStaticMeshComponent* BaseMesh;
