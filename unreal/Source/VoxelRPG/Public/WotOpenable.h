@@ -20,6 +20,12 @@ public:
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
     bool bIsOpen = false;
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    bool bCanBeOpened = true;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    bool bCanBeClosed = true;
+
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
     USoundBase* OpenSound;
 

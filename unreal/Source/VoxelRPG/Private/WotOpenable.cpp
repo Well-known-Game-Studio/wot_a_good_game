@@ -18,7 +18,11 @@ AWotOpenable::AWotOpenable()
 
 void AWotOpenable::Interact_Implementation(APawn* InstigatorPawn)
 {
-  bIsOpen = !bIsOpen;
+  if (bIsOpen && bCanBeClosed) {
+    bIsOpen = false;
+  } else if (!bIsOpen && bCanBeOpened) {
+    bIsOpen = true;
+  }
   if (bIsOpen) {
     // play open sound
     EffectAudioComp->SetSound(OpenSound);

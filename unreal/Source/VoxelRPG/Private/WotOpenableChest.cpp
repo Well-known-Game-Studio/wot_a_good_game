@@ -15,6 +15,10 @@ AWotOpenableChest::AWotOpenableChest() : AWotOpenable()
   LidMesh->SetupAttachment(BaseMesh);
 
 	InventoryComp = CreateDefaultSubobject<UWotInventoryComponent>("InventoryComp");
+
+  // chests cannot be closed by default, they can only be opened; this way they
+  // indicate to the player that they have been interacted with
+  bCanBeClosed = false;
 }
 
 void AWotOpenableChest::Interact_Implementation(APawn* InstigatorPawn)
