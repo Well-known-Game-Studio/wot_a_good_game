@@ -63,3 +63,11 @@ bool UWotActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
   }
   return false;
 }
+
+UWotActionComponent* UWotActionComponent::GetActions(AActor* FromActor)
+{
+	if (FromActor) {
+		return Cast<UWotActionComponent>(FromActor->GetComponentByClass(UWotActionComponent::StaticClass()));
+	}
+	return nullptr;
+}

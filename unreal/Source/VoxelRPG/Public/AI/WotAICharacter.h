@@ -8,6 +8,7 @@
 class UPawnSensingComponent;
 class UWotInventoryComponent;
 class UWotAttributeComponent;
+class UWotActionComponent;
 class UWotDeathEffectComponent;
 class UWotUWHealthBar;
 class UWotUWPopupNumber;
@@ -48,6 +49,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotAttributeComponent* AttributeComp;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
+	UWotActionComponent* ActionComp;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
 	UWotInventoryComponent* InventoryComp;

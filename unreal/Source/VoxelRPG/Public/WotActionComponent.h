@@ -16,6 +16,9 @@ class VOXELRPG_API UWotActionComponent : public UActorComponent
 
 public:
 
+    UFUNCTION(BlueprintCallable, Category = "Actions")
+    static UWotActionComponent* GetActions(AActor* FromActor);
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Actions")
     FGameplayTagContainer ActiveGameplayTags;
 

@@ -3,6 +3,7 @@
 
 #include "WotProjectile.h"
 #include "WotAttributeComponent.h"
+#include "WotActionComponent.h"
 #include "Camera/CameraShakeBase.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
@@ -71,6 +72,16 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
     return;
   }
   if (OtherActor && OtherActor != GetInstigator()) {
+    UWotActionComponent* ActionComp = UWotActionComponent::GetActions(OtherActor);
+    if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {
+      // reflect projectile back to where it came from
+      MovementComp->Velocity = -MovementComp->Velocity;
+      // Make sure to update the instigator so that it can damage the original actor if it hits them
+      SetInstigator(Cast<APawn>(OtherActor));
+      // return here so we don't explode or try to apply damage
+      return;
+    }
+
     UWotGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
     Explode();
   }

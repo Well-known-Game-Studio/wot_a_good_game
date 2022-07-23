@@ -3,6 +3,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "AIController.h"
+#include "WotActionComponent.h"
 #include "WotAttributeComponent.h"
 #include "WotInventoryComponent.h"
 #include "WotDeathEffectComponent.h"
@@ -21,6 +22,8 @@ AWotAICharacter::AWotAICharacter()
 	InventoryComp = CreateDefaultSubobject<UWotInventoryComponent>("InventoryComp");
 
   AttributeComp = CreateDefaultSubobject<UWotAttributeComponent>("AttributeComp");
+
+  ActionComp = CreateDefaultSubobject<UWotActionComponent>("ActionComp");
 
 	DeathEffectComp = CreateDefaultSubobject<UWotDeathEffectComponent>("DeathEffectComp");
 }

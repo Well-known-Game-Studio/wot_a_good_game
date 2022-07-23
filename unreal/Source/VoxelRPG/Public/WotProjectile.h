@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameplayTagContainer.h"
 #include "WotProjectile.generated.h"
 class UAudioComponent;
 class UCameraShakeBase;
@@ -36,6 +37,9 @@ protected:
 
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
   USphereComponent* SphereComp;
+
+  UPROPERTY(EditDefaultsOnly, Category = "Damage")
+  FGameplayTag ParryTag;
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Damage")
   float Damage = -20.0f;

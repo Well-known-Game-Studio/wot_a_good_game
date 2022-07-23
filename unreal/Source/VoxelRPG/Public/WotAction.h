@@ -39,12 +39,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Action")
     bool CanStart(AActor* Instigator);
 
-    UFUNCTION(BlueprintNativeEvent, Category = "Action")
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Action")
     void Start(AActor* Instigator);
 
     virtual void Start_Implementation(AActor* Instigator);
 
-    UFUNCTION(BlueprintNativeEvent, Category = "Action")
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Action")
     void Stop(AActor* Instigator);
 
     virtual void Stop_Implementation(AActor* Instigator);
