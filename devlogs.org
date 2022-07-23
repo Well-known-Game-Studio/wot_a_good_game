@@ -113,6 +113,8 @@
 - [X] updated weapon melee actor to have delay between start of attack and sweep
 - [X] Audio: NPC follow (positive)
 - [X] Audio: NPC stop follow (negative)
+- [X] Audio: Update SFX volumes to be more consistent
+- [X] Updated openables to have flags blocking opening / closing, chest subclass cannot be closed
 
 * Week of 2022-07-10
 
