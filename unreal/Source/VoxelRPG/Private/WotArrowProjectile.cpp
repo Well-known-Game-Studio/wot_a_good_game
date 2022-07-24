@@ -206,10 +206,7 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
                                             true);
   NewItemInteractible->AttachToActor(OtherActor, AttachmentRules, FName());
   // if the actor is damage-able, then damage them
-  UWotAttributeComponent* AttributeComp = UWotAttributeComponent::GetAttributes(OtherActor);
-  if (AttributeComp) {
-    AttributeComp->ApplyHealthChangeInstigator(Shooter, Damage + Damage * BowCharge);
-  }
+  UWotGameplayFunctionLibrary::ApplyDamage(Shooter, OtherActor, Damage + Damage * BowCharge);
   // Destroy this actor since we've now created the interactible item for it
   Destroy();
 }

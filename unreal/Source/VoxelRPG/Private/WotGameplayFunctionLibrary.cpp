@@ -23,6 +23,12 @@ bool UWotGameplayFunctionLibrary::ApplyDamage(AActor* DamageCauser, AActor* Targ
   UWotAttributeComponent* AttributeComp = UWotAttributeComponent::GetAttributes(TargetActor);
   if (AttributeComp) {
     return AttributeComp->ApplyHealthChangeInstigator(DamageCauser, DamageAmount);
+  } else if (TargetActor) {
+    // See if the actor we hit is actually attached to an actor that can be
+    // damaged; if so then damage that actor
+    AActor* ParentActor = TargetActor->GetAttachParentActor();
+    UE_LOG(LogTemp, Log, TEXT("ApplyDamage: got attach parent actor '%s'"), *GetNameSafe(ParentActor));
+    return ApplyDamage(DamageCauser, ParentActor, DamageAmount);
   }
   return false;
 }

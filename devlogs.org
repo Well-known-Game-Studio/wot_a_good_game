@@ -55,7 +55,6 @@
 - [ ] Action / Event / Trigger (e.g. hidden doors, buttons, and such)
 - [ ] Puzzles (ideas, systems, prototypes)
 - [ ] Update Arrow Projectile to be Physical projectile working for spears and such as well
-- [ ] Add opening cutscene (player walking out of house into world with fade-in)
 - [ ] Shield equipment which can block arrows and attacks
 
 ** Code
@@ -100,6 +99,8 @@
 * Week of 2022-07-24
 
 - [X] Reorganize content folder / structure of unreal project
+- [X] Add opening cutscene (player walking out of house into world with fade-in)
+- [X] bugfix: Arrows which hit other arrows in characters don't deal damage
 
 * Week of 2022-07-17
 
