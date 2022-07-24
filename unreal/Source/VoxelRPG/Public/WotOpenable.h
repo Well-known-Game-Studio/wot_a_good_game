@@ -17,13 +17,13 @@ class VOXELRPG_API AWotOpenable : public AActor, public IWotGameplayInterface
 
 public:
 
-    UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+    UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Openable")
     bool bIsOpen = false;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Openable")
     bool bCanBeOpened = true;
 
-    UPROPERTY(BlueprintReadWrite, EditAnywhere)
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Openable")
     bool bCanBeClosed = true;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
