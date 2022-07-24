@@ -1,6 +1,6 @@
 #+title:  Devlog
 #+author: William Emfinger
-#+date:   <2022-07-10 Sun>
+#+date:   <2022-07-24 Sun>
 
 * Task List
 ** Bugs
@@ -96,6 +96,10 @@
 - [ ] Sheep
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
+
+* Week of 2022-07-24
+
+- [X] Reorganize content folder / structure of unreal project
 
 * Week of 2022-07-17
 

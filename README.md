@@ -5,6 +5,12 @@ WOT: A Good Game - Wotxels; the first of its name
 
 ## Development
 
+### Programming
+
+Here's a useful [Unreal Engine Style
+Guide](https://github.com/Allar/ue5-style-guide) that can help answer some
+questions about why and how to do certain things within UE5.
+
 ### Modeling Workflow
 
 All modeling is done with `VoxelMax`, make sure in the settings to select
