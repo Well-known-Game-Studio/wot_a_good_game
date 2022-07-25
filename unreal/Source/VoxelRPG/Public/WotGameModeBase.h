@@ -47,6 +47,24 @@ protected:
   UPROPERTY(EditDefaultsOnly, Category = "AI")
   float SpawnTimerInitialDelay;
 
+  UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "AI")
+  bool bShouldSpawnEnemies{false};
+
+  UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "AI")
+  float SpawnStartTime{0};
+
+  UFUNCTION(BlueprintCallable, Category = "AI")
+  void StartSpawningEnemies();
+
+  UFUNCTION(BlueprintCallable, Category = "AI")
+  void PauseSpawningEnemies();
+
+  UFUNCTION(BlueprintCallable, Category = "AI")
+  void ResumeSpawningEnemies();
+
+  UFUNCTION(BlueprintCallable, Category = "AI")
+  void StopSpawningEnemies();
+
   UFUNCTION()
   void SpawnBotTimerElapsed();
 

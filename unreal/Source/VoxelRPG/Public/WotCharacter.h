@@ -31,6 +31,9 @@ class VOXELRPG_API AWotCharacter : public ACharacter
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "View Camera")
+	bool bUseSquareAspectRatio = true;
+
+	UPROPERTY(EditAnywhere, Category = "View Camera")
 	float CameraDistance = 2000.0f;
 
 	UPROPERTY(EditAnywhere, Category = "UI")

@@ -44,10 +44,41 @@ void AWotGameModeBase::RespawnPlayerTimerElapsed(AController* Controller)
   }
 }
 
+void AWotGameModeBase::StartSpawningEnemies()
+{
+  bShouldSpawnEnemies = true;
+  SpawnStartTime = GetWorld()->GetTimeSeconds();
+}
+
+void AWotGameModeBase::PauseSpawningEnemies()
+{
+  bShouldSpawnEnemies = false;
+}
+
+void AWotGameModeBase::ResumeSpawningEnemies()
+{
+  bShouldSpawnEnemies = true;
+  if (SpawnStartTime < 0) {
+    // we have an invalid start time, set it to now since we're resuming
+    SpawnStartTime = GetWorld()->GetTimeSeconds();
+  }
+}
+
+void AWotGameModeBase::StopSpawningEnemies()
+{
+  bShouldSpawnEnemies = true;
+  SpawnStartTime = -1;
+}
+
 void AWotGameModeBase::SpawnBotTimerElapsed()
 {
   if (!CVarSpawnBots.GetValueOnGameThread()) {
     UE_LOG(LogTemp, Warning, TEXT("Bot spawning disabled via cvar 'CVarSpawnBots'."));
+    return;
+  }
+
+  if (!bShouldSpawnEnemies) {
+    UE_LOG(LogTemp, Log, TEXT("Bot spawning disabled via property bShouldSpawnEnemies."));
     return;
   }
 
@@ -63,7 +94,7 @@ void AWotGameModeBase::SpawnBotTimerElapsed()
   int32 MaxBotCount = 10;
 
   if (DifficultyCurve) {
-    MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);
+    MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds - SpawnStartTime);
   }
 
   if (NumberBotsAlive >= MaxBotCount) {

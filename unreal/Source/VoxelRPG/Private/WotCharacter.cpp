@@ -91,10 +91,12 @@ void AWotCharacter::SetupSpringArm()
 
 void AWotCharacter::SetupCineCamera()
 {
-	FCameraFilmbackSettings FilmbackSettings;
-	FilmbackSettings.SensorHeight = 500.0f; // mm
-	FilmbackSettings.SensorWidth = 500.0f; // mm
-	CineCameraComp->Filmback = FilmbackSettings;
+	if (bUseSquareAspectRatio) {
+		FCameraFilmbackSettings FilmbackSettings;
+		FilmbackSettings.SensorHeight = 500.0f; // mm
+		FilmbackSettings.SensorWidth = 500.0f; // mm
+		CineCameraComp->Filmback = FilmbackSettings;
+	}
 
 	FCameraLensSettings LensSettings;
 	LensSettings.MinFocalLength = 4.0f; // mm
