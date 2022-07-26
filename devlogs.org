@@ -56,11 +56,12 @@
 - [ ] Puzzles (ideas, systems, prototypes)
 - [ ] Update Arrow Projectile to be Physical projectile working for spears and such as well
 - [ ] Shield equipment which can block arrows and attacks
+- [ ] Allow default items to be randomized on instance spawn
 - [ ]
 - [X] Add Tam to game (with heron marked blade in inventory)
 - [ ] Add Fade to game
-- [ ] Model meat items
-- [ ] Add meat items to animals
+- [X] Model meat items
+- [X] Add meat items to animals
 - [X] Add openable event emitters when they are opened / closed
 - [X] Update opening cutscene for smoother transitions
 - [X] Update level blueprint to know if the gate has been closed
