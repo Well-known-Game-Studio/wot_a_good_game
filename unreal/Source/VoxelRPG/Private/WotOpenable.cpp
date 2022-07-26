@@ -18,11 +18,21 @@ AWotOpenable::AWotOpenable()
 
 void AWotOpenable::Interact_Implementation(APawn* InstigatorPawn)
 {
+  bool WasOpen = bIsOpen;
   // Update the state
   if (bIsOpen && bCanBeClosed) {
     bIsOpen = false;
   } else if (!bIsOpen && bCanBeOpened) {
     bIsOpen = true;
+  }
+  // inform delegates
+  if (WasOpen != bIsOpen) {
+    if (bIsOpen) {
+      OnOpened.Broadcast(InstigatorPawn, this);
+    } else {
+      OnClosed.Broadcast(InstigatorPawn, this);
+    }
+    OnStateChanged.Broadcast(InstigatorPawn, this, bIsOpen);
   }
   // Update the rendering
   if (bIsOpen) {

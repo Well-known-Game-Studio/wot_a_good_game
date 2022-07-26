@@ -7,6 +7,10 @@
 #include "WotGameplayInterface.h"
 #include "WotOpenable.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnOpened, AActor*, InstigatorActor, AActor*, OpenableActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnClosed, AActor*, InstigatorActor, AActor*, OpenableActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnStateChanged, AActor*, InstigatorActor, AActor*, OpenableActor, bool, NewState);
+
 class USceneComponent;
 class APawn;
 
@@ -36,6 +40,15 @@ public:
     UAudioComponent* EffectAudioComp;
 
     virtual void Interact_Implementation(APawn* InstigatorPawn);
+
+    UPROPERTY(BlueprintAssignable)
+    FOnOpened OnOpened;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnClosed OnClosed;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnStateChanged OnStateChanged;
 
 protected:
 
