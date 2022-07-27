@@ -58,14 +58,9 @@
 - [ ] Shield equipment which can block arrows and attacks
 - [ ] Allow default items to be randomized on instance spawn
 - [ ]
-- [X] Add Tam to game (with heron marked blade in inventory)
+- [ ] Add Animations for Tam
 - [ ] Add Fade to game
-- [X] Model meat items
-- [X] Add meat items to animals
-- [X] Add openable event emitters when they are opened / closed
-- [X] Update opening cutscene for smoother transitions
-- [X] Update level blueprint to know if the gate has been closed
-- [ ] Have tam tell player to come down and make sure to close the gate when they're done
+- [ ] Add animations for Fade
 - [ ] Tam goes up to the campfire and puts sword in chest
 - [ ] Troll-like (Trollike) attack
 
@@ -90,7 +85,6 @@
 - [ ] Animate horse
 - [ ] animate raccoon
 - [ ] animate duck
-- [ ] Health item (food, potion, etc.)
 - [ ] Armor item (helmet?)
 - [ ] Barrel
 - [ ] Winespring Inn
@@ -113,6 +107,16 @@
 - [X] Reorganize content folder / structure of unreal project
 - [X] Add opening cutscene (player walking out of house into world with fade-in)
 - [X] bugfix: Arrows which hit other arrows in characters don't deal damage
+- [X] Add Tam to game (with heron marked blade in inventory)
+- [X] Model meat items
+- [X] Health item (food, potion, etc.)
+- [X] Add meat items to animals
+- [X] Add openable event emitters when they are opened / closed
+- [X] Update opening cutscene for smoother transitions
+- [X] Update level blueprint to know if the gate has been closed
+- [X] Update DialogBuilder plugin to use UE 5.0 version instead of UE 4.27 version
+- [X] Get Dialog system into game
+- [X] Have tam tell player to come down and make sure to close the gate when they're done
 
 * Week of 2022-07-17
 
