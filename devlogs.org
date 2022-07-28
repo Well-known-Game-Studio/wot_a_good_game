@@ -59,10 +59,9 @@
 - [ ] Shield equipment which can block arrows and attacks
 - [ ] Allow default items to be randomized on instance spawn
 - [ ]
-- [ ] Add Animations for Tam
 - [ ] Add Fade to game
 - [ ] Add animations for Fade
-- [ ] Tam goes up to the campfire and puts sword in chest
+- [ ] Tam puts sword in chest
 - [ ] Troll-like (Trollike) attack
 
 ** Code
@@ -121,6 +120,8 @@
 - [X] NPC base BT doesn't wander randomly anymore
 - [X] NPC base class exposes a few functions for easily setting follow player and move to location
 - [X] Tam NPC overrides interact implementation to not follow player but instead talk to them
+- [X] Add Animations for Tam
+- [X] Tam goes up to the campfire after player gets sheep into pen
 
 * Week of 2022-07-17
 
