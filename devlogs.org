@@ -118,6 +118,9 @@
 - [X] Update DialogBuilder plugin to use UE 5.0 version instead of UE 4.27 version
 - [X] Get Dialog system into game
 - [X] Have tam tell player to come down and make sure to close the gate when they're done
+- [X] NPC base BT doesn't wander randomly anymore
+- [X] NPC base class exposes a few functions for easily setting follow player and move to location
+- [X] Tam NPC overrides interact implementation to not follow player but instead talk to them
 
 * Week of 2022-07-17
 
