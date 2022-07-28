@@ -11,6 +11,7 @@
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
 - [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] surfaces trigger overlap events with projectiles
 - [ ] Sprint & inventory UI don't interact well
+- [ ] NavMesh not properly taking into account the foliage: https://forums.unrealengine.com/t/foliage-not-affecting-nav-mesh-in-ue5-works-in-4-26/532988
 
 ** General
 
