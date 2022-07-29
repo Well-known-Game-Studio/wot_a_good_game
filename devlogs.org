@@ -61,7 +61,6 @@
 - [ ]
 - [ ] Add Fade to game
 - [ ] Add animations for Fade
-- [ ] Troll-like (Trollike) attack
 
 ** Code
 
@@ -122,6 +121,7 @@
 - [X] Add Animations for Tam
 - [X] Tam goes up to the campfire after player gets sheep into pen
 - [X] Tam puts sword in chest
+- [X] Troll-like (Trollike) attack
 
 * Week of 2022-07-17
 
