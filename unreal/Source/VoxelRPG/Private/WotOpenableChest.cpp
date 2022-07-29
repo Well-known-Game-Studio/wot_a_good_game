@@ -9,7 +9,7 @@
 AWotOpenableChest::AWotOpenableChest() : AWotOpenable()
 {
   BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
-  BaseMesh->SetupAttachment(RootComponent);
+  BaseMesh->SetupAttachment(BaseSceneComp);
 
   LidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LidMesh"));
   LidMesh->SetupAttachment(BaseMesh);
@@ -35,16 +35,4 @@ void AWotOpenableChest::Interact_Implementation(APawn* InstigatorPawn)
 		InventoryWidget->SetInventory(InventoryComp, FText::FromName(InventoryPanelTitle));
 		InventoryWidget->AddToViewport();
   }
-}
-
-// Called when the game starts or when spawned
-void AWotOpenableChest::BeginPlay()
-{
-  Super::BeginPlay();
-}
-
-// Called every frame
-void AWotOpenableChest::Tick(float DeltaTime)
-{
-  Super::Tick(DeltaTime);
 }

@@ -19,15 +19,3 @@ void AWotOpenableDoor::Interact_Implementation(APawn* InstigatorPawn)
     DoorMesh->AddLocalRotation(TargetRotation.GetInverse());
   }
 }
-
-// Called when the game starts or when spawned
-void AWotOpenableDoor::BeginPlay()
-{
-  Super::BeginPlay();
-}
-
-// Called every frame
-void AWotOpenableDoor::Tick(float DeltaTime)
-{
-  Super::Tick(DeltaTime);
-}

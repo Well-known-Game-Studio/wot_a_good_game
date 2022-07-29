@@ -24,15 +24,3 @@ void AWotOpenableGate::Interact_Implementation(APawn* InstigatorPawn)
     RightMesh->AddLocalRotation(TargetRotation);
   }
 }
-
-// Called when the game starts or when spawned
-void AWotOpenableGate::BeginPlay()
-{
-  Super::BeginPlay();
-}
-
-// Called every frame
-void AWotOpenableGate::Tick(float DeltaTime)
-{
-  Super::Tick(DeltaTime);
-}

@@ -7,7 +7,7 @@
 AWotOpenable::AWotOpenable()
 {
   // Set this actor to call Tick() every frame. You can turn this off to improve performance if you don't need it.
-  PrimaryActorTick.bCanEverTick = true;
+  PrimaryActorTick.bCanEverTick = false;
 
   BaseSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("BaseSceneComp"));
   RootComponent = BaseSceneComp;
@@ -44,16 +44,4 @@ void AWotOpenable::Interact_Implementation(APawn* InstigatorPawn)
     EffectAudioComp->SetSound(CloseSound);
     EffectAudioComp->Play(0);
   }
-}
-
-// Called when the game starts or when spawned
-void AWotOpenable::BeginPlay()
-{
-  Super::BeginPlay();
-}
-
-// Called every frame
-void AWotOpenable::Tick(float DeltaTime)
-{
-  Super::Tick(DeltaTime);
 }
