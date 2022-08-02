@@ -5,6 +5,7 @@
 #include "AIController.h"
 #include "WotActionComponent.h"
 #include "WotAttributeComponent.h"
+#include "WotEquipmentComponent.h"
 #include "WotInventoryComponent.h"
 #include "WotDeathEffectComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -13,11 +14,14 @@
 #include "UI/WotUWPopupNumber.h"
 #include "BrainComponent.h"
 #include "Items/WotItem.h"
+#include "Items/WotItemWeapon.h"
 
 AWotAICharacter::AWotAICharacter()
 {
   PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComp");
   AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	EquipmentComp = CreateDefaultSubobject<UWotEquipmentComponent>("EquipmentComp");
 
 	InventoryComp = CreateDefaultSubobject<UWotInventoryComponent>("InventoryComp");
 
@@ -43,6 +47,29 @@ void AWotAICharacter::PostInitializeComponents()
 void AWotAICharacter::OnPawnSeen(APawn* Pawn)
 {
   SetBlackboardActor("TargetActor", Pawn);
+}
+
+void AWotAICharacter::PrimaryAttack(AActor* TargetActor)
+{
+	// TODO: for now we determine whether to use weapon or action based on if we
+	// have weapon equipped; there's gotta be a better way..
+	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
+	if (EquippedWeapon) {
+		UE_LOG(LogTemp, Log, TEXT("Got Equipped Weapon %s"), *GetNameSafe(EquippedWeapon));
+		EquippedWeapon->PrimaryAttackStart();
+	} else {
+		UE_LOG(LogTemp, Log, TEXT("No weapon equipped starting action 'PrimaryAttack'"));
+		ActionComp->StartActionByName(this, "PrimaryAttack");
+	}
+}
+
+void AWotAICharacter::PrimaryAttackStop()
+{
+	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
+	if (EquippedWeapon) {
+		EquippedWeapon->PrimaryAttackStop();
+	} else {
+	}
 }
 
 void AWotAICharacter::HitFlash()

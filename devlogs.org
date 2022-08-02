@@ -101,6 +101,7 @@
 - [X] Model: Fade / Myrdraal enemy model
 - [X] Add Fade to game
 - [X] Add animations for Fade
+- [X] Create version of the enemy model which does melee attacks
 
 * Week of 2022-07-24
 

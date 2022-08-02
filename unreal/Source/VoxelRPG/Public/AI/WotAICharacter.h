@@ -9,6 +9,7 @@ class UPawnSensingComponent;
 class UWotInventoryComponent;
 class UWotAttributeComponent;
 class UWotActionComponent;
+class UWotEquipmentComponent;
 class UWotDeathEffectComponent;
 class UWotUWHealthBar;
 class UWotUWPopupNumber;
@@ -22,6 +23,13 @@ public:
   // Sets default values for this character's properties
   AWotAICharacter();
 
+  // Attacking
+  UFUNCTION(BlueprintCallable)
+  void PrimaryAttack(AActor* TargetActor);
+
+  UFUNCTION(BlueprintCallable)
+  void PrimaryAttackStop();
+
 protected:
 
 	UFUNCTION(BlueprintCallable)
@@ -33,7 +41,7 @@ protected:
 	UFUNCTION()
 	void OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp);
 
-  virtual void PostInitializeComponents() override;
+	virtual void PostInitializeComponents() override;
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetBlackboardActor(const FString BlackboardKeyName, AActor* Actor);
@@ -53,11 +61,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotActionComponent* ActionComp;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
+	UWotEquipmentComponent* EquipmentComp;
+
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
 	UWotInventoryComponent* InventoryComp;
 
-  UPROPERTY(VisibleAnywhere, Category = "Components")
-  UPawnSensingComponent* PawnSensingComp;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPawnSensingComponent* PawnSensingComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotDeathEffectComponent* DeathEffectComp;
@@ -68,8 +79,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UWotUWPopupNumber> PopupWidgetClass;
 
-  UFUNCTION()
-  void OnPawnSeen(APawn* Pawn);
+	UFUNCTION()
+	void OnPawnSeen(APawn* Pawn);
 
 	float DamageActorForgetDelay = 5.0f;
 	FTimerHandle TimerHandle_ForgetDamageActor;
