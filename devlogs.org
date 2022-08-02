@@ -1,6 +1,6 @@
 #+title:  Devlog
 #+author: William Emfinger
-#+date:   <2022-07-24 Sun>
+#+date:   <2022-08-01 Mon>
 
 * Task List
 ** Bugs
@@ -58,9 +58,6 @@
 - [ ] Update Arrow Projectile to be Physical projectile working for spears and such as well
 - [ ] Shield equipment which can block arrows and attacks
 - [ ] Allow default items to be randomized on instance spawn
-- [ ]
-- [ ] Add Fade to game
-- [ ] Add animations for Fade
 
 ** Code
 
@@ -91,7 +88,6 @@
 - [ ] Pig
 - [ ] Crops (corn, wheat, pumpkins)
 - [ ] Fruit (apples, bananas, oranges, pears)
-- [ ] Fade / Myrdraal enemy model
 - [ ] Update flat models to have a more clearly defined front
 
 ** Audio
@@ -99,6 +95,12 @@
 - [ ] Sheep
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
+
+* Week of 2022-07-31
+
+- [X] Model: Fade / Myrdraal enemy model
+- [X] Add Fade to game
+- [X] Add animations for Fade
 
 * Week of 2022-07-24
 
