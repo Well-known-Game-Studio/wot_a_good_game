@@ -125,6 +125,8 @@
 - [X] Tam goes up to the campfire after player gets sheep into pen
 - [X] Tam puts sword in chest
 - [X] Troll-like (Trollike) attack
+- [X] Fade attack after trollocs are killed
+- [X] Level blueprint can tell when trollocs are killed and when fade is killed
 
 * Week of 2022-07-17
 
