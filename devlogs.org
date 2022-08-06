@@ -88,7 +88,7 @@
 - [ ] Pig
 - [ ] Crops (corn, wheat, pumpkins)
 - [ ] Fruit (apples, bananas, oranges, pears)
-- [ ] Update flat models to have a more clearly defined front
+- [X] Update flat models to have a more clearly defined front - not really an issue
 
 ** Audio
 
