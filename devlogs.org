@@ -96,6 +96,12 @@
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 
+* Week of 2022-08-07
+
+- [X] Determine how the C++ side of AI Character can have a DialogBuilder object (which is an actor component, but needs to be built out)
+- [X] Removed the explicit `TamDialogBuilder` from the Tam NPC and added a DialogBuilderObject to all AI Characters
+- [X] Updated Tam's DialogBuilderObject to be point to the `TamDialogBuilder` as its base class and updated the level blueprint and opening level sequence to use it instead of the older hardcoded version
+
 * Week of 2022-07-31
 
 - [X] Model: Fade / Myrdraal enemy model

@@ -15,7 +15,8 @@
 				"AIModule",
 				"GameplayTasks",
 				"UMG",
-				"GameplayTags"
+				"GameplayTags",
+				"DialogueBuilder"
 			]
 		}
 	],
