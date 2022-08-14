@@ -1,6 +1,6 @@
 #+title:  Devlog
 #+author: William Emfinger
-#+date:   <2022-08-01 Mon>
+#+date:   <2022-08-14 Sun>
 
 * Task List
 ** Bugs
@@ -95,6 +95,10 @@
 - [ ] Sheep
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
+
+* Week of 2022-08-14
+
+- [ ]
 
 * Week of 2022-08-07
 
