@@ -89,6 +89,7 @@
 - [ ] Crops (corn, wheat, pumpkins)
 - [ ] Fruit (apples, bananas, oranges, pears)
 - [X] Update flat models to have a more clearly defined front - not really an issue
+- [ ] Secret cave in mountain home map with rock door
 
 ** Audio
 
