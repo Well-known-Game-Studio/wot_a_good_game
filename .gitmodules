@@ -1,0 +1,18 @@
+[submodule "unreal/Plugins/voxelpro"]
+	path = unreal/Plugins/voxelpro
+	url = git@github.com:well-known-game-studio/VoxelPlugin
+[submodule "unreal/Plugins/DialogueBuilder"]
+	path = unreal/Plugins/DialogueBuilder
+	url = git@github.com:well-known-game-studio/DialogBuilder
+[submodule "unreal/Content/8BitLegend"]
+	path = unreal/Content/8BitLegend
+	url = git@github.com:well-known-game-studio/8BitLegend
+[submodule "unreal/Content/FluidFlux"]
+	path = unreal/Content/FluidFlux
+	url = git@github.com:well-known-game-studio/FluidFlux
+[submodule "unreal/Content/CraftingRTSSounds"]
+	path = unreal/Content/CraftingRTSSounds
+	url = git@github.com:well-known-game-studio/CraftingRTSSounds
+[submodule "unreal/Content/Ultimate_Magic_Bundle"]
+	path = unreal/Content/Ultimate_Magic_Bundle
+	url = git@github.com:well-known-game-studio/Ultimate_Magic_Bundle
