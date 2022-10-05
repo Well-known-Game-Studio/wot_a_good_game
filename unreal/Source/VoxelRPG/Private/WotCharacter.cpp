@@ -1,6 +1,4 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "WotCharacter.h"
 #include "WotAttributeComponent.h"
 #include "WotEquipmentComponent.h"
@@ -250,9 +248,9 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void AWotCharacter::HitFlash()
 {
-	auto Mesh = GetMesh();
+	auto _mesh = GetMesh();
 	// register that we were hit now
-	Mesh->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
+	_mesh->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
 	// what color should we flash (emissive) - use the health to make it
 	// transition from yellow to red
 	auto DangerColor = FLinearColor(1.0f, 0.0f, 0.460229f, 1.0f);
@@ -260,9 +258,9 @@ void AWotCharacter::HitFlash()
 	auto Progress = AttributeComp->GetHealth() / AttributeComp->GetHealthMax();
 	auto LinearColor = FLinearColor::LerpUsingHSV(DangerColor, WarningColor, Progress);
 	auto HitColor = FVector4(LinearColor);
-	Mesh->SetVectorParameterValueOnMaterials("HitColor", HitColor);
+	_mesh->SetVectorParameterValueOnMaterials("HitColor", HitColor);
 	// how quickly the flash should fade (1.0 = 1 second, 2.0 = 0.5 seconds)
-	Mesh->SetScalarParameterValueOnMaterials("FlashTimeFactor", 2.0f);
+	_mesh->SetScalarParameterValueOnMaterials("FlashTimeFactor", 2.0f);
 }
 
 void AWotCharacter::HealSelf(float Amount /* = 100 */)
@@ -391,7 +389,7 @@ void AWotCharacter::ShowActionTextWidget(FString Text, float Duration)
 void AWotCharacter::Destroy_TimeElapsed()
 {
 	// Store the controller reference
-	AController* Controller = GetController();
+	// AController* Controller = GetController();
 	// Destroy the current player
 	Destroy();
 }
