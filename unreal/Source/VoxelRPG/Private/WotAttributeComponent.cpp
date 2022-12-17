@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-#include <algorithm>
-
 #include "WotAttributeComponent.h"
 #include "WotGameModeBase.h"
+
+#include <algorithm>
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("wot.DamageMultiplier"), 1.0f, TEXT("Multiplier for damage in AttributeComponent."), ECVF_Cheat);
 

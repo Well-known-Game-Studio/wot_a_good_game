@@ -110,11 +110,13 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 		BaseNames.Add(BaseClassName);
 
 		TSet< FName > Excluded;
-		AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
+        AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
+		// AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
 	}
 
 	FARFilter Filter;
-	Filter.ClassNames.Add(UBlueprint::StaticClass()->GetFName());
+    Filter.ClassPaths.Add(UBlueprint::StaticClass()->GetClassPathName());
+	// Filter.ClassNames.Add(UBlueprint::StaticClass()->GetFName());
 	Filter.bRecursiveClasses = true;
 	Filter.bRecursivePaths = true;
 
