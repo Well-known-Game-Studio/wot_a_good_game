@@ -1,6 +1,3 @@
-[submodule "unreal/Plugins/voxelpro"]
-	path = unreal/Plugins/voxelpro
-	url = git@github.com:well-known-game-studio/VoxelPlugin
 [submodule "unreal/Plugins/DialogueBuilder"]
 	path = unreal/Plugins/DialogueBuilder
 	url = git@github.com:well-known-game-studio/DialogBuilder
