@@ -13,3 +13,12 @@
 [submodule "unreal/Content/Ultimate_Magic_Bundle"]
 	path = unreal/Content/Ultimate_Magic_Bundle
 	url = git@github.com:well-known-game-studio/Ultimate_Magic_Bundle
+[submodule "unreal/Plugins/SnapCentral"]
+	path = unreal/Plugins/SnapCentral
+	url = git@github.com:well-known-game-studio/snapcentral
+[submodule "unreal/Plugins/FlatNodes"]
+	path = unreal/Plugins/FlatNodes
+	url = git@github.com:well-known-game-studio/flatnodes
+[submodule "unreal/Plugins/BlockoutToolsPlugin"]
+	path = unreal/Plugins/BlockoutToolsPlugin
+	url = git@github.com:well-known-game-studio/blockouttoolsplugin

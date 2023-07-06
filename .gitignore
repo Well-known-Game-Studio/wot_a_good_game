@@ -81,3 +81,6 @@ unreal/DerivedDataCache/*
 **/Binaries
 **/Saved
 *.blend1
+Platforms/
+packaged/
+.vsconfig
