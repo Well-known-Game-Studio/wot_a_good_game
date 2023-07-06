@@ -86,6 +86,19 @@
 		{
 			"Name": "SteamController",
 			"Enabled": true
+		},
+		{
+			"Name": "BlockoutToolsPlugin",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/d337b97aca8947a893526964e179acfd"
+		},
+		{
+			"Name": "SnapCentral",
+			"Enabled": false,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/be6daf89e1f046eab98338d9a0315bfc",
+			"SupportedTargetPlatforms": [
+				"Win64"
+			]
 		}
 	]
 }
