@@ -8,6 +8,41 @@ WOT: A Good Game - Wotxels; the first of its name
 
 ## Overview
 
+Here is an overview picture of the models that have been made for the prototype
+so far and how (in the modeling software) they were built together to get a
+rough idea of how well they look together and work together.
+
+![Model Overview](./images/model_overview.jpeg)
+
+Here is a zoomed-in view of the character sizes, starting with the largest on
+the left, with two options for medium models (medium and medium-flat), and then
+the smallest model (which is simply a few small blocks of certain colors/traits).
+
+![Character Sizes](./images/character_sizes.jpeg)
+
+Here is an example drawing showing the different level sizes (rough
+approximation) that could be used for different parts of the world, broken down
+into 3 main categories:
+
+1. Overworld - This is the most zoomed out, at which point we'd be using the
+   smallest character models, that would only be a few blocks tall. The
+   Overworld allows the player to traverse the whole world and enter points of
+   interest. Within the overworld the player can see the points of interest
+   rendered as smaller models, and can even see other smaller versions of NPCs
+   such as enemies and friendlies (but likely not animals and other
+   environmental objects).
+2. Point of Interest - This is the medium model - at which point we'd be using
+   the medium / medium-flat models. This would be used for towns or other places
+   that the character goes to in the overworld. Within points of interest there
+   will be NPCs including animals, as well as interactibles such as buildings,
+   chests, collectables, and such. If a player enters a building / cave, etc.
+   they will transition to the interior model (largest).
+3. Interior - This is the most zoomed in model of a specific place which uses
+   the largest / most detailed character model. This might be used for the
+   inside of a house or cave for instance.
+
+![Level Sizes](./images/level_sizes.jpeg)
+
 ### Opening
 
 https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/07de2f99-19bc-4531-b0dd-976531cbe2f2
