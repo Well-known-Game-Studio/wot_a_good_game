@@ -8,8 +8,6 @@ AWotItemActor::AWotItemActor()
 {
   Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
   RootComponent = Mesh;
-  // Set physics enabled on this actor
-  SetPhysicsAndCollision("Item", true, true);
 }
 
 void AWotItemActor::SetItem(UWotItem* NewItem) {

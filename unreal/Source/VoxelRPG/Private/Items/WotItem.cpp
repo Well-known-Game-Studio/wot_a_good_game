@@ -124,6 +124,7 @@ void UWotItem::Drop(FVector Location, int DropCount)
     DroppedItem->OwningInventory = nullptr;
     DroppedItem->Count = 1;
     InteractibleItem->SetItem(DroppedItem);
+    InteractibleItem->SetPhysicsAndCollision("Item", true, true);
   }
   // remove it from the inventory
   if (OwningInventory) {
