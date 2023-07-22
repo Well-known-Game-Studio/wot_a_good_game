@@ -209,6 +209,18 @@ void AWotCharacter::SprintStop()
 	ActionComp->StopActionByName(this, "Sprint");
 }
 
+void AWotCharacter::JumpStart()
+{
+	bCanOpenMenu = false;
+	ActionComp->StartActionByName(this, "Jump");
+}
+
+void AWotCharacter::JumpStop()
+{
+	bCanOpenMenu = true;
+	ActionComp->StopActionByName(this, "Jump");
+}
+
 // Called every frame
 void AWotCharacter::Tick(float DeltaTime)
 {
@@ -228,18 +240,17 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveRight");
 	PlayerInputComponent->BindAxis("LookUp");
 	PlayerInputComponent->BindAxis("LookRight");
+
+	// Our movement actions (handled by BP actions)
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AWotCharacter::SprintStart);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AWotCharacter::SprintStop);
-
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AWotCharacter::JumpStart);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AWotCharacter::JumpStop);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AWotCharacter::PrimaryAttackStop);
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
-	// Jump is an action that is already in the base class of ACharacter, so we
-	// don't have to implement it
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AWotCharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AWotCharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AWotCharacter::ShowInventoryWidget);
 

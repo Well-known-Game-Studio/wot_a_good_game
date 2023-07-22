@@ -100,6 +100,10 @@ protected:
 
 	void SprintStop();
 
+	void JumpStart();
+
+	void JumpStop();
+
 	// Attacking
 	UFUNCTION(BlueprintCallable)
 	void PrimaryAttack();
