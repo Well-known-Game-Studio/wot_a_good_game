@@ -17,6 +17,9 @@ bool UWotAction::CanStart(AActor* Instigator)
   if (Comp->ActiveGameplayTags.HasAny(BlockedTags)) {
     return false;
   }
+  if (!Comp->ActiveGameplayTags.HasAll(RequiredTags)) {
+    return false;
+  }
   return true;
 }
 
@@ -31,6 +34,8 @@ void UWotAction::Start_Implementation(AActor* Instigator)
   }
   // add the tags we grant
   Comp->ActiveGameplayTags.AppendTags(GrantsTags);
+  // remove the tags we remove
+  Comp->ActiveGameplayTags.RemoveTags(RemovesTags);
   // make sure to update the running flag
   bIsRunning = true;
 }

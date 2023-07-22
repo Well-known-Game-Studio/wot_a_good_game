@@ -24,7 +24,13 @@ protected:
     FGameplayTagContainer GrantsTags;
 
     UPROPERTY(EditDefaultsOnly, Category = "Tags")
+    FGameplayTagContainer RemovesTags;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Tags")
     FGameplayTagContainer BlockedTags;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Tags")
+    FGameplayTagContainer RequiredTags;
 
     UPROPERTY(VisibleAnywhere, Category = "Action")
     bool bIsRunning;
