@@ -49,6 +49,19 @@ void UWotUWInventoryPanel::SetInventory(UWotInventoryComponent* NewInventoryComp
   LabelText = NewLabelText;
 }
 
+void UWotUWInventoryPanel::Close_Implementation()
+{
+  // remove ourselves from our parent (UI)
+  RemoveFromParent();
+  // Reset the mouse cursor and input mode
+  APlayerController* PC = GetOwningPlayer();
+  PC->bShowMouseCursor = bControllerWasShowingCursor;
+  // FInputModeGameOnly InputMode;
+  // PC->SetInputMode(InputMode);
+  // Make sure we don't update ourselves when the inventory updates
+  InventoryComp->OnInventoryUpdated.RemoveDynamic(this, &UWotUWInventoryPanel::UpdateInventory);
+}
+
 void UWotUWInventoryPanel::Setup()
 {
   if (!InventoryComp) {
@@ -56,10 +69,11 @@ void UWotUWInventoryPanel::Setup()
   }
   // Show mouse and focus this widget
   APlayerController* PC = GetOwningPlayer();
+  bControllerWasShowingCursor = PC->bShowMouseCursor;
   PC->bShowMouseCursor = true;
-  FInputModeGameAndUI InputMode;
+  // FInputModeGameAndUI InputMode;
   // InputMode.SetWidgetToFocus(this);
-  PC->SetInputMode(InputMode);
+  // PC->SetInputMode(InputMode);
   // Make sure we update ourselves when the inventory updates
   InventoryComp->OnInventoryUpdated.AddDynamic(this, &UWotUWInventoryPanel::UpdateInventory);
   // Now actually update the inventory
