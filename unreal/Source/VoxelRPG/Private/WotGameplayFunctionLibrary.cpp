@@ -36,12 +36,13 @@ bool UWotGameplayFunctionLibrary::ApplyDamage(AActor* DamageCauser, AActor* Targ
 bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FHitResult& HitResult)
 {
   if (ApplyDamage(DamageCauser, TargetActor, DamageAmount)) {
+    // Ensure the actor we're going to apply an impulse (for explosion) to has
+    // collision enabled
+    TargetActor->SetActorEnableCollision(true);
     UPrimitiveComponent* HitComp = HitResult.GetComponent();
     if (HitComp && HitComp->IsSimulatingPhysics(HitResult.BoneName)) {
       FVector Direction = HitResult.TraceEnd - HitResult.TraceStart;
       Direction.Normalize();
-      // TODO: right now our NPC meshes don't support physics collision at all,
-      // so this doesn't work
       HitComp->AddImpulseAtLocation(Direction * 3000.0f, HitResult.ImpactPoint, HitResult.BoneName);
     }
     return true;

@@ -24,7 +24,13 @@ protected:
     FGameplayTagContainer GrantsTags;
 
     UPROPERTY(EditDefaultsOnly, Category = "Tags")
+    FGameplayTagContainer RemovesTags;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Tags")
     FGameplayTagContainer BlockedTags;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Tags")
+    FGameplayTagContainer RequiredTags;
 
     UPROPERTY(VisibleAnywhere, Category = "Action")
     bool bIsRunning;
@@ -36,8 +42,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Action")
     bool IsRunning() const;
 
-    UFUNCTION(BlueprintCallable, Category = "Action")
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Action")
     bool CanStart(AActor* Instigator);
+
+    virtual bool CanStart_Implementation(AActor* Instigator);
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Action")
     void Start(AActor* Instigator);

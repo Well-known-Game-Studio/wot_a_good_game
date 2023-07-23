@@ -96,9 +96,13 @@ protected:
 	// Movement
 	void HandleMovementInput();
 
-	void SprintStart();
+	DECLARE_DELEGATE_OneParam(FActionDelegate, FName);
 
-	void SprintStop();
+	UFUNCTION(BlueprintCallable)
+	void ActionStart(FName ActionName);
+
+	UFUNCTION(BlueprintCallable)
+	void ActionStop(FName ActionName);
 
 	// Attacking
 	UFUNCTION(BlueprintCallable)
