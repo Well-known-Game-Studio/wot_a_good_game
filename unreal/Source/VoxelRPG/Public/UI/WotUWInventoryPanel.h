@@ -34,11 +34,17 @@ public:
 		meta=(BindWidget))
 	UWrapBox* ItemBox = nullptr;
 
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Inventory Panel")
+    void Close();
+
     UFUNCTION(BlueprintCallable, Category = "Inventory Panel")
     void SetInventory(UWotInventoryComponent* NewInventoryComp, FText NewLabelText);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory Panel")
     void UpdateInventory();
+
+    UPROPERTY(BlueprintReadOnly, Category = "Inventory Panel")
+    bool bControllerWasShowingCursor = false;
 
 protected:
     void Setup();
