@@ -6,7 +6,7 @@ UWotAction::UWotAction()
 
 }
 
-bool UWotAction::CanStart(AActor* Instigator)
+bool UWotAction::CanStart_Implementation(AActor* Instigator)
 {
   if (IsRunning()) {
     return false;

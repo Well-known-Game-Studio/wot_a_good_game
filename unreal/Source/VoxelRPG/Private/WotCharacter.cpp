@@ -195,30 +195,18 @@ void AWotCharacter::HandleMovementInput()
 	AddMovementInput(up, vector_value.Y);
 }
 
-void AWotCharacter::SprintStart()
+void AWotCharacter::ActionStart(FName ActionName)
 {
 	// TODO: probably a better way of doing this?
 	bCanOpenMenu = false;
-	ActionComp->StartActionByName(this, "Sprint");
+	ActionComp->StartActionByName(this, ActionName);
 }
 
-void AWotCharacter::SprintStop()
+void AWotCharacter::ActionStop(FName ActionName)
 {
 	// TODO: probably a better way of doing this?
 	bCanOpenMenu = true;
-	ActionComp->StopActionByName(this, "Sprint");
-}
-
-void AWotCharacter::JumpStart()
-{
-	bCanOpenMenu = false;
-	ActionComp->StartActionByName(this, "Jump");
-}
-
-void AWotCharacter::JumpStop()
-{
-	bCanOpenMenu = true;
-	ActionComp->StopActionByName(this, "Jump");
+	ActionComp->StopActionByName(this, ActionName);
 }
 
 // Called every frame
@@ -241,11 +229,12 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("LookUp");
 	PlayerInputComponent->BindAxis("LookRight");
 
-	// Our movement actions (handled by BP actions)
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AWotCharacter::SprintStart);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AWotCharacter::SprintStop);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AWotCharacter::JumpStart);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AWotCharacter::JumpStop);
+	PlayerInputComponent->BindAction<FActionDelegate>("Sprint", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Sprint"));
+	PlayerInputComponent->BindAction<FActionDelegate>("Sprint", IE_Released, this, &AWotCharacter::ActionStop, FName("Sprint"));
+	PlayerInputComponent->BindAction<FActionDelegate>("Dash", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Dash"));
+	PlayerInputComponent->BindAction<FActionDelegate>("Dash", IE_Released, this, &AWotCharacter::ActionStop, FName("Dash"));
+	PlayerInputComponent->BindAction<FActionDelegate>("Jump", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Jump"));
+	PlayerInputComponent->BindAction<FActionDelegate>("Jump", IE_Released, this, &AWotCharacter::ActionStop, FName("Jump"));
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AWotCharacter::PrimaryAttackStop);

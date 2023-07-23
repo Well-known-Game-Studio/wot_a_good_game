@@ -42,8 +42,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Action")
     bool IsRunning() const;
 
-    UFUNCTION(BlueprintCallable, Category = "Action")
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Action")
     bool CanStart(AActor* Instigator);
+
+    virtual bool CanStart_Implementation(AActor* Instigator);
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Action")
     void Start(AActor* Instigator);
