@@ -45,7 +45,7 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Inventory")
     FOnInventoryUpdated OnInventoryUpdated;
 
-    UPROPERTY(EditAnywhere, Instanced)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
     TArray<UWotItem*> DefaultItems;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
