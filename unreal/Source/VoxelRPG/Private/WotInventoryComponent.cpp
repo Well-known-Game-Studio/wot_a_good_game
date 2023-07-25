@@ -10,7 +10,24 @@ void UWotInventoryComponent::BeginPlay()
   Super::BeginPlay();
   // Start the owning actor with the default items
   for (auto& item : DefaultItems) {
-    AddItem(item);
+    // get a random number
+    float RandomNumber = FMath::FRandRange(0.0f, 1.0f);
+    auto spawn_info = item->SpawnInfo;
+    // if the random number is less than the spawn chance, spawn the item
+    if (RandomNumber < spawn_info.Probability) {
+      int min = spawn_info.MinCount;
+      int max = spawn_info.MaxCount;
+      // if the spawn info's min and max counts are 0, set them to the item's
+      // Count
+      if (min == 0 && max == 0) {
+        min = item->Count;
+        max = item->Count;
+      }
+      // set the count for spawning
+      item->Count = FMath::RandRange(min, max);
+      // add it to the inventory
+      AddItem(item);
+    }
   }
 }
 

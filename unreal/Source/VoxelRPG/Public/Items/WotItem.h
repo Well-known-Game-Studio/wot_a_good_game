@@ -13,6 +13,30 @@ class ACharacter;
 class UWorld;
 class AWotItemActor;
 
+USTRUCT(BlueprintType)
+struct VOXELRPG_API FWotItemSpawnInfo
+{
+    GENERATED_BODY()
+
+    // Minimum amount to spawn if spawned. Note: will be limited by MaxCount of
+    // item itself. If MaxCount == 0 and MinCount == 0, It will use the item's
+    // Count when spawned.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = 0))
+    int32 MinCount = 0;
+
+    // Maximum amount to spawn if spawned. Note: will be limited by MaxCount of
+    // item itself. If MaxCount == 0 and MinCount == 0, It will use the item's
+    // Count when spawned.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = 0))
+    int32 MaxCount = 0;
+
+    // Probability of spawning this item. Note: this governs whether or not the
+    // item will be spawned. If it is spawned, the amount will be determined by
+    // selecting a random number between MinCount and MaxCount.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn", meta = (ClampMin = 0.0f, ClampMax = 1.0f))
+    float Probability = 1.0f;
+};
+
 UCLASS( Abstract, BlueprintType, Blueprintable, EditInlineNew, DefaultToInstanced)
 class VOXELRPG_API UWotItem : public UObject
 {
@@ -62,6 +86,9 @@ public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item", meta = (ClampMin = 0.0))
     float Weight;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+    FWotItemSpawnInfo SpawnInfo;
 
     UPROPERTY()
     UWotInventoryComponent* OwningInventory;
