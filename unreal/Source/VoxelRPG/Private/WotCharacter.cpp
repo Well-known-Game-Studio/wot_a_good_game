@@ -6,7 +6,6 @@
 #include "WotDeathEffectComponent.h"
 #include "WotInteractionComponent.h"
 #include "WotActionComponent.h"
-#include "CineCameraComponent.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -29,13 +28,17 @@ AWotCharacter::AWotCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CameraLensSettings.MinFocalLength = 4.0f; // mm
+	CameraLensSettings.MaxFocalLength = 1000.0f; // mm
+	CameraLensSettings.MinFStop = 1.2f;
+	CameraLensSettings.MaxFStop = 22.0;
+	CameraLensSettings.DiaphragmBladeCount = 7;
+
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	SpringArmComp->SetupAttachment(RootComponent);
-	SetupSpringArm();
 
 	CineCameraComp = CreateDefaultSubobject<UCineCameraComponent>("CineCameraComp");
 	CineCameraComp->SetupAttachment(SpringArmComp);
-	SetupCineCamera();
 
 	InteractionComp = CreateDefaultSubobject<UWotInteractionComponent>("InteractionComp");
 
@@ -70,6 +73,8 @@ void AWotCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	bCanOpenMenu = true;
+	SetupSpringArm();
+	SetupCineCamera();
 }
 
 void AWotCharacter::SetupSpringArm()
@@ -96,21 +101,15 @@ void AWotCharacter::SetupCineCamera()
 		CineCameraComp->Filmback = FilmbackSettings;
 	}
 
-	FCameraLensSettings LensSettings;
-	LensSettings.MinFocalLength = 4.0f; // mm
-	LensSettings.MaxFocalLength = 1000.0f; // mm
-	LensSettings.MinFStop = 1.2f;
-	LensSettings.MaxFStop = 22.0;
-	LensSettings.DiaphragmBladeCount = 7;
-	CineCameraComp->LensSettings = LensSettings;
+	CineCameraComp->LensSettings = CameraLensSettings;
 
 	FCameraFocusSettings FocusSettings;
 	// FocusSettings.FocusMethod = ECameraFocusMethod::Manual;
 	FocusSettings.ManualFocusDistance = CameraDistance; // mm
 	CineCameraComp->FocusSettings = FocusSettings;
 
-	CineCameraComp->CurrentFocalLength = 500.0f; // mm
-	CineCameraComp->CurrentAperture = 1.2;
+	CineCameraComp->CurrentFocalLength = CurrentFocalLength;
+	CineCameraComp->CurrentAperture = CurrentAperture;
 }
 
 FVector AWotCharacter::GetPawnViewLocation() const
