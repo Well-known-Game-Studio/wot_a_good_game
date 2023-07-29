@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "CineCameraComponent.h"
 #include "WotCharacter.generated.h"
 
 class UAnimMontage;
@@ -35,6 +36,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "View Camera")
 	float CameraDistance = 2000.0f;
+
+	UPROPERTY(EditAnywhere, Category = "View Camera")
+	float CurrentFocalLength = 500.0f;
+
+	UPROPERTY(EditAnywhere, Category = "View Camera")
+	float CurrentAperture = 1.2f;
+
+	UPROPERTY(EditAnywhere, Category = "View Camera")
+	FCameraLensSettings CameraLensSettings;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UWotUWInventoryPanel> InventoryWidgetClass;

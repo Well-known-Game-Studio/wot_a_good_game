@@ -1,9 +1,12 @@
 #include "WotGameModeBase.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "EnvironmentQuery/EnvQueryInstanceBlueprintWrapper.h"
+#include "GameFramework/PlayerStart.h"
+#include <Kismet/GameplayStatics.h>
 #include "AI/WotAICharacter.h"
 #include "WotCharacter.h"
 #include "WotAttributeComponent.h"
+#include "WotGameInstance.h"
 #include "EngineUtils.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("wot.SpawnBots"), true, TEXT("Enable spawning of bots via timer"), ECVF_Cheat);
@@ -20,6 +23,30 @@ void AWotGameModeBase::StartPlay()
   // Continuous timer to spawn more bots. Actual amount of bots and whether it
   // is allowed to spawn determined by logic later in the chain...
   GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AWotGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true, SpawnTimerInitialDelay);
+}
+
+AActor* AWotGameModeBase::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName)
+{
+  // get the game instance
+  UWotGameInstance* GameInstance = Cast<UWotGameInstance>(GetGameInstance());
+  if (!GameInstance) {
+    return Super::FindPlayerStart_Implementation(Player, IncomingName);
+  }
+  // get the last portal name and use it to find the player start
+  FName PortalName = GameInstance->LastPortalName;
+  // get all player starts in the level
+  TArray<AActor*> PlayerStarts;
+  UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
+  // find the player start with the matching name
+  AActor* PlayerStart = nullptr;
+  for (AActor* Actor : PlayerStarts) {
+    APlayerStart* PS = Cast<APlayerStart>(Actor);
+    if (PS && PS->PlayerStartTag == PortalName) {
+      return PS;
+    }
+  }
+  // if we didn't find a player start with the matching name, just return the first one
+  return PlayerStarts[0];
 }
 
 void AWotGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
