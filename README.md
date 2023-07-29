@@ -43,6 +43,19 @@ into 3 main categories:
 
 ![Level Sizes](./images/level_sizes.jpeg)
 
+Here is how they currently look:
+
+Interior (Rand House):
+<img width="1309" alt="CleanShot 2023-07-29 at 10 27 47@2x" src="https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/f0e09084-4adf-4c96-87a1-53e62e596c3e">
+
+Overworld:
+<img width="1263" alt="CleanShot 2023-07-29 at 10 28 32@2x" src="https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/9da33ba1-2203-4e02-b7c8-a591d7531174">
+
+Video:
+
+https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/f148ddb8-2a70-4761-8087-b54520e2f074
+
+
 ### Opening
 
 https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/07de2f99-19bc-4531-b0dd-976531cbe2f2
