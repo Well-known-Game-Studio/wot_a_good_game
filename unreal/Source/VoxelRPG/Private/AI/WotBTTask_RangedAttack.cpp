@@ -20,6 +20,10 @@ EBTNodeResult::Type UWotBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent&
     }
 
     FVector SpawnLocation = MyPawn->GetMesh()->GetSocketLocation(SpawnSocketName);
+    if (SpawnLocation.IsZero()) {
+      UE_LOG(LogTemp, Warning, TEXT("UWotBTTask_RangedAttack::ExecuteTask - SpawnLocation is zero"));
+      return EBTNodeResult::Failed;
+    }
     AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("TargetActor"));
     if (TargetActor == nullptr) {
       return EBTNodeResult::Failed;
