@@ -10,12 +10,14 @@ AWotOpenableDoor::AWotOpenableDoor() : AWotOpenable()
   DoorMesh->SetupAttachment(RootComponent);
 }
 
-void AWotOpenableDoor::Interact_Implementation(APawn* InstigatorPawn)
+void AWotOpenableDoor::Open_Implementation(APawn* InstigatorPawn)
 {
-  Super::Interact_Implementation(InstigatorPawn);
-  if (bIsOpen) {
-    DoorMesh->AddLocalRotation(TargetRotation);
-  } else {
-    DoorMesh->AddLocalRotation(TargetRotation.GetInverse());
-  }
+  Super::Open_Implementation(InstigatorPawn);
+  DoorMesh->AddLocalRotation(TargetRotation);
+}
+
+void AWotOpenableDoor::Close_Implementation(APawn* InstigatorPawn)
+{
+  Super::Close_Implementation(InstigatorPawn);
+  DoorMesh->AddLocalRotation(TargetRotation.GetInverse());
 }

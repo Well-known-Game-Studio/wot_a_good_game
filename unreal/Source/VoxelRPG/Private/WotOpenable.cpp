@@ -16,30 +16,45 @@ AWotOpenable::AWotOpenable()
   EffectAudioComp->SetupAttachment(RootComponent);
 }
 
+void AWotOpenable::BeginPlay()
+{
+  Super::BeginPlay();
+  // Assume that the door is closed at the beginning, so we need to open it if
+  // it is open
+  if (bIsOpen) {
+    Open(nullptr);
+  }
+}
+
 void AWotOpenable::Interact_Implementation(APawn* InstigatorPawn)
 {
-  bool WasOpen = bIsOpen;
-  // Update the state
-  if (bIsOpen && bCanBeClosed) {
-    bIsOpen = false;
-  } else if (!bIsOpen && bCanBeOpened) {
-    bIsOpen = true;
-  }
-  // inform delegates
-  if (WasOpen != bIsOpen) {
-    if (bIsOpen) {
-      OnOpened.Broadcast(InstigatorPawn, this);
-    } else {
-      OnClosed.Broadcast(InstigatorPawn, this);
-    }
-    OnStateChanged.Broadcast(InstigatorPawn, this, bIsOpen);
-  }
-  // Update the rendering
   if (bIsOpen) {
+    Close(InstigatorPawn);
+  } else {
+    Open(InstigatorPawn);
+  }
+}
+
+void AWotOpenable::Open_Implementation(APawn* InstigatorPawn)
+{
+  if (bCanBeOpened && !bIsOpen) {
+    // only update the state if it was closed
+    bIsOpen = true;
+    OnOpened.Broadcast(InstigatorPawn, this);
+    OnStateChanged.Broadcast(InstigatorPawn, this, bIsOpen);
     // play open sound
     EffectAudioComp->SetSound(OpenSound);
     EffectAudioComp->Play(0);
-  } else {
+  }
+}
+
+void AWotOpenable::Close_Implementation(APawn* InstigatorPawn)
+{
+  if (bCanBeClosed && bIsOpen) {
+    // only update the state if it was open
+    bIsOpen = false;
+    OnClosed.Broadcast(InstigatorPawn, this);
+    OnStateChanged.Broadcast(InstigatorPawn, this, bIsOpen);
     // play close sound
     EffectAudioComp->SetSound(CloseSound);
     EffectAudioComp->Play(0);

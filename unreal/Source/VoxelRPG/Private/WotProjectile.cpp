@@ -8,6 +8,7 @@
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/TriggerBase.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
@@ -66,25 +67,43 @@ void AWotProjectile::BeginPlay()
 
 void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+  if (!OtherActor) {
+    UE_LOG(LogTemp, Log, TEXT("HandleCollision: !OtherActor"));
+    return;
+  }
   // TODO: this is a hack to ignore overlap with the fluid flux surfaces /
   // actors!
   if (GetNameSafe(OtherActor).Contains("flux")) {
     return;
   }
-  if (OtherActor && OtherActor != GetInstigator()) {
-    UWotActionComponent* ActionComp = UWotActionComponent::GetActions(OtherActor);
-    if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {
-      // reflect projectile back to where it came from
-      MovementComp->Velocity = -MovementComp->Velocity;
-      // Make sure to update the instigator so that it can damage the original actor if it hits them
-      SetInstigator(Cast<APawn>(OtherActor));
-      // return here so we don't explode or try to apply damage
-      return;
-    }
-
-    UWotGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
-    Explode();
+  // if the other actor is a trigger box (or any other actor that we don't want to explode on)
+  // then return
+  if (OtherActor->IsA(ATriggerBase::StaticClass())) {
+    return;
   }
+  if (OtherActor == this) {
+    UE_LOG(LogTemp, Log, TEXT("Arrows shouldn't be able to collide with themselves... should they?"));
+    return;
+  }
+  if (OtherActor == GetInstigator()) {
+    UE_LOG(LogTemp, Log, TEXT("HandleCollision: OtherActor == GetInstigator()"));
+    return;
+  }
+  // print the display name of the actor we overlapped with
+  UE_LOG(LogTemp, Warning, TEXT("Overlapped with %s"), *OtherActor->GetName());
+
+  UWotActionComponent* ActionComp = UWotActionComponent::GetActions(OtherActor);
+  if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {
+    // reflect projectile back to where it came from
+    MovementComp->Velocity = -MovementComp->Velocity;
+    // Make sure to update the instigator so that it can damage the original actor if it hits them
+    SetInstigator(Cast<APawn>(OtherActor));
+    // return here so we don't explode or try to apply damage
+    return;
+  }
+
+  UWotGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
+  Explode();
 }
 
 // _Implementation from it being marked as BlueprintNativeEvent

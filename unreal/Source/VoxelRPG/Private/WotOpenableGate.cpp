@@ -13,14 +13,16 @@ AWotOpenableGate::AWotOpenableGate() : AWotOpenable()
   RightMesh->SetupAttachment(BaseSceneComp);
 }
 
-void AWotOpenableGate::Interact_Implementation(APawn* InstigatorPawn)
+void AWotOpenableGate::Open_Implementation(APawn* InstigatorPawn)
 {
-  Super::Interact_Implementation(InstigatorPawn);
-  if (bIsOpen) {
-    LeftMesh->AddLocalRotation(TargetRotation);
-    RightMesh->AddLocalRotation(TargetRotation.GetInverse());
-  } else {
-    LeftMesh->AddLocalRotation(TargetRotation.GetInverse());
-    RightMesh->AddLocalRotation(TargetRotation);
-  }
+  Super::Open_Implementation(InstigatorPawn);
+  LeftMesh->AddLocalRotation(TargetRotation);
+  RightMesh->AddLocalRotation(TargetRotation.GetInverse());
+}
+
+void AWotOpenableGate::Close_Implementation(APawn* InstigatorPawn)
+{
+  Super::Close_Implementation(InstigatorPawn);
+  LeftMesh->AddLocalRotation(TargetRotation.GetInverse());
+  RightMesh->AddLocalRotation(TargetRotation);
 }

@@ -6,6 +6,7 @@
 #include "Camera/CameraShakeBase.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
+#include "Engine/TriggerBase.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "WotGameplayFunctionLibrary.h"
@@ -138,18 +139,23 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
   if (CurrentState != EWotArrowState::InAir) {
     return;
   }
+  if (!OtherActor) {
+    UE_LOG(LogTemp, Log, TEXT("HandleCollision: !OtherActor"));
+    return;
+  }
   // TODO: this is a hack to ignore overlap with the fluid flux surfaces /
   // actors!
   if (GetNameSafe(OtherActor).Contains("flux")) {
     UE_LOG(LogTemp, Log, TEXT("HandleCollision: GetNameSafe(OtherActor).Contains(\"flux\")"));
     return;
   }
-  if (!OtherActor) {
-    UE_LOG(LogTemp, Log, TEXT("HandleCollision: !OtherActor"));
-    return;
-  }
   if (OtherActor == this) {
     UE_LOG(LogTemp, Log, TEXT("Arrows shouldn't be able to collide with themselves... should they?"));
+    return;
+  }
+  // if the other actor is a trigger box (or any other actor that we don't want to explode on)
+  // then return
+  if (OtherActor->IsA(ATriggerBase::StaticClass())) {
     return;
   }
   if (OtherActor == GetInstigator()) {
