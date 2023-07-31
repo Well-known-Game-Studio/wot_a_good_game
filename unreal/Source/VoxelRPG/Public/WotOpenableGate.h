@@ -20,7 +20,9 @@ public:
     UPROPERTY(EditAnywhere)
     FRotator TargetRotation;
 
-    virtual void Interact_Implementation(APawn* InstigatorPawn) override;
+    virtual void Open_Implementation(APawn* InstigatorPawn) override;
+
+    virtual void Close_Implementation(APawn* InstigatorPawn) override;
 
 protected:
 

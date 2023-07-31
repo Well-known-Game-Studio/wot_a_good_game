@@ -20,8 +20,7 @@ class VOXELRPG_API AWotOpenable : public AActor, public IWotGameplayInterface
 	GENERATED_BODY()
 
 public:
-
-    UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Openable")
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Openable")
     bool bIsOpen = false;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Openable")
@@ -41,6 +40,16 @@ public:
 
     virtual void Interact_Implementation(APawn* InstigatorPawn);
 
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Openable")
+    void Open(APawn* InstigatorPawn);
+
+    virtual void Open_Implementation(APawn* InstigatorPawn);
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Openable")
+    void Close(APawn* InstigatorPawn);
+
+    virtual void Close_Implementation(APawn* InstigatorPawn);
+
     UPROPERTY(BlueprintAssignable)
     FOnOpened OnOpened;
 
@@ -51,6 +60,8 @@ public:
     FOnStateChanged OnStateChanged;
 
 protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
     UPROPERTY(VisibleAnywhere)
     USceneComponent* BaseSceneComp;
