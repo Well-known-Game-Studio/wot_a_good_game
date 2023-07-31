@@ -8,7 +8,7 @@
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Engine/TriggerBox.h"
+#include "Engine/TriggerBase.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
@@ -78,7 +78,7 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
   }
   // if the other actor is a trigger box (or any other actor that we don't want to explode on)
   // then return
-  if (OtherActor->IsA(ATriggerBox::StaticClass())) {
+  if (OtherActor->IsA(ATriggerBase::StaticClass())) {
     return;
   }
   if (OtherActor == this) {

@@ -6,7 +6,7 @@
 #include "Camera/CameraShakeBase.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
-#include "Engine/TriggerBox.h"
+#include "Engine/TriggerBase.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "WotGameplayFunctionLibrary.h"
@@ -155,7 +155,7 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
   }
   // if the other actor is a trigger box (or any other actor that we don't want to explode on)
   // then return
-  if (OtherActor->IsA(ATriggerBox::StaticClass())) {
+  if (OtherActor->IsA(ATriggerBase::StaticClass())) {
     return;
   }
   if (OtherActor == GetInstigator()) {
