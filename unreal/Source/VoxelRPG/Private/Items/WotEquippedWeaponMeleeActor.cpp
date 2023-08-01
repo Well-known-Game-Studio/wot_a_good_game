@@ -29,15 +29,14 @@ void AWotEquippedWeaponMeleeActor::PrimaryAttackStart_Implementation()
   }
   // Get AnimInstance
   UWotCharacterAnimInstance* AnimInstance = Cast<UWotCharacterAnimInstance>(MyCharacter->GetMesh()->GetAnimInstance());
-  if (!AnimInstance) {
-    UE_LOG(LogTemp, Warning, TEXT("Not a valid WotCharacterAnimInstance!"));
-    return;
-  }
-  // Try to attack
-  bool DidAttack = AnimInstance->LightAttack();
-  if (!DidAttack) {
-    UE_LOG(LogTemp, Warning, TEXT("Could not attack!"));
-    return;
+  if (AnimInstance) {
+    // Let the anim instance know we're attacking
+    bool DidAttack = AnimInstance->LightAttack();
+    // If we couldn't attack, then don't do anything else
+    if (!DidAttack) {
+      UE_LOG(LogTemp, Warning, TEXT("Could not attack!"));
+      return;
+    }
   }
   // Start the timer for actually handling the attack
   FTimerHandle TimerHandle_AttackDelay;
