@@ -1,6 +1,65 @@
 #include "WotGameplayFunctionLibrary.h"
+#include "WotGameplayInterface.h"
 #include "WotAttributeComponent.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+
+bool UWotGameplayFunctionLibrary::GetClosestInteractibleInBox(AActor* InstigatorActor, FVector BoxHalfExtent, FVector Origin, FVector End, AActor* &ClosestActor, UActorComponent* &ClosestComponent, FHitResult &ClosestHit) {
+	FCollisionObjectQueryParams ObjectQueryParams;
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+
+	FCollisionShape Shape;
+	Chaos::TVector<float, 3> HalfExtent = BoxHalfExtent;
+	Shape.SetBox(HalfExtent);
+
+	TArray<FHitResult> Hits;
+
+	bool bBlockingHit = InstigatorActor->GetWorld()->SweepMultiByObjectType(Hits,
+														   Origin,
+														   End,
+														   FQuat::Identity,
+														   ObjectQueryParams,
+														   Shape);
+
+	// find the closest interactable actor or component from the list
+	float ClosestDistance = (End - Origin).Size();
+
+	for (auto Hit : Hits) {
+		AActor* Actor = Hit.GetActor();
+		if (Actor) {
+			// get the distance to the hit location
+			float Distance = FVector::Dist(Hit.Location, Origin);
+			// If it imiplements the GameplayInterface (Interact)
+			if (Actor->Implements<UWotGameplayInterface>()) {
+				if (Distance < ClosestDistance) {
+					ClosestActor = Actor;
+					ClosestDistance = Distance;
+					ClosestHit = Hit;
+					// unset the closest component, since we found an actor
+					ClosestComponent = nullptr;
+				}
+			} else {
+				// The actor doesn't implement the GameplayInterface, so try to
+				// get a component that does
+				auto components = Actor->GetComponentsByInterface(UWotGameplayInterface::StaticClass());
+				// TODO: how to handle multiple components that implement the interface?
+				if (components.Num() > 0) {
+					auto component = components[0];
+					if (Distance < ClosestDistance) {
+						// we also have to set the closest actor to the hit actor
+						// so that we can draw the debug lines
+						ClosestActor = Actor;
+						ClosestComponent = component;
+						ClosestDistance = Distance;
+						ClosestHit = Hit;
+					}
+				}
+			}
+		}
+	}
+  return ClosestActor != nullptr;
+}
 
 void UWotGameplayFunctionLibrary::DrawHitPointAndBounds(AActor* HitActor, const FHitResult& Hit)
 {
