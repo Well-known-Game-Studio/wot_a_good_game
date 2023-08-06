@@ -21,7 +21,7 @@ class VOXELRPG_API AWotItemInteractibleActor : public AWotItemActor, public IWot
 
 public:
 
-    void Interact_Implementation(APawn* InstigatorPawn);
+    void Interact_Implementation(APawn* InstigatorPawn, FHitResult HitResult) override;
 
 	AWotItemInteractibleActor();
 };

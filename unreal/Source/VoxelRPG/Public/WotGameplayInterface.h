@@ -26,5 +26,8 @@ class VOXELRPG_API IWotGameplayInterface
 public:
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
-    void Interact(APawn* InstigatorPawn);
+    void Interact(APawn* InstigatorPawn, FHitResult Hit);
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+    void GetInteractionText(APawn* InstigatorPawn, FHitResult& Hit, FText& OutText);
 };

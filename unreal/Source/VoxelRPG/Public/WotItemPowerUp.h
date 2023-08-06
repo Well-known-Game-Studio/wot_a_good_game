@@ -20,7 +20,7 @@ public:
     UPROPERTY(EditAnywhere)
     float CooldownTime = 10.0f;
 
-    void Interact_Implementation(APawn* InstigatorPawn);
+    void Interact_Implementation(APawn* InstigatorPawn, FHitResult HitResult) override;
 
 protected:
 

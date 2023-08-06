@@ -14,7 +14,7 @@ AWotItemPowerUp::AWotItemPowerUp()
   RootComponent = BaseMesh;
 }
 
-void AWotItemPowerUp::Interact_Implementation(APawn* InstigatorPawn)
+void AWotItemPowerUp::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit)
 {
   // logic in derived classes...
 }

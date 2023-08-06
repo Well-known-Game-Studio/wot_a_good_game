@@ -28,7 +28,10 @@ public:
     static FString GetIntAsString(int TheNumber);
     static FText GetIntAsText(int TheNumber);
 
+    UFUNCTION(BlueprintCallable, Category = "Gameplay")
     static void GetAllCppSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray);
+
+    UFUNCTION(BlueprintCallable, Category = "Gameplay")
     static void GetAllBlueprintSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray);
 
 };
