@@ -75,85 +75,54 @@ void UWotInteractionComponent::PrimaryInteract()
 
 	bool bDrawDebug = CVarDebugDrawInteraction.GetValueOnGameThread();
 
+	// find the closest interactable actor or component from the list
+	AActor* ClosestActor = nullptr;
+	UActorComponent* ClosestComponent = nullptr;
+	float ClosestDistance = InteractionRange;
+	FHitResult ClosestHit;
+
 	for (auto Hit : Hits) {
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor) {
+			// get the distance to the hit location
+			float Distance = FVector::Dist(Hit.Location, OwnerLocation);
 			// If it imiplements the GameplayInterface (Interact)
 			if (HitActor->Implements<UWotGameplayInterface>()) {
-				APawn* MyPawn = Cast<APawn>(MyOwner);
-				IWotGameplayInterface::Execute_Interact(HitActor, MyPawn);
-				if (bDrawDebug) {
-					UWotGameplayFunctionLibrary::DrawHitPointAndBounds(HitActor, Hit);
+				if (Distance < ClosestDistance) {
+					ClosestActor = HitActor;
+					ClosestDistance = Distance;
+					ClosestHit = Hit;
+					// unset the closest component, since we found an actor
+					ClosestComponent = nullptr;
 				}
-				break;
 			} else {
-				// Handle foliage interaction here
-				UInstancedStaticMeshComponent* ISMC = Cast<UInstancedStaticMeshComponent>(Hit.GetComponent());
-				if (ISMC) {
-					UStaticMesh* StaticMesh = ISMC->GetStaticMesh();
-					// loop through the foragable types and check if their mesh
-					// matches this mesh; if so, create the
-					UE_LOG(LogTemp, Log, TEXT("Got ISMC (%s) with static mesh (%s)!"),
-						   *GetNameSafe(ISMC),
-						   *GetNameSafe(StaticMesh));
-					for (auto& ItemClass : ItemClasses) {
-						// See if the this is an interactible instance (e.g. if
-						// there is an item whose mesh matches)
-						UWotItem* DefaultObject = Cast<UWotItem>(ItemClass->GetDefaultObject());
-						if (!DefaultObject) {
-							UE_LOG(LogTemp, Error, TEXT("Invalid default object for class %s"), *ItemClass->GetFName().ToString());
-							continue;
-						}
-						if (DefaultObject->PickupMesh == StaticMesh) {
-							UE_LOG(LogTemp, Log, TEXT("GOT ONE: %s (%s == %s), instance: %d"),
-								   *GetNameSafe(DefaultObject),
-								   *GetNameSafe(DefaultObject->PickupMesh),
-								   *GetNameSafe(StaticMesh),
-								   Hit.Item);
-							// add one of these items to the player's inventory
-							UWotInventoryComponent* InventoryComp = UWotInventoryComponent::GetInventory(MyOwner);
-							if (InventoryComp) {
-								UWotItem* NewItem = NewObject<UWotItem>(MyOwner, ItemClass);
-								int32 NumAdded = InventoryComp->AddItem(NewItem);
-								if (NumAdded == 0) {
-									UE_LOG(LogTemp, Log, TEXT("Didn't add to inventory, skipping!"));
-									continue;
-								}
-							}
-							// now remove the ISM instance
-							ISMC->RemoveInstance(Hit.Item);
-							// Show UI
-							AWotCharacter* MyWotOwner = Cast<AWotCharacter>(MyOwner);
-							if (MyWotOwner) {
-								MyWotOwner->ShowPopupWidgetNumber(1, 1.0f);
-								MyWotOwner->PlaySoundGet();
-							}
-							// Draw debug info showing the hit / bounding box
-							if (bDrawDebug) {
-								UWotGameplayFunctionLibrary::DrawHitPointAndBounds(HitActor, Hit);
-							}
-							// now break out of this loop; since we're actually
-							// in multiple loops, we will use a goto instead of
-							// a break!
-							goto found_hit;
-						}
+				// The actor doesn't implement the GameplayInterface, so try to
+				// get a component that does
+				auto components = HitActor->GetComponentsByInterface(UWotGameplayInterface::StaticClass());
+				// TODO: how to handle multiple components that implement the interface?
+				if (components.Num() > 0) {
+					auto component = components[0];
+					if (Distance < ClosestDistance) {
+						// we also have to set the closest actor to the hit actor
+						// so that we can draw the debug lines
+						ClosestActor = HitActor;
+						ClosestComponent = component;
+						ClosestDistance = Distance;
+						ClosestHit = Hit;
 					}
 				}
 			}
 		}
 	}
-found_hit:
-
-	if (bDrawDebug) {
-		FColor LineColor = bBlockingHit ? FColor::Green : FColor::Red;
-		// Draw a line for the vector from the owner to the end of the sweep
-		DrawDebugLine(GetWorld(), OwnerLocation, End, LineColor, false, 5.0f, 0, 10.0f);
-		// Draw the box representing how we swept
-		FVector SweepExtent(InteractionRange / 2, HalfExtent.Y, HalfExtent.Z);
-		DrawDebugBox(GetWorld(),
-					 OwnerLocation + (ForwardVector * InteractionRange) / 2,
-					 SweepExtent,
-					 OwnerRotation.Quaternion(),
-					 LineColor, false, 2.0f, 0, 2.0f);
+	if (ClosestActor) {
+		APawn* MyPawn = Cast<APawn>(MyOwner);
+		if (ClosestComponent) {
+			IWotGameplayInterface::Execute_Interact(ClosestComponent, MyPawn, ClosestHit);
+		} else {
+			IWotGameplayInterface::Execute_Interact(ClosestActor, MyPawn, ClosestHit);
+		}
+		if (bDrawDebug) {
+			UWotGameplayFunctionLibrary::DrawHitPointAndBounds(ClosestActor, ClosestHit);
+		}
 	}
 }

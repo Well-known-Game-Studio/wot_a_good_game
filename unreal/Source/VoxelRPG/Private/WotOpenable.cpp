@@ -26,7 +26,7 @@ void AWotOpenable::BeginPlay()
   }
 }
 
-void AWotOpenable::Interact_Implementation(APawn* InstigatorPawn)
+void AWotOpenable::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit)
 {
   if (bIsOpen) {
     Close(InstigatorPawn);

@@ -19,5 +19,5 @@ public:
     UPROPERTY(EditAnywhere)
     float HealingAmount = 20.0f;
 
-    void Interact_Implementation(APawn* InstigatorPawn);
+    void Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit) override;
 };

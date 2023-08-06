@@ -21,9 +21,9 @@ AWotOpenableChest::AWotOpenableChest() : AWotOpenable()
   bCanBeClosed = false;
 }
 
-void AWotOpenableChest::Interact_Implementation(APawn* InstigatorPawn)
+void AWotOpenableChest::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit)
 {
-  Super::Interact_Implementation(InstigatorPawn);
+  Super::Interact_Implementation(InstigatorPawn, Hit);
   LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0, 0));
   if (!ensure(InventoryWidgetClass)) {
     UE_LOG(LogTemp, Error, TEXT("Missing required InventoryWidgetClass!"));

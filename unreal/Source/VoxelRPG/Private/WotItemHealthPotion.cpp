@@ -3,7 +3,7 @@
 #include "WotItemHealthPotion.h"
 #include "WotAttributeComponent.h"
 
-void AWotItemHealthPotion::Interact_Implementation(APawn* InstigatorPawn)
+void AWotItemHealthPotion::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit)
 {
   if (!ensure(InstigatorPawn)) {
     return;

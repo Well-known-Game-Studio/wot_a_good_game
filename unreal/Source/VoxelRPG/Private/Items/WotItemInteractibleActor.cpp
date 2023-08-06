@@ -10,7 +10,7 @@ AWotItemInteractibleActor::AWotItemInteractibleActor() : AWotItemActor()
 {
 }
 
-void AWotItemInteractibleActor::Interact_Implementation(APawn* InstigatorPawn)
+void AWotItemInteractibleActor::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit)
 {
   // get inventory component from the pawn
   UWotInventoryComponent* InventoryComp = UWotInventoryComponent::GetInventory(InstigatorPawn);

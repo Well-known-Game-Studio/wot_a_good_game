@@ -38,7 +38,7 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects")
     UAudioComponent* EffectAudioComp;
 
-    virtual void Interact_Implementation(APawn* InstigatorPawn);
+    virtual void Interact_Implementation(APawn* InstigatorPawn, FHitResult HitResult) override;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Openable")
     void Open(APawn* InstigatorPawn);
