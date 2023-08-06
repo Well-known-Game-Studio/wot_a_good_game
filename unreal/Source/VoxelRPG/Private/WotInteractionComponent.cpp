@@ -4,7 +4,6 @@
 #include "WotCharacter.h"
 #include "WotGameplayInterface.h"
 #include "WotInventoryComponent.h"
-#include "Components/InstancedStaticMeshComponent.h"
 #include "Items/WotItem.h"
 #include "WotGameplayFunctionLibrary.h"
 
@@ -12,9 +11,6 @@
 #include "DrawDebugHelpers.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("wot.DebugDrawInteraction"), false, TEXT("Enable DebugDrawing for Interaction Component"), ECVF_Cheat);
-
-// For use with turning foliage into foragable items
-static TArray<UClass*> ItemClasses;
 
 // Sets default values for this component's properties
 UWotInteractionComponent::UWotInteractionComponent()
@@ -24,21 +20,6 @@ UWotInteractionComponent::UWotInteractionComponent()
 void UWotInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	if (ItemClasses.Num() == 0) {
-		TArray<UClass*> BlueprintClasses;
-		UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UWotItem::StaticClass(), BlueprintClasses);
-		// ItemClasses.Append(BlueprintClasses);
-		for (auto Class : BlueprintClasses) {
-			ItemClasses.AddUnique(Class);
-		}
-		TArray<UClass*> CppClasses;
-		UWotGameplayFunctionLibrary::GetAllCppSubclasses(UWotItem::StaticClass(), CppClasses);
-		// ItemClasses.Append(CppClasses);
-		for (auto Class : CppClasses) {
-			ItemClasses.AddUnique(Class);
-		}
-		UE_LOG(LogTemp, Log, TEXT("Got %d subclasses of UWotItem"), ItemClasses.Num());
-	}
 }
 
 void UWotInteractionComponent::PrimaryInteract()

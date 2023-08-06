@@ -7,9 +7,6 @@
 #include "WotGameplayInterface.h"
 #include "WotInteractionComponent.generated.h"
 
-class UStaticMeshComponent;
-class APawn;
-
 UCLASS()
 class VOXELRPG_API UWotInteractionComponent : public UActorComponent
 {
