@@ -23,6 +23,10 @@ public:
 
     virtual void Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit) override;
 
+    virtual void GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult Hit, FText& OutText) override;
+
+    virtual void SetHighlightEnabled(int HighlightValue, bool Enabled) override;
+
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "UI")

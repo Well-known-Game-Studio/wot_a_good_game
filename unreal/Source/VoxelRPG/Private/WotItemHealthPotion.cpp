@@ -25,3 +25,20 @@ void AWotItemHealthPotion::Interact_Implementation(APawn* InstigatorPawn, FHitRe
     HideAndCooldownPowerup();
   }
 }
+
+void AWotItemHealthPotion::GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult Hit, FText& OutText)
+{
+  // get the attribute component of the instigating pawn
+  UWotAttributeComponent* AttributeComp =
+    Cast<UWotAttributeComponent>(InstigatorPawn->GetComponentByClass(UWotAttributeComponent::StaticClass()));
+  // if there's no attribute component, return
+  if (!AttributeComp) {
+    return;
+  }
+  // set the interaction text
+  if (AttributeComp->IsFullHealth()) {
+    OutText = FText::FromString("Already at full health");
+  } else {
+    OutText = FText::Format(FText::FromString("Drink ({0} Health)"), HealingAmount);
+  }
+}

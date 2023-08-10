@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "WotGameplayInterface.h"
+#include "WotInteractableInterface.h"
 #include "WotAICharacter.generated.h"
 
 class UDialogueBuilderObject;
@@ -16,7 +17,7 @@ class UWotUWHealthBar;
 class UWotUWPopupNumber;
 
 UCLASS()
-class VOXELRPG_API AWotAICharacter : public ACharacter, public IWotGameplayInterface
+class VOXELRPG_API AWotAICharacter : public ACharacter, public IWotInteractableInterface, public IWotGameplayInterface
 {
   GENERATED_BODY()
 
@@ -31,7 +32,16 @@ public:
   UFUNCTION(BlueprintCallable)
   void PrimaryAttackStop();
 
+  virtual void Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration) override;
+
+  virtual void Unhighlight_Implementation(FHitResult Hit) override;
+
+  virtual void SetHighlightEnabled(int HighlightValue, bool Enabled);
+
 protected:
+
+    FTimerHandle HighlightTimerHandle;
+    void OnHighlightTimerExpired();
 
 	UFUNCTION(BlueprintCallable)
 	void HitFlash();

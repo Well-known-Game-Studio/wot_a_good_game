@@ -2,7 +2,7 @@
 #include "WotInventoryComponent.h"
 #include "WotEquipmentComponent.h"
 #include "GameFramework/Character.h"
-#include "Items/WotItemInteractibleActor.h"
+#include "Items/WotItemInteractableActor.h"
 
 UWotItem::UWotItem()
 {
@@ -108,23 +108,23 @@ void UWotItem::Drop(FVector Location, int DropCount)
     }
   }
 
-  // spawn it into the world as a WotItemInteractibleActor
+  // spawn it into the world as a WotItemInteractableActor
   FActorSpawnParameters SpawnParams;
   SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
   // Spawn one actor for each item dropped
   for (int i=0; i < DropCount; ++i) {
-    AWotItemInteractibleActor* InteractibleItem =
-      GetWorld()->SpawnActor<AWotItemInteractibleActor>(AWotItemInteractibleActor::StaticClass(),
+    AWotItemInteractableActor* InteractableItem =
+      GetWorld()->SpawnActor<AWotItemInteractableActor>(AWotItemInteractableActor::StaticClass(),
                                                         Location,
                                                         FRotator::ZeroRotator,
                                                         SpawnParams);
     // create an Item for this
-    UWotItem* DroppedItem = DuplicateObject(this, InteractibleItem);
+    UWotItem* DroppedItem = DuplicateObject(this, InteractableItem);
     // Set the properties of the dropped item accordingly
     DroppedItem->OwningInventory = nullptr;
     DroppedItem->Count = 1;
-    InteractibleItem->SetItem(DroppedItem);
-    InteractibleItem->SetPhysicsAndCollision("Item", true, true);
+    InteractableItem->SetItem(DroppedItem);
+    InteractableItem->SetPhysicsAndCollision("Item", true, true);
   }
   // remove it from the inventory
   if (OwningInventory) {

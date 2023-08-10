@@ -19,6 +19,8 @@ public:
     UPROPERTY(EditAnywhere)
     FRotator TargetRotation;
 
+    virtual void SetHighlightEnabled(int HighlightValue, bool Enabled) override;
+
     virtual void Open_Implementation(APawn* InstigatorPawn) override;
 
     virtual void Close_Implementation(APawn* InstigatorPawn) override;

@@ -1,6 +1,7 @@
 #include "UI/WotUWInventoryPanel.h"
 #include "UI/WotUWItem.h"
 #include "UI/WotTextBlock.h"
+#include "WotCharacter.h"
 #include "Components/WrapBox.h"
 #include "WotInventoryComponent.h"
 
@@ -55,6 +56,12 @@ void UWotUWInventoryPanel::Close_Implementation()
   RemoveFromParent();
   // Reset the mouse cursor and input mode
   APlayerController* PC = GetOwningPlayer();
+  // convert to WotCharacter and inform it that the inventory panel is closed
+  auto WotCharacter = Cast<AWotCharacter>(PC->GetPawn());
+  if (WotCharacter) {
+    WotCharacter->SetMenuActive(false);
+  }
+
   PC->bShowMouseCursor = bControllerWasShowingCursor;
   // FInputModeGameOnly InputMode;
   // PC->SetInputMode(InputMode);

@@ -1,25 +1,26 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Items/WotItemActor.h"
 #include "WotGameplayInterface.h"
 #include "WotInteractableInterface.h"
-#include "WotItemPowerUp.generated.h"
+#include "WotItemInteractableActor.generated.h"
 
-class UStaticMeshComponent;
 class APawn;
 
+/*
+ * 	Subclass of AWotItemActor which also implements IWotInteractableInterface -
+ * 	allowing the "Use" function of the Item to be called. Can be overridden for
+ * 	custom implementation.
+ */
 UCLASS()
-class VOXELRPG_API AWotItemPowerUp : public AActor, public IWotInteractableInterface, public IWotGameplayInterface
+class VOXELRPG_API AWotItemInteractableActor : public AWotItemActor, public IWotInteractableInterface, public IWotGameplayInterface
 {
 	GENERATED_BODY()
 
 public:
-
-    UPROPERTY(EditAnywhere)
-    float CooldownTime = 10.0f;
 
     virtual void Interact_Implementation(APawn* InstigatorPawn, FHitResult HitResult) override;
 
@@ -31,26 +32,9 @@ public:
 
     virtual void SetHighlightEnabled(int HighlightValue, bool Enabled);
 
+	AWotItemInteractableActor();
+
 protected:
-
-    UPROPERTY(VisibleAnywhere)
-    UStaticMeshComponent* BaseMesh;
-
-    virtual void SetPowerupState(bool bNewIsInteractable);
-
-	FTimerHandle TimerHandle_Cooldown;
-
     FTimerHandle HighlightTimerHandle;
     void OnHighlightTimerExpired();
-
-public:
-
-    UFUNCTION()
-    virtual void ShowPowerup();
-
-    UFUNCTION()
-    virtual void HideAndCooldownPowerup();
-
-    // Sets default values for this actor's properties
-    AWotItemPowerUp();
 };

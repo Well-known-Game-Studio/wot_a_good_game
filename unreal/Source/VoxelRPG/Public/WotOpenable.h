@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WotGameplayInterface.h"
+#include "WotInteractableInterface.h"
 #include "WotOpenable.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnOpened, AActor*, InstigatorActor, AActor*, OpenableActor);
@@ -15,7 +16,7 @@ class USceneComponent;
 class APawn;
 
 UCLASS()
-class VOXELRPG_API AWotOpenable : public AActor, public IWotGameplayInterface
+class VOXELRPG_API AWotOpenable : public AActor, public IWotInteractableInterface, public IWotGameplayInterface
 {
 	GENERATED_BODY()
 
@@ -29,6 +30,12 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Openable")
     bool bCanBeClosed = true;
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Openable")
+    FText OpenText = FText::FromString("Open");
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Openable")
+    FText CloseText = FText::FromString("Close");
+
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
     USoundBase* OpenSound;
 
@@ -39,6 +46,14 @@ public:
     UAudioComponent* EffectAudioComp;
 
     virtual void Interact_Implementation(APawn* InstigatorPawn, FHitResult HitResult) override;
+
+    virtual void GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult HitResult, FText& OutText) override;
+
+    virtual void Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration) override;
+
+    virtual void Unhighlight_Implementation(FHitResult Hit) override;
+
+    virtual void SetHighlightEnabled(int HighlightValue, bool Enabled);
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Openable")
     void Open(APawn* InstigatorPawn);
@@ -65,6 +80,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere)
     USceneComponent* BaseSceneComp;
+
+    FTimerHandle HighlightTimerHandle;
+    void OnHighlightTimerExpired();
 
 public:
     // Sets default values for this actor's properties

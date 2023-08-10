@@ -13,6 +13,14 @@ AWotOpenableGate::AWotOpenableGate() : AWotOpenable()
   RightMesh->SetupAttachment(BaseSceneComp);
 }
 
+void AWotOpenableGate::SetHighlightEnabled(int HighlightValue, bool Enabled)
+{
+  LeftMesh->SetRenderCustomDepth(Enabled);
+  RightMesh->SetRenderCustomDepth(Enabled);
+  LeftMesh->SetCustomDepthStencilValue(HighlightValue);
+  RightMesh->SetCustomDepthStencilValue(HighlightValue);
+}
+
 void AWotOpenableGate::Open_Implementation(APawn* InstigatorPawn)
 {
   Super::Open_Implementation(InstigatorPawn);

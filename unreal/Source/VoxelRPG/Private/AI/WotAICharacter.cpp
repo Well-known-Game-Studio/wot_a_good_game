@@ -47,6 +47,35 @@ void AWotAICharacter::PostInitializeComponents()
   GetMesh()->SetGenerateOverlapEvents(true);
 }
 
+void AWotAICharacter::Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration=0)
+{
+  SetHighlightEnabled(HighlightValue, true);
+  // if duration is > 0, start a timer to unhighlight the object
+  if (Duration > 0) {
+    GetWorldTimerManager().SetTimer(HighlightTimerHandle, this, &AWotAICharacter::OnHighlightTimerExpired, Duration, false);
+  }
+}
+
+void AWotAICharacter::Unhighlight_Implementation(FHitResult Hit)
+{
+  SetHighlightEnabled(0, false);
+}
+
+void AWotAICharacter::OnHighlightTimerExpired()
+{
+  // dummy hit
+  FHitResult Hit;
+  IWotGameplayInterface::Execute_Unhighlight(this, Hit);
+}
+
+void AWotAICharacter::SetHighlightEnabled(int HighlightValue, bool Enabled)
+{
+  // set the character mesh to render custom depth
+  GetMesh()->SetRenderCustomDepth(Enabled);
+  // set the custom depth stencil value
+  GetMesh()->CustomDepthStencilValue = HighlightValue;
+}
+
 void AWotAICharacter::OnPawnSeen(APawn* Pawn)
 {
   SetBlackboardActor("TargetActor", Pawn);

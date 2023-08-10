@@ -2,7 +2,7 @@
 #include "WotArrowProjectile.h"
 #include "WotAttributeComponent.h"
 #include "Items/WotItem.h"
-#include "Items/WotItemInteractibleActor.h"
+#include "Items/WotItemInteractableActor.h"
 #include "Camera/CameraShakeBase.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
@@ -187,30 +187,30 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
   // set the location
   FVector NewLocation = CurrentLocation + GetActorForwardVector() * PenetrationDepth;
   SetActorLocation(NewLocation, false, nullptr, ETeleportType::ResetPhysics);
-  // Create WotItemInteractibleActor (Actor in world)
+  // Create WotItemInteractableActor (Actor in world)
   FActorSpawnParameters SpawnParams;
   SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
   // Spawn one actor for each item dropped
-  UE_LOG(LogTemp, Log, TEXT("Spawning New ItemInteractible for arrow!"));
-  AWotItemInteractibleActor* NewItemInteractible =
-    GetWorld()->SpawnActor<AWotItemInteractibleActor>(AWotItemInteractibleActor::StaticClass(),
+  UE_LOG(LogTemp, Log, TEXT("Spawning New ItemInteractable for arrow!"));
+  AWotItemInteractableActor* NewItemInteractable =
+    GetWorld()->SpawnActor<AWotItemInteractableActor>(AWotItemInteractableActor::StaticClass(),
                                                       NewLocation,
                                                       CurrentRotation,
                                                       SpawnParams);
   // and create WotItem (for collecting into inventory)
   UE_LOG(LogTemp, Log, TEXT("Creating New Item!"));
-  UWotItem* NewItem = NewObject<UWotItem>(NewItemInteractible, ItemClass);
+  UWotItem* NewItem = NewObject<UWotItem>(NewItemInteractable, ItemClass);
   NewItem->OwningInventory = nullptr;
   NewItem->Count = 1;
   NewItem->World = GetWorld();
-  NewItemInteractible->SetPhysicsAndCollision("Projectile", false, true);
-  NewItemInteractible->SetItem(NewItem);
+  NewItemInteractable->SetPhysicsAndCollision("Projectile", false, true);
+  NewItemInteractable->SetItem(NewItem);
   // attach new item interactible to other (collided) actor
   FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepWorld,
                                             EAttachmentRule::KeepWorld,
                                             EAttachmentRule::KeepWorld,
                                             true);
-  NewItemInteractible->AttachToActor(OtherActor, AttachmentRules, FName());
+  NewItemInteractable->AttachToActor(OtherActor, AttachmentRules, FName());
   // if the actor is damage-able, then damage them
   UWotGameplayFunctionLibrary::ApplyDamage(Shooter, OtherActor, Damage + Damage * BowCharge);
   // Destroy this actor since we've now created the interactible item for it

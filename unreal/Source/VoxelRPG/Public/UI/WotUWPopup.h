@@ -13,7 +13,7 @@ class VOXELRPG_API UWotUWPopup : public UWotUserWidget
 
 public:
     UFUNCTION(BlueprintCallable)
-    void SetAttachTo(AActor* InAttachTo) { AttachTo = InAttachTo; }
+    void SetAttachTo(AActor* InAttachTo);
 
     UFUNCTION(BlueprintCallable)
     void SetText(const FText& NexText);
@@ -30,6 +30,8 @@ protected:
 	void NativeConstruct() override;
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
+    void UpdatePosition();
 
     TWeakObjectPtr<AActor> AttachTo;
 

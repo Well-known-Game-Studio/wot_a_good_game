@@ -9,6 +9,11 @@ void UWotUserWidget::NativeConstruct()
 	// bind delegates, and set up default appearance
 }
 
+void UWotUserWidget::SetOffset(const FVector& NewOffset)
+{
+  Offset = NewOffset;
+}
+
 void UWotUserWidget::SetPosition(const FVector& NewPosition)
 {
   APlayerController* PC = GetOwningPlayer();

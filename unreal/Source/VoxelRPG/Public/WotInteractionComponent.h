@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "WotGameplayInterface.h"
+#include "WotInteractableInterface.h"
 #include "WotInteractionComponent.generated.h"
 
 UCLASS()
@@ -19,6 +19,12 @@ public:
 
     UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
     FVector InteractionBoxQueryHalfExtent{32.0f, 32.0f, 100.0f};
+
+    UFUNCTION(BlueprintCallable, Category = "Interaction")
+    bool IsInteractableInRange() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Interaction")
+    bool GetInteractableInRange(AActor*& OutActor, UActorComponent*& OutComponent, FHitResult& OutHitResult) const;
 
     void PrimaryInteract();
 
