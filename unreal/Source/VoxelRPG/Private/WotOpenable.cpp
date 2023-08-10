@@ -44,6 +44,32 @@ void AWotOpenable::GetInteractionText_Implementation(APawn* InstigatorPawn, FHit
   }
 }
 
+void AWotOpenable::Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration=0)
+{
+  SetHighlightEnabled(HighlightValue, true);
+  // if duration is > 0, start a timer to unhighlight the object
+  if (Duration > 0) {
+    GetWorldTimerManager().SetTimer(HighlightTimerHandle, this, &AWotOpenable::OnHighlightTimerExpired, Duration, false);
+  }
+}
+
+void AWotOpenable::Unhighlight_Implementation(FHitResult Hit)
+{
+  SetHighlightEnabled(0, false);
+}
+
+void AWotOpenable::OnHighlightTimerExpired()
+{
+  // dummy hit
+  FHitResult Hit;
+  IWotGameplayInterface::Execute_Unhighlight(this, Hit);
+}
+
+void AWotOpenable::SetHighlightEnabled(int HighlightValue, bool Enabled)
+{
+  // Let the subclasses handle the highlighting
+}
+
 void AWotOpenable::Open_Implementation(APawn* InstigatorPawn)
 {
   if (bCanBeOpened && !bIsOpen) {

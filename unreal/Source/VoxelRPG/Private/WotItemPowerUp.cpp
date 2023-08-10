@@ -24,6 +24,33 @@ void AWotItemPowerUp::GetInteractionText_Implementation(APawn* InstigatorPawn, F
   // logic in derived classes...
 }
 
+void AWotItemPowerUp::Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration=0)
+{
+  SetHighlightEnabled(HighlightValue, true);
+  // if duration is > 0, start a timer to unhighlight the object
+  if (Duration > 0) {
+    GetWorldTimerManager().SetTimer(HighlightTimerHandle, this, &AWotItemPowerUp::OnHighlightTimerExpired, Duration, false);
+  }
+}
+
+void AWotItemPowerUp::Unhighlight_Implementation(FHitResult Hit)
+{
+  SetHighlightEnabled(0, false);
+}
+
+void AWotItemPowerUp::OnHighlightTimerExpired()
+{
+  // dummy hit
+  FHitResult Hit;
+  IWotGameplayInterface::Execute_Unhighlight(this, Hit);
+}
+
+void AWotItemPowerUp::SetHighlightEnabled(int HighlightValue, bool Enabled)
+{
+  BaseMesh->SetRenderCustomDepth(Enabled);
+  BaseMesh->SetCustomDepthStencilValue(HighlightValue);
+}
+
 void AWotItemPowerUp::ShowPowerup()
 {
   SetPowerupState(true);

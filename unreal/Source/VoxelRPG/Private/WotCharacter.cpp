@@ -6,6 +6,7 @@
 #include "WotDeathEffectComponent.h"
 #include "WotInteractionComponent.h"
 #include "WotActionComponent.h"
+#include "WotGameplayInterface.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -112,6 +113,11 @@ void AWotCharacter::SetupCineCamera()
 
 	CineCameraComp->CurrentFocalLength = CurrentFocalLength;
 	CineCameraComp->CurrentAperture = CurrentAperture;
+}
+
+void AWotCharacter::SetMenuActive(bool Active)
+{
+	bMenuActive = Active;
 }
 
 FVector AWotCharacter::GetPawnViewLocation() const
@@ -408,6 +414,9 @@ void AWotCharacter::ShowActionTextWidget(FString Text, float Duration)
 
 void AWotCharacter::InteractionCheck_TimeElapsed()
 {
+	if (bMenuActive) {
+		return;
+	}
 	if (!InputEnabled()) {
 		return;
 	}
@@ -441,6 +450,16 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 							  ClosestInteractable,
 							  Offset,
 							  false);
+	// Use the highlight interface if it can be used
+	if (ClosestInteractionComp) {
+		if (ClosestInteractionComp->Implements<UWotGameplayInterface>()) {
+			IWotGameplayInterface::Execute_Highlight(ClosestInteractionComp, HitResult, 1, InteractionCheckPeriod*1.1f);
+		}
+	} else {
+		if (ClosestInteractable->Implements<UWotGameplayInterface>()) {
+			IWotGameplayInterface::Execute_Highlight(ClosestInteractable, HitResult, 1, InteractionCheckPeriod*1.1f);
+		}
+	}
 }
 
 void AWotCharacter::Destroy_TimeElapsed()

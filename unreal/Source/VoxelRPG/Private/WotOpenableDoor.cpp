@@ -10,6 +10,12 @@ AWotOpenableDoor::AWotOpenableDoor() : AWotOpenable()
   DoorMesh->SetupAttachment(RootComponent);
 }
 
+void AWotOpenableDoor::SetHighlightEnabled(int HighlightValue, bool Enabled)
+{
+  DoorMesh->SetRenderCustomDepth(Enabled);
+  DoorMesh->SetCustomDepthStencilValue(HighlightValue);
+}
+
 void AWotOpenableDoor::Open_Implementation(APawn* InstigatorPawn)
 {
   Super::Open_Implementation(InstigatorPawn);

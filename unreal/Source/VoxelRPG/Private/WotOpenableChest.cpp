@@ -2,6 +2,7 @@
 
 #include "WotOpenableChest.h"
 #include "Components/StaticMeshComponent.h"
+#include "WotCharacter.h"
 #include "WotInventoryComponent.h"
 #include "UI/WotUWInventoryPanel.h"
 
@@ -21,6 +22,14 @@ AWotOpenableChest::AWotOpenableChest() : AWotOpenable()
   bCanBeClosed = false;
 }
 
+void AWotOpenableChest::SetHighlightEnabled(int HighlightValue, bool Enabled)
+{
+  BaseMesh->SetRenderCustomDepth(Enabled);
+  LidMesh->SetRenderCustomDepth(Enabled);
+  BaseMesh->SetCustomDepthStencilValue(HighlightValue);
+  LidMesh->SetCustomDepthStencilValue(HighlightValue);
+}
+
 void AWotOpenableChest::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit)
 {
   Super::Interact_Implementation(InstigatorPawn, Hit);
@@ -34,6 +43,11 @@ void AWotOpenableChest::Interact_Implementation(APawn* InstigatorPawn, FHitResul
 		UWotUWInventoryPanel* InventoryWidget = CreateWidget<UWotUWInventoryPanel>(GetWorld(), InventoryWidgetClass);
 		InventoryWidget->SetInventory(InventoryComp, FText::FromName(InventoryPanelTitle));
 		InventoryWidget->AddToViewport();
+    // cast the pawn to a WotCharacter and inform it that the inventory panel is open
+    AWotCharacter* WotCharacter = Cast<AWotCharacter>(InstigatorPawn);
+    if (WotCharacter) {
+      WotCharacter->SetMenuActive(true);
+    }
   }
 }
 

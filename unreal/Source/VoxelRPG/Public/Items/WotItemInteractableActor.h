@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Items/WotItemActor.h"
+#include "WotGameplayInterface.h"
 #include "WotInteractableInterface.h"
 #include "WotItemInteractableActor.generated.h"
 
@@ -15,7 +16,7 @@ class APawn;
  * 	custom implementation.
  */
 UCLASS()
-class VOXELRPG_API AWotItemInteractableActor : public AWotItemActor, public IWotInteractableInterface
+class VOXELRPG_API AWotItemInteractableActor : public AWotItemActor, public IWotInteractableInterface, public IWotGameplayInterface
 {
 	GENERATED_BODY()
 
@@ -25,5 +26,15 @@ public:
 
     virtual void GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult HitResult, FText& OutText) override;
 
+    virtual void Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration) override;
+
+    virtual void Unhighlight_Implementation(FHitResult Hit) override;
+
+    virtual void SetHighlightEnabled(int HighlightValue, bool Enabled);
+
 	AWotItemInteractableActor();
+
+protected:
+    FTimerHandle HighlightTimerHandle;
+    void OnHighlightTimerExpired();
 };

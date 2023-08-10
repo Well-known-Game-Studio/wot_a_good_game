@@ -100,6 +100,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Actions")
 	bool bCanOpenMenu;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Interaction")
+	bool bCanInteract;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
+	bool bMenuActive{false};
+
 	void SetupSpringArm();
 	void SetupCineCamera();
 
@@ -159,6 +165,9 @@ protected:
 	virtual FVector GetPawnViewLocation() const override;
 
 public:
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SetMenuActive(bool Active);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowPopupWidget(const FText& Text, float Duration, bool Animated = true);

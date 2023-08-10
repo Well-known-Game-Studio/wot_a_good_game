@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WotGameplayInterface.h"
 #include "WotInteractableInterface.h"
 #include "WotOpenable.generated.h"
 
@@ -15,7 +16,7 @@ class USceneComponent;
 class APawn;
 
 UCLASS()
-class VOXELRPG_API AWotOpenable : public AActor, public IWotInteractableInterface
+class VOXELRPG_API AWotOpenable : public AActor, public IWotInteractableInterface, public IWotGameplayInterface
 {
 	GENERATED_BODY()
 
@@ -48,6 +49,12 @@ public:
 
     virtual void GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult HitResult, FText& OutText) override;
 
+    virtual void Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration) override;
+
+    virtual void Unhighlight_Implementation(FHitResult Hit) override;
+
+    virtual void SetHighlightEnabled(int HighlightValue, bool Enabled);
+
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Openable")
     void Open(APawn* InstigatorPawn);
 
@@ -73,6 +80,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere)
     USceneComponent* BaseSceneComp;
+
+    FTimerHandle HighlightTimerHandle;
+    void OnHighlightTimerExpired();
 
 public:
     // Sets default values for this actor's properties

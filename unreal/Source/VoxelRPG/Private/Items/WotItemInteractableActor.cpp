@@ -44,3 +44,30 @@ void AWotItemInteractableActor::GetInteractionText_Implementation(APawn* Instiga
     OutText = NSLOCTEXT("WotItemInteractableActor", "Pickup", "Pick up");
   }
 }
+
+void AWotItemInteractableActor::Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration=0)
+{
+  SetHighlightEnabled(HighlightValue, true);
+  // if duration is > 0, start a timer to unhighlight the object
+  if (Duration > 0) {
+    GetWorldTimerManager().SetTimer(HighlightTimerHandle, this, &AWotItemInteractableActor::OnHighlightTimerExpired, Duration, false);
+  }
+}
+
+void AWotItemInteractableActor::Unhighlight_Implementation(FHitResult Hit)
+{
+  SetHighlightEnabled(0, false);
+}
+
+void AWotItemInteractableActor::OnHighlightTimerExpired()
+{
+  // dummy hit
+  FHitResult Hit;
+  IWotGameplayInterface::Execute_Unhighlight(this, Hit);
+}
+
+void AWotItemInteractableActor::SetHighlightEnabled(int HighlightValue, bool Enabled)
+{
+  Mesh->SetRenderCustomDepth(Enabled);
+  Mesh->SetCustomDepthStencilValue(HighlightValue);
+}

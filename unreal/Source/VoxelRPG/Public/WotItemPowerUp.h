@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WotGameplayInterface.h"
 #include "WotInteractableInterface.h"
 #include "WotItemPowerUp.generated.h"
 
@@ -11,7 +12,7 @@ class UStaticMeshComponent;
 class APawn;
 
 UCLASS()
-class VOXELRPG_API AWotItemPowerUp : public AActor, public IWotInteractableInterface
+class VOXELRPG_API AWotItemPowerUp : public AActor, public IWotInteractableInterface, public IWotGameplayInterface
 {
 	GENERATED_BODY()
 
@@ -24,6 +25,12 @@ public:
 
     virtual void GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult HitResult, FText& OutText) override;
 
+    virtual void Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration) override;
+
+    virtual void Unhighlight_Implementation(FHitResult Hit) override;
+
+    virtual void SetHighlightEnabled(int HighlightValue, bool Enabled);
+
 protected:
 
     UPROPERTY(VisibleAnywhere)
@@ -32,6 +39,9 @@ protected:
     virtual void SetPowerupState(bool bNewIsInteractable);
 
 	FTimerHandle TimerHandle_Cooldown;
+
+    FTimerHandle HighlightTimerHandle;
+    void OnHighlightTimerExpired();
 
 public:
 

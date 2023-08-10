@@ -6,9 +6,6 @@
 #include "UObject/Interface.h"
 #include "WotGameplayInterface.generated.h"
 
-class UCameraComponent;
-class USpringArmComponent;
-
 UINTERFACE(MinimalAPI, Blueprintable)
 class UWotGameplayInterface : public UInterface
 {
@@ -16,12 +13,16 @@ class UWotGameplayInterface : public UInterface
 };
 
 /**
- *   [summary]
+ *   Base interface for all objects.
  */
 class VOXELRPG_API IWotGameplayInterface
 {
     GENERATED_BODY()
 
-    // Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Gameplay")
+    void Highlight(FHitResult Hit, int HighlightValue, float Duration=0);
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Gameplay")
+    void Unhighlight(FHitResult Hit);
 };
