@@ -19,6 +19,11 @@ void AWotItemPowerUp::Interact_Implementation(APawn* InstigatorPawn, FHitResult 
   // logic in derived classes...
 }
 
+void AWotItemPowerUp::GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult Hit, FText& OutText)
+{
+  // logic in derived classes...
+}
+
 void AWotItemPowerUp::ShowPowerup()
 {
   SetPowerupState(true);
@@ -31,9 +36,9 @@ void AWotItemPowerUp::HideAndCooldownPowerup()
   GetWorldTimerManager().SetTimer(TimerHandle_Cooldown, this, &AWotItemPowerUp::ShowPowerup, CooldownTime);
 }
 
-void AWotItemPowerUp::SetPowerupState(bool bNewIsInteractible)
+void AWotItemPowerUp::SetPowerupState(bool bNewIsInteractable)
 {
-  SetActorEnableCollision(bNewIsInteractible);
+  SetActorEnableCollision(bNewIsInteractable);
   // set visibility of base mesh and all children
-  BaseMesh->SetVisibility(bNewIsInteractible, true);
+  BaseMesh->SetVisibility(bNewIsInteractable, true);
 }

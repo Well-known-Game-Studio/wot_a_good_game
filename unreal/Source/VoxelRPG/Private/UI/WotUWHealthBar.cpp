@@ -5,6 +5,7 @@
 void UWotUWHealthBar::NativeConstruct()
 {
   Super::NativeConstruct();
+  Offset = FVector(0, 0, 100.0f);
 }
 
 void UWotUWHealthBar::SetFillColor(FLinearColor& NewFillColor)

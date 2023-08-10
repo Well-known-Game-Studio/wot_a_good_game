@@ -36,3 +36,12 @@ void AWotOpenableChest::Interact_Implementation(APawn* InstigatorPawn, FHitResul
 		InventoryWidget->AddToViewport();
   }
 }
+
+void AWotOpenableChest::GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult Hit, FText& OutText)
+{
+  if (InventoryComp->Items.Num()) {
+    OutText = FText::Format(FText::FromString("Open {0}"), FText::FromName(InventoryPanelTitle));
+  } else {
+    OutText = FText::Format(FText::FromString("Empty {0}"), FText::FromName(InventoryPanelTitle));
+  }
+}

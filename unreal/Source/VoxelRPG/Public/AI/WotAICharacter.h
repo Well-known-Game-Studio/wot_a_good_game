@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "WotGameplayInterface.h"
+#include "WotInteractableInterface.h"
 #include "WotAICharacter.generated.h"
 
 class UDialogueBuilderObject;
@@ -16,7 +16,7 @@ class UWotUWHealthBar;
 class UWotUWPopupNumber;
 
 UCLASS()
-class VOXELRPG_API AWotAICharacter : public ACharacter, public IWotGameplayInterface
+class VOXELRPG_API AWotAICharacter : public ACharacter, public IWotInteractableInterface
 {
   GENERATED_BODY()
 

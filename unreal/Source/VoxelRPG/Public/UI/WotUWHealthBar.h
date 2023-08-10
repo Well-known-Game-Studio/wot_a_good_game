@@ -14,7 +14,6 @@ class VOXELRPG_API UWotUWHealthBar : public UWotUserWidget
 
 public:
     void SetAttachTo(AActor* InAttachTo) { AttachTo = InAttachTo; }
-    void SetOffset(const FVector& NewOffset) { Offset = NewOffset; }
 
     UFUNCTION(BlueprintCallable)
     void SetHealth(float NewHealthStart, float NewHealthEnd, float HealthMax);
@@ -47,9 +46,6 @@ protected:
 
     UPROPERTY( Transient, meta = ( BindWidgetAnimOptional ) )
     UWidgetAnimation* TextUpdateAnim;
-
-    UPROPERTY( EditAnywhere, BlueprintReadWrite )
-    FVector Offset = FVector(0, 0, 100.0f);
 
     float HealthStart;
     float HealthCurrent;

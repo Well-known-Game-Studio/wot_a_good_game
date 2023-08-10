@@ -13,7 +13,7 @@ void AWotHUD::ShowMainMenu()
 void AWotHUD::HideMainMenu()
 {
   if (MainMenu) {
-    MainMenu->RemoveFromViewport();
+    MainMenu->RemoveFromParent();
     MainMenu = nullptr;
   }
 }

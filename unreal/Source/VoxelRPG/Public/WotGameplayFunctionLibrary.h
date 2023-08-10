@@ -14,7 +14,10 @@ class VOXELRPG_API UWotGameplayFunctionLibrary : public UBlueprintFunctionLibrar
 public:
 
     UFUNCTION(BlueprintCallable, Category = "Gameplay")
-    static bool GetClosestInteractibleInBox(AActor* InstigatorActor, FVector BoxHalfExtent, FVector Origin, FVector End, AActor* &ClosestActor, UActorComponent* &ClosestComponent, FHitResult &ClosestHit);
+    static bool GetClosestInteractableInRange(AActor* InstigatorActor, float InteractionRange, FVector BoxHalfExtent, AActor* &ClosestActor, UActorComponent* &ClosestComponent, FHitResult &ClosestHit);
+
+    UFUNCTION(BlueprintCallable, Category = "Gameplay")
+    static bool GetClosestInteractableInBox(AActor* InstigatorActor, FVector BoxHalfExtent, FVector Origin, FVector End, AActor* &ClosestActor, UActorComponent* &ClosestComponent, FHitResult &ClosestHit);
 
     UFUNCTION(BlueprintCallable, Category = "Debug")
     static void DrawHitPointAndBounds(AActor* HitActor, const FHitResult& Hit);

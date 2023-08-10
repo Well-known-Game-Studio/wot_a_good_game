@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "WotGameplayInterface.h"
+#include "WotInteractableInterface.h"
 #include "WotItemPowerUp.generated.h"
 
 class UStaticMeshComponent;
 class APawn;
 
 UCLASS()
-class VOXELRPG_API AWotItemPowerUp : public AActor, public IWotGameplayInterface
+class VOXELRPG_API AWotItemPowerUp : public AActor, public IWotInteractableInterface
 {
 	GENERATED_BODY()
 
@@ -20,14 +20,16 @@ public:
     UPROPERTY(EditAnywhere)
     float CooldownTime = 10.0f;
 
-    void Interact_Implementation(APawn* InstigatorPawn, FHitResult HitResult) override;
+    virtual void Interact_Implementation(APawn* InstigatorPawn, FHitResult HitResult) override;
+
+    virtual void GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult HitResult, FText& OutText) override;
 
 protected:
 
     UPROPERTY(VisibleAnywhere)
     UStaticMeshComponent* BaseMesh;
 
-    virtual void SetPowerupState(bool bNewIsInteractible);
+    virtual void SetPowerupState(bool bNewIsInteractable);
 
 	FTimerHandle TimerHandle_Cooldown;
 

@@ -2,7 +2,7 @@
 
 #include "WotInteractionComponent.h"
 #include "WotCharacter.h"
-#include "WotGameplayInterface.h"
+#include "WotInteractableInterface.h"
 #include "WotInventoryComponent.h"
 #include "Items/WotItem.h"
 #include "WotGameplayFunctionLibrary.h"
@@ -22,43 +22,57 @@ void UWotInteractionComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void UWotInteractionComponent::PrimaryInteract()
+bool UWotInteractionComponent::IsInteractableInRange() const
 {
-	FCollisionObjectQueryParams ObjectQueryParams;
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
-	ObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
-
 	AActor* MyOwner = GetOwner();
-
-	FVector EyeLocation;
-	FRotator EyeRotation;
-	MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
-	auto ForwardVector = MyOwner->GetActorForwardVector();
-	auto OwnerLocation = MyOwner->GetActorLocation();
-	auto OwnerRotation = MyOwner->GetActorRotation();
-
-	FVector End = OwnerLocation + (ForwardVector * InteractionRange);
 
 	AActor *ClosestActor = nullptr;
 	UActorComponent *ClosestComponent = nullptr;
 	FHitResult ClosestHit;
-	bool didHit = UWotGameplayFunctionLibrary::GetClosestInteractibleInBox(MyOwner,
-																		   InteractionBoxQueryHalfExtent,
-																		   OwnerLocation,
-																		   End,
-																		   ClosestActor,
-																		   ClosestComponent,
-																		   ClosestHit);
+	bool didHit = UWotGameplayFunctionLibrary::GetClosestInteractableInRange(MyOwner,
+																			 InteractionRange,
+																			 InteractionBoxQueryHalfExtent,
+																			 ClosestActor,
+																			 ClosestComponent,
+																			 ClosestHit);
+
+	return didHit;
+}
+
+bool UWotInteractionComponent::GetInteractableInRange(AActor *&OutActor, UActorComponent *&OutComponent, FHitResult &OutHit) const
+{
+	AActor* MyOwner = GetOwner();
+	bool didHit = UWotGameplayFunctionLibrary::GetClosestInteractableInRange(MyOwner,
+																			 InteractionRange,
+																			 InteractionBoxQueryHalfExtent,
+																			 OutActor,
+																			 OutComponent,
+																			 OutHit);
+	return didHit;
+}
+
+void UWotInteractionComponent::PrimaryInteract()
+{
+	AActor* MyOwner = GetOwner();
+
+	AActor *ClosestActor = nullptr;
+	UActorComponent *ClosestComponent = nullptr;
+	FHitResult ClosestHit;
+	bool didHit = UWotGameplayFunctionLibrary::GetClosestInteractableInRange(MyOwner,
+																			 InteractionRange,
+																			 InteractionBoxQueryHalfExtent,
+																			 ClosestActor,
+																			 ClosestComponent,
+																			 ClosestHit);
 
 	bool bDrawDebug = CVarDebugDrawInteraction.GetValueOnGameThread();
 
 	if (ClosestActor) {
 		APawn* MyPawn = Cast<APawn>(MyOwner);
 		if (ClosestComponent) {
-			IWotGameplayInterface::Execute_Interact(ClosestComponent, MyPawn, ClosestHit);
+			IWotInteractableInterface::Execute_Interact(ClosestComponent, MyPawn, ClosestHit);
 		} else {
-			IWotGameplayInterface::Execute_Interact(ClosestActor, MyPawn, ClosestHit);
+			IWotInteractableInterface::Execute_Interact(ClosestActor, MyPawn, ClosestHit);
 		}
 		if (bDrawDebug) {
 			UWotGameplayFunctionLibrary::DrawHitPointAndBounds(ClosestActor, ClosestHit);

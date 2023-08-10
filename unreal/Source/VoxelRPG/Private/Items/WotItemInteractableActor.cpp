@@ -1,16 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Items/WotItemInteractibleActor.h"
+#include "Items/WotItemInteractableActor.h"
 #include "Items/WotItem.h"
 #include "WotInventoryComponent.h"
 #include "WotCharacter.h"
 
 // Sets default values
-AWotItemInteractibleActor::AWotItemInteractibleActor() : AWotItemActor()
+AWotItemInteractableActor::AWotItemInteractableActor() : AWotItemActor()
 {
 }
 
-void AWotItemInteractibleActor::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit)
+void AWotItemInteractableActor::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit)
 {
   // get inventory component from the pawn
   UWotInventoryComponent* InventoryComp = UWotInventoryComponent::GetInventory(InstigatorPawn);
@@ -28,9 +28,19 @@ void AWotItemInteractibleActor::Interact_Implementation(APawn* InstigatorPawn, F
       WotCharacter->PlaySoundGet();
     }
     if (NumAdded == TotalCount) {
-      UE_LOG(LogTemp, Log, TEXT("InteractibleActor: We've added all our items, destroying!"));
+      UE_LOG(LogTemp, Log, TEXT("InteractableActor: We've added all our items, destroying!"));
       // destroy this object
       Destroy();
     }
+  }
+}
+
+void AWotItemInteractableActor::GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult Hit, FText& OutText)
+{
+  if (Item) {
+    OutText = FText::Format(NSLOCTEXT("WotItemInteractableActor", "PickupFormat", "Pick up {0}"), Item->ItemDisplayName);
+  }
+  else {
+    OutText = NSLOCTEXT("WotItemInteractableActor", "Pickup", "Pick up");
   }
 }

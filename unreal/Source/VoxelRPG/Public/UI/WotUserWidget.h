@@ -17,6 +17,9 @@ public:
     UFUNCTION(BlueprintCallable)
     virtual void SetDuration(float NewDuration);
 
+    UFUNCTION(BlueprintCallable)
+    virtual void SetOffset(const FVector& NewOffset);
+
 protected:
     // Doing setup in the C++ constructor is not as
     // useful as using NativeConstruct.
@@ -27,6 +30,9 @@ protected:
 
     UPROPERTY( EditAnywhere, BlueprintReadWrite )
     float Duration{0.0f};
+
+    UPROPERTY( EditAnywhere, BlueprintReadWrite )
+    FVector Offset = FVector(0, 0, 0.0f);
 
     UPROPERTY()
 	FTimerHandle TimerHandle_Remove;

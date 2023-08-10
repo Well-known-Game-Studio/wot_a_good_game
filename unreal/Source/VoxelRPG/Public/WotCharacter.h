@@ -147,6 +147,10 @@ protected:
 	FTimerHandle TimerHandle_Destroy;
 	void Destroy_TimeElapsed();
 
+	float InteractionCheckPeriod = 0.2f;
+	FTimerHandle TimerHandle_InteractionCheck;
+	void InteractionCheck_TimeElapsed();
+
 	UFUNCTION(Exec)
 	void HealSelf(float Amount = 100.0f);
 
@@ -157,10 +161,13 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowPopupWidget(const FText& Text, float Duration);
+	void ShowPopupWidget(const FText& Text, float Duration, bool Animated = true);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowPopupWidgetNumber(int Number, float Duration);
+	void ShowPopupWidgetAttachedTo(const FText& Text, float Duration, AActor* Actor, const FVector& Offset, bool Animated = true);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowPopupWidgetNumber(int Number, float Duration, bool Animated = true);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowActionTextWidget(FString Text, float Duration);

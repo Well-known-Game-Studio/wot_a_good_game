@@ -1,9 +1,22 @@
 #include "WotGameplayFunctionLibrary.h"
-#include "WotGameplayInterface.h"
+#include "WotInteractableInterface.h"
 #include "WotAttributeComponent.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
-bool UWotGameplayFunctionLibrary::GetClosestInteractibleInBox(AActor* InstigatorActor, FVector BoxHalfExtent, FVector Origin, FVector End, AActor* &ClosestActor, UActorComponent* &ClosestComponent, FHitResult &ClosestHit) {
+bool UWotGameplayFunctionLibrary::GetClosestInteractableInRange(AActor* InstigatorActor, float InteractionRange, FVector BoxHalfExtent, AActor* &ClosestActor, UActorComponent* &ClosestComponent, FHitResult &ClosestHit) {
+	FVector EyeLocation;
+	FRotator EyeRotation;
+	InstigatorActor->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+	auto ForwardVector = InstigatorActor->GetActorForwardVector();
+	auto Location = InstigatorActor->GetActorLocation();
+	auto Rotation = InstigatorActor->GetActorRotation();
+
+  FVector Origin = Location;
+	FVector End = Origin + (ForwardVector * InteractionRange);
+  return GetClosestInteractableInBox(InstigatorActor, BoxHalfExtent, Origin, End, ClosestActor, ClosestComponent, ClosestHit);
+}
+
+bool UWotGameplayFunctionLibrary::GetClosestInteractableInBox(AActor* InstigatorActor, FVector BoxHalfExtent, FVector Origin, FVector End, AActor* &ClosestActor, UActorComponent* &ClosestComponent, FHitResult &ClosestHit) {
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldStatic);
 	ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
@@ -30,8 +43,8 @@ bool UWotGameplayFunctionLibrary::GetClosestInteractibleInBox(AActor* Instigator
 		if (Actor) {
 			// get the distance to the hit location
 			float Distance = FVector::Dist(Hit.Location, Origin);
-			// If it imiplements the GameplayInterface (Interact)
-			if (Actor->Implements<UWotGameplayInterface>()) {
+			// If it imiplements the InteractableInterface (Interact)
+			if (Actor->Implements<UWotInteractableInterface>()) {
 				if (Distance < ClosestDistance) {
 					ClosestActor = Actor;
 					ClosestDistance = Distance;
@@ -40,9 +53,9 @@ bool UWotGameplayFunctionLibrary::GetClosestInteractibleInBox(AActor* Instigator
 					ClosestComponent = nullptr;
 				}
 			} else {
-				// The actor doesn't implement the GameplayInterface, so try to
+				// The actor doesn't implement the InteractableInterface, so try to
 				// get a component that does
-				auto components = Actor->GetComponentsByInterface(UWotGameplayInterface::StaticClass());
+				auto components = Actor->GetComponentsByInterface(UWotInteractableInterface::StaticClass());
 				// TODO: how to handle multiple components that implement the interface?
 				if (components.Num() > 0) {
 					auto component = components[0];
@@ -150,6 +163,7 @@ void UWotGameplayFunctionLibrary::GetAllCppSubclasses(UClass* BaseClass, TArray<
 void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray)
 {
 	FName BaseClassName = BaseClass->GetFName();
+  FTopLevelAssetPath BaseClassPath = FTopLevelAssetPath(BaseClass->GetPathName());
 	UE_LOG(LogTemp, Log, TEXT("Getting all blueprint subclasses of '%s'"), *BaseClassName.ToString());
 
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
@@ -163,13 +177,15 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 	ContentPaths.Add(TEXT("/Game"));
 	AssetRegistry.ScanPathsSynchronous(ContentPaths);
 
-	// Use the asset registry to get the set of all class names deriving from Base
-	TSet< FName > DerivedNames;
-	{
-		TArray< FName > BaseNames;
-		BaseNames.Add(BaseClassName);
+  // USE FTopLevelAssetPath
 
-		TSet< FName > Excluded;
+	// Use the asset registry to get the set of all class names deriving from Base
+	TSet< FTopLevelAssetPath > DerivedNames;
+	{
+		TArray< FTopLevelAssetPath > BaseNames;
+		BaseNames.Add(BaseClassPath);
+
+		TSet< FTopLevelAssetPath > Excluded;
         AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
 		// AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
 	}
@@ -191,9 +207,10 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 			// Convert path to just the name part
 			const FString ClassObjectPath = FPackageName::ExportTextPathToObjectPath(*GeneratedClassPathPtr);
 			const FString ObjectClassName = FPackageName::ObjectPathToObjectName(ClassObjectPath);
+      const FTopLevelAssetPath ClassPath = FTopLevelAssetPath(ClassObjectPath);
 
 			// Check if this class is in the derived set
-			if(!DerivedNames.Contains(*ObjectClassName)) {
+			if(!DerivedNames.Contains(ClassPath)) {
 				continue;
 			}
 

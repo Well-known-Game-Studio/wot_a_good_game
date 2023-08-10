@@ -23,6 +23,8 @@ public:
 
     virtual void Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit) override;
 
+    virtual void GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult Hit, FText& OutText) override;
+
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "UI")

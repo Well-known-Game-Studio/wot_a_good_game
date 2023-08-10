@@ -35,6 +35,15 @@ void AWotOpenable::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit
   }
 }
 
+void AWotOpenable::GetInteractionText_Implementation(APawn* InstigatorPawn, FHitResult Hit, FText& OutText)
+{
+  if (bIsOpen) {
+    OutText = CloseText;
+  } else {
+    OutText = OpenText;
+  }
+}
+
 void AWotOpenable::Open_Implementation(APawn* InstigatorPawn)
 {
   if (bCanBeOpened && !bIsOpen) {

@@ -75,6 +75,8 @@ void AWotCharacter::BeginPlay()
 	bCanOpenMenu = true;
 	SetupSpringArm();
 	SetupCineCamera();
+	// start the interaction check timer
+	GetWorldTimerManager().SetTimer(TimerHandle_InteractionCheck, this, &AWotCharacter::InteractionCheck_TimeElapsed, InteractionCheckPeriod, true);
 }
 
 void AWotCharacter::SetupSpringArm()
@@ -353,26 +355,45 @@ void AWotCharacter::ShowHealthBarWidget(float NewHealth, float Delta, float Dura
 	}
 }
 
-void AWotCharacter::ShowPopupWidgetNumber(int Number, float Duration)
+void AWotCharacter::ShowPopupWidgetNumber(int Number, float Duration, bool Animated)
 {
 	if (PopupWidgetClass) {
 		UWotUWPopupNumber* PopupWidget = CreateWidget<UWotUWPopupNumber>(GetWorld(), PopupWidgetClass);
 		PopupWidget->SetDuration(Duration);
 		PopupWidget->SetNumber(Number);
 		PopupWidget->SetAttachTo(this);
-		PopupWidget->PlayPopupAnimation();
+		if (Animated) {
+			PopupWidget->PlayPopupAnimation();
+		}
 		PopupWidget->AddToViewport();
 	}
 }
 
-void AWotCharacter::ShowPopupWidget(const FText& Text, float Duration)
+void AWotCharacter::ShowPopupWidget(const FText& Text, float Duration, bool Animated)
 {
 	if (PopupWidgetClass) {
 		UWotUWPopup* PopupWidget = CreateWidget<UWotUWPopup>(GetWorld(), PopupWidgetClass);
 		PopupWidget->SetDuration(Duration);
 		PopupWidget->SetText(Text);
 		PopupWidget->SetAttachTo(this);
-		PopupWidget->PlayPopupAnimation();
+		if (Animated) {
+			PopupWidget->PlayPopupAnimation();
+		}
+		PopupWidget->AddToViewport();
+	}
+}
+
+void AWotCharacter::ShowPopupWidgetAttachedTo(const FText& Text, float Duration, AActor* Actor, const FVector& Offset, bool Animated)
+{
+	if (PopupWidgetClass) {
+		UWotUWPopup* PopupWidget = CreateWidget<UWotUWPopup>(GetWorld(), PopupWidgetClass);
+		PopupWidget->SetDuration(Duration);
+		PopupWidget->SetText(Text);
+		PopupWidget->SetOffset(Offset);
+		PopupWidget->SetAttachTo(Actor);
+		if (Animated) {
+			PopupWidget->PlayPopupAnimation();
+		}
 		PopupWidget->AddToViewport();
 	}
 }
@@ -383,6 +404,43 @@ void AWotCharacter::ShowActionTextWidget(FString Text, float Duration)
 		UUserWidget* ActionTextWidget = CreateWidget<UUserWidget>(GetWorld(), ActionTextWidgetClass);
 		ActionTextWidget->AddToViewport();
 	}
+}
+
+void AWotCharacter::InteractionCheck_TimeElapsed()
+{
+	if (!InputEnabled()) {
+		return;
+	}
+	if (!InteractionComp) {
+		return;
+	}
+	// use the interaction component to get the closest interactable
+	AActor *ClosestInteractable = nullptr;
+	UActorComponent *ClosestInteractionComp = nullptr;
+	FHitResult HitResult;
+	bool got_interactable = InteractionComp->GetInteractableInRange(ClosestInteractable, ClosestInteractionComp, HitResult);
+	if (!got_interactable) {
+		return;
+	}
+	FText InteractionText;
+	FVector Offset(0, 0, 0);
+	// if we got one, use the WotInteractableInterface to call GetInteractionText
+	if (ClosestInteractionComp) {
+		// we got a component, so use the component
+		IWotInteractableInterface::Execute_GetInteractionText(ClosestInteractionComp, this, HitResult, InteractionText);
+		// Save the offset of the hit location from the actor
+		Offset = HitResult.Location - ClosestInteractable->GetActorLocation();
+	} else {
+		// we only got an actor, so use the actor
+		IWotInteractableInterface::Execute_GetInteractionText(ClosestInteractable, this, HitResult, InteractionText);
+	}
+	// show the action text widget
+	// ShowActionTextWidget(InteractionText.ToString(), InteractionCheckPeriod);
+	ShowPopupWidgetAttachedTo(FText::FromString(InteractionText.ToString()),
+							  InteractionCheckPeriod*1.1f,
+							  ClosestInteractable,
+							  Offset,
+							  false);
 }
 
 void AWotCharacter::Destroy_TimeElapsed()
