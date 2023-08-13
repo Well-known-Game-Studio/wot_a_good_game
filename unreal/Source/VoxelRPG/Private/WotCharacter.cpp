@@ -14,6 +14,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Math/Color.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "Engine/EngineTypes.h"
 #include "Blueprint/UserWidget.h"
 #include "UI/WotUWInventoryPanel.h"
@@ -251,6 +253,17 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AWotCharacter::ShowInventoryWidget);
 
 	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &AWotCharacter::RotateCamera);
+}
+
+void AWotCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+	// spawn a particle effect when we land (if it has been set)
+	if (LandingEffect) {
+		// spawn it at the impact point
+		auto LandingSystemComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,
+			LandingEffect, Hit.ImpactPoint, FRotator::ZeroRotator);
+	}
 }
 
 void AWotCharacter::HitFlash()

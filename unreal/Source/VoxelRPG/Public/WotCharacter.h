@@ -23,6 +23,7 @@ class UWotUWPopupNumber;
 class UWotItem;
 class USoundBase;
 class UAudioComponent;
+class UNiagaraSystem;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -89,6 +90,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotActionComponent* ActionComp;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
+    UNiagaraSystem* LandingEffect;
 
 	// Sound effect for when the character gets something
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
@@ -189,5 +193,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void Landed(const FHitResult& Hit) override;
 
 };
