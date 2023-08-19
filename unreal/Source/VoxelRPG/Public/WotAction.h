@@ -21,6 +21,9 @@ protected:
     UWotActionComponent* GetOwningComponent() const;
 
     UPROPERTY(EditDefaultsOnly, Category = "Tags")
+    bool bAllowedWhileFalling = false;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Tags")
     FGameplayTagContainer GrantsTags;
 
     UPROPERTY(EditDefaultsOnly, Category = "Tags")

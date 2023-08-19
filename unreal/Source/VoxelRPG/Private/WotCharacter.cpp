@@ -141,7 +141,7 @@ void AWotCharacter::PrimaryAttack()
 		EquippedWeapon->PrimaryAttackStart();
 	} else {
 		UE_LOG(LogTemp, Log, TEXT("No weapon equipped starting action 'PrimaryAttack'"));
-		ActionComp->StartActionByName(this, "PrimaryAttack");
+		ActionStart("PrimaryAttack");
 	}
 }
 
