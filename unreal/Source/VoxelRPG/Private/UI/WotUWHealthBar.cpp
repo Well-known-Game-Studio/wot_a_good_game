@@ -52,11 +52,6 @@ void UWotUWHealthBar::UpdateHealth(float Interpolation)
 
 void UWotUWHealthBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-  Super::NativeTick(MyGeometry, InDeltaTime);
-
-  if (!AttachTo.IsValid()) {
-    return;
-  }
   // Use the duration as the interpolation
   TimeRemaining = std::max(TimeRemaining - InDeltaTime, 0.0f);
   float Interpolation = 0;
@@ -65,7 +60,5 @@ void UWotUWHealthBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
   }
   // Lerp the Health
   UpdateHealth(Interpolation);
-  // now draw it in the right place (based on location of AttachTo actor)
-  FVector Location = AttachTo->GetActorLocation() + Offset;
-  SetPosition(Location);
+  Super::NativeTick(MyGeometry, InDeltaTime);
 }

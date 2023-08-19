@@ -417,11 +417,32 @@ void AWotCharacter::ShowPopupWidgetAttachedTo(const FText& Text, float Duration,
 	}
 }
 
-void AWotCharacter::ShowActionTextWidget(FString Text, float Duration)
+void AWotCharacter::ShowInteractionWidget(const FText& Text, float Duration, bool Animated)
 {
-	if (ActionTextWidgetClass) {
-		UUserWidget* ActionTextWidget = CreateWidget<UUserWidget>(GetWorld(), ActionTextWidgetClass);
-		ActionTextWidget->AddToViewport();
+	if (InteractionWidgetClass) {
+		UWotUWPopup* InteractionWidget = CreateWidget<UWotUWPopup>(GetWorld(), InteractionWidgetClass);
+		InteractionWidget->SetDuration(Duration);
+		InteractionWidget->SetText(Text);
+		InteractionWidget->SetAttachTo(this);
+		if (Animated) {
+			InteractionWidget->PlayPopupAnimation();
+		}
+		InteractionWidget->AddToViewport();
+	}
+}
+
+void AWotCharacter::ShowInteractionWidgetAttachedTo(const FText& Text, float Duration, AActor* Actor, const FVector& Offset, bool Animated)
+{
+	if (InteractionWidgetClass) {
+		UWotUWPopup* InteractionWidget = CreateWidget<UWotUWPopup>(GetWorld(), InteractionWidgetClass);
+		InteractionWidget->SetDuration(Duration);
+		InteractionWidget->SetText(Text);
+		InteractionWidget->SetOffset(Offset);
+		InteractionWidget->SetAttachTo(Actor);
+		if (Animated) {
+			InteractionWidget->PlayPopupAnimation();
+		}
+		InteractionWidget->AddToViewport();
 	}
 }
 
@@ -457,12 +478,11 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 		IWotInteractableInterface::Execute_GetInteractionText(ClosestInteractable, this, HitResult, InteractionText);
 	}
 	// show the action text widget
-	// ShowActionTextWidget(InteractionText.ToString(), InteractionCheckPeriod);
-	ShowPopupWidgetAttachedTo(FText::FromString(InteractionText.ToString()),
-							  InteractionCheckPeriod*1.1f,
-							  ClosestInteractable,
-							  Offset,
-							  false);
+	ShowInteractionWidgetAttachedTo(FText::FromString(InteractionText.ToString()),
+									InteractionCheckPeriod*1.1f,
+									ClosestInteractable,
+									Offset,
+									false);
 	// Use the highlight interface if it can be used
 	if (ClosestInteractionComp) {
 		if (ClosestInteractionComp->Implements<UWotGameplayInterface>()) {

@@ -2,11 +2,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 
-void UWotUserWidget::NativeConstruct()
+void UWotUserWidget::SetAttachTo(AActor* NewAttachTo)
 {
-	Super::NativeConstruct();
-
-	// bind delegates, and set up default appearance
+  AttachTo = NewAttachTo;
+  UpdatePosition();
 }
 
 void UWotUserWidget::SetOffset(const FVector& NewOffset)
@@ -36,4 +35,19 @@ void UWotUserWidget::SetDuration(float NewDuration)
 void UWotUserWidget::Remove_TimeElapsed()
 {
   RemoveFromParent();
+}
+
+void UWotUserWidget::UpdatePosition()
+{
+  if (AttachTo.IsValid()) {
+    // now draw it in the right place (based on location of AttachTo actor)
+    FVector Location = AttachTo->GetActorLocation() + Offset;
+    SetPosition(Location);
+  }
+}
+
+void UWotUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+  UpdatePosition();
+  Super::NativeTick(MyGeometry, InDeltaTime);
 }
