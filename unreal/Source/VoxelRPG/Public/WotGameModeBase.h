@@ -22,12 +22,23 @@ public:
 
   virtual void StartPlay() override;
 
+  virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
   virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName) override;
 
   UFUNCTION(Exec)
   void KillAll();
 
 protected:
+
+  UFUNCTION(BlueprintImplementableEvent, Category = "Time")
+  void OnTimeOfDayChanged(float TimeOfDay);
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Time")
+  void SaveTime();
+
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Time")
+  void LoadTime();
 
   UPROPERTY(EditDefaultsOnly, Category = "AI")
   TSubclassOf<AActor> MinionClass;
