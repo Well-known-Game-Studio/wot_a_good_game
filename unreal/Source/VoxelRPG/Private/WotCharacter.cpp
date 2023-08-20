@@ -477,6 +477,10 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 		// we only got an actor, so use the actor
 		IWotInteractableInterface::Execute_GetInteractionText(ClosestInteractable, this, HitResult, InteractionText);
 	}
+	// if the text is empty, don't show the widget
+	if (InteractionText.IsEmpty()) {
+		return;
+	}
 	// show the action text widget
 	ShowInteractionWidgetAttachedTo(FText::FromString(InteractionText.ToString()),
 									InteractionCheckPeriod*1.1f,
