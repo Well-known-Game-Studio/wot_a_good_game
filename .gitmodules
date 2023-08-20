@@ -22,3 +22,6 @@
 [submodule "unreal/Plugins/BlockoutToolsPlugin"]
 	path = unreal/Plugins/BlockoutToolsPlugin
 	url = git@github.com:well-known-game-studio/blockouttoolsplugin
+[submodule "unreal/Content/UltraDynamicSky"]
+	path = unreal/Content/UltraDynamicSky
+	url = git@github.com:well-known-game-studio/ultra-dynamic-sky

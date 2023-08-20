@@ -13,8 +13,6 @@ class VOXELRPG_API UWotUWHealthBar : public UWotUserWidget
     GENERATED_BODY()
 
 public:
-    void SetAttachTo(AActor* InAttachTo) { AttachTo = InAttachTo; }
-
     UFUNCTION(BlueprintCallable)
     void SetHealth(float NewHealthStart, float NewHealthEnd, float HealthMax);
 
@@ -32,8 +30,6 @@ protected:
 	void NativeConstruct() override;
 
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-
-    TWeakObjectPtr<AActor> AttachTo;
 
     UPROPERTY( meta = ( BindWidget ) )
     UWotProgressBar* HealthBar;

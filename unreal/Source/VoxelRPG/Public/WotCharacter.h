@@ -19,6 +19,7 @@ class UWotActionComponent;
 class UUserWidget;
 class UWotUWInventoryPanel;
 class UWotUWHealthBar;
+class UWotUWPopup;
 class UWotUWPopupNumber;
 class UWotItem;
 class USoundBase;
@@ -57,7 +58,7 @@ protected:
 	TSubclassOf<UWotUWPopupNumber> PopupWidgetClass;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
-	TSubclassOf<UUserWidget> ActionTextWidgetClass;
+	TSubclassOf<UWotUWPopup> InteractionWidgetClass;
 
 public:
 	// Sets default values for this character's properties
@@ -183,7 +184,10 @@ public:
 	void ShowPopupWidgetNumber(int Number, float Duration, bool Animated = true);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowActionTextWidget(FString Text, float Duration);
+	void ShowInteractionWidget(const FText& Text, float Duration, bool Animated = true);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowInteractionWidgetAttachedTo(const FText& Text, float Duration, AActor* Actor, const FVector& Offset, bool Animated = true);
 
 	UFUNCTION(BlueprintCallable, Category = "SFX")
 	void PlaySoundGet();

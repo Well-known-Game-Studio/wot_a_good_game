@@ -23,6 +23,41 @@ void AWotGameModeBase::StartPlay()
   // Continuous timer to spawn more bots. Actual amount of bots and whether it
   // is allowed to spawn determined by logic later in the chain...
   GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &AWotGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true, SpawnTimerInitialDelay);
+
+  LoadTime();
+}
+
+void AWotGameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+  Super::EndPlay(EndPlayReason);
+
+  switch (EndPlayReason) {
+    case EEndPlayReason::LevelTransition:
+      SaveTime();
+      break;
+    case EEndPlayReason::Destroyed:
+    case EEndPlayReason::EndPlayInEditor:
+    case EEndPlayReason::RemovedFromWorld:
+    case EEndPlayReason::Quit:
+    default:
+      break;
+  }
+}
+
+void AWotGameModeBase::SaveTime_Implementation()
+{
+  UWotGameInstance* GameInstance = Cast<UWotGameInstance>(GetGameInstance());
+  if (GameInstance) {
+    GameInstance->SaveTimeOfDay();
+  }
+}
+
+void AWotGameModeBase::LoadTime_Implementation()
+{
+  UWotGameInstance* GameInstance = Cast<UWotGameInstance>(GetGameInstance());
+  if (GameInstance) {
+    GameInstance->LoadTimeOfDay();
+  }
 }
 
 AActor* AWotGameModeBase::FindPlayerStart_Implementation(AController* Player, const FString& IncomingName)

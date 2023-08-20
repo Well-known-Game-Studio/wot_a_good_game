@@ -13,9 +13,6 @@ class VOXELRPG_API UWotUWPopup : public UWotUserWidget
 
 public:
     UFUNCTION(BlueprintCallable)
-    void SetAttachTo(AActor* InAttachTo);
-
-    UFUNCTION(BlueprintCallable)
     void SetText(const FText& NexText);
 
     UFUNCTION(BlueprintCallable)
@@ -25,16 +22,6 @@ public:
     void PlayPopupAnimation();
 
 protected:
-    // Doing setup in the C++ constructor is not as
-    // useful as using NativeConstruct.
-	void NativeConstruct() override;
-
-	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
-
-    void UpdatePosition();
-
-    TWeakObjectPtr<AActor> AttachTo;
-
     UPROPERTY( Transient, meta = ( BindWidgetAnimOptional ) )
     UWidgetAnimation* PopupAnim;
 

@@ -1,5 +1,7 @@
 #include "WotAction.h"
 #include "WotActionComponent.h"
+#include "GameFramework/Pawn.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 UWotAction::UWotAction()
 {
@@ -20,6 +22,16 @@ bool UWotAction::CanStart_Implementation(AActor* Instigator)
   if (!Comp->ActiveGameplayTags.HasAll(RequiredTags)) {
     return false;
   }
+
+  // check if the instigator is falling
+  if (!bAllowedWhileFalling) {
+    // cast the actor to a pawn
+    APawn* Pawn = Cast<APawn>(Instigator);
+    if (Pawn && Pawn->GetMovementComponent()->IsFalling()) {
+      return false;
+    }
+  }
+
   return true;
 }
 
