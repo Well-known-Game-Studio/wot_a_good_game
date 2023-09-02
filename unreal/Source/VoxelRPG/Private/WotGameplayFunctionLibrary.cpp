@@ -116,9 +116,12 @@ bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, A
       FVector Direction = HitResult.TraceEnd - HitResult.TraceStart;
       Direction.Normalize();
       HitComp->AddImpulseAtLocation(Direction * 3000.0f, HitResult.ImpactPoint, HitResult.BoneName);
+    } else {
+      UE_LOG(LogTemp, Warning, TEXT("ApplyDirectionalDamage: HitComp is null or not simulating physics"));
     }
     return true;
   }
+  UE_LOG(LogTemp, Warning, TEXT("ApplyDirectionalDamage: ApplyDamage failed"));
   return false;
 }
 

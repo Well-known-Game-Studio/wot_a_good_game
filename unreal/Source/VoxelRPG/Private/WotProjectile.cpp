@@ -65,35 +65,46 @@ void AWotProjectile::BeginPlay()
 }
 
 
-void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+bool AWotProjectile::ShouldHitActor_Implementation(AActor* OtherActor, UPrimitiveComponent* OtherComp)
 {
   if (!OtherActor) {
     UE_LOG(LogTemp, Log, TEXT("HandleCollision: !OtherActor"));
-    return;
+    return false;
   }
   // TODO: this is a hack to ignore overlap with the fluid flux surfaces /
   // actors!
   if (GetNameSafe(OtherActor).Contains("flux")) {
-    return;
+    return false;
   }
   // if the other actor is a trigger box (or any other actor that we don't want to explode on)
   // then return
   if (OtherActor->IsA(ATriggerBase::StaticClass())) {
-    return;
+    UE_LOG(LogTemp, Log, TEXT("HandleCollision: OtherActor->IsA(ATriggerBase::StaticClass())"));
+    return false;
   }
   if (OtherActor == this) {
-    UE_LOG(LogTemp, Log, TEXT("Arrows shouldn't be able to collide with themselves... should they?"));
-    return;
+    UE_LOG(LogTemp, Log, TEXT("Projectiles shouldn't be able to collide with themselves... should they?"));
+    return false;
   }
   if (OtherActor == GetInstigator()) {
     UE_LOG(LogTemp, Log, TEXT("HandleCollision: OtherActor == GetInstigator()"));
+    return false;
+  }
+  return true;
+}
+
+void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+  if (!ShouldHitActor(OtherActor, OtherComp)) {
     return;
   }
+
   // print the display name of the actor we overlapped with
   UE_LOG(LogTemp, Warning, TEXT("Overlapped with %s"), *OtherActor->GetName());
 
   UWotActionComponent* ActionComp = UWotActionComponent::GetActions(OtherActor);
   if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {
+    UE_LOG(LogTemp, Log, TEXT("Projectile was parried!"));
     // reflect projectile back to where it came from
     MovementComp->Velocity = -MovementComp->Velocity;
     // Make sure to update the instigator so that it can damage the original actor if it hits them
