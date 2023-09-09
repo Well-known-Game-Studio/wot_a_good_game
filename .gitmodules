@@ -25,3 +25,6 @@
 [submodule "unreal/Content/UltraDynamicSky"]
 	path = unreal/Content/UltraDynamicSky
 	url = git@github.com:well-known-game-studio/ultra-dynamic-sky
+[submodule "unreal/Plugins/QuestEditor"]
+	path = unreal/Plugins/QuestEditor
+	url = git@github.com:well-known-game-studio/quest-editor
