@@ -20,6 +20,9 @@ public:
   float Speed = 0.0f;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+  bool bIsClimbing = false;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
   bool bIsInAir = false;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacking")

@@ -164,9 +164,25 @@ void AWotCharacter::PrimaryInteract()
 	}
 }
 
+bool AWotCharacter::IsClimbing() const
+{
+	return bIsOnLadder;
+}
+
 void AWotCharacter::HandleMovementInput()
 {
 	// -- Movement Control -- //
+
+	// if the player is on a ladder, we want to move the player up/down the
+	// ladder, so we don't want to do anything else
+	if (bIsOnLadder) {
+		// use the player's input to move up/down
+		auto up_value = GetInputAxisValue("MoveForward");
+		// tell the pawn controller to actual move accordingly
+		AddMovementInput({0, 0, 1.0f}, up_value);
+		// we're done here
+		return;
+	}
 
 	// we move the character based on the inputs received in the top-down
 	// camera's coordinate system, so get the camera spring arm transform

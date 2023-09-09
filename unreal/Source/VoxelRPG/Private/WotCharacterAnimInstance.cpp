@@ -1,5 +1,6 @@
 #include "WotCharacterAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "WotCharacter.h"
 
 UWotCharacterAnimInstance::UWotCharacterAnimInstance()
 {
@@ -15,6 +16,12 @@ void UWotCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
   UPawnMovementComponent* MovementComp = Pawn->GetMovementComponent();
   if (!MovementComp) {
     return;
+  }
+  if (Pawn->IsA(AWotCharacter::StaticClass())) {
+    AWotCharacter* WotCharacter = Cast<AWotCharacter>(Pawn);
+    if (WotCharacter) {
+      bIsClimbing = WotCharacter->IsClimbing();
+    }
   }
   // update the falling / air state
   bIsInAir = MovementComp->IsFalling();

@@ -115,6 +115,9 @@ protected:
 	void SetupCineCamera();
 
 	// Movement
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
+	bool bIsOnLadder{false};
+
 	void HandleMovementInput();
 
 	DECLARE_DELEGATE_OneParam(FActionDelegate, FName);
@@ -170,6 +173,9 @@ protected:
 	virtual FVector GetPawnViewLocation() const override;
 
 public:
+
+	UFUNCTION(BlueprintCallable)
+	bool IsClimbing() const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SetMenuActive(bool Active);
