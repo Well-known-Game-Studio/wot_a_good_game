@@ -9,7 +9,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKilled, AActor*, InstigatorActor, UWotAttributeComponent*, OwningComp);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, InstigatorActor, UWotAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), EditInlineNew, meta=(BlueprintSpawnableComponent) )
 class VOXELRPG_API UWotAttributeComponent : public UActorComponent
 {
 	GENERATED_BODY()
