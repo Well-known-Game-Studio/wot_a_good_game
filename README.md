@@ -56,6 +56,10 @@ Video:
 https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/f148ddb8-2a70-4761-8087-b54520e2f074
 
 
+### Controls:
+
+![CleanShot 2025-05-20 at 12 48 39](https://github.com/user-attachments/assets/1e83a215-a19c-4571-9589-40265ba4981d)
+
 ### Opening
 
 https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/07de2f99-19bc-4531-b0dd-976531cbe2f2
