@@ -4,9 +4,6 @@
 [submodule "unreal/Content/8BitLegend"]
 	path = unreal/Content/8BitLegend
 	url = git@github.com:well-known-game-studio/8BitLegend
-[submodule "unreal/Content/FluidFlux"]
-	path = unreal/Content/FluidFlux
-	url = git@github.com:well-known-game-studio/FluidFlux
 [submodule "unreal/Content/CraftingRTSSounds"]
 	path = unreal/Content/CraftingRTSSounds
 	url = git@github.com:well-known-game-studio/CraftingRTSSounds
