@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Math/MathFwd.h"
 #include "UObject/NoExportTypes.h"
 #include "WotItem.generated.h"
 
