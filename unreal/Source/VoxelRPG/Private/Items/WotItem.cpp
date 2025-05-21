@@ -14,37 +14,6 @@ UWotItem::UWotItem()
   MaxCount = 0;
 }
 
-// get the vector in front of the character by a certain amount
-Vector3D UWotItem::GetForwardVector(ACharacter* Character, float Distance)
-{
-  if (!Character) {
-    return FVector::ZeroVector;
-  }
-  FVector Forward = Character->GetActorForwardVector();
-  FVector Location = Character->GetActorLocation();
-  return Location + Forward * Distance;
-}
-
-// get the gound underneath the character
-Vector3D UWotItem::GetGroundLocation(ACharacter* Character)
-{
-  if (!Character) {
-    return FVector::ZeroVector;
-  }
-  FVector Location = Character->GetActorLocation();
-  FVector Forward = Character->GetActorForwardVector();
-  FVector Down = FVector(0, 0, -1);
-  FVector Start = Location + Forward * 100.0f;
-  FVector End = Start + Down * 1000.0f;
-  FHitResult Hit;
-  FCollisionQueryParams Params;
-  Params.AddIgnoredActor(Character);
-  if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, Params)) {
-    return Hit.ImpactPoint;
-  }
-  return FVector::ZeroVector;
-}
-
 bool UWotItem::CanBeUsedBy(ACharacter* Character)
 {
   if (!Character) {
