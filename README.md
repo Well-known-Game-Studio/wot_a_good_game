@@ -80,6 +80,36 @@ Here's a useful [Unreal Engine Style
 Guide](https://github.com/Allar/ue5-style-guide) that can help answer some
 questions about why and how to do certain things within UE5.
 
+#### Packaging
+
+#### Setup for Android App
+
+Follow the setup instructions
+[here](https://docs.unrealengine.com/5.2/en-US/how-to-set-up-android-sdk-and-ndk-for-your-unreal-engine-development-environment/).
+
+Note: you will likely have to modify the `/Users/Shared/Epic\
+Games/UE_5.2/Engine/Extras/Android/SetupAndroid.command` file - possibly to
+point to the right `JAVA_HOME` directory. In my case I had to modify the
+JAVA_HOME export in the `SetupAndroid.command` file to point to
+`/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home` and had
+to install jdk8 specifically.
+
+You will need to set the environment variables (under `Android SDK`)
+appropriately, e.g.:
+
+- `Android SDK` : `/Users/bob/Library/Android/sdk`
+- `Android NDK` : `/Users/bob/Library/Android/sdk/ndk/25.1.8937393`
+- `Location of JAVA` : `/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home`
+- `SDK API Level` : `android-32`
+- `NDK API Level` : `android-32`
+
+For that version of java (jdk 8) which is required to successfully build for
+android, you can (on macos) install it via:
+
+``` sh
+brew install --cask adoptopenjdk8
+```
+
 ### Modeling Workflow
 
 All modeling is done with `VoxelMax`, make sure in the settings to select
