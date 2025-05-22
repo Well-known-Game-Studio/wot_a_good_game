@@ -15,7 +15,6 @@
 #include "BrainComponent.h"
 #include "Items/WotItem.h"
 #include "Items/WotItemWeapon.h"
-// #include "DialogueBuilderObject.h"
 
 AWotAICharacter::AWotAICharacter()
 {
@@ -31,8 +30,6 @@ AWotAICharacter::AWotAICharacter()
   ActionComp = CreateDefaultSubobject<UWotActionComponent>("ActionComp");
 
 	DeathEffectComp = CreateDefaultSubobject<UWotDeathEffectComponent>("DeathEffectComp");
-
-	// DialogObject = CreateDefaultSubobject<UDialogueBuilderObject>("DialogObject");
 }
 
 void AWotAICharacter::PostInitializeComponents()
