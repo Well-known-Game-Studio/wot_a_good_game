@@ -6,7 +6,6 @@
 #include "WotInteractableInterface.h"
 #include "WotAICharacter.generated.h"
 
-// class UDialogueBuilderObject;
 class UPawnSensingComponent;
 class UWotInventoryComponent;
 class UWotAttributeComponent;
@@ -89,9 +88,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UWotUWPopupNumber> PopupWidgetClass;
-
-	// UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Dialog")
-	// UDialogueBuilderObject* DialogObject;
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
