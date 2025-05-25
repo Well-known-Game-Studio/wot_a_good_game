@@ -16,3 +16,20 @@ Guard_Arrival_1,You can get your belongings back upon departure.,
 Guard_Outsider,"I can tell that you're not from around here.
 We don't often get visitors from other regions of the kingdom.",
 Guard_Sub,Subscribe to Cobra Code for more on Unreal 2D!,
+Tam_start_1,"Hey Sheepherder! The sheep have gotten out of their pen!",Tam_start_2
+Tam_start_2,"Come down here and get them back in their pen!",Tam_start_3
+Tam_start_3,"Don't forget to close the gate when you're done!",
+Tam_sheep_1,"You haven't gotten all the sheep in the pen!",
+Tam_sheep_2,"Make sure you close the gate once they're inside!",
+Tam_herded_1,"Good job, you got them all back in their pen!",Tam_herded_2
+Tam_herded_2,"Meet me back up at the house,",Tam_herded_3
+Tam_herded_3,"I've got something to give to you.",
+Tam_fireside_1,"This is my heron-marked blade.
+You may need it in the times to come...",Tam_fireside_2
+Tam_fireside_2,"Please handle it with care.",
+Tam_trollocs_1,"Trollocs are attacking, protect the sheep!",
+Tam_trollocs_2,"Don't worry about me, protect the sheep!",
+Tam_trollocs_3,"I can't help you, I gave you my sword!",
+Tam_fade_1,"We have no chance against that thing!",
+Tam_fade_2,"Our only chance is to run!",
+Tam_win_1,"I can't believe you beat that thing!",

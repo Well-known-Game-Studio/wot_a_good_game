@@ -25,5 +25,11 @@ public:
     void Interact(APawn* InstigatorPawn, FHitResult Hit);
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+    bool ShowNextLine();
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
+    void FinishInteraction(APawn* InstigatorPawn, FHitResult Hit);
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interaction")
     void GetInteractionText(APawn* InstigatorPawn, FHitResult Hit, FText& OutText);
 };

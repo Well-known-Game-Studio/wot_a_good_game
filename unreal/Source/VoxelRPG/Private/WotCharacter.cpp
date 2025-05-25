@@ -156,7 +156,8 @@ void AWotCharacter::PrimaryAttackStop()
 	}
 }
 
-void AWotCharacter::PrimaryInteract()
+// _Implementation from it being marked as BlueprintNativeEvent
+void AWotCharacter::PrimaryInteract_Implementation()
 {
 	if (InteractionComp)
 	{
@@ -197,7 +198,7 @@ void AWotCharacter::HandleMovementInput()
 	// now get the user's input turn commands
 	auto look_up_value = GetInputAxisValue("LookUp");
 	auto look_right_value = GetInputAxisValue("LookRight");
-	auto look_vector = up * look_right_value + right * look_up_value;
+	auto look_vector = (up * look_right_value + right * look_up_value).GetSafeNormal();
 
 	// use these as turn inputs if they are large enough (meaning player is
 	// actually providing input)
