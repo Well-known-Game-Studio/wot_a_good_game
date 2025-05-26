@@ -135,12 +135,12 @@ void AWotGameModeBase::StopSpawningEnemies()
 void AWotGameModeBase::SpawnBotTimerElapsed()
 {
   if (!CVarSpawnBots.GetValueOnGameThread()) {
-    UE_LOG(LogTemp, Warning, TEXT("Bot spawning disabled via cvar 'CVarSpawnBots'."));
+    // UE_LOG(LogTemp, Warning, TEXT("Bot spawning disabled via cvar 'CVarSpawnBots'."));
     return;
   }
 
   if (!bShouldSpawnEnemies) {
-    UE_LOG(LogTemp, Log, TEXT("Bot spawning disabled via property bShouldSpawnEnemies."));
+    // UE_LOG(LogTemp, Log, TEXT("Bot spawning disabled via property bShouldSpawnEnemies."));
     return;
   }
 
