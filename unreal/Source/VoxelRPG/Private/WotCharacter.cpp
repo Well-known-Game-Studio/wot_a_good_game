@@ -198,12 +198,12 @@ void AWotCharacter::HandleMovementInput()
 	// now get the user's input turn commands
 	auto look_up_value = GetInputAxisValue("LookUp");
 	auto look_right_value = GetInputAxisValue("LookRight");
-	auto look_vector = (up * look_right_value + right * look_up_value).GetSafeNormal();
+	auto look_vector = up * look_right_value + right * look_up_value;
 
 	// use these as turn inputs if they are large enough (meaning player is
 	// actually providing input)
 	if (look_vector.Size() > 0.25f) {
-		SetActorRotation(look_vector.ToOrientationRotator());
+		SetActorRotation(look_vector.GetSafeNormal().ToOrientationRotator());
 	}
 
 	// now get the user's input movement commands
