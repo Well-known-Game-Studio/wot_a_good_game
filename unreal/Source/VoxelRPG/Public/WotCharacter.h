@@ -136,7 +136,7 @@ protected:
 	void PrimaryAttackStop();
 
 	// Interaction
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void PrimaryInteract();
 
 	UFUNCTION(BlueprintCallable)

@@ -156,7 +156,8 @@ void AWotCharacter::PrimaryAttackStop()
 	}
 }
 
-void AWotCharacter::PrimaryInteract()
+// _Implementation from it being marked as BlueprintNativeEvent
+void AWotCharacter::PrimaryInteract_Implementation()
 {
 	if (InteractionComp)
 	{
@@ -202,7 +203,7 @@ void AWotCharacter::HandleMovementInput()
 	// use these as turn inputs if they are large enough (meaning player is
 	// actually providing input)
 	if (look_vector.Size() > 0.25f) {
-		SetActorRotation(look_vector.ToOrientationRotator());
+		SetActorRotation(look_vector.GetSafeNormal().ToOrientationRotator());
 	}
 
 	// now get the user's input movement commands

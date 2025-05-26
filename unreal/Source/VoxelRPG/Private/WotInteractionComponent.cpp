@@ -77,5 +77,8 @@ void UWotInteractionComponent::PrimaryInteract()
 		if (bDrawDebug) {
 			UWotGameplayFunctionLibrary::DrawHitPointAndBounds(ClosestActor, ClosestHit);
 		}
+
+		LastInteractedActor = ClosestActor;
+		LastInteractedComponent = ClosestComponent;
 	}
 }

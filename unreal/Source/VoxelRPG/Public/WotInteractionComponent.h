@@ -26,7 +26,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Interaction")
     bool GetInteractableInRange(AActor*& OutActor, UActorComponent*& OutComponent, FHitResult& OutHitResult) const;
 
+    UFUNCTION(BlueprintCallable, Category = "Interaction")
     void PrimaryInteract();
+
+    UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
+	AActor* LastInteractedActor = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
+	UActorComponent *LastInteractedComponent = nullptr;
 
 public:
 
