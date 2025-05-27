@@ -29,10 +29,16 @@ public:
   bool bIsAttacking = false;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacking")
+  bool bIsHeavyAttack = false;
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacking")
   float BowAim = 0.0f;
 
   UFUNCTION(BlueprintCallable, Category = "Attacking")
   bool LightAttack();
+
+  UFUNCTION(BlueprintCallable, Category = "Attacking")
+  bool HeavyAttack();
 
   virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
