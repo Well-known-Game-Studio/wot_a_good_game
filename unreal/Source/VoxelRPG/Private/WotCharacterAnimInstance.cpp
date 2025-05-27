@@ -35,6 +35,22 @@ bool UWotCharacterAnimInstance::LightAttack()
     // we're already attacking, so we did not attack again
     return false;
   } else {
+    // ensure we are not in a heavy attack
+    bIsHeavyAttack = false;
+    // we aren't attacking, so we can attack
+    bIsAttacking = true;
+    return true;
+  }
+}
+
+bool UWotCharacterAnimInstance::HeavyAttack()
+{
+  if (bIsAttacking) {
+    // we're already attacking, so we did not attack again
+    return false;
+  } else {
+    // ensure we are in a heavy attack
+    bIsHeavyAttack = true;
     // we aren't attacking, so we can attack
     bIsAttacking = true;
     return true;
