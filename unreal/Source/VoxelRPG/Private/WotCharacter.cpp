@@ -153,6 +153,7 @@ void AWotCharacter::PrimaryAttackStop()
 	if (EquippedWeapon) {
 		EquippedWeapon->PrimaryAttackStop();
 	} else {
+		ActionStop("PrimaryAttack");
 	}
 }
 
@@ -260,11 +261,11 @@ void AWotCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Get the input vector axes for move and look
-	FVector MoveVector = GetInputVectorAxisValue("IA_Move");
-	FVector LookVector = GetInputVectorAxisValue("IA_Look");
+	// // Get the input vector axes for move and look
+	// FVector MoveVector = GetInputVectorAxisValue("IA_Move");
+	// FVector LookVector = GetInputVectorAxisValue("IA_Look");
 
-	HandleMovementInput(MoveVector, LookVector);
+	// HandleMovementInput(MoveVector, LookVector);
 }
 
 // Called to bind functionality to input
@@ -272,24 +273,24 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// We're interested in knowing the axis value, but don't need a delegate for
-	// it (we read it in the tick event)
-	PlayerInputComponent->BindVectorAxis("IA_Move");
-	PlayerInputComponent->BindVectorAxis("IA_Look");
+	// // We're interested in knowing the axis value, but don't need a delegate for
+	// // it (we read it in the tick event)
+	// PlayerInputComponent->BindVectorAxis("IA_Move");
+	// PlayerInputComponent->BindVectorAxis("IA_Look");
 
-	PlayerInputComponent->BindAction<FActionDelegate>("IA_Sprint", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Sprint"));
-	PlayerInputComponent->BindAction<FActionDelegate>("IA_Sprint", IE_Released, this, &AWotCharacter::ActionStop, FName("Sprint"));
-	PlayerInputComponent->BindAction<FActionDelegate>("IA_Dash", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Dash"));
-	PlayerInputComponent->BindAction<FActionDelegate>("IA_Dash", IE_Released, this, &AWotCharacter::ActionStop, FName("Dash"));
-	PlayerInputComponent->BindAction<FActionDelegate>("IA_Jump", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Jump"));
-	PlayerInputComponent->BindAction<FActionDelegate>("IA_Jump", IE_Released, this, &AWotCharacter::ActionStop, FName("Jump"));
+	// PlayerInputComponent->BindAction<FActionDelegate>("IA_Sprint", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Sprint"));
+	// PlayerInputComponent->BindAction<FActionDelegate>("IA_Sprint", IE_Released, this, &AWotCharacter::ActionStop, FName("Sprint"));
+	// PlayerInputComponent->BindAction<FActionDelegate>("IA_Dash", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Dash"));
+	// PlayerInputComponent->BindAction<FActionDelegate>("IA_Dash", IE_Released, this, &AWotCharacter::ActionStop, FName("Dash"));
+	// PlayerInputComponent->BindAction<FActionDelegate>("IA_Jump", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Jump"));
+	// PlayerInputComponent->BindAction<FActionDelegate>("IA_Jump", IE_Released, this, &AWotCharacter::ActionStop, FName("Jump"));
 
-	PlayerInputComponent->BindAction("IA_Attack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
-	PlayerInputComponent->BindAction("IA_Attack", IE_Released, this, &AWotCharacter::PrimaryAttackStop);
+	// PlayerInputComponent->BindAction("IA_Attack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
+	// PlayerInputComponent->BindAction("IA_Attack", IE_Released, this, &AWotCharacter::PrimaryAttackStop);
 
-	PlayerInputComponent->BindAction("IA_Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
+	// PlayerInputComponent->BindAction("IA_Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
 
-	PlayerInputComponent->BindAction("IA_Camera", IE_Pressed, this, &AWotCharacter::RotateCamera);
+	// PlayerInputComponent->BindAction("IA_Camera", IE_Pressed, this, &AWotCharacter::RotateCamera);
 }
 
 void AWotCharacter::Landed(const FHitResult& Hit)
