@@ -48,6 +48,11 @@ void UWotUWInventoryPanel::SetInventory(UWotInventoryComponent* NewInventoryComp
   // Store the values
   InventoryComp = NewInventoryComp;
   LabelText = NewLabelText;
+  // Update the label text
+  if (Label) {
+    Label->SetText(LabelText);
+  }
+  UpdateInventory();
 }
 
 void UWotUWInventoryPanel::Close_Implementation()

@@ -118,7 +118,17 @@ protected:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
 	bool bIsOnLadder{false};
 
-	void HandleMovementInput();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
+	void GetCharacterMovementAxes(FVector& OutForward, FVector& OutRight) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
+	void HandleMovementInput(const FVector& MoveDirection, const FVector& LookDirection);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
+	bool Move(const FVector& MoveVector);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
+	bool Look(const FVector& MoveVector);
 
 	DECLARE_DELEGATE_OneParam(FActionDelegate, FName);
 
@@ -151,11 +161,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Camera")
 	void RotateCamera();
 
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowInventoryWidget();
-
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowHealthBarWidget(float NewHealth, float Delta, float Duration);
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "UI")
+	UWotUWInventoryPanel *InventoryWidget = nullptr;
 
 	float KilledDestroyDelay = 2.0f;
 	FTimerHandle TimerHandle_Destroy;
@@ -179,6 +186,18 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SetMenuActive(bool Active);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	bool CanOpenInventory() const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	bool ShowInventoryWidget(UWotUWInventoryPanel *&OutInventoryWidget);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SetInventoryWidget(UWotUWInventoryPanel *NewInventoryWidget);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowHealthBarWidget(float NewHealth, float Delta, float Duration);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowPopupWidget(const FText& Text, float Duration, bool Animated = true);

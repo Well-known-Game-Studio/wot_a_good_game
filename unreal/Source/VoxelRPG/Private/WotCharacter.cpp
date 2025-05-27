@@ -170,55 +170,75 @@ bool AWotCharacter::IsClimbing() const
 	return bIsOnLadder;
 }
 
-void AWotCharacter::HandleMovementInput()
+void AWotCharacter::HandleMovementInput_Implementation(const FVector &MoveDirection, const FVector &LookDirection)
 {
-	// -- Movement Control -- //
+	Move(MoveDirection);
+	Look(LookDirection);
+}
 
-	// if the player is on a ladder, we want to move the player up/down the
-	// ladder, so we don't want to do anything else
-	if (bIsOnLadder) {
-		// use the player's input to move up/down
-		auto up_value = GetInputAxisValue("MoveForward");
-		// tell the pawn controller to actual move accordingly
-		AddMovementInput({0, 0, 1.0f}, up_value);
-		// we're done here
-		return;
-	}
-
+void AWotCharacter::GetCharacterMovementAxes_Implementation(FVector& OutForward, FVector& OutRight) const {
 	// we move the character based on the inputs received in the top-down
 	// camera's coordinate system, so get the camera spring arm transform
 	// (rotation) and determine its 2d vector
 	auto t = SpringArmComp->GetRelativeTransform();
 	auto r = t.Rotator();
-	auto right = UKismetMathLibrary::CreateVectorFromYawPitch(r.Yaw, r.Pitch, 1.0f);
+	auto forward = UKismetMathLibrary::CreateVectorFromYawPitch(r.Yaw, r.Pitch, 1.0f);
+	forward.Z = 0;
+	auto right = forward.RotateAngleAxis(90.0f, {0, 0, 1.0});
 	right.Z = 0;
-	auto up = right.RotateAngleAxis(90.0f, {0, 0, 1.0});
-	up.Z = 0;
+	// set the output parameters
+	OutForward = forward;
+	OutRight = right;
+}
 
-	// now get the user's input turn commands
-	auto look_up_value = GetInputAxisValue("LookUp");
-	auto look_right_value = GetInputAxisValue("LookRight");
-	auto look_vector = up * look_right_value + right * look_up_value;
+bool AWotCharacter::Move_Implementation(const FVector &MoveVector)
+{
+	if (MoveVector.Size() < 0.25f) {
+		// no movement input, so we don't do anything
+		return false;
+	}
 
-	// use these as turn inputs if they are large enough (meaning player is
-	// actually providing input)
-	if (look_vector.Size() > 0.25f) {
-		SetActorRotation(look_vector.GetSafeNormal().ToOrientationRotator());
+	// if the player is on a ladder, we want to move the player up/down the
+	// ladder, so we don't want to do anything else
+	if (bIsOnLadder) {
+		// tell the pawn controller to actual move accordingly
+		AddMovementInput({0, 0, 1.0f}, MoveVector.Size());
+		// we're done here
+		return true;
 	}
 
 	// now get the user's input movement commands
-	auto up_value = GetInputAxisValue("MoveForward");
-	auto right_value = GetInputAxisValue("MoveRight");
-	auto vector_value = FVector2D(up_value, right_value);
+	auto move_value = MoveVector;
 	// limit the speed of the player to max speed (e.g. vector length should be
 	// <= 1.0)
-	if (vector_value.Size() > 1.0f) {
-		vector_value = vector_value.GetSafeNormal();
+	if (move_value.Size() > 1.0f) {
+		move_value = move_value.GetSafeNormal();
 	}
 
+	FVector right, up;
+	GetCharacterMovementAxes(up, right);
+
 	// tell the pawn controller to actual move accordingly
-	AddMovementInput(right, vector_value.X);
-	AddMovementInput(up, vector_value.Y);
+	AddMovementInput(right, move_value.X);
+	AddMovementInput(up, move_value.Y);
+
+	return true;
+}
+
+bool AWotCharacter::Look_Implementation(const FVector &LookDirection)
+{
+	if (LookDirection.Size() < 0.25f) {
+		// no look input, so we don't do anything
+		return false;
+	}
+
+	FVector right, up;
+	GetCharacterMovementAxes(up, right);
+
+	// now get the user's input turn commands
+	auto look_vector = up * LookDirection.Y + right * LookDirection.X;
+	SetActorRotation(look_vector.GetSafeNormal().ToOrientationRotator());
+	return true;
 }
 
 void AWotCharacter::ActionStart(FName ActionName)
@@ -240,7 +260,11 @@ void AWotCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	HandleMovementInput();
+	// Get the input vector axes for move and look
+	FVector MoveVector = GetInputVectorAxisValue("IA_Move");
+	FVector LookVector = GetInputVectorAxisValue("IA_Look");
+
+	HandleMovementInput(MoveVector, LookVector);
 }
 
 // Called to bind functionality to input
@@ -250,26 +274,22 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	// We're interested in knowing the axis value, but don't need a delegate for
 	// it (we read it in the tick event)
-	PlayerInputComponent->BindAxis("MoveForward");
-	PlayerInputComponent->BindAxis("MoveRight");
-	PlayerInputComponent->BindAxis("LookUp");
-	PlayerInputComponent->BindAxis("LookRight");
+	PlayerInputComponent->BindVectorAxis("IA_Move");
+	PlayerInputComponent->BindVectorAxis("IA_Look");
 
-	PlayerInputComponent->BindAction<FActionDelegate>("Sprint", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Sprint"));
-	PlayerInputComponent->BindAction<FActionDelegate>("Sprint", IE_Released, this, &AWotCharacter::ActionStop, FName("Sprint"));
-	PlayerInputComponent->BindAction<FActionDelegate>("Dash", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Dash"));
-	PlayerInputComponent->BindAction<FActionDelegate>("Dash", IE_Released, this, &AWotCharacter::ActionStop, FName("Dash"));
-	PlayerInputComponent->BindAction<FActionDelegate>("Jump", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Jump"));
-	PlayerInputComponent->BindAction<FActionDelegate>("Jump", IE_Released, this, &AWotCharacter::ActionStop, FName("Jump"));
+	PlayerInputComponent->BindAction<FActionDelegate>("IA_Sprint", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Sprint"));
+	PlayerInputComponent->BindAction<FActionDelegate>("IA_Sprint", IE_Released, this, &AWotCharacter::ActionStop, FName("Sprint"));
+	PlayerInputComponent->BindAction<FActionDelegate>("IA_Dash", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Dash"));
+	PlayerInputComponent->BindAction<FActionDelegate>("IA_Dash", IE_Released, this, &AWotCharacter::ActionStop, FName("Dash"));
+	PlayerInputComponent->BindAction<FActionDelegate>("IA_Jump", IE_Pressed, this, &AWotCharacter::ActionStart, FName("Jump"));
+	PlayerInputComponent->BindAction<FActionDelegate>("IA_Jump", IE_Released, this, &AWotCharacter::ActionStop, FName("Jump"));
 
-	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
-	PlayerInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AWotCharacter::PrimaryAttackStop);
+	PlayerInputComponent->BindAction("IA_Attack", IE_Pressed, this, &AWotCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("IA_Attack", IE_Released, this, &AWotCharacter::PrimaryAttackStop);
 
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
+	PlayerInputComponent->BindAction("IA_Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
 
-	PlayerInputComponent->BindAction("ToggleMenu", IE_Pressed, this, &AWotCharacter::ShowInventoryWidget);
-
-	PlayerInputComponent->BindAction("ChangeCamera", IE_Pressed, this, &AWotCharacter::RotateCamera);
+	PlayerInputComponent->BindAction("IA_Camera", IE_Pressed, this, &AWotCharacter::RotateCamera);
 }
 
 void AWotCharacter::Landed(const FHitResult& Hit)
@@ -353,14 +373,30 @@ void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* Ow
 	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, this, &AWotCharacter::Destroy_TimeElapsed, KilledDestroyDelay);
 }
 
-void AWotCharacter::ShowInventoryWidget()
+bool AWotCharacter::ShowInventoryWidget(UWotUWInventoryPanel*& OutInventoryWidget)
 {
 	// Now actually try to open the menu
-	if (bCanOpenMenu && InventoryWidgetClass) {
-		UWotUWInventoryPanel* InventoryWidget = CreateWidget<UWotUWInventoryPanel>(GetWorld(), InventoryWidgetClass);
-		InventoryWidget->SetInventory(InventoryComp, FText::FromString("Your Items"));
-		InventoryWidget->AddToViewport();
+	if (CanOpenInventory()) {
+		OutInventoryWidget = CreateWidget<UWotUWInventoryPanel>(GetWorld(), InventoryWidgetClass);
+		OutInventoryWidget->SetInventory(InventoryComp, FText::FromString("Your Items"));
+		OutInventoryWidget->AddToViewport();
+		// store the reference to the inventory widget
+		SetInventoryWidget(OutInventoryWidget);
+		return true;
 	}
+	return false;
+}
+
+void AWotCharacter::SetInventoryWidget(UWotUWInventoryPanel* NewInventoryWidget)
+{
+	// Set the inventory widget reference
+	InventoryWidget = NewInventoryWidget;
+	bCanOpenMenu = NewInventoryWidget == nullptr;
+	bMenuActive = NewInventoryWidget != nullptr;
+}
+
+bool AWotCharacter::CanOpenInventory() const {
+	return bCanOpenMenu && InventoryWidgetClass != nullptr;
 }
 
 void AWotCharacter::PlaySoundGet()
