@@ -8,6 +8,7 @@ void UWotUWItem::NativeConstruct()
 {
   Super::NativeConstruct();
   SetItem(Item, bInOwningPlayerInventory);
+  bIsFocusable = true;
 }
 
 void UWotUWItem::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
