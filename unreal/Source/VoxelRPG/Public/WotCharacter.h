@@ -155,7 +155,7 @@ protected:
 	UFUNCTION()
 	void OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp);
 
-	UFUNCTION(BlueprintCallable, Category = "Camera")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Camera")
 	void RotateCamera(float YawDelta, float PitchDelta);
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "UI")

@@ -199,7 +199,7 @@ void AWotCharacter::GetCharacterMovementAxes_Implementation(FVector& OutForward,
 bool AWotCharacter::Move_Implementation(const FVector &MoveVector)
 {
 	if (!InputEnabled()) {
-		return;
+		return false;
 	}
 	if (MoveVector.Size() < 0.25f) {
 		// no movement input, so we don't do anything
@@ -236,7 +236,7 @@ bool AWotCharacter::Move_Implementation(const FVector &MoveVector)
 bool AWotCharacter::Look_Implementation(const FVector &LookDirection)
 {
 	if (!InputEnabled()) {
-		return;
+		return false;
 	}
 	if (LookDirection.Size() < 0.25f) {
 		// no look input, so we don't do anything
@@ -426,7 +426,7 @@ void AWotCharacter::PlaySoundGet()
     EffectAudioComp->Play(0);
 }
 
-void AWotCharacter::RotateCamera(float YawDelta, float PitchDelta)
+void AWotCharacter::RotateCamera_Implementation(float YawDelta, float PitchDelta)
 {
 	if (IsInventoryWidgetOpen()) {
 		return;
