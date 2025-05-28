@@ -152,7 +152,11 @@ void AWotCharacter::PrimaryAttackStop()
 	if (EquippedWeapon) {
 		EquippedWeapon->PrimaryAttackStop();
 	} else {
-		ActionStop("PrimaryAttack");
+		// TODO: should be able to stop primary attack here, but we can't
+		// because it uses a timer to keep itself alive / prevent further
+		// attacks
+		//
+		// ActionStop("PrimaryAttack");
 	}
 	// TODO: probably a better way of doing this?
 	bCanOpenMenu = true;
