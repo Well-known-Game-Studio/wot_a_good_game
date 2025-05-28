@@ -108,9 +108,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Interaction")
 	bool bCanInteract;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
-	bool bMenuActive{false};
-
 	void SetupSpringArm();
 	void SetupCineCamera();
 
@@ -159,7 +156,7 @@ protected:
 	void OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp);
 
 	UFUNCTION(BlueprintCallable, Category = "Camera")
-	void RotateCamera();
+	void RotateCamera(float YawDelta, float PitchDelta);
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "UI")
 	UWotUWInventoryPanel *InventoryWidget = nullptr;
@@ -185,10 +182,10 @@ public:
 	bool IsClimbing() const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void SetMenuActive(bool Active);
+	bool CanOpenInventory() const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	bool CanOpenInventory() const;
+	bool IsInventoryWidgetOpen() const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	bool ShowInventoryWidget(UWotUWInventoryPanel *&OutInventoryWidget);

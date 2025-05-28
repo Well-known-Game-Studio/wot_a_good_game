@@ -117,11 +117,6 @@ void AWotCharacter::SetupCineCamera()
 	CineCameraComp->CurrentAperture = CurrentAperture;
 }
 
-void AWotCharacter::SetMenuActive(bool Active)
-{
-	bMenuActive = Active;
-}
-
 FVector AWotCharacter::GetPawnViewLocation() const
 {
 	// for now we'll keep using the parent's version, which will return actor
@@ -131,6 +126,12 @@ FVector AWotCharacter::GetPawnViewLocation() const
 
 void AWotCharacter::PrimaryAttack()
 {
+	if (IsInventoryWidgetOpen()) {
+		return;
+	}
+	if (!InputEnabled()) {
+		return;
+	}
 	// TODO: probably a better way of doing this?
 	bCanOpenMenu = false;
 	// TODO: for now we determine whether to use weapon or action based on if we
@@ -147,19 +148,22 @@ void AWotCharacter::PrimaryAttack()
 
 void AWotCharacter::PrimaryAttackStop()
 {
-	// TODO: probably a better way of doing this?
-	bCanOpenMenu = true;
 	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
 	if (EquippedWeapon) {
 		EquippedWeapon->PrimaryAttackStop();
 	} else {
 		ActionStop("PrimaryAttack");
 	}
+	// TODO: probably a better way of doing this?
+	bCanOpenMenu = true;
 }
 
 // _Implementation from it being marked as BlueprintNativeEvent
 void AWotCharacter::PrimaryInteract_Implementation()
 {
+	if (!InputEnabled()) {
+		return;
+	}
 	if (InteractionComp)
 	{
 		InteractionComp->PrimaryInteract();
@@ -194,6 +198,9 @@ void AWotCharacter::GetCharacterMovementAxes_Implementation(FVector& OutForward,
 
 bool AWotCharacter::Move_Implementation(const FVector &MoveVector)
 {
+	if (!InputEnabled()) {
+		return;
+	}
 	if (MoveVector.Size() < 0.25f) {
 		// no movement input, so we don't do anything
 		return false;
@@ -228,6 +235,9 @@ bool AWotCharacter::Move_Implementation(const FVector &MoveVector)
 
 bool AWotCharacter::Look_Implementation(const FVector &LookDirection)
 {
+	if (!InputEnabled()) {
+		return;
+	}
 	if (LookDirection.Size() < 0.25f) {
 		// no look input, so we don't do anything
 		return false;
@@ -244,6 +254,12 @@ bool AWotCharacter::Look_Implementation(const FVector &LookDirection)
 
 void AWotCharacter::ActionStart(FName ActionName)
 {
+	if (IsInventoryWidgetOpen()) {
+		return;
+	}
+	if (!InputEnabled()) {
+		return;
+	}
 	// TODO: probably a better way of doing this?
 	bCanOpenMenu = false;
 	ActionComp->StartActionByName(this, ActionName);
@@ -251,9 +267,9 @@ void AWotCharacter::ActionStart(FName ActionName)
 
 void AWotCharacter::ActionStop(FName ActionName)
 {
+	ActionComp->StopActionByName(this, ActionName);
 	// TODO: probably a better way of doing this?
 	bCanOpenMenu = true;
-	ActionComp->StopActionByName(this, ActionName);
 }
 
 // Called every frame
@@ -378,13 +394,13 @@ bool AWotCharacter::ShowInventoryWidget(UWotUWInventoryPanel*& OutInventoryWidge
 {
 	// Now actually try to open the menu
 	if (CanOpenInventory()) {
-		OutInventoryWidget = CreateWidget<UWotUWInventoryPanel>(GetWorld(), InventoryWidgetClass);
-		OutInventoryWidget->SetInventory(InventoryComp, FText::FromString("Your Items"));
-		OutInventoryWidget->AddToViewport();
-		// store the reference to the inventory widget
-		SetInventoryWidget(OutInventoryWidget);
+		InventoryWidget = CreateWidget<UWotUWInventoryPanel>(GetWorld(), InventoryWidgetClass);
+		InventoryWidget->SetInventory(InventoryComp, FText::FromString("Your Items"));
+		InventoryWidget->AddToViewport();
+		OutInventoryWidget = InventoryWidget;
 		return true;
 	}
+	OutInventoryWidget = nullptr;
 	return false;
 }
 
@@ -392,12 +408,16 @@ void AWotCharacter::SetInventoryWidget(UWotUWInventoryPanel* NewInventoryWidget)
 {
 	// Set the inventory widget reference
 	InventoryWidget = NewInventoryWidget;
-	bCanOpenMenu = NewInventoryWidget == nullptr;
-	bMenuActive = NewInventoryWidget != nullptr;
+}
+
+bool AWotCharacter::IsInventoryWidgetOpen() const
+{
+	// Check if the inventory widget is set and is currently visible
+	return InventoryWidget != nullptr;
 }
 
 bool AWotCharacter::CanOpenInventory() const {
-	return bCanOpenMenu && InventoryWidgetClass != nullptr;
+	return bCanOpenMenu && !IsInventoryWidgetOpen();
 }
 
 void AWotCharacter::PlaySoundGet()
@@ -406,10 +426,18 @@ void AWotCharacter::PlaySoundGet()
     EffectAudioComp->Play(0);
 }
 
-void AWotCharacter::RotateCamera()
+void AWotCharacter::RotateCamera(float YawDelta, float PitchDelta)
 {
-	FRotator Rotation = SpringArmComp->GetRelativeRotation();
-	Rotation.Yaw += 90;
+	if (IsInventoryWidgetOpen()) {
+		return;
+	}
+	if (!InputEnabled()) {
+		return;
+	}
+	// rotate the camera spring arm by the given deltas
+	auto Rotation = SpringArmComp->GetRelativeRotation();
+	Rotation.Yaw += YawDelta;
+	Rotation.Pitch += PitchDelta;
 	SpringArmComp->SetRelativeRotation(Rotation, false, nullptr, ETeleportType::None);
 }
 
@@ -502,7 +530,7 @@ void AWotCharacter::ShowInteractionWidgetAttachedTo(const FText& Text, float Dur
 
 void AWotCharacter::InteractionCheck_TimeElapsed()
 {
-	if (bMenuActive) {
+	if (IsInventoryWidgetOpen()) {
 		return;
 	}
 	if (!InputEnabled()) {
