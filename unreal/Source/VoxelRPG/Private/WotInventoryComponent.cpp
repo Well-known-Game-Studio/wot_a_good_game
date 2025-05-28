@@ -56,7 +56,6 @@ int32 UWotInventoryComponent::AddItem(UWotItem* Item)
   int32 Index = Items.IndexOfByPredicate([Item](UWotItem* TestItem){
     return *Item == *TestItem;
   });
-  UE_LOG(LogTemp, Log, TEXT("Adding %d items"), Item->Count);
   if (Index != INDEX_NONE) {
     // We already have one in our inventory, so increment count and destroy the
     // old item
@@ -79,8 +78,6 @@ int32 UWotInventoryComponent::AddItem(UWotItem* Item)
     Items.Add(Item);
     NumAdded = Item->Count;
   }
-
-  UE_LOG(LogTemp, Log, TEXT("Added %d items"), NumAdded);
 
   // Update UI and other interested parties
   OnInventoryUpdated.Broadcast();
