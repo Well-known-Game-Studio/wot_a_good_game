@@ -394,7 +394,7 @@ void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* Ow
 	GetWorldTimerManager().SetTimer(TimerHandle_Destroy, this, &AWotCharacter::Destroy_TimeElapsed, KilledDestroyDelay);
 }
 
-bool AWotCharacter::ShowInventoryWidget(UWotUWInventoryPanel*& OutInventoryWidget)
+bool AWotCharacter::ShowInventoryWidget_Implementation(UWotUWInventoryPanel*& OutInventoryWidget)
 {
 	// Now actually try to open the menu
 	if (CanOpenInventory()) {

@@ -187,7 +187,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	bool IsInventoryWidgetOpen() const;
 
-	UFUNCTION(BlueprintCallable, Category = "UI")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "UI")
 	bool ShowInventoryWidget(UWotUWInventoryPanel *&OutInventoryWidget);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
