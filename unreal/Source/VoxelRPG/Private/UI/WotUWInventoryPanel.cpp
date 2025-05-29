@@ -110,5 +110,6 @@ void UWotUWInventoryPanel::UpdateInventory()
   if (ItemBox->GetChildrenCount() > 0) {
     UE_LOG(LogTemp, Warning, TEXT("Focusing first item in inventory"));
     ItemBox->GetChildAt(0)->SetFocus();
+    ItemBox->GetChildAt(0)->SetKeyboardFocus();
   }
 }
