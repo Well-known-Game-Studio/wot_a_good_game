@@ -414,6 +414,11 @@ void AWotCharacter::SetInventoryWidget(UWotUWInventoryPanel* NewInventoryWidget)
 	InventoryWidget = NewInventoryWidget;
 }
 
+void AWotCharacter::CloseInventoryWidget_Implementation()
+{
+	InventoryWidget = nullptr;
+}
+
 bool AWotCharacter::IsInventoryWidgetOpen() const
 {
 	// Check if the inventory widget is set and is currently visible

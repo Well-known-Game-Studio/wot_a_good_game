@@ -190,6 +190,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "UI")
 	bool ShowInventoryWidget(UWotUWInventoryPanel *&OutInventoryWidget);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "UI")
+	void CloseInventoryWidget();
+
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void SetInventoryWidget(UWotUWInventoryPanel *NewInventoryWidget);
 

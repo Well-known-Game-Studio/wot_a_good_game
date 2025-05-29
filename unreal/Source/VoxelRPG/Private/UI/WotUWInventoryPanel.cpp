@@ -64,7 +64,7 @@ void UWotUWInventoryPanel::Close_Implementation()
   // convert to WotCharacter and inform it that the inventory panel is closed
   auto WotCharacter = Cast<AWotCharacter>(PC->GetPawn());
   if (WotCharacter) {
-    WotCharacter->SetInventoryWidget(nullptr);
+    WotCharacter->CloseInventoryWidget();
   }
 
   PC->bShowMouseCursor = bControllerWasShowingCursor;
