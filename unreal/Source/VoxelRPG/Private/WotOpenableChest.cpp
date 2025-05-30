@@ -33,21 +33,31 @@ void AWotOpenableChest::SetHighlightEnabled(int HighlightValue, bool Enabled)
 void AWotOpenableChest::Interact_Implementation(APawn* InstigatorPawn, FHitResult Hit)
 {
   Super::Interact_Implementation(InstigatorPawn, Hit);
+  // ensure we have a valid instigator pawn
+  AWotCharacter* WotCharacter = Cast<AWotCharacter>(InstigatorPawn);
+  if (!ensure(WotCharacter)) {
+    UE_LOG(LogTemp, Error, TEXT("InstigatorPawn is not a WotCharacter!"));
+    return;
+  }
+
+  // If the character can't open the menu, then we don't do anything
+  if (!WotCharacter->CanOpenInventory()) {
+    UE_LOG(LogTemp, Warning, TEXT("Character cannot open inventory!"));
+    return;
+  }
+
+  // set the lid to be open
   LidMesh->SetRelativeRotation(FRotator(TargetPitch, 0, 0));
   if (!ensure(InventoryWidgetClass)) {
     UE_LOG(LogTemp, Error, TEXT("Missing required InventoryWidgetClass!"));
     return;
   }
+
+  // if we still have items in our inventory, show it
   if (InventoryComp->Items.Num()) {
-    // if we still have items in our inventory, show it
-		UWotUWInventoryPanel* InventoryWidget = CreateWidget<UWotUWInventoryPanel>(GetWorld(), InventoryWidgetClass);
+		UWotUWInventoryPanel* InventoryWidget;
+    WotCharacter->ShowInventoryWidget(InventoryWidget);
 		InventoryWidget->SetInventory(InventoryComp, FText::FromName(InventoryPanelTitle));
-		InventoryWidget->AddToViewport();
-    // cast the pawn to a WotCharacter and inform it that the inventory panel is open
-    AWotCharacter* WotCharacter = Cast<AWotCharacter>(InstigatorPawn);
-    if (WotCharacter) {
-      WotCharacter->SetMenuActive(true);
-    }
   }
 }
 

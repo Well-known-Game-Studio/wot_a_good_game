@@ -48,6 +48,11 @@ void UWotUWInventoryPanel::SetInventory(UWotInventoryComponent* NewInventoryComp
   // Store the values
   InventoryComp = NewInventoryComp;
   LabelText = NewLabelText;
+  // Update the label text
+  if (Label) {
+    Label->SetText(LabelText);
+  }
+  UpdateInventory();
 }
 
 void UWotUWInventoryPanel::Close_Implementation()
@@ -59,7 +64,7 @@ void UWotUWInventoryPanel::Close_Implementation()
   // convert to WotCharacter and inform it that the inventory panel is closed
   auto WotCharacter = Cast<AWotCharacter>(PC->GetPawn());
   if (WotCharacter) {
-    WotCharacter->SetMenuActive(false);
+    WotCharacter->CloseInventoryWidget();
   }
 
   PC->bShowMouseCursor = bControllerWasShowingCursor;
@@ -93,11 +98,25 @@ void UWotUWInventoryPanel::UpdateInventory()
   if (!InventoryComp) {
     return;
   }
+  bool bIsOwningPlayersInventory = IsOwningPlayersInventory();
   for (auto& Item : InventoryComp->Items) {
-    APawn* OwningPawn = GetOwningPlayerPawn();
     UWotUWItem* Widget = CreateWidget<UWotUWItem>(GetOwningPlayer(), ItemWidgetClass);
     Widget->Item = Item;
-    Widget->bInOwningPlayerInventory = (InventoryComp->GetOwner() == OwningPawn);
+    Widget->bInOwningPlayerInventory = bIsOwningPlayersInventory;
     ItemBox->AddChildToWrapBox(Widget);
   }
+  // if there are children, then focus on the first on, otherwise, focus on the
+  // close button
+  if (ItemBox->GetChildrenCount() > 0) {
+    UE_LOG(LogTemp, Warning, TEXT("Focusing first item in inventory"));
+    ItemBox->GetChildAt(0)->SetFocus();
+  }
+}
+
+bool UWotUWInventoryPanel::IsOwningPlayersInventory() const {
+  if (!InventoryComp) {
+    return false;
+  }
+  APawn* OwningPawn = GetOwningPlayerPawn();
+  return (InventoryComp->GetOwner() == OwningPawn);
 }

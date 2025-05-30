@@ -44,6 +44,9 @@ public:
 
     void SetItem(UWotItem* NewItem, bool NewInOwningPlayerInventory);
 
+    UFUNCTION(Blueprintcallable, Category = "Details")
+    void UpdateUseTooltipText();
+
 protected:
     // Doing setup in the C++ constructor is not as
     // useful as using NativeConstruct.

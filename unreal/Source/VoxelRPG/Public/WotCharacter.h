@@ -108,9 +108,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Interaction")
 	bool bCanInteract;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
-	bool bMenuActive{false};
-
 	void SetupSpringArm();
 	void SetupCineCamera();
 
@@ -118,7 +115,17 @@ protected:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
 	bool bIsOnLadder{false};
 
-	void HandleMovementInput();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
+	void GetCharacterMovementAxes(FVector& OutForward, FVector& OutRight) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
+	void HandleMovementInput(const FVector& MoveDirection, const FVector& LookDirection);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
+	bool Move(const FVector& MoveVector);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
+	bool Look(const FVector& MoveVector);
 
 	DECLARE_DELEGATE_OneParam(FActionDelegate, FName);
 
@@ -148,14 +155,11 @@ protected:
 	UFUNCTION()
 	void OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp);
 
-	UFUNCTION(BlueprintCallable, Category = "Camera")
-	void RotateCamera();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Camera")
+	void RotateCamera(float YawDelta, float PitchDelta);
 
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowInventoryWidget();
-
-	UFUNCTION(BlueprintCallable, Category = "UI")
-	void ShowHealthBarWidget(float NewHealth, float Delta, float Duration);
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "UI")
+	UWotUWInventoryPanel *InventoryWidget = nullptr;
 
 	float KilledDestroyDelay = 2.0f;
 	FTimerHandle TimerHandle_Destroy;
@@ -178,7 +182,22 @@ public:
 	bool IsClimbing() const;
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
-	void SetMenuActive(bool Active);
+	bool CanOpenInventory() const;
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	bool IsInventoryWidgetOpen() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "UI")
+	bool ShowInventoryWidget(UWotUWInventoryPanel *&OutInventoryWidget);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "UI")
+	void CloseInventoryWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void SetInventoryWidget(UWotUWInventoryPanel *NewInventoryWidget);
+
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ShowHealthBarWidget(float NewHealth, float Delta, float Duration);
 
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void ShowPopupWidget(const FText& Text, float Duration, bool Animated = true);

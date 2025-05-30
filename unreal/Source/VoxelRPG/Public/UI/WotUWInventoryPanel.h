@@ -43,6 +43,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory Panel")
     void UpdateInventory();
 
+    UFUNCTION(BlueprintCallable, Category = "Inventory Panel")
+    bool IsOwningPlayersInventory() const;
+
     UPROPERTY(BlueprintReadOnly, Category = "Inventory Panel")
     bool bControllerWasShowingCursor = false;
 
