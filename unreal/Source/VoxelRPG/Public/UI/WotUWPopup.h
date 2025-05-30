@@ -13,7 +13,7 @@ class VOXELRPG_API UWotUWPopup : public UWotUserWidget
 
 public:
     UFUNCTION(BlueprintCallable)
-    void SetText(const FText& NexText);
+    void SetText(const FText& NewText);
 
     UFUNCTION(BlueprintCallable)
     void SetColor(FLinearColor& NewColor);

@@ -11,9 +11,7 @@ void UWotUWItem::NativeConstruct()
   bIsFocusable = true;
 }
 
-void UWotUWItem::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-  Super::NativeTick(MyGeometry, InDeltaTime);
+void UWotUWItem::UpdateUseTooltipText() {
   // Since the UseActionText can change (as it is used), we need to make sure to
   // update the use tooltip text in the native tick.
   if (bInOwningPlayerInventory) {
@@ -22,6 +20,12 @@ void UWotUWItem::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
     // TODO: find better way of setting this (for translations and such?)
     UseTooltipText = FText::FromString("Take");
   }
+}
+
+void UWotUWItem::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+  Super::NativeTick(MyGeometry, InDeltaTime);
+  UpdateUseTooltipText();
 }
 
 void UWotUWItem::SetItem(UWotItem* NewItem, bool NewInOwningPlayerInventory)
@@ -36,4 +40,5 @@ void UWotUWItem::SetItem(UWotItem* NewItem, bool NewInOwningPlayerInventory)
   Image->SetBrushFromTexture(Item->Thumbnail);
   NameLabel->SetText(Item->ItemDisplayName);
   CountLabel->SetText(UWotGameplayFunctionLibrary::GetIntAsText(Item->Count));
+  UpdateUseTooltipText();
 }

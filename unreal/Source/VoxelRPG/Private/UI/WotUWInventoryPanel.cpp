@@ -98,11 +98,11 @@ void UWotUWInventoryPanel::UpdateInventory()
   if (!InventoryComp) {
     return;
   }
+  bool bIsOwningPlayersInventory = IsOwningPlayersInventory();
   for (auto& Item : InventoryComp->Items) {
-    APawn* OwningPawn = GetOwningPlayerPawn();
     UWotUWItem* Widget = CreateWidget<UWotUWItem>(GetOwningPlayer(), ItemWidgetClass);
     Widget->Item = Item;
-    Widget->bInOwningPlayerInventory = (InventoryComp->GetOwner() == OwningPawn);
+    Widget->bInOwningPlayerInventory = bIsOwningPlayersInventory;
     ItemBox->AddChildToWrapBox(Widget);
   }
   // if there are children, then focus on the first on, otherwise, focus on the
@@ -111,4 +111,12 @@ void UWotUWInventoryPanel::UpdateInventory()
     UE_LOG(LogTemp, Warning, TEXT("Focusing first item in inventory"));
     ItemBox->GetChildAt(0)->SetFocus();
   }
+}
+
+bool UWotUWInventoryPanel::IsOwningPlayersInventory() const {
+  if (!InventoryComp) {
+    return false;
+  }
+  APawn* OwningPawn = GetOwningPlayerPawn();
+  return (InventoryComp->GetOwner() == OwningPawn);
 }
