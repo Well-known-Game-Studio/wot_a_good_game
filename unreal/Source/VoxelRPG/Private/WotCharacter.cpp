@@ -368,8 +368,8 @@ void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* Ow
 	GetCapsuleComponent()->SetCollisionProfileName("NoCollision");
 	SetActorEnableCollision(false);
 	// ragdoll the mesh
-	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCollisionProfileName("Ragdoll", true);
+	GetMesh()->SetSimulatePhysics(true);
 	// detatch any attached actors and enable physics on them
 	TArray<AActor*> AttachedActors;
 	GetAttachedActors(AttachedActors, false, true);
