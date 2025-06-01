@@ -100,8 +100,8 @@ appropriately, e.g.:
 - `Android SDK` : `/Users/bob/Library/Android/sdk`
 - `Android NDK` : `/Users/bob/Library/Android/sdk/ndk/25.1.8937393`
 - `Location of JAVA` : `/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home`
-- `SDK API Level` : `android-32`
-- `NDK API Level` : `android-32`
+- `SDK API Level` : `android-34`
+- `NDK API Level` : `android-34`
 
 For that version of java (jdk 8) which is required to successfully build for
 android, you can (on macos) install it via:
@@ -109,6 +109,11 @@ android, you can (on macos) install it via:
 ``` sh
 brew install --cask adoptopenjdk8
 ```
+
+You will also need to update a build config file in your unreal engine
+installation. See [this
+link](https://forums.unrealengine.com/t/google-play-aidl-submission-error-ue-5-4/1810571/3)
+for more info.
 
 ### Modeling Workflow
 

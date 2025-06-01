@@ -266,12 +266,12 @@ void AWotCharacter::ActionStart(FName ActionName)
 	}
 	// TODO: probably a better way of doing this?
 	bCanOpenMenu = false;
-	ActionComp->StartActionByName(this, ActionName);
+	ActionComp->StartActionByName(ActionName, this);
 }
 
 void AWotCharacter::ActionStop(FName ActionName)
 {
-	ActionComp->StopActionByName(this, ActionName);
+	ActionComp->StopActionByName(ActionName, this);
 	// TODO: probably a better way of doing this?
 	bCanOpenMenu = true;
 }
@@ -404,7 +404,6 @@ bool AWotCharacter::ShowInventoryWidget_Implementation(UWotUWInventoryPanel*& Ou
 		OutInventoryWidget = InventoryWidget;
 		return true;
 	}
-	OutInventoryWidget = nullptr;
 	return false;
 }
 

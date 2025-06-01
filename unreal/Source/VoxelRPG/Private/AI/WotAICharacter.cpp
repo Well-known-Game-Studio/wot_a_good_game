@@ -88,7 +88,7 @@ void AWotAICharacter::PrimaryAttack(AActor* TargetActor)
 		EquippedWeapon->PrimaryAttackStart();
 	} else {
 		UE_LOG(LogTemp, Log, TEXT("No weapon equipped starting action 'PrimaryAttack'"));
-		ActionComp->StartActionByName(this, "PrimaryAttack");
+		ActionComp->StartActionByName("PrimaryAttack", this);
 	}
 }
 
@@ -98,6 +98,7 @@ void AWotAICharacter::PrimaryAttackStop()
 	if (EquippedWeapon) {
 		EquippedWeapon->PrimaryAttackStop();
 	} else {
+		ActionComp->StopActionByName("PrimaryAttack", this);
 	}
 }
 

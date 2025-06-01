@@ -26,10 +26,19 @@ public:
     void AddAction(TSubclassOf<UWotAction> Action);
 
     UFUNCTION(BlueprintCallable, Category = "Actions")
-    bool StartActionByName(AActor* Instigator, FName ActionName);
+    bool StartActionByName(FName ActionName, AActor* Instigator = nullptr);
 
     UFUNCTION(BlueprintCallable, Category = "Actions")
-    bool StopActionByName(AActor* Instigator, FName ActionName);
+    bool StopActionByName(FName ActionName, AActor* Instigator = nullptr);
+
+    UFUNCTION(BlueprintCallable, Category = "Actions")
+    bool StopAllActions(AActor* Instigator = nullptr);
+
+    UFUNCTION(BlueprintCallable, Category = "Actions")
+    bool IsActionRunning(FName ActionName) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Actions")
+    bool IsAnyActionRunning() const;
 
 	// Sets default values for this component's properties
 	UWotActionComponent();
