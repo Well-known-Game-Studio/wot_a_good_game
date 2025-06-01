@@ -82,6 +82,16 @@ questions about why and how to do certain things within UE5.
 
 #### Packaging
 
+#### Setup for iOS App
+
+TODO: add info.
+
+#### Setup for MacOS App
+
+If you want to do direct distribution for MacOS, you need to enable `Hardened
+Runtime` in the Xcode project. It's also recommended to do `Product->Archive`
+from within XCode to ensure everything is signed properly.
+
 #### Setup for Android App
 
 Follow the setup instructions
@@ -117,6 +127,9 @@ for more info.
 
 To sign your app, you need to follow these instructions
 [here](https://dev.epicgames.com/documentation/en-us/unreal-engine/signing-android-projects-for-release-on-the-google-play-store-with-unreal-engine)
+
+For more information about packaging for android see [this
+link](https://dev.epicgames.com/documentation/en-us/unreal-engine/packaging-android-projects-in-unreal-engine).
 
 ### Modeling Workflow
 
