@@ -115,6 +115,9 @@ installation. See [this
 link](https://forums.unrealengine.com/t/google-play-aidl-submission-error-ue-5-4/1810571/3)
 for more info.
 
+To sign your app, you need to follow these instructions
+[here](https://dev.epicgames.com/documentation/en-us/unreal-engine/signing-android-projects-for-release-on-the-google-play-store-with-unreal-engine)
+
 ### Modeling Workflow
 
 All modeling is done with `VoxelMax`, make sure in the settings to select
