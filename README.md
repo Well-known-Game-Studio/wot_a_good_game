@@ -74,6 +74,8 @@ https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/b3bde112
 
 ## Development
 
+If on MacOS: [using modern xcode](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-modern-xcode-in-unreal-engine)
+
 ### Programming
 
 Here's a useful [Unreal Engine Style
@@ -91,6 +93,8 @@ TODO: add info.
 If you want to do direct distribution for MacOS, you need to enable `Hardened
 Runtime` in the Xcode project. It's also recommended to do `Product->Archive`
 from within XCode to ensure everything is signed properly.
+
+[Post about dSYM files](https://jasont.co/debug-unreal-on-mac/)
 
 #### Setup for Android App
 

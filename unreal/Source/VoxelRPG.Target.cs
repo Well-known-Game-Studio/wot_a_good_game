@@ -12,6 +12,9 @@ public class VoxelRPGTarget : TargetRules
 		// CppStandard = CppStandardVersion.Cpp20;
 		// IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
 
+		MacPlatform.bUseDSYMFiles = false;
+		IOSPlatform.bGeneratedSYM = true;
+
 		ExtraModuleNames.AddRange( new string[] { "VoxelRPG" } );
 	}
 }
