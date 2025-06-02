@@ -1,31 +1,17 @@
 #+title:  Devlog
 #+author: William Emfinger
-#+date:   <2022-08-14 Sun>
+#+date:   <2025-06-02 Mon>
 
 * Task List
 ** Bugs
 
-- [ ] NPCs fall through the ground when starting the level with VoxelPlugin
-- [ ] Niagara Water (3D) doesn't work
-- [ ] VoxelPlugin 2.0 .vox importer is broken (UE 5.0.1)
-- [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] waterfall clips at edge of cliff
-- [ ] [[id:f0d71869-42f9-43fd-a95a-76f2eb7300cb][Fluid Flux]] surfaces trigger overlap events with projectiles
-- [ ] Sprint & inventory UI don't interact well
-- [ ] NavMesh not properly taking into account the foliage: https://forums.unrealengine.com/t/foliage-not-affecting-nav-mesh-in-ue5-works-in-4-26/532988
+- [ ] CommonUI widget doens't show for all keyboard input
 
-** General
+** Learning Resources
 
 - [X] [[https://courses.tomlooman.com/p/unrealengine-cpp?coupon_code=COMMUNITY15&_ga=2.38472932.678384283.1651337970-1623431491.1651337970][Tom Looman Professional Game Development in C++ and Unreal Engine]]
 - [X] watch UE learning course (C++, gameplay systems)
 - [X] prototype voxel destruction of world
-
-** Assignments
-
-- [ ] Credits / Money system - stored in PlayerState derived class to remain after player death
-- [ ] Killing minions grants credits, using health potions costs credits
-- [ ] Coin pick-up
-- [ ] Credits widget hooked up to show current credits in HUD
-- [ ] Randomly spawn coin and health potions throughout the level at game start (EQS)
 
 ** Systems to Learn
 
@@ -35,18 +21,27 @@
 - [ ] [[id:bc1ba8f2-0c28-4b6a-9409-7b4e7cb3daec][Unreal Engine Data Tables]]
 - [ ] [[id:bed29d32-6d95-499c-8f49-0ed2d3cc627e][Unreal Engine Subsystem Framework]] (lifetime managed singletons)
 
+** Blockout
+
+- [ ] Block out overworld (spine of the world, aiel waste, blight, ocean)
+- [ ] Figure out scale of overworld models
+- [ ] Block out Emonds Field
+
+** Code
+
+- [ ] Save player inventory to state so that it persists between level loads
+- [ ] Store quest / level state when leaving so it is the same upon return
+- [ ] Fix / improve geometry script tools so they perform better (wall is really bad)
+
 ** Game
 
+- [ ] Have tiny models hurt when they touch you (e.g. melee actors)
+- [ ]
 - [ ] Add effects (butterflies and dust motes) to the scene
-- [ ] Start stubbing out dialogue system
-- [ ] highlight interactable objects & foliage
-- [ ] add niagara water effects
-- [ ] add niagara smoke effects (campfire / chimney)
+- [ ] add niagara smoke effects (chimney)
 - [ ] add lightning effect
 - [ ] magic projectile destroys foliage instances
 - [ ] magic projectile sets foliage instances on fire
-- [ ] Add particle effects to waterfall (top & bottom)
-- [ ] mouse + keyboard support (to aim where mouse looks)
 - [ ] Make blendspace 2d for holding bow, walking, idling
 - [ ] Allow each animal to have a different amount of player avoidance
 - [ ] Fade objects between camera and player
@@ -55,13 +50,7 @@
 - [ ] Lock / Key System
 - [ ] Action / Event / Trigger (e.g. hidden doors, buttons, and such)
 - [ ] Puzzles (ideas, systems, prototypes)
-- [ ] Update Arrow Projectile to be Physical projectile working for spears and such as well
 - [ ] Shield equipment which can block arrows and attacks
-- [ ] Allow default items to be randomized on instance spawn
-
-** Code
-
-- [ ] Allow new character to climb ladder
 
 ** GUI
 
@@ -73,7 +62,9 @@
 
 ** Models
 
-- [ ] Make ladder
+- [ ] Simplify world / foliage voxel models
+- [ ] Simplify sword animation
+- [ ] Make models for overworld scale
 - [ ] rig dog
 - [ ] rig raccoon
 - [ ] rig duck
@@ -88,7 +79,6 @@
 - [ ] Pig
 - [ ] Crops (corn, wheat, pumpkins)
 - [ ] Fruit (apples, bananas, oranges, pears)
-- [X] Update flat models to have a more clearly defined front - not really an issue
 - [ ] Secret cave in mountain home map with rock door
 
 ** Audio
@@ -97,9 +87,25 @@
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
 
-* Week of 2022-08-14
+* 2025-05
 
-- [ ]
+- [X] FIX: Sprint & inventory UI don't interact well
+- [X] FIX: NavMesh not properly taking into account the foliage: https://forums.unrealengine.com/t/foliage-not-affecting-nav-mesh-in-ue5-works-in-4-26/532988
+- [X] Update to enhanced input system
+- [X] Make ladder
+- [X] Make fence / pen for holding animals (script / spline)
+- [X] Allow new character to climb ladder
+- [X] Start stubbing out dialogue system
+- [X] highlight interactable objects & foliage
+- [X] add niagara water effects
+- [X] add niagara smoke effects (campfire)
+- [X] Add particle effects to waterfall (top & bottom)
+- [X] mouse + keyboard support (to aim where mouse looks)
+- [X] Update Arrow Projectile to be Physical projectile working for spears and such as well
+- [X] Allow default items to be randomized on instance spawn
+- [X] Compilation and deployment for Android + iOS
+
+* Week of 2022-08-14
 
 * Week of 2022-08-07
 
