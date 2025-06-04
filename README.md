@@ -129,6 +129,23 @@ installation. See [this
 link](https://forums.unrealengine.com/t/google-play-aidl-submission-error-ue-5-4/1810571/3)
 for more info.
 
+Add the following lines to the `dependencies` section of your UE `app/build.gradle`:
+
+`/Users/Shared/Epic Games/UE_5.5/Engine/Build/Android/Java/gradle/app/build.gradle`
+
+```gradle
+dependencies {
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+	implementation fileTree(dir: 'src/main/libs', include: ['*.jar'])
+
+	// note Gradle will use newest version if multiple specified
+	implementation('androidx.appcompat:appcompat:1.2.0')
+   // ADD THE LINES BELOW:
+	implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+	annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.6.1'
+}
+```
+
 To sign your app, you need to follow these instructions
 [here](https://dev.epicgames.com/documentation/en-us/unreal-engine/signing-android-projects-for-release-on-the-google-play-store-with-unreal-engine)
 
