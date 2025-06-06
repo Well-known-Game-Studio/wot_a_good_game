@@ -8,7 +8,7 @@ void UWotUWItem::NativeConstruct()
 {
   Super::NativeConstruct();
   SetItem(Item, bInOwningPlayerInventory);
-  bIsFocusable = true;
+  SetIsFocusable(true);
 }
 
 void UWotUWItem::UpdateUseTooltipText() {

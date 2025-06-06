@@ -36,6 +36,10 @@ void UWotActionComponent::AddAction(TSubclassOf<UWotAction> ActionClass)
 
 bool UWotActionComponent::StartActionByName(FName ActionName, AActor* Instigator)
 {
+  if (!bEnableActions) {
+    return false;
+  }
+
   for (UWotAction* Action : Actions) {
     if (Action && Action->ActionName == ActionName) {
       if (!Action->CanStart(Instigator)) {

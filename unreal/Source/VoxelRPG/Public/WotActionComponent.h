@@ -22,6 +22,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Actions")
     FGameplayTagContainer ActiveGameplayTags;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Actions")
+    bool bEnableActions = true;
+
     UFUNCTION(BlueprintCallable, Category = "Actions")
     void AddAction(TSubclassOf<UWotAction> Action);
 
