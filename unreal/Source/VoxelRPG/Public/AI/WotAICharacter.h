@@ -6,7 +6,7 @@
 #include "WotInteractableInterface.h"
 #include "WotAICharacter.generated.h"
 
-class UPawnSensingComponent;
+class UAIPerceptionComponent;
 class UWotInventoryComponent;
 class UWotAttributeComponent;
 class UWotActionComponent;
@@ -78,7 +78,7 @@ protected:
 	UWotInventoryComponent* InventoryComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UPawnSensingComponent* PawnSensingComp;
+	UAIPerceptionComponent* AIPerceptionComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	UWotDeathEffectComponent* DeathEffectComp;
@@ -90,7 +90,7 @@ protected:
 	TSubclassOf<UWotUWPopupNumber> PopupWidgetClass;
 
 	UFUNCTION()
-	void OnPawnSeen(APawn* Pawn);
+	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
 
 	float DamageActorForgetDelay = 5.0f;
 	FTimerHandle TimerHandle_ForgetDamageActor;

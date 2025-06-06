@@ -1,7 +1,7 @@
 #include "AI/WotAICharacter.h"
 #include "AI/WotAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Perception/PawnSensingComponent.h"
+#include "Perception/AIPerceptionComponent.h"
 #include "AIController.h"
 #include "WotActionComponent.h"
 #include "WotAttributeComponent.h"
@@ -18,7 +18,7 @@
 
 AWotAICharacter::AWotAICharacter()
 {
-  PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>("PawnSensingComp");
+  AIPerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerceptionComp");
   AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	EquipmentComp = CreateDefaultSubobject<UWotEquipmentComponent>("EquipmentComp");
@@ -35,7 +35,7 @@ AWotAICharacter::AWotAICharacter()
 void AWotAICharacter::PostInitializeComponents()
 {
   Super::PostInitializeComponents();
-  PawnSensingComp->OnSeePawn.AddDynamic(this, &AWotAICharacter::OnPawnSeen);
+  AIPerceptionComp->OnPerceptionUpdated.AddDynamic(this, &AWotAICharacter::OnPerceptionUpdated);
 	AttributeComp->OnHealthChanged.AddDynamic(this, &AWotAICharacter::OnHealthChanged);
 	AttributeComp->OnKilled.AddDynamic(this, &AWotAICharacter::OnKilled);
   // TODO: hack for projectile / collision - should actually set up proper
@@ -73,8 +73,21 @@ void AWotAICharacter::SetHighlightEnabled(int HighlightValue, bool Enabled)
   GetMesh()->CustomDepthStencilValue = HighlightValue;
 }
 
-void AWotAICharacter::OnPawnSeen(APawn* Pawn)
+void AWotAICharacter::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
+  APawn* Pawn = nullptr;
+  // get the actor from the list that is a pawn
+  for (AActor* Actor : UpdatedActors) {
+    if (Actor && Actor->IsA(APawn::StaticClass())) {
+      Pawn = Cast<APawn>(Actor);
+      break;
+    }
+  }
+
+  if (!Pawn) {
+    return;
+  }
+
   SetBlackboardActor("TargetActor", Pawn);
 }
 
