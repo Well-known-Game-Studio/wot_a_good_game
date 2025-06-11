@@ -1,18 +1,67 @@
 import bpy
 from mathutils import Vector
+import uuid
 
-# make some materials for the different colors we'll use to keep material could low
-def create_material(name, color):
+import os
+
+# Ensure Cycles render engine is selected for baking support
+for scene in bpy.data.scenes:
+    scene.render.engine = 'CYCLES'
+
+def export_each_object_to_fbx(objs, export_dir=None):
+    # Use the directory of the current .blend file, or fallback to current working directory
+    if export_dir is None:
+        blend_path = bpy.data.filepath
+        if blend_path:
+            base_dir = os.path.dirname(blend_path)
+        else:
+            base_dir = os.getcwd()
+        export_dir = os.path.join(base_dir, "exports")
+    if not os.path.exists(export_dir):
+        os.makedirs(export_dir)
+    bpy.ops.object.select_all(action='DESELECT')
+    for obj in objs:
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        export_path = os.path.join(export_dir, f"{obj.name}.fbx")
+        bpy.ops.export_scene.fbx(
+            filepath=export_path,
+            use_selection=True,
+            apply_unit_scale=True,
+            bake_space_transform=True,
+            object_types={'MESH'},
+            path_mode='AUTO'
+        )
+        obj.select_set(False)
+
+def delete_all_materials():
+    for material in bpy.data.materials:
+        material.user_clear()
+        bpy.data.materials.remove(material)
+
+def create_material(name, color, shared_image):
     if name in bpy.data.materials:
-        return bpy.data.materials[name]
-    mat = bpy.data.materials.new(name)
-    mat.use_nodes = True
+        mat = bpy.data.materials[name]
+    else:
+        mat = bpy.data.materials.new(name)
+        mat.use_nodes = True
     bsdf = mat.node_tree.nodes.get("Principled BSDF")
     if bsdf:
         bsdf.inputs[0].default_value = color  # Set base color
-    # to make our lives easier in the future (to bake materials into textures)
-    # we'll add a texture node
-    tex_node = mat.node_tree.nodes.new('ShaderNodeTexImage')
+
+    # Ensure a single image texture node exists (for baking)
+    tex_node = None
+    for node in mat.node_tree.nodes:
+        if node.type == 'TEX_IMAGE' and node.image == shared_image:
+            tex_node = node
+            break
+    if not tex_node:
+        tex_node = mat.node_tree.nodes.new('ShaderNodeTexImage')
+        tex_node.image = shared_image
+
+    # DO NOT connect tex_node to the shader!
+    # Just leave it in the node tree for baking.
+
     return mat
 
 # make a function which will take in an object and ensure the object is not a
@@ -62,16 +111,10 @@ def set_pivot_to_bottom_center(obj):
     # Move the 3D cursor to the bottom center
     bpy.context.scene.cursor.location = bottom_center
 
-    # # Calculate the offset from the object's origin to the bottom center
-    # offset = obj.location - bottom_center
-
-    # # Move the object so the bottom center is at the desired location
-    # obj.location = obj.location + offset
-
     # Set the origin to the current location (which is now the bottom center)
     bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='BOUNDS')
 
-def create_pine_tree(location, scale=1.0):
+def create_pine_tree(location, scale=1.0, shared_image=None):
     parent = bpy.data.objects.new('PineTree', None)
     parent.location = location
     bpy.context.collection.objects.link(parent)
@@ -81,7 +124,7 @@ def create_pine_tree(location, scale=1.0):
         bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0], location[1], location[2]+h*scale))
         obj = bpy.context.active_object
         obj.name = f"PineTrunk_{h}"
-        mat = create_material("TrunkMaterial", (0.4, 0.2, 0.05, 1))
+        mat = create_material("TrunkMaterial", (0.4, 0.2, 0.05, 1), shared_image)
         obj.data.materials.append(mat)
         voxels.append(obj)
     # Leaves (cone)
@@ -94,7 +137,7 @@ def create_pine_tree(location, scale=1.0):
                     obj = bpy.context.active_object
                     obj.name = f"PineLeaf_{x}_{y}_{h}"
                     # Create a new material for the leaves
-                    mat = create_material("LeafMaterial", (0.1, 0.5, 0.1, 1))
+                    mat = create_material("LeafMaterial", (0.1, 0.5, 0.1, 1), shared_image)
                     # set the input for the base color to the material specifically for this instance
                     mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.1, 0.5, 0.1, 1)
                     obj.data.materials.append(mat)
@@ -110,7 +153,7 @@ def create_pine_tree(location, scale=1.0):
     parent.select_set(False)
     return parent
 
-def create_round_tree(location, scale=1.0):
+def create_round_tree(location, scale=1.0, shared_image=None):
     parent = bpy.data.objects.new('RoundTree', None)
     parent.location = location
     bpy.context.collection.objects.link(parent)
@@ -119,8 +162,7 @@ def create_round_tree(location, scale=1.0):
         bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0], location[1], location[2]+h*scale))
         obj = bpy.context.active_object
         obj.name = f"RoundTrunk_{h}"
-        # Create a new material for the trunk
-        mat = create_material("TrunkMaterial", (0.4, 0.2, 0.05, 1))
+        mat = create_material("TrunkMaterial", (0.4, 0.2, 0.05, 1), shared_image)
         obj.data.materials.append(mat)
         voxels.append(obj)
     for x in range(-2, 3):
@@ -130,9 +172,7 @@ def create_round_tree(location, scale=1.0):
                     bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+z*scale))
                     obj = bpy.context.active_object
                     obj.name = f"RoundLeaf_{x}_{y}_{z}"
-                    # Create a new material for the leaves
-                    mat = create_material("LeafMaterial", (0.2, 0.7, 0.2, 1))
-                    # make sure the color is set as the base color
+                    mat = create_material("LeafMaterial", (0.2, 0.7, 0.2, 1), shared_image)
                     mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.2, 0.7, 0.2, 1)
                     obj.data.materials.append(mat)
                     voxels.append(obj)
@@ -146,7 +186,7 @@ def create_round_tree(location, scale=1.0):
     parent.select_set(False)
     return parent
 
-def create_bushy_tree(location, scale=1.0):
+def create_bushy_tree(location, scale=1.0, shared_image=None):
     parent = bpy.data.objects.new('BushyTree', None)
     parent.location = location
     bpy.context.collection.objects.link(parent)
@@ -155,9 +195,7 @@ def create_bushy_tree(location, scale=1.0):
         bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0], location[1], location[2]+h*scale))
         obj = bpy.context.active_object
         obj.name = f"BushyTrunk_{h}"
-        # Create a new material for the trunk
-        # and set the base color
-        mat = create_material("TrunkMaterial", (0.4, 0.2, 0.05, 1))
+        mat = create_material("TrunkMaterial", (0.4, 0.2, 0.05, 1), shared_image)
         mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.4, 0.2, 0.05, 1)
         obj.data.materials.append(mat)
         voxels.append(obj)
@@ -168,9 +206,7 @@ def create_bushy_tree(location, scale=1.0):
                     bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+z*scale))
                     obj = bpy.context.active_object
                     obj.name = f"BushyLeaf_{x}_{y}_{z}"
-                    # Create a new material for the leaves
-                    mat = create_material("LeafMaterial", (0.15, 0.6, 0.15, 1))
-                    # set the base color for the leaves
+                    mat = create_material("LeafMaterial", (0.15, 0.6, 0.15, 1), shared_image)
                     mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.15, 0.6, 0.15, 1)
                     obj.data.materials.append(mat)
                     voxels.append(obj)
@@ -184,7 +220,7 @@ def create_bushy_tree(location, scale=1.0):
     parent.select_set(False)
     return parent
 
-def create_mountain(location, scale=1.0):
+def create_mountain(location, scale=1.0, shared_image=None):
     parent = bpy.data.objects.new('Mountain', None)
     parent.location = location
     bpy.context.collection.objects.link(parent)
@@ -197,9 +233,7 @@ def create_mountain(location, scale=1.0):
                     bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+h*scale))
                     obj = bpy.context.active_object
                     obj.name = f"Mountain_{x}_{y}_{h}"
-                    # Create a new material for the mountain
-                    # and set the base color
-                    mat = create_material("MountainMaterial", (0.5, 0.5, 0.5, 1))
+                    mat = create_material("MountainMaterial", (0.5, 0.5, 0.5, 1), shared_image)
                     mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.5, 0.5, 0.5, 1)
                     obj.data.materials.append(mat)
                     voxels.append(obj)
@@ -213,7 +247,7 @@ def create_mountain(location, scale=1.0):
     parent.select_set(False)
     return parent
 
-def create_house(location, scale=1.0):
+def create_house(location, scale=1.0, shared_image=None):
     parent = bpy.data.objects.new('House', None)
     parent.location = location
     bpy.context.collection.objects.link(parent)
@@ -224,9 +258,7 @@ def create_house(location, scale=1.0):
                 bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+z*scale))
                 obj = bpy.context.active_object
                 obj.name = f"HouseWall_{x}_{y}_{z}"
-                # Create a new material for the walls
-                mat = create_material("HouseWallMaterial", (0.8, 0.7, 0.5, 1))
-                # set the base color for the walls
+                mat = create_material("HouseWallMaterial", (0.8, 0.7, 0.5, 1), shared_image)
                 mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.8, 0.7, 0.5, 1)
                 obj.data.materials.append(mat)
                 voxels.append(obj)
@@ -236,10 +268,7 @@ def create_house(location, scale=1.0):
                 bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+(2+h)*scale))
                 obj = bpy.context.active_object
                 obj.name = f"HouseRoof_{x}_{y}_{2+h}"
-                # Create a new material for the roof
-                # and set the base color
-                mat = create_material("HouseRoofMaterial", (0.5, 0.2, 0.1, 1))
-                # set the base color for the roof
+                mat = create_material("HouseRoofMaterial", (0.5, 0.2, 0.1, 1), shared_image)
                 mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.5, 0.2, 0.1, 1)
                 obj.data.materials.append(mat)
                 voxels.append(obj)
@@ -253,7 +282,7 @@ def create_house(location, scale=1.0):
     parent.select_set(False)
     return parent
 
-def create_big_building(location, scale=1.0):
+def create_big_building(location, scale=1.0, shared_image=None):
     parent = bpy.data.objects.new('BigBuilding', None)
     parent.location = location
     bpy.context.collection.objects.link(parent)
@@ -264,10 +293,7 @@ def create_big_building(location, scale=1.0):
                 bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+z*scale))
                 obj = bpy.context.active_object
                 obj.name = f"BigBuildingWall_{x}_{y}_{z}"
-                # Create a new material for the walls
-                # and set the base color
-                mat = create_material("BigBuildingWallMaterial", (0.7, 0.7, 0.8, 1))
-                # set the base color for the walls
+                mat = create_material("BigBuildingWallMaterial", (0.7, 0.7, 0.8, 1), shared_image)
                 mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.7, 0.7, 0.8, 1)
                 obj.data.materials.append(mat)
                 voxels.append(obj)
@@ -277,10 +303,7 @@ def create_big_building(location, scale=1.0):
             print(f"Creating roof voxel at: {location[0]+x*scale}, {location[1]+y*scale}, {location[2]+(3.0*scale)}")
             obj = bpy.context.active_object
             obj.name = f"BigBuildingRoof_{x}_{y}_3"
-            # Create a new material for the roof
-            # and set the base color
-            mat = create_material("BigBuildingRoofMaterial", (0.3, 0.15, 0.05, 1))
-            # set the base color for the roof
+            mat = create_material("BigBuildingRoofMaterial", (0.3, 0.15, 0.05, 1), shared_image)
             mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.3, 0.15, 0.05, 1)
             obj.data.materials.append(mat)
             voxels.append(obj)
@@ -300,20 +323,61 @@ def create_objects(scale=1.0):
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete()
 
+    name_prefix = "small_prop_"
+
     # Create objects at specified locations
-    objs = [
-        create_pine_tree((0, 0, 0), scale=scale),
-        create_round_tree((2, 2, 0), scale=scale),
-        create_bushy_tree((-2, -2, 0), scale=scale),
-        create_mountain((4, -4, 0), scale=scale),
-        create_house((1, -1, 0), scale=scale),
-        create_big_building((-3, 3, 0), scale=scale),
+    obj_defs = [
+        (create_pine_tree, (0, 0, 0), name_prefix + 'pine_tree'),
+        (create_round_tree, (2, 2, 0), name_prefix + 'round_tree'),
+        (create_bushy_tree, (-2, -2, 0), name_prefix + 'bushy_tree'),
+        (create_mountain, (4, -4, 0), name_prefix + 'mountain'),
+        (create_house, (1, -1, 0), name_prefix + 'house'),
+        (create_big_building, (-3, 3, 0), name_prefix + 'big_building'),
     ]
-    for obj in objs:
+    created_objs = []
+    for create_fn, loc, obj_name in obj_defs:
+        # Each object gets its own unique image
+        tex_name = obj_name + "_tex"
+        unique_image = get_or_create_unique_image(tex_name)
+        obj = create_fn(loc, scale=scale, shared_image=unique_image)
         joined_obj = unparent_and_join(obj)
         if joined_obj:
+            # rename the joined object
+            joined_obj.name = obj_name
             set_pivot_to_bottom_center(joined_obj)
+            auto_unwrap(joined_obj)
+            bake_to_shared_image(joined_obj, unique_image, bake_type='DIFFUSE')
+            created_objs.append(joined_obj)
+
+    # Move all created objects to the origin
+    for obj in created_objs:
+        obj.location = (0, 0, 0)
+
+    # Export each object to FBX
+    export_each_object_to_fbx(created_objs)
+
+def get_or_create_unique_image(base_name="obj_tex", width=1024, height=1024):
+    return bpy.data.images.new(base_name, width=width, height=height, alpha=True, float_buffer=False)
+
+def auto_unwrap(obj):
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.smart_project(angle_limit=66, island_margin=0.03)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+def bake_to_shared_image(obj, shared_image, bake_type='DIFFUSE'):
+    # Ensure the image is in the object's material node tree and selected for baking
+    for mat in obj.data.materials:
+        for node in mat.node_tree.nodes:
+            if node.type == 'TEX_IMAGE' and node.image == shared_image:
+                mat.node_tree.nodes.active = node
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    bpy.ops.object.bake(type=bake_type, use_clear=True, margin=2)
 
 # Run the function to create objects
 if __name__ == "__main__":
+    delete_all_materials()
     create_objects(0.25)
