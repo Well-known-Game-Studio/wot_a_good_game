@@ -233,7 +233,7 @@ def create_house(location, scale=1.0):
     for h in range(2):
         for x in range(-1+h, 2-h):
             for y in range(-1+h, 2-h):
-                bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+2+h*scale))
+                bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+(2+h)*scale))
                 obj = bpy.context.active_object
                 obj.name = f"HouseRoof_{x}_{y}_{2+h}"
                 # Create a new material for the roof
