@@ -30,7 +30,40 @@ def export_each_object_to_fbx(objs, export_dir=None):
             apply_unit_scale=True,
             bake_space_transform=True,
             object_types={'MESH'},
-            path_mode='AUTO'
+            path_mode='COPY',
+            embed_textures=True
+        )
+        obj.select_set(False)
+
+def export_each_object_to_gltf(objs, export_dir=None):
+    # Use the directory of the current .blend file, or fallback to current working directory
+    if export_dir is None:
+        blend_path = bpy.data.filepath
+        if blend_path:
+            base_dir = os.path.dirname(blend_path)
+        else:
+            base_dir = os.getcwd()
+        export_dir = os.path.join(base_dir, "exports")
+    if not os.path.exists(export_dir):
+        os.makedirs(export_dir)
+    bpy.ops.object.select_all(action='DESELECT')
+    for obj in objs:
+        obj.select_set(True)
+        bpy.context.view_layer.objects.active = obj
+        export_path = os.path.join(export_dir, f"{obj.name}.glb")
+        bpy.ops.export_scene.gltf(
+            filepath=export_path,
+            use_selection=True,
+            export_format='GLB',
+            export_materials='EXPORT',
+            export_image_format='AUTO',
+            export_texcoords=True,
+            export_normals=True,
+            export_colors=True,
+            export_apply=True,
+            export_yup=True,
+            export_cameras=False,
+            export_extras=True,
         )
         obj.select_set(False)
 
@@ -119,12 +152,15 @@ def create_pine_tree(location, scale=1.0, shared_image=None):
     parent.location = location
     bpy.context.collection.objects.link(parent)
     voxels = []
+    # Generate unique material names for this tree
+    trunk_mat_name = f"PineTrunkMaterial"
+    leaf_mat_name = f"PineLeafMaterial"
     # Trunk
     for h in range(3):
         bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0], location[1], location[2]+h*scale))
         obj = bpy.context.active_object
         obj.name = f"PineTrunk_{h}"
-        mat = create_material("TrunkMaterial", (0.4, 0.2, 0.05, 1), shared_image)
+        mat = create_material(trunk_mat_name, (0.4, 0.2, 0.05, 1), shared_image)
         obj.data.materials.append(mat)
         voxels.append(obj)
     # Leaves (cone)
@@ -136,9 +172,7 @@ def create_pine_tree(location, scale=1.0, shared_image=None):
                     bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+h*scale))
                     obj = bpy.context.active_object
                     obj.name = f"PineLeaf_{x}_{y}_{h}"
-                    # Create a new material for the leaves
-                    mat = create_material("LeafMaterial", (0.1, 0.5, 0.1, 1), shared_image)
-                    # set the input for the base color to the material specifically for this instance
+                    mat = create_material(leaf_mat_name, (0.1, 0.5, 0.1, 1), shared_image)
                     mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.1, 0.5, 0.1, 1)
                     obj.data.materials.append(mat)
                     voxels.append(obj)
@@ -158,11 +192,13 @@ def create_round_tree(location, scale=1.0, shared_image=None):
     parent.location = location
     bpy.context.collection.objects.link(parent)
     voxels = []
+    trunk_mat_name = f"RoundTrunkMaterial"
+    leaf_mat_name = f"RoundLeafMaterial"
     for h in range(3):
         bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0], location[1], location[2]+h*scale))
         obj = bpy.context.active_object
         obj.name = f"RoundTrunk_{h}"
-        mat = create_material("TrunkMaterial", (0.4, 0.2, 0.05, 1), shared_image)
+        mat = create_material(trunk_mat_name, (0.4, 0.2, 0.05, 1), shared_image)
         obj.data.materials.append(mat)
         voxels.append(obj)
     for x in range(-2, 3):
@@ -172,7 +208,7 @@ def create_round_tree(location, scale=1.0, shared_image=None):
                     bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+z*scale))
                     obj = bpy.context.active_object
                     obj.name = f"RoundLeaf_{x}_{y}_{z}"
-                    mat = create_material("LeafMaterial", (0.2, 0.7, 0.2, 1), shared_image)
+                    mat = create_material(leaf_mat_name, (0.2, 0.7, 0.2, 1), shared_image)
                     mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.2, 0.7, 0.2, 1)
                     obj.data.materials.append(mat)
                     voxels.append(obj)
@@ -191,11 +227,13 @@ def create_bushy_tree(location, scale=1.0, shared_image=None):
     parent.location = location
     bpy.context.collection.objects.link(parent)
     voxels = []
+    trunk_mat_name = f"BushyTrunkMaterial"
+    leaf_mat_name = f"BushyLeafMaterial"
     for h in range(2):
         bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0], location[1], location[2]+h*scale))
         obj = bpy.context.active_object
         obj.name = f"BushyTrunk_{h}"
-        mat = create_material("TrunkMaterial", (0.4, 0.2, 0.05, 1), shared_image)
+        mat = create_material(trunk_mat_name, (0.4, 0.2, 0.05, 1), shared_image)
         mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.4, 0.2, 0.05, 1)
         obj.data.materials.append(mat)
         voxels.append(obj)
@@ -206,7 +244,7 @@ def create_bushy_tree(location, scale=1.0, shared_image=None):
                     bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0]+x*scale, location[1]+y*scale, location[2]+z*scale))
                     obj = bpy.context.active_object
                     obj.name = f"BushyLeaf_{x}_{y}_{z}"
-                    mat = create_material("LeafMaterial", (0.15, 0.6, 0.15, 1), shared_image)
+                    mat = create_material(leaf_mat_name, (0.15, 0.6, 0.15, 1), shared_image)
                     mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.15, 0.6, 0.15, 1)
                     obj.data.materials.append(mat)
                     voxels.append(obj)
@@ -347,14 +385,15 @@ def create_objects(scale=1.0):
             set_pivot_to_bottom_center(joined_obj)
             auto_unwrap(joined_obj)
             bake_to_shared_image(joined_obj, unique_image, bake_type='DIFFUSE')
+            connect_baked_texture_to_material(joined_obj, unique_image)
             created_objs.append(joined_obj)
 
     # Move all created objects to the origin
     for obj in created_objs:
         obj.location = (0, 0, 0)
 
-    # Export each object to FBX
-    export_each_object_to_fbx(created_objs)
+    # Export each object to GLTF/GLB
+    export_each_object_to_gltf(created_objs)
 
 def get_or_create_unique_image(base_name="obj_tex", width=1024, height=1024):
     return bpy.data.images.new(base_name, width=width, height=height, alpha=True, float_buffer=False)
@@ -376,6 +415,25 @@ def bake_to_shared_image(obj, shared_image, bake_type='DIFFUSE'):
     bpy.ops.object.select_all(action='DESELECT')
     obj.select_set(True)
     bpy.ops.object.bake(type=bake_type, use_clear=True, margin=2)
+
+def connect_baked_texture_to_material(obj, baked_image):
+    for mat in obj.data.materials:
+        nodes = mat.node_tree.nodes
+        links = mat.node_tree.links
+        # Find the Principled BSDF
+        bsdf = nodes.get("Principled BSDF")
+        # Find the baked image node
+        tex_node = None
+        for node in nodes:
+            if node.type == 'TEX_IMAGE' and node.image == baked_image:
+                tex_node = node
+                break
+        if bsdf and tex_node:
+            # Remove any existing links to Base Color
+            for link in list(bsdf.inputs[0].links):
+                links.remove(link)
+            # Connect the baked image to Base Color
+            links.new(tex_node.outputs['Color'], bsdf.inputs[0])
 
 # Run the function to create objects
 if __name__ == "__main__":
