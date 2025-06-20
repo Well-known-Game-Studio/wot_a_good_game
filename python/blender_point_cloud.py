@@ -15,26 +15,44 @@ with open("city_matches.json", "r") as f:
 img = Image.open("processed_map.png").convert("RGB")
 arr = np.array(img)
 
-def close_color(rgb, target, tol=10):
+def close_color(rgb, target, tol=30):
     return all(abs(int(a) - int(b)) <= tol for a, b in zip(rgb, target))
 
 def classify_pixel(rgb):
-    if close_color(rgb, (201, 229, 178)):  # standard land
+    # if close_color(rgb, (201, 229, 178)):  # standard land
+    #     return 'land'
+    # elif close_color(rgb, (59, 131, 21)):
+    #     return 'forest'
+    # elif close_color(rgb, (165, 192, 222)):
+    #     return 'water'
+    # elif close_color(rgb, (31, 43, 133)):
+    #     return 'river' # 0x1F2B85
+    # elif close_color(rgb, (203, 167, 139)):
+    #     return 'mountain_region'
+    # elif close_color(rgb, (183, 133, 92)):
+    #     return 'mountain'
+    # elif close_color(rgb, (216, 198, 133)):
+    #     return 'blight'
+    # else:
+    #     return 'other'
+    if close_color(rgb, (255,255,255)):
+        return 'land'
+    elif close_color(rgb, (0, 0, 0)):
         return 'land'
     elif close_color(rgb, (59, 131, 21)):
         return 'forest'
     elif close_color(rgb, (165, 192, 222)):
         return 'water'
-    elif close_color(rgb, (31, 43, 133)):
-        return 'river' # 0x1F2B85
-    elif close_color(rgb, (203, 167, 139)):
-        return 'mountain_region'
-    elif close_color(rgb, (183, 133, 92)):
+    elif close_color(rgb, (67, 69, 255)):
+        return 'river'
+    elif close_color(rgb, (129, 129, 129)):
+        return 'mountain'
+    elif close_color(rgb, (65, 65, 65)):
         return 'mountain'
     elif close_color(rgb, (216, 198, 133)):
         return 'blight'
     else:
-        return 'other'
+        return 'land'
 
 def pixel_to_world(x, y, img_shape, scale=0.1):
     cx, cy = img_shape[1] // 2, img_shape[0] // 2
