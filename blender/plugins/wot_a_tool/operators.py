@@ -1,13 +1,16 @@
 import bpy
 
 def add_boolean_object(context, dimensions, position, name):
-    """Helper function to create a boolean object"""
+    """Helper function to create and apply scale to a boolean object"""
     bpy.ops.mesh.primitive_cube_add(size=1, enter_editmode=False, align='WORLD', location=position)
     obj = context.active_object
     obj.name = name
     obj.dimensions = dimensions
     obj.display_type = 'WIRE'
     obj.hide_render = True # Don't render the cutters
+    
+    # Apply the scale to bake dimensions into the mesh
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
     return obj
 
 class WOT_OT_GenerateWall(bpy.types.Operator):
@@ -25,11 +28,16 @@ class WOT_OT_GenerateWall(bpy.types.Operator):
         wall = context.active_object
         wall.name = "InteractiveWall"
         wall.dimensions = props.wall_dimensions
+        # Apply the wall's scale immediately
+        bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
 
         # Create door cutout object if needed
         if props.has_door:
+            # Make cutter slightly thicker to ensure a clean boolean operation
+            door_dims = props.door_dimensions
+            door_dims.y += 0.01 
             door_pos = cursor_location + props.door_position
-            door = add_boolean_object(context, props.door_dimensions, door_pos, "DoorCutout")
+            door = add_boolean_object(context, door_dims, door_pos, "DoorCutout")
             door.parent = wall # Parent to wall
             
             bool_mod = wall.modifiers.new(name="DoorBoolean", type='BOOLEAN')
@@ -38,8 +46,11 @@ class WOT_OT_GenerateWall(bpy.types.Operator):
 
         # Create window cutout object if needed
         if props.has_window:
+            # Make cutter slightly thicker
+            window_dims = props.window_dimensions
+            window_dims.y += 0.01
             window_pos = cursor_location + props.window_position
-            window = add_boolean_object(context, props.window_dimensions, window_pos, "WindowCutout")
+            window = add_boolean_object(context, window_dims, window_pos, "WindowCutout")
             window.parent = wall # Parent to wall
 
             bool_mod = wall.modifiers.new(name="WindowBoolean", type='BOOLEAN')
