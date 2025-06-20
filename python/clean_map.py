@@ -61,3 +61,4 @@ inpainted = cv2.addWeighted(inpainted_telea, 0.6, inpainted_ns, 0.4, 0)
 
 # Save result
 cv2.imwrite(output_image, inpainted)
+

@@ -147,6 +147,104 @@ def set_pivot_to_bottom_center(obj):
     # Set the origin to the current location (which is now the bottom center)
     bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='BOUNDS')
 
+def create_dragonmount(location, scale=1.0, shared_image=None):
+    import bpy
+    from mathutils import Vector
+
+    parent = bpy.data.objects.new('Dragonmount', None)
+    parent.location = location
+    bpy.context.collection.objects.link(parent)
+    voxels = []
+    # Tall, conical mountain (volcano)
+    for h in range(15):
+        size = max(1, 8 - h // 2)
+        for x in range(-size, size + 1):
+            for y in range(-size, size + 1):
+                if abs(x) + abs(y) <= size:
+                    bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0] + x * scale, location[1] + y * scale, location[2] + h * scale))
+                    obj = bpy.context.active_object
+                    obj.name = f"Dragonmount_{x}_{y}_{h}"
+                    mat = create_material(f"DragonmountMaterial_{parent.name}", (0.25, 0.22, 0.18, 1), shared_image)
+                    obj.data.materials.append(mat)
+                    voxels.append(obj)
+    # Parent all voxels
+    for obj in voxels:
+        obj.select_set(True)
+    parent.select_set(True)
+    bpy.context.view_layer.objects.active = parent
+    bpy.ops.object.parent_set(type='OBJECT')
+    for obj in voxels:
+        obj.select_set(False)
+    parent.select_set(False)
+    return parent
+
+def create_white_tower(location, scale=1.0, shared_image=None):
+    import bpy
+    from mathutils import Vector
+
+    parent = bpy.data.objects.new('WhiteTower', None)
+    parent.location = location
+    bpy.context.collection.objects.link(parent)
+    voxels = []
+    # Tall, slender, white spire with a wider base
+    for h in range(12):
+        if h < 3:
+            radius = 2
+        elif h < 9:
+            radius = 1
+        else:
+            radius = 0
+        for x in range(-radius, radius + 1):
+            for y in range(-radius, radius + 1):
+                if x ** 2 + y ** 2 <= (radius + 0.2) ** 2:
+                    bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0] + x * scale, location[1] + y * scale, location[2] + h * scale))
+                    obj = bpy.context.active_object
+                    obj.name = f"WhiteTower_{x}_{y}_{h}"
+                    mat = create_material(f"WhiteTowerMaterial_{parent.name}", (0.95, 0.95, 1.0, 1), shared_image)
+                    obj.data.materials.append(mat)
+                    voxels.append(obj)
+    # Parent all voxels
+    for obj in voxels:
+        obj.select_set(True)
+    parent.select_set(True)
+    bpy.context.view_layer.objects.active = parent
+    bpy.ops.object.parent_set(type='OBJECT')
+    for obj in voxels:
+        obj.select_set(False)
+    parent.select_set(False)
+    return parent
+
+def create_stone_of_tear(location, scale=1.0, shared_image=None):
+    import bpy
+    from mathutils import Vector
+
+    parent = bpy.data.objects.new('StoneOfTear', None)
+    parent.location = location
+    bpy.context.collection.objects.link(parent)
+    voxels = []
+    # Fortress: large, blocky, stepped structure
+    for h in range(6):
+        size = 4 - h // 2
+        for x in range(-size, size + 1):
+            for y in range(-size, size + 1):
+                if abs(x) <= size and abs(y) <= size:
+                    bpy.ops.mesh.primitive_cube_add(size=scale, location=(location[0] + x * scale, location[1] + y * scale, location[2] + h * scale))
+                    obj = bpy.context.active_object
+                    obj.name = f"StoneOfTear_{x}_{y}_{h}"
+                    mat = create_material(f"StoneOfTearMaterial_{parent.name}", (0.7, 0.7, 0.75, 1), shared_image)
+                    obj.data.materials.append(mat)
+                    voxels.append(obj)
+    # Parent all voxels
+    for obj in voxels:
+        obj.select_set(True)
+    parent.select_set(True)
+    bpy.context.view_layer.objects.active = parent
+    bpy.ops.object.parent_set(type='OBJECT')
+    for obj in voxels:
+        obj.select_set(False)
+    parent.select_set(False)
+    return parent
+
 def create_pine_tree(location, scale=1.0, shared_image=None):
     parent = bpy.data.objects.new('PineTree', None)
     parent.location = location
