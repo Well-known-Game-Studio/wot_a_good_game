@@ -34,6 +34,25 @@ def update_wall_dimensions(self, context):
             child.parent = wall
             child.matrix_world = child_world_matrices[child]
 
+def update_child_dimensions(self, context, child_name_prefix, prop_name):
+    """Updates the dimensions of a child object (cutter)."""
+    wall = context.active_object
+    if not (wall and wall.name.startswith("InteractiveWall")): return
+    
+    child_obj = next((child for child in wall.children if child.name.startswith(child_name_prefix)), None)
+    if child_obj and hasattr(self, prop_name):
+        child_obj.dimensions = getattr(self, prop_name)
+        with context.temp_override(object=child_obj, selected_objects=[child_obj]):
+            bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+
+def update_child_position(self, context, child_name_prefix, prop_name):
+    """Updates the position of a child object (cutter)."""
+    wall = context.active_object
+    if not (wall and wall.name.startswith("InteractiveWall")): return
+    
+    child_obj = next((child for child in wall.children if child.name.startswith(child_name_prefix)), None)
+    if child_obj and hasattr(self, prop_name):
+        child_obj.location = getattr(self, prop_name)
 
 class WOT_Properties(bpy.types.PropertyGroup):
     wall_dimensions: bpy.props.FloatVectorProperty(
@@ -60,17 +79,19 @@ class WOT_Properties(bpy.types.PropertyGroup):
     )
     door_dimensions: bpy.props.FloatVectorProperty(
         name="Door Dimensions",
-        default=(0.9, 0.2, 2.0),
+        default=(0.9, 0.21, 2.0),
         subtype='XYZ',
         unit='LENGTH',
-        description="Dimensions of the door"
+        description="Dimensions of the door",
+        update=lambda self, context: update_child_dimensions(self, context, "DoorCutout", "door_dimensions")
     )
     door_position: bpy.props.FloatVectorProperty(
         name="Door Position",
         default=(0.0, 0.0, 1.0),
         subtype='XYZ',
         unit='LENGTH',
-        description="Position of the door"
+        description="Position of the door",
+        update=lambda self, context: update_child_position(self, context, "DoorCutout", "door_position")
     )
 
     # Window properties
@@ -81,15 +102,17 @@ class WOT_Properties(bpy.types.PropertyGroup):
     )
     window_dimensions: bpy.props.FloatVectorProperty(
         name="Window Dimensions",
-        default=(1.2, 0.2, 1.0),
+        default=(1.2, 0.21, 1.0),
         subtype='XYZ',
         unit='LENGTH',
-        description="Dimensions of the window"
+        description="Dimensions of the window",
+        update=lambda self, context: update_child_dimensions(self, context, "WindowCutout", "window_dimensions")
     )
     window_position: bpy.props.FloatVectorProperty(
         name="Window Position",
         default=(0.0, 0.0, 1.5),
         subtype='XYZ',
         unit='LENGTH',
-        description="Position of the window"
+        description="Position of the window",
+        update=lambda self, context: update_child_position(self, context, "WindowCutout", "window_position")
     ) 
