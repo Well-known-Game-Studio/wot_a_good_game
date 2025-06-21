@@ -4,7 +4,7 @@ import math
 import gpu
 from gpu_extras.batch import batch_for_shader
 from bpy_extras import view3d_utils
-from mathutils import Vector
+from mathutils import Vector, Matrix
 
 def get_or_create_material(color):
     """Checks for an existing material with the given color, or creates one."""
@@ -165,25 +165,37 @@ class WOT_OT_VoxelBrush(bpy.types.Operator):
         # Find the material index
         mat_index = target_obj.data.materials.find(mat.name)
 
+        # Calculate the transformation matrix to place the cube correctly
+        # in the target object's local space.
+        
+        # 1. Get the inverse of the target object's world matrix
+        matrix_inv = target_obj.matrix_world.inverted()
+        
+        # 2. Create a new matrix for the desired voxel position and scale in world space
+        mat_trans = Matrix.Translation(self.preview_location)
+        mat_scale = Matrix.Scale(props.voxel_size, 4)
+        mat_world_new_voxel = mat_trans @ mat_scale
+
+        # 3. Combine them to get the final local transformation
+        mat_local_new_voxel = matrix_inv @ mat_world_new_voxel
+        
         # Use bmesh to add a cube to the existing mesh
         bm = bmesh.new()
         bm.from_mesh(target_obj.data)
 
-        # Get sets of existing geometry
+        # Get sets of existing geometry to definitively find the new cube
         verts_before = set(bm.verts)
         faces_before = set(bm.faces)
         
-        # Create the cube
-        bmesh.ops.create_cube(bm, size=props.voxel_size)
+        # Create a unit cube
+        bmesh.ops.create_cube(bm, size=1.0)
         
         # Get the new geometry by taking the difference of the sets
         new_verts = list(set(bm.verts) - verts_before)
         new_faces = list(set(bm.faces) - faces_before)
         
-        # Move the new vertices to the preview location
-        # The vertices are created around the origin, so we translate them
-        offset = self.preview_location - target_obj.location
-        bmesh.ops.translate(bm, verts=new_verts, vec=offset)
+        # Transform the new vertices to the correct location and scale
+        bmesh.ops.transform(bm, verts=new_verts, matrix=mat_local_new_voxel)
         
         # Assign the material to the new faces
         for face in new_faces:
