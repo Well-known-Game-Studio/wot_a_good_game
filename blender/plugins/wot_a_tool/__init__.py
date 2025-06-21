@@ -1,10 +1,10 @@
 bl_info = {
-    "name": "Wot A Tool",
+    "name": "Wot A Tool - Voxel Brush",
     "author": "Gemini",
     "version": (1, 0),
-    "blender": (2, 80, 0),
-    "location": "View3D > Sidebar > Wot A Tool",
-    "description": "A set of tools for generating voxelized meshes.",
+    "blender": (2, 93, 0), # Increased version for modal tools
+    "location": "View3D > Toolbar > Voxel Brush",
+    "description": "An interactive tool to place and color voxels.",
     "warning": "",
     "doc_url": "",
     "category": "Development",
@@ -14,15 +14,14 @@ import bpy
 import sys
 import importlib
 
-# This is a more robust way to handle reloading the addon's modules
-# during development, preventing the need to restart Blender for every change.
+# Robust module reloading
 addon_package_name = __name__
 if addon_package_name in sys.modules:
-    # The order of reloading matters. Reload in order of dependency.
     modules_to_reload = [
         "properties",
         "operators",
-        "panel"
+        "panel",
+        "tool"
     ]
     for module_name in modules_to_reload:
         full_module_path = f"{addon_package_name}.{module_name}"
@@ -33,23 +32,28 @@ if addon_package_name in sys.modules:
 from . import panel
 from . import operators
 from . import properties
+from . import tool
 
 classes = [
-    properties.WOT_Properties,
-    panel.WOT_PT_MainPanel,
-    operators.WOT_OT_GenerateWall,
-    operators.WOT_OT_FinalizeObject,
+    properties.WOT_VoxelToolProperties,
+    panel.WOT_PT_VoxelToolPanel,
+    operators.WOT_OT_VoxelBrush,
 ]
 
 def register():
+    # Register properties and operators first
     for cls in classes:
         bpy.utils.register_class(cls)
-    # Register the property group after the classes that might use it
-    bpy.types.Scene.wot_tool_props = bpy.props.PointerProperty(type=properties.WOT_Properties)
+        
+    bpy.types.Scene.wot_tool_props = bpy.props.PointerProperty(type=properties.WOT_VoxelToolProperties)
 
+    # Then, register the tool itself
+    tool.register()
 
 def unregister():
     # Unregister in the reverse order of registration
+    tool.unregister()
+    
     del bpy.types.Scene.wot_tool_props
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
