@@ -32,7 +32,12 @@ class WOT_PT_VoxelToolPanel(bpy.types.Panel):
             if i > 0 and i % 8 == 0:
                 row = col.row(align=True)
             
-            op = row.operator("wot.select_voxel_color", text="", icon_value=mat.preview.icon_id)
+            # Check if the material preview is ready to prevent crashes
+            if mat.preview:
+                op = row.operator("wot.select_voxel_color", text="", icon_value=mat.preview.icon_id)
+            else:
+                op = row.operator("wot.select_voxel_color", text="", icon='MATERIAL')
+            
             op.material_name = mat.name
 
     def draw(self, context):

@@ -113,9 +113,9 @@ class WOT_OT_VoxelBrush(bpy.types.Operator):
 
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             if event.ctrl: # Voxel Removal
-                self._remove_voxel(context)
+                self._remove_voxel(context, event)
             elif event.shift: # Voxel Painting
-                self._paint_voxel(context)
+                self._paint_voxel(context, event)
             else: # Voxel Addition
                 self._place_voxel(context)
             return {'RUNNING_MODAL'}
@@ -210,12 +210,12 @@ class WOT_OT_VoxelBrush(bpy.types.Operator):
         # Update the view
         target_obj.data.update()
 
-    def _paint_voxel(self, context):
+    def _paint_voxel(self, context, event):
         """Finds and recolors a voxel from an existing mesh."""
         # We need a raycast to find what's under the mouse
         region = context.region
         rv3d = context.region_data
-        coord = self.last_mouse_pos
+        coord = (event.mouse_region_x, event.mouse_region_y)
         
         origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
         ray_dir = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
@@ -264,12 +264,12 @@ class WOT_OT_VoxelBrush(bpy.types.Operator):
             bmesh.update_edit_mesh(obj.data)
             bpy.ops.object.mode_set(mode='OBJECT')
 
-    def _remove_voxel(self, context):
+    def _remove_voxel(self, context, event):
         """Finds and removes a voxel from an existing mesh."""
         # We need a raycast to find what's under the mouse
         region = context.region
         rv3d = context.region_data
-        coord = self.last_mouse_pos # Use the last known mouse position
+        coord = (event.mouse_region_x, event.mouse_region_y)
         
         origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
         ray_dir = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
