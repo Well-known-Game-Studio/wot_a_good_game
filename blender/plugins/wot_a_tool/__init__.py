@@ -34,29 +34,56 @@ from . import operators
 from . import properties
 from . import tool
 
-classes = [
+# Explicitly order the classes for registration
+classes_to_register = (
     properties.WOT_VoxelToolProperties,
-    panel.WOT_PT_VoxelToolPanel,
+    operators.WOT_OT_SelectVoxelColor,
     operators.WOT_OT_VoxelBrush,
-]
+    panel.WOT_PT_VoxelToolPanel,
+    tool.WOT_VoxelBrushTool,
+)
 
 def register():
-    # Register properties and operators first
-    for cls in classes:
-        bpy.utils.register_class(cls)
-        
-    bpy.types.Scene.wot_tool_props = bpy.props.PointerProperty(type=properties.WOT_VoxelToolProperties)
+    # Define what to register
+    property_class = properties.WOT_VoxelToolProperties
+    tool_class = tool.WOT_VoxelBrushTool
+    other_classes = (
+        operators.WOT_OT_SelectVoxelColor,
+        operators.WOT_OT_VoxelBrush,
+        panel.WOT_PT_VoxelToolPanel,
+    )
 
-    # Then, register the tool itself
-    tool.register()
+    # 1. Register properties
+    bpy.utils.register_class(property_class)
+    bpy.types.Scene.wot_tool_props = bpy.props.PointerProperty(type=property_class)
+
+    # 2. Register operators and panels
+    for cls in other_classes:
+        bpy.utils.register_class(cls)
+
+    # 3. Register the tool
+    bpy.utils.register_tool(tool_class, separator=True, group=True)
 
 def unregister():
-    # Unregister in the reverse order of registration
-    tool.unregister()
-    
-    del bpy.types.Scene.wot_tool_props
-    for cls in reversed(classes):
+    # Define what to unregister (in reverse order)
+    property_class = properties.WOT_VoxelToolProperties
+    tool_class = tool.WOT_VoxelBrushTool
+    other_classes = (
+        operators.WOT_OT_SelectVoxelColor,
+        operators.WOT_OT_VoxelBrush,
+        panel.WOT_PT_VoxelToolPanel,
+    )
+
+    # 1. Unregister the tool
+    bpy.utils.unregister_tool(tool_class)
+
+    # 2. Unregister operators and panels
+    for cls in reversed(other_classes):
         bpy.utils.unregister_class(cls)
+
+    # 3. Unregister properties
+    del bpy.types.Scene.wot_tool_props
+    bpy.utils.unregister_class(property_class)
 
 if __name__ == "__main__":
     register() 

@@ -17,6 +17,23 @@ class WOT_PT_VoxelToolPanel(bpy.types.Panel):
         box.label(text="Brush Settings")
         box.prop(props, "voxel_size")
         box.prop(props, "voxel_color")
+        
+        # --- Voxel Color Palette ---
+        palette_box = layout.box()
+        palette_box.label(text="Color Palette")
+        
+        col = palette_box.column()
+        row = col.row(align=True)
+
+        # Find all voxel materials in the project
+        voxel_materials = [m for m in bpy.data.materials if m.name.startswith("VoxelColor_")]
+        
+        for i, mat in enumerate(voxel_materials):
+            if i > 0 and i % 8 == 0:
+                row = col.row(align=True)
+            
+            op = row.operator("wot.select_voxel_color", text="", icon_value=mat.preview.icon_id)
+            op.material_name = mat.name
 
     def draw(self, context):
         # This draw function is now only a fallback

@@ -114,6 +114,8 @@ class WOT_OT_VoxelBrush(bpy.types.Operator):
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             if event.ctrl: # Voxel Removal
                 self._remove_voxel(context)
+            elif event.shift: # Voxel Painting
+                self._paint_voxel(context)
             else: # Voxel Addition
                 self._place_voxel(context)
             return {'RUNNING_MODAL'}
@@ -208,6 +210,51 @@ class WOT_OT_VoxelBrush(bpy.types.Operator):
         # Update the view
         target_obj.data.update()
 
+    def _paint_voxel(self, context):
+        """Finds and recolors a voxel from an existing mesh."""
+        # We need a raycast to find what's under the mouse
+        region = context.region
+        rv3d = context.region_data
+        coord = self.last_mouse_pos
+        
+        origin = view3d_utils.region_2d_to_origin_3d(region, rv3d, coord)
+        ray_dir = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
+
+        try:
+            result, location, normal, index, obj, matrix = context.scene.ray_cast(context.view_layer.depsgraph, origin, ray_dir)
+        except TypeError:
+            result, location, normal, index, obj, matrix = context.scene.ray_cast(context.view_layer, origin, ray_dir)
+
+        # If we hit a mesh object, and it has faces
+        if result and obj and obj.type == 'MESH' and len(obj.data.polygons) > 0:
+            props = context.scene.wot_tool_props
+            
+            # Get the target material
+            target_mat = get_or_create_material(props.voxel_color)
+            if target_mat.name not in obj.data.materials:
+                obj.data.materials.append(target_mat)
+            
+            target_mat_index = obj.data.materials.find(target_mat.name)
+
+            # Use BMesh to change material
+            bm = bmesh.new()
+            bm.from_mesh(obj.data)
+            bm.faces.ensure_lookup_table()
+            
+            hit_face = bm.faces[index]
+            
+            # Select all geometry connected to the hit face
+            bmesh.ops.select_linked(bm, faces=[hit_face], delimit=set())
+            
+            # Assign the new material to all selected faces
+            for face in bm.faces:
+                if face.select:
+                    face.material_index = target_mat_index
+            
+            bm.to_mesh(obj.data)
+            bm.free()
+            obj.data.update()
+
     def _remove_voxel(self, context):
         """Finds and removes a voxel from an existing mesh."""
         # We need a raycast to find what's under the mouse
@@ -256,3 +303,23 @@ class WOT_OT_VoxelBrush(bpy.types.Operator):
     def _finish(self, context):
         bpy.types.SpaceView3D.draw_handler_remove(self.draw_handle, 'WINDOW')
         context.area.tag_redraw()
+
+class WOT_OT_SelectVoxelColor(bpy.types.Operator):
+    """Selects a voxel color from the palette."""
+    bl_idname = "wot.select_voxel_color"
+    bl_label = "Select Voxel Color"
+    
+    material_name: bpy.props.StringProperty()
+
+    def execute(self, context):
+        mat = bpy.data.materials.get(self.material_name)
+        if not mat:
+            return {'CANCELLED'}
+
+        # Find the Principled BSDF node to get the color
+        if mat.use_nodes and 'Principled BSDF' in mat.node_tree.nodes:
+            color_node = mat.node_tree.nodes['Principled BSDF']
+            context.scene.wot_tool_props.voxel_color = color_node.inputs['Base Color'].default_value
+            return {'FINISHED'}
+            
+        return {'CANCELLED'}

@@ -16,9 +16,3 @@ class WOT_VoxelBrushTool(bpy.types.WorkSpaceTool):
 
     def draw_settings(context, layout, tool):
         WOT_PT_VoxelToolPanel.draw_settings_panel(layout, context)
-
-def register():
-    bpy.utils.register_tool(WOT_VoxelBrushTool, separator=True, group=True)
-
-def unregister():
-    bpy.utils.unregister_tool(WOT_VoxelBrushTool)
