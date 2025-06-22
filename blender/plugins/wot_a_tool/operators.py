@@ -236,24 +236,33 @@ class WOT_OT_VoxelBrush(bpy.types.Operator):
             
             target_mat_index = obj.data.materials.find(target_mat.name)
 
-            # Use BMesh to change material
-            bm = bmesh.new()
-            bm.from_mesh(obj.data)
+            # --- Switch to Edit Mode to safely select ---
+            context.view_layer.objects.active = obj
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.select_all(action='DESELECT')
+
+            # Select the hit face in edit mode
+            bm = bmesh.from_edit_mesh(obj.data)
             bm.faces.ensure_lookup_table()
+            if index < len(bm.faces):
+                bm.faces[index].select = True
             
-            hit_face = bm.faces[index]
+            bmesh.update_edit_mesh(obj.data)
             
-            # Select all geometry connected to the hit face
-            bmesh.ops.select_linked(bm, faces=[hit_face], delimit=set())
+            # Use the reliable bpy operator
+            bpy.ops.mesh.select_linked(delimit=set())
             
-            # Assign the new material to all selected faces
+            # Update the bmesh with the new selection
+            bmesh.update_edit_mesh(obj.data)
+
+            # Now assign the material to the selected faces
             for face in bm.faces:
                 if face.select:
                     face.material_index = target_mat_index
             
-            bm.to_mesh(obj.data)
-            bm.free()
-            obj.data.update()
+            # Finalize the mesh and switch back to Object Mode
+            bmesh.update_edit_mesh(obj.data)
+            bpy.ops.object.mode_set(mode='OBJECT')
 
     def _remove_voxel(self, context):
         """Finds and removes a voxel from an existing mesh."""
