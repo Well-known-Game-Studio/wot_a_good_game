@@ -140,9 +140,11 @@ dependencies {
 
 	// note Gradle will use newest version if multiple specified
 	implementation('androidx.appcompat:appcompat:1.2.0')
-   // ADD THE LINES BELOW:
-	implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 	annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.6.1'
+    // ADD THE LINES BELOW:
+    def billing_version = "6.1.0"
+    implementation "com.android.billingclient:billing:$billing_version"
 }
 ```
 
