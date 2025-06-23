@@ -42,9 +42,9 @@ class WOT_OT_VoxelBrush(bpy.types.Operator):
         ray_dir = view3d_utils.region_2d_to_vector_3d(region, rv3d, coord)
 
         # Blender 4.1+ uses different raycast logic
-        try:
+        if bpy.app.version >= (4, 1, 0):  # Blender 4.1+ uses different raycast logic
             result, location, normal, index, object, matrix = context.scene.ray_cast(context.view_layer.depsgraph, origin, ray_dir)
-        except TypeError: # Older versions
+        else:  # Older versions
             result, location, normal, index, object, matrix = context.scene.ray_cast(context.view_layer, origin, ray_dir)
 
         props = context.scene.wot_tool_props
