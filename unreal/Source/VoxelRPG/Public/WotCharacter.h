@@ -162,10 +162,20 @@ protected:
 	UWotUWInventoryPanel *InventoryWidget = nullptr;
 
 	float KilledDestroyDelay = 2.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Death")
 	FTimerHandle TimerHandle_Destroy;
 	void Destroy_TimeElapsed();
 
-	float InteractionCheckPeriod = 0.2f;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
+	float InteractionCheckPeriod = 0.1f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
+	AActor* InteractionTargetActor = nullptr;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
+	UActorComponent* InteractionTargetComponent = nullptr;
+	FHitResult InteractionTargetHitResult;
+
 	FTimerHandle TimerHandle_InteractionCheck;
 	void InteractionCheck_TimeElapsed();
 
