@@ -552,11 +552,31 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 	UActorComponent *ClosestInteractionComp = nullptr;
 	FHitResult HitResult;
 	bool got_interactable = InteractionComp->GetInteractableInRange(ClosestInteractable, ClosestInteractionComp, HitResult);
+
+	// check if the interactible / interaction comp is the same as what we had,
+	// and if not, then unhighlight them
+	if (InteractionTargetComponent != nullptr) {
+		if (InteractionTargetComponent->Implements<UWotGameplayInterface>()) {
+			IWotGameplayInterface::Execute_Unhighlight(InteractionTargetComponent, InteractionTargetHitResult);
+		}
+		InteractionTargetComponent = nullptr;
+		InteractionTargetHitResult = FHitResult();
+	}
+	if (InteractionTargetActor != nullptr) {
+		if (InteractionTargetActor->Implements<UWotGameplayInterface>()) {
+			IWotGameplayInterface::Execute_Unhighlight(InteractionTargetActor, InteractionTargetHitResult);
+		}
+		InteractionTargetActor = nullptr;
+		InteractionTargetHitResult = FHitResult();
+	}
+
+	// if we didn't get an interactable, then we don't need to do anything else
 	if (!got_interactable) {
 		return;
 	}
 	FText InteractionText;
 	FVector Offset(0, 0, 0);
+
 	// if we got one, use the WotInteractableInterface to call GetInteractionText
 	if (ClosestInteractionComp) {
 		// we got a component, so use the component
@@ -567,6 +587,7 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 		// we only got an actor, so use the actor
 		IWotInteractableInterface::Execute_GetInteractionText(ClosestInteractable, this, HitResult, InteractionText);
 	}
+
 	// if the text is empty, don't show the widget
 	if (InteractionText.IsEmpty()) {
 		return;
@@ -577,14 +598,19 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 									ClosestInteractable,
 									Offset,
 									false);
+
 	// Use the highlight interface if it can be used
 	if (ClosestInteractionComp) {
 		if (ClosestInteractionComp->Implements<UWotGameplayInterface>()) {
-			IWotGameplayInterface::Execute_Highlight(ClosestInteractionComp, HitResult, 1, InteractionCheckPeriod*1.1f);
+			IWotGameplayInterface::Execute_Highlight(ClosestInteractionComp, HitResult, 1, 0.0f);
+			InteractionTargetComponent = ClosestInteractionComp;
+			InteractionTargetHitResult = HitResult;
 		}
 	} else {
 		if (ClosestInteractable->Implements<UWotGameplayInterface>()) {
-			IWotGameplayInterface::Execute_Highlight(ClosestInteractable, HitResult, 1, InteractionCheckPeriod*1.1f);
+			IWotGameplayInterface::Execute_Highlight(ClosestInteractable, HitResult, 1, 0.0f);
+			InteractionTargetActor = ClosestInteractable;
+			InteractionTargetHitResult = HitResult;
 		}
 	}
 }
