@@ -13,12 +13,6 @@
 [submodule "unreal/Plugins/SnapCentral"]
 	path = unreal/Plugins/SnapCentral
 	url = git@github.com:well-known-game-studio/snapcentral
-[submodule "unreal/Plugins/FlatNodes"]
-	path = unreal/Plugins/FlatNodes
-	url = git@github.com:well-known-game-studio/flatnodes
-[submodule "unreal/Plugins/BlockoutToolsPlugin"]
-	path = unreal/Plugins/BlockoutToolsPlugin
-	url = git@github.com:well-known-game-studio/blockouttoolsplugin
 [submodule "unreal/Content/UltraDynamicSky"]
 	path = unreal/Content/UltraDynamicSky
 	url = git@github.com:well-known-game-studio/ultra-dynamic-sky
