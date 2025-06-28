@@ -99,10 +99,10 @@ from within XCode to ensure everything is signed properly.
 #### Setup for Android App
 
 Follow the setup instructions
-[here](https://docs.unrealengine.com/5.2/en-US/how-to-set-up-android-sdk-and-ndk-for-your-unreal-engine-development-environment/).
+[here](https://docs.unrealengine.com/5.6/en-US/how-to-set-up-android-sdk-and-ndk-for-your-unreal-engine-development-environment/).
 
 Note: you will likely have to modify the `/Users/Shared/Epic\
-Games/UE_5.2/Engine/Extras/Android/SetupAndroid.command` file - possibly to
+Games/UE_5.6/Engine/Extras/Android/SetupAndroid.command` file - possibly to
 point to the right `JAVA_HOME` directory. In my case I had to modify the
 JAVA_HOME export in the `SetupAndroid.command` file to point to
 `/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home` and had
@@ -112,7 +112,7 @@ You will need to set the environment variables (under `Android SDK`)
 appropriately, e.g.:
 
 - `Android SDK` : `/Users/bob/Library/Android/sdk`
-- `Android NDK` : `/Users/bob/Library/Android/sdk/ndk/25.1.8937393`
+- `Android NDK` : `/Users/bob/Library/Android/sdk/ndk/28.1.13356709`
 - `Location of JAVA` : `/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home`
 - `SDK API Level` : `android-34`
 - `NDK API Level` : `android-34`
@@ -131,7 +131,7 @@ for more info.
 
 Add the following lines to the `dependencies` section of your UE `app/build.gradle`:
 
-`/Users/Shared/Epic Games/UE_5.5/Engine/Build/Android/Java/gradle/app/build.gradle`
+`/Users/Shared/Epic Games/UE_5.6/Engine/Build/Android/Java/gradle/app/build.gradle`
 
 ```gradle
 dependencies {
@@ -142,6 +142,7 @@ dependencies {
 	implementation('androidx.appcompat:appcompat:1.2.0')
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 	annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.6.1'
+
     // ADD THE LINES BELOW:
     def billing_version = "6.1.0"
     implementation "com.android.billingclient:billing:$billing_version"
