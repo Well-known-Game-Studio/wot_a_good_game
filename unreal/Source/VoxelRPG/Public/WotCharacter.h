@@ -125,7 +125,7 @@ protected:
 	bool Move(const FVector& MoveVector);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
-	bool Look(const FVector& MoveVector);
+	bool Look(const FVector& LookVector);
 
 	DECLARE_DELEGATE_OneParam(FActionDelegate, FName);
 
