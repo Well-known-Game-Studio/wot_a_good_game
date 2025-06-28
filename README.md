@@ -6,6 +6,9 @@ WOT: A Good Game - Wotxels; the first of its name
 - Youtube: https://www.youtube.com/@wellknowngamestudio9054
 - Twitter: https://twitter.com/WellKnownGames
 
+https://github.com/user-attachments/assets/8b2264e0-786f-4255-acdd-2ce72fbf0ed4
+
+
 ## Overview
 
 Here is an overview picture of the models that have been made for the prototype
@@ -56,11 +59,6 @@ Overworld:
 
 ![image](https://github.com/user-attachments/assets/bd7f785a-9a44-4e3a-a661-08072eebaf38)
 ![image](https://github.com/user-attachments/assets/dc399b7d-ea62-4453-93d2-83d1f38ce334)
-
-
-Video:
-
-https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/f148ddb8-2a70-4761-8087-b54520e2f074
 
 
 ### Controls:
