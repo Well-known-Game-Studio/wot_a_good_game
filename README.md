@@ -46,10 +46,17 @@ into 3 main categories:
 Here is how they currently look:
 
 Interior (Rand House):
-<img width="1309" alt="CleanShot 2023-07-29 at 10 27 47@2x" src="https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/f0e09084-4adf-4c96-87a1-53e62e596c3e">
+
+![CleanShot 2025-06-28 at 15 15 44](https://github.com/user-attachments/assets/3c89b047-076d-45af-bd31-5f3462288c07)
+![CleanShot 2025-06-28 at 15 16 07](https://github.com/user-attachments/assets/dafe91a5-f8aa-471a-a614-07b48549ac96)
+
+https://github.com/user-attachments/assets/182c351e-db70-4b15-8f6e-cedbf3868c5a
 
 Overworld:
-<img width="1263" alt="CleanShot 2023-07-29 at 10 28 32@2x" src="https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/9da33ba1-2203-4e02-b7c8-a591d7531174">
+
+![image](https://github.com/user-attachments/assets/bd7f785a-9a44-4e3a-a661-08072eebaf38)
+![image](https://github.com/user-attachments/assets/dc399b7d-ea62-4453-93d2-83d1f38ce334)
+
 
 Video:
 
