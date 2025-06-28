@@ -133,6 +133,10 @@
 		{
 			"Name": "AvfMedia",
 			"Enabled": false
+		},
+		{
+			"Name": "GooglePAD",
+			"Enabled": false
 		}
 	]
 }
