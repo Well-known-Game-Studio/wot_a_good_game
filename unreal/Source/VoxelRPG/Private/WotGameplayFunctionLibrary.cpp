@@ -189,7 +189,7 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 		BaseNames.Add(BaseClassPath);
 
 		TSet< FTopLevelAssetPath > Excluded;
-        AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
+    AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
 		// AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
 	}
 
@@ -205,7 +205,7 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 	// Iterate over retrieved blueprint assets
 	for(auto const& Asset : AssetList) {
 		// Get the the class this blueprint generates (this is stored as a full path)
-        auto GeneratedClassPathPtr = Asset.TagsAndValues.FindTag(TEXT("GeneratedClass")).AsString();
+    auto GeneratedClassPathPtr = Asset.TagsAndValues.FindTag(TEXT("GeneratedClass")).AsString();
 		if(!GeneratedClassPathPtr.IsEmpty()) {
 			// Convert path to just the name part
 			const FString ClassObjectPath = FPackageName::ExportTextPathToObjectPath(*GeneratedClassPathPtr);
@@ -217,8 +217,27 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 				continue;
 			}
 
+      // determine if it's a blueprint class
+      if (!Asset.IsValid()) {
+        UE_LOG(LogTemp, Error, TEXT("Invalid Asset Data for '%s'"), *ObjectClassName);
+        continue;
+      }
+
+      // Load the asset object from the path
+      UObject* AssetObject = Asset.GetAsset();
+
+      if (!AssetObject) {
+        UE_LOG(LogTemp, Error, TEXT("Could not load asset object for '%s'"), *ObjectClassName);
+        continue;
+      }
+
+      // StaticLoadObject<UObject>(nullptr, *ClassObjectPath);
+      // FStringAssetReference AssetReference(ClassObjectPath);
+
+      // UObject* AssetObject = AssetReference.ResolveObject();
+      // // UObject* AssetObject = AssetReference.TryLoad();
 			UClass* Class = nullptr;
-			const UBlueprint* BlueprintAsset = Cast<UBlueprint>(Asset.GetAsset());
+			UBlueprint* BlueprintAsset = Cast<UBlueprint>(AssetObject);
 			if (BlueprintAsset) {
 				Class = BlueprintAsset->GeneratedClass;
 			} else {
@@ -228,8 +247,10 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 				UE_LOG(LogTemp, Log, TEXT("Got subclass '%s'"), *ObjectClassName);
 				ClassArray.Add(Class);
 			} else {
-				UE_LOG(LogTemp, Error, TEXT("Invalid BP Class Data!"));
+				UE_LOG(LogTemp, Error, TEXT("Invalid BP Class Data for '%s'"), *ObjectClassName);
 			}
-		}
+		} else {
+      UE_LOG(LogTemp, Warning, TEXT("No GeneratedClass tag found for asset '%s'"), *Asset.AssetName.ToString());
+    }
 	}
 }
