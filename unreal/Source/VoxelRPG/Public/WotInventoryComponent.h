@@ -48,6 +48,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
     TArray<UWotItem*> DefaultItems;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Items")
     TArray<UWotItem*> Items;
 };

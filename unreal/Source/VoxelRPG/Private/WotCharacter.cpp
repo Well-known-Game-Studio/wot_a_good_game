@@ -148,6 +148,10 @@ void AWotCharacter::PrimaryAttack()
 
 void AWotCharacter::PrimaryAttackStop()
 {
+	if (!ActionComp->IsActionRunning("PrimaryAttack")) {
+		// if the action is not running, we don't need to do anything
+		return;
+	}
 	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
 	if (EquippedWeapon) {
 		EquippedWeapon->PrimaryAttackStop();
