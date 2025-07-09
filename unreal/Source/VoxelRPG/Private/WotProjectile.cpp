@@ -100,7 +100,7 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
   }
 
   // print the display name of the actor we overlapped with
-  UE_LOG(LogTemp, Warning, TEXT("Overlapped with %s"), *OtherActor->GetName());
+  UE_LOG(LogTemp, Log, TEXT("Overlapped with %s"), *OtherActor->GetName());
 
   UWotActionComponent* ActionComp = UWotActionComponent::GetActions(OtherActor);
   if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {

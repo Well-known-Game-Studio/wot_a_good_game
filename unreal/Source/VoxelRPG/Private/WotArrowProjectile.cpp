@@ -197,6 +197,10 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
                                                       NewLocation,
                                                       CurrentRotation,
                                                       SpawnParams);
+  // if we have a projectile life span, then set it to destroy after that time
+  if (ProjectileLifeSpan != 0.0f) {
+    NewItemInteractable->SetLifeSpan(ProjectileLifeSpan);
+  }
   // and create WotItem (for collecting into inventory)
   UE_LOG(LogTemp, Log, TEXT("Creating New Item!"));
   UWotItem* NewItem = NewObject<UWotItem>(NewItemInteractable, ItemClass);

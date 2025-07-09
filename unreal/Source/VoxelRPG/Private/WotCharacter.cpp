@@ -61,7 +61,6 @@ AWotCharacter::AWotCharacter()
 	EffectAudioComp->SetupAttachment(RootComponent);
 
 	bUseControllerRotationYaw = false;
-	bCanOpenMenu = true;
 }
 
 void AWotCharacter::PostInitializeComponents()
@@ -75,7 +74,6 @@ void AWotCharacter::PostInitializeComponents()
 void AWotCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	bCanOpenMenu = true;
 	SetupSpringArm();
 	SetupCineCamera();
 	// start the interaction check timer
@@ -122,48 +120,6 @@ FVector AWotCharacter::GetPawnViewLocation() const
 	// for now we'll keep using the parent's version, which will return actor
 	// location + eye height offset
 	return Super::GetPawnViewLocation();
-}
-
-void AWotCharacter::PrimaryAttack()
-{
-	if (IsInventoryWidgetOpen()) {
-		return;
-	}
-	if (!InputEnabled()) {
-		return;
-	}
-	// TODO: probably a better way of doing this?
-	bCanOpenMenu = false;
-	// TODO: for now we determine whether to use weapon or action based on if we
-	// have weapon equipped; there's gotta be a better way..
-	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
-	if (EquippedWeapon) {
-		UE_LOG(LogTemp, Log, TEXT("Got Equipped Weapon %s"), *GetNameSafe(EquippedWeapon));
-		EquippedWeapon->PrimaryAttackStart();
-	} else {
-		UE_LOG(LogTemp, Log, TEXT("No weapon equipped starting action 'PrimaryAttack'"));
-		ActionStart("PrimaryAttack");
-	}
-}
-
-void AWotCharacter::PrimaryAttackStop()
-{
-	if (!ActionComp->IsActionRunning("PrimaryAttack")) {
-		// if the action is not running, we don't need to do anything
-		return;
-	}
-	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
-	if (EquippedWeapon) {
-		EquippedWeapon->PrimaryAttackStop();
-	} else {
-		// TODO: should be able to stop primary attack here, but we can't
-		// because it uses a timer to keep itself alive / prevent further
-		// attacks
-		//
-		// ActionStop("PrimaryAttack");
-	}
-	// TODO: probably a better way of doing this?
-	bCanOpenMenu = true;
 }
 
 // _Implementation from it being marked as BlueprintNativeEvent
@@ -268,16 +224,12 @@ void AWotCharacter::ActionStart(FName ActionName)
 	if (!InputEnabled()) {
 		return;
 	}
-	// TODO: probably a better way of doing this?
-	bCanOpenMenu = false;
 	ActionComp->StartActionByName(ActionName, this);
 }
 
 void AWotCharacter::ActionStop(FName ActionName)
 {
 	ActionComp->StopActionByName(ActionName, this);
-	// TODO: probably a better way of doing this?
-	bCanOpenMenu = true;
 }
 
 // Called every frame
@@ -365,7 +317,6 @@ void AWotCharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeCompon
 
 void AWotCharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp)
 {
-	bCanOpenMenu = false;
 	// turn off collision & physics
 	TurnOff(); // freezes the pawn state
 	GetCapsuleComponent()->SetSimulatePhysics(false);
@@ -429,7 +380,7 @@ bool AWotCharacter::IsInventoryWidgetOpen() const
 }
 
 bool AWotCharacter::CanOpenInventory() const {
-	return bCanOpenMenu && !IsInventoryWidgetOpen();
+	return !IsInventoryWidgetOpen() && !ActionComp->IsAnyActionRunning();
 }
 
 void AWotCharacter::PlaySoundGet()

@@ -42,7 +42,7 @@ protected:
   USphereComponent* SphereComp;
 
   UPROPERTY(EditDefaultsOnly, Category = "Damage")
-  FGameplayTag ParryTag;
+  FGameplayTag ParryTag = FGameplayTag::RequestGameplayTag(FName("Status.Parrying"));
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Damage")
   float Damage = -20.0f;
