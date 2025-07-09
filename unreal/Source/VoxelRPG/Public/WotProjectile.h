@@ -41,8 +41,14 @@ protected:
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
   USphereComponent* SphereComp;
 
-  UPROPERTY(EditDefaultsOnly, Category = "Damage")
-  FGameplayTag ParryTag;
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Parry")
+  bool HandleParry(AActor* OtherActor);
+
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Parry")
+  bool bCanBeParried = true;
+
+  UPROPERTY(EditDefaultsOnly, Category = "Parry")
+  FGameplayTag ParryTag = FGameplayTag::RequestGameplayTag(FName("Status.Parrying"));
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Damage")
   float Damage = -20.0f;

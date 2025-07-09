@@ -121,7 +121,7 @@ bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, A
     }
     return true;
   }
-  UE_LOG(LogTemp, Warning, TEXT("ApplyDirectionalDamage: ApplyDamage failed"));
+  UE_LOG(LogTemp, Log, TEXT("ApplyDirectionalDamage: ApplyDamage failed"));
   return false;
 }
 

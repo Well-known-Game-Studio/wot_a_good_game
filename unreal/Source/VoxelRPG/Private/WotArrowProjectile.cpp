@@ -133,41 +133,41 @@ void AWotArrowProjectile::OnComponentHit(UPrimitiveComponent* HitComponent, AAct
   HandleCollision(OtherActor, Hit);
 }
 
+bool AWotArrowProjectile::ShouldHitActor_Implementation(AActor* OtherActor, UPrimitiveComponent* OtherComp) {
+  // call the parent implementation first
+  if (!Super::ShouldHitActor_Implementation(OtherActor, OtherComp)) {
+    return false;
+  }
+  if (OtherActor == Shooter) {
+    UE_LOG(LogTemp, Log, TEXT("HandleCollision: OtherActor == Shooter"));
+    return false;
+  }
+  return true;
+}
+
 void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& SweepResult)
 {
   // We only want to handle collisions when we're in the air
   if (CurrentState != EWotArrowState::InAir) {
     return;
   }
-  if (!OtherActor) {
-    UE_LOG(LogTemp, Log, TEXT("HandleCollision: !OtherActor"));
-    return;
-  }
-  // TODO: this is a hack to ignore overlap with the fluid flux surfaces /
-  // actors!
-  if (GetNameSafe(OtherActor).Contains("flux")) {
-    UE_LOG(LogTemp, Log, TEXT("HandleCollision: GetNameSafe(OtherActor).Contains(\"flux\")"));
-    return;
-  }
-  if (OtherActor == this) {
-    UE_LOG(LogTemp, Log, TEXT("Arrows shouldn't be able to collide with themselves... should they?"));
-    return;
-  }
-  // if the other actor is a trigger box (or any other actor that we don't want to explode on)
-  // then return
-  if (OtherActor->IsA(ATriggerBase::StaticClass())) {
-    return;
-  }
-  if (OtherActor == GetInstigator()) {
-    UE_LOG(LogTemp, Log, TEXT("HandleCollision: OtherActor == GetInstigator()"));
-    return;
-  }
-  if (OtherActor == Shooter) {
-    UE_LOG(LogTemp, Log, TEXT("HandleCollision: OtherActor == Shooter"));
-    return;
-  }
+
   if (!ensure(ItemClass)) {
     UE_LOG(LogTemp, Error, TEXT("ArrowProjectile::ItemClass is null!"));
+    // if we don't have an item class, then we can't create an item interactable, so we
+    // just destroy the arrow
+    Destroy();
+    return;
+  }
+
+  // get the hit component from the hitresult
+  UPrimitiveComponent* HitComponent = SweepResult.GetComponent();
+  if (!ShouldHitActor(OtherActor, HitComponent)) {
+    return;
+  }
+
+  if (HandleParry(OtherActor)) {
+    // if we handled a parry, then we don't need to do anything else
     return;
   }
 
@@ -197,6 +197,10 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
                                                       NewLocation,
                                                       CurrentRotation,
                                                       SpawnParams);
+  // if we have a projectile life span, then set it to destroy after that time
+  if (ProjectileLifeSpan != 0.0f) {
+    NewItemInteractable->SetLifeSpan(ProjectileLifeSpan);
+  }
   // and create WotItem (for collecting into inventory)
   UE_LOG(LogTemp, Log, TEXT("Creating New Item!"));
   UWotItem* NewItem = NewObject<UWotItem>(NewItemInteractable, ItemClass);

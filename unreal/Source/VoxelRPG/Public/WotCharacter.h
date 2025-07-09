@@ -102,9 +102,6 @@ protected:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects")
     UAudioComponent* EffectAudioComp;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Actions")
-	bool bCanOpenMenu;
-
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Interaction")
 	bool bCanInteract;
 
@@ -134,13 +131,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void ActionStop(FName ActionName);
-
-	// Attacking
-	UFUNCTION(BlueprintCallable)
-	void PrimaryAttack();
-
-	UFUNCTION(BlueprintCallable)
-	void PrimaryAttackStop();
 
 	// Interaction
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)

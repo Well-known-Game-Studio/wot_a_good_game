@@ -59,6 +59,9 @@ protected:
   void HandleCollision(AActor* OtherActor, const FHitResult& SweepResult);
 
   // since this is an override, don't need UFUNCTION() decorator to allow binding for delegate
+  virtual bool ShouldHitActor_Implementation(AActor* OtherActor, UPrimitiveComponent* OtherComp) override;
+
+  // since this is an override, don't need UFUNCTION() decorator to allow binding for delegate
   virtual void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
   UFUNCTION()
