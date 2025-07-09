@@ -44,6 +44,9 @@ protected:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Parry")
   bool HandleParry(AActor* OtherActor);
 
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Parry")
+  bool bCanBeParried = true;
+
   UPROPERTY(EditDefaultsOnly, Category = "Parry")
   FGameplayTag ParryTag = FGameplayTag::RequestGameplayTag(FName("Status.Parrying"));
 

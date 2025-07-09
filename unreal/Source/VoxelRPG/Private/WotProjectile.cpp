@@ -89,6 +89,13 @@ bool AWotProjectile::ShouldHitActor_Implementation(AActor* OtherActor, UPrimitiv
 }
 
 bool AWotProjectile::HandleParry_Implementation(AActor* OtherActor) {
+  if (!bCanBeParried) {
+    return false;
+  }
+  if (!OtherActor) {
+    UE_LOG(LogTemp, Log, TEXT("HandleParry: !OtherActor"));
+    return false;
+  }
   UWotActionComponent* ActionComp = UWotActionComponent::GetActions(OtherActor);
   if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {
     UE_LOG(LogTemp, Log, TEXT("Projectile was parried!"));
