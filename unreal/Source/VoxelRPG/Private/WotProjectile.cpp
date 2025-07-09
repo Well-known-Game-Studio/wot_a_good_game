@@ -71,11 +71,6 @@ bool AWotProjectile::ShouldHitActor_Implementation(AActor* OtherActor, UPrimitiv
     UE_LOG(LogTemp, Log, TEXT("HandleCollision: !OtherActor"));
     return false;
   }
-  // TODO: this is a hack to ignore overlap with the fluid flux surfaces /
-  // actors!
-  if (GetNameSafe(OtherActor).Contains("flux")) {
-    return false;
-  }
   // if the other actor is a trigger box (or any other actor that we don't want to explode on)
   // then return
   if (OtherActor->IsA(ATriggerBase::StaticClass())) {
@@ -93,6 +88,21 @@ bool AWotProjectile::ShouldHitActor_Implementation(AActor* OtherActor, UPrimitiv
   return true;
 }
 
+bool AWotProjectile::HandleParry_Implementation(AActor* OtherActor) {
+  UWotActionComponent* ActionComp = UWotActionComponent::GetActions(OtherActor);
+  if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {
+    UE_LOG(LogTemp, Log, TEXT("Projectile was parried!"));
+    // reflect projectile back to where it came from
+    MovementComp->Velocity = -MovementComp->Velocity;
+    // Make sure to update the instigator so that it can damage the original actor if it hits them
+    SetInstigator(Cast<APawn>(OtherActor));
+    // return here so we don't explode or try to apply damage
+    return true;
+  }
+  // we didn't parry, so return false
+  return false;
+}
+
 void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
   if (!ShouldHitActor(OtherActor, OtherComp)) {
@@ -102,14 +112,8 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
   // print the display name of the actor we overlapped with
   UE_LOG(LogTemp, Log, TEXT("Overlapped with %s"), *OtherActor->GetName());
 
-  UWotActionComponent* ActionComp = UWotActionComponent::GetActions(OtherActor);
-  if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {
-    UE_LOG(LogTemp, Log, TEXT("Projectile was parried!"));
-    // reflect projectile back to where it came from
-    MovementComp->Velocity = -MovementComp->Velocity;
-    // Make sure to update the instigator so that it can damage the original actor if it hits them
-    SetInstigator(Cast<APawn>(OtherActor));
-    // return here so we don't explode or try to apply damage
+  if (HandleParry(OtherActor)) {
+    // we were parried, so we don't want to explode
     return;
   }
 
