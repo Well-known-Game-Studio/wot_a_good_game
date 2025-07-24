@@ -88,7 +88,12 @@
 
 * 2025-07
 
-- [ ]
+- [X] Revamp attack / action and menu interactions
+- [X] Add back parry support
+- [X] Fix bugs in menu interaction and look/attack interaction
+- [X] Add projectile shooter blueprints for arrows and magic projectiles
+- [X] Improve dash action and allow it to have an effect
+- [X] Improve particle effect for dash (custom effect)
 
 * 2025-06
 
