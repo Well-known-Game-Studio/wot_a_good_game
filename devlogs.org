@@ -1,11 +1,11 @@
 #+title:  Devlog
 #+author: William Emfinger
-#+date:   <2025-06-02 Mon>
+#+date:   <2025-07-23 Wed>
 
 * Task List
 ** Bugs
 
-- [ ] CommonUI widget doens't show for all keyboard input
+- [X] CommonUI widget doens't show for all keyboard input
 
 ** Learning Resources
 
@@ -23,20 +23,19 @@
 
 ** Blockout
 
-- [ ] Block out overworld (spine of the world, aiel waste, blight, ocean)
-- [ ] Figure out scale of overworld models
+- [X] Block out overworld (spine of the world, aiel waste, blight, ocean)
+- [X] Figure out scale of overworld models
 - [ ] Block out Emonds Field
 
 ** Code
 
-- [ ] Save player inventory to state so that it persists between level loads
+- [X] Save player inventory to state so that it persists between level loads
 - [ ] Store quest / level state when leaving so it is the same upon return
 - [ ] Fix / improve geometry script tools so they perform better (wall is really bad)
 
 ** Game
 
 - [ ] Have tiny models hurt when they touch you (e.g. melee actors)
-- [ ]
 - [ ] Add effects (butterflies and dust motes) to the scene
 - [ ] add niagara smoke effects (chimney)
 - [ ] add lightning effect
@@ -86,6 +85,29 @@
 - [ ] Sheep
 - [ ] Item Drop (player)
 - [ ] Item Drop (NPC)
+
+* 2025-07
+
+- [ ]
+
+* 2025-06
+
+- [X] Add stone of tear, white tower, and dragonmount to the overworld
+- [X] Use procedural content generation (PCG) to automatically place mountains and trees in the overworld
+- [X] Fix game time transitions so that effects (fire, etc.) have right state
+- [X] Refactor touch/input handling to allow touch to be fully playable / have all inputs / features
+- [X] Remove need for unhighlight timers via refactoring highlighting system
+- [X] Use overlay material to highlight individual foliage instances instead of all instances
+- [X] Added blender tools for importing maps, making models, and exporting models
+- [X] Update deprecated API usage to move to UE5.6
+- [X] Add loading images and app icons
+- [X] Allow touch / mouse attack to aim where the mouse is looking
+- [X] Hide/show touch interface based on detected input
+- [X] Configure android/ios/other platforms to have all controllers
+- [X] Flesh out overworld a little bit
+- [X] Add missing config for UI / icons for keyboad + mouse
+- [X] Fix bug when opening menu while jumping
+- [X] Hide chest until quest complete
 
 * 2025-05
 
