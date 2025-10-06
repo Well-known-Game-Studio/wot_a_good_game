@@ -99,7 +99,7 @@ bool UWotGameplayFunctionLibrary::ApplyDamage(AActor* DamageCauser, AActor* Targ
     // See if the actor we hit is actually attached to an actor that can be
     // damaged; if so then damage that actor
     AActor* ParentActor = TargetActor->GetAttachParentActor();
-    UE_LOG(LogTemp, Log, TEXT("ApplyDamage: got attach parent actor '%s'"), *GetNameSafe(ParentActor));
+    // UE_LOG(LogTemp, Log, TEXT("ApplyDamage: got attach parent actor '%s'"), *GetNameSafe(ParentActor));
     return ApplyDamage(DamageCauser, ParentActor, DamageAmount);
   }
   return false;
@@ -158,7 +158,7 @@ FString UWotGameplayFunctionLibrary::GetIntAsString(int TheNumber)
 void UWotGameplayFunctionLibrary::GetAllCppSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray)
 {
 	FName BaseClassName = BaseClass->GetFName();
-	UE_LOG(LogTemp, Log, TEXT("Getting all c++ subclasses of '%s'"), *BaseClassName.ToString());
+	// UE_LOG(LogTemp, Log, TEXT("Getting all c++ subclasses of '%s'"), *BaseClassName.ToString());
   bool bRecursive = true;
   GetDerivedClasses(BaseClass, ClassArray, bRecursive);
 }
@@ -167,7 +167,7 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 {
 	FName BaseClassName = BaseClass->GetFName();
   FTopLevelAssetPath BaseClassPath = FTopLevelAssetPath(BaseClass->GetPathName());
-	UE_LOG(LogTemp, Log, TEXT("Getting all blueprint subclasses of '%s'"), *BaseClassName.ToString());
+	// UE_LOG(LogTemp, Log, TEXT("Getting all blueprint subclasses of '%s'"), *BaseClassName.ToString());
 
 	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
 	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
@@ -244,7 +244,6 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 				UE_LOG(LogTemp, Error, TEXT("Could not cast '%s' to blueprint class"), *ObjectClassName);
 			}
 			if (Class) {
-				UE_LOG(LogTemp, Log, TEXT("Got subclass '%s'"), *ObjectClassName);
 				ClassArray.Add(Class);
 			} else {
 				UE_LOG(LogTemp, Error, TEXT("Invalid BP Class Data for '%s'"), *ObjectClassName);

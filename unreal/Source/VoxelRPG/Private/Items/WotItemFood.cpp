@@ -18,7 +18,7 @@ void UWotItemFood::Use(ACharacter* Character)
   }
   // Try to add to their inventory if possible
   if (UseAddedToInventory(Character)) {
-    UE_LOG(LogTemp, Warning, TEXT("Added to inventory!"));
+    // UE_LOG(LogTemp, Warning, TEXT("Added to inventory!"));
     return;
   }
   // See if it can be used by this character
@@ -34,7 +34,7 @@ void UWotItemFood::Use(ACharacter* Character)
   // And Heal Them
   bool WasUsed = AttributeComp->ApplyHealthChange(HealingAmount);
   if (!WasUsed) {
-    UE_LOG(LogTemp, Warning, TEXT("Full health!"));
+    // UE_LOG(LogTemp, Warning, TEXT("Full health!"));
     return;
   }
   // remove it from the inventory

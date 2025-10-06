@@ -81,6 +81,11 @@ https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/b3bde112
 
 If on MacOS: [using modern xcode](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-modern-xcode-in-unreal-engine)
 
+If you upgrade your macos/xcode beyond what is supported by your version of
+unreal engine, you may need to do the following:
+
+1. Edit `/Users/Shared/Epic Games/UE_5.6/Engine/Config/Apple/Apple_SDK.json`
+
 ### Programming
 
 Here's a useful [Unreal Engine Style
@@ -149,7 +154,7 @@ dependencies {
 	annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.6.1'
 
     // ADD THE LINES BELOW:
-    def billing_version = "6.1.0"
+    def billing_version = "8.0.0"
     implementation "com.android.billingclient:billing:$billing_version"
 }
 ```
