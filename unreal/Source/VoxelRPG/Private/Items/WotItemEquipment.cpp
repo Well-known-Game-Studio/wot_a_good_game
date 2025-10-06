@@ -22,7 +22,7 @@ void UWotItemEquipment::Use(ACharacter* Character)
   }
   // Make sure this is still a valid character
   if (UseAddedToInventory(Character)) {
-    UE_LOG(LogTemp, Warning, TEXT("Added to inventory!"));
+    // UE_LOG(LogTemp, Warning, TEXT("Added to inventory!"));
     return;
   }
   // See if it can be used by this character

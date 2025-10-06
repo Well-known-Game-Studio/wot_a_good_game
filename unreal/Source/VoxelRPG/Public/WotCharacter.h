@@ -110,7 +110,7 @@ protected:
 
 	// Movement
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
-	bool bIsOnLadder{false};
+	AActor* CurrentLadderActor{nullptr};
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
 	void GetCharacterMovementAxes(FVector& OutForward, FVector& OutRight) const;

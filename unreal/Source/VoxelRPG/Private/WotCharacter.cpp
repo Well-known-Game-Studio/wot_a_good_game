@@ -136,7 +136,7 @@ void AWotCharacter::PrimaryInteract_Implementation()
 
 bool AWotCharacter::IsClimbing() const
 {
-	return bIsOnLadder;
+	return CurrentLadderActor != nullptr;
 }
 
 void AWotCharacter::HandleMovementInput_Implementation(const FVector &MoveDirection, const FVector &LookDirection)
@@ -172,9 +172,78 @@ bool AWotCharacter::Move_Implementation(const FVector &MoveVector)
 
 	// if the player is on a ladder, we want to move the player up/down the
 	// ladder, so we don't want to do anything else
-	if (bIsOnLadder) {
-		// tell the pawn controller to actual move accordingly
-		AddMovementInput({0, 0, 1.0f}, MoveVector.Size());
+	if (IsClimbing()) {
+		// We have the LadderActor, so get its extents and forward vector. The
+		// forward vector for the ladder points normal to the ladder rungs (i.e.
+		// out from the ladder). We use this vector to determine if the ladder
+		// is still in front of the player (if the user is pressing forward) or
+		// if the ground is still below the player (if the user is pressing
+		// backward)
+
+		// determine forward/backward direction w.r.t. the ladder
+		FVector LadderForward = CurrentLadderActor->GetActorForwardVector();
+		FVector LadderUp = CurrentLadderActor->GetActorUpVector();
+		// this is the direction from the player to the ladder
+		FVector ToLadder = LadderForward * -1.0f;
+
+		// rotate the character to face the ladder
+		FRotator TargetRot = ToLadder.ToOrientationRotator();
+		SetActorRotation(TargetRot);
+
+		// ensure we negate any existing non-ladder aligned velocity by
+		// dot-product with the ladder up vector
+		auto vel = GetCharacterMovement()->Velocity;
+		GetCharacterMovement()->Velocity = vel.ProjectOnTo(LadderUp);
+
+		// tell the pawn controller to actual move accordingly. we only move in
+		// the z axis, so if the user is pressing forward or backward, we move
+		// up or down the ladder if the user is pressing left or right, we don't
+		// move at all
+		float forward_amount = MoveVector.Y;
+		FVector LadderMoveVector = LadderUp;
+		AddMovementInput(LadderMoveVector, forward_amount);
+
+		// do a line trace in front of the character to determine if the ladder
+		// is still there. If not, then we shold move forward off the ladder (if
+		// the forward_amount is positive)
+		FVector Start = GetActorLocation();
+		FVector ForwardEnd = Start + ToLadder * 100.0f;
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+		FHitResult HitForward;
+		bool bHitLadder = GetWorld()->LineTraceSingleByChannel(HitForward, Start, ForwardEnd, ECC_Visibility, QueryParams);
+
+		// do a line trace below the character to determine if the ground is
+		// there. If not, then we should move backward off the ladder (if the
+		// forward_amount is negative)
+		FVector DownEnd = Start - LadderUp * 100.0f;
+		FHitResult HitDown;
+		bool bHitGround = GetWorld()->LineTraceSingleByChannel(HitDown, Start, DownEnd, ECC_Visibility, QueryParams);
+
+		float move_off_amount = 0.0f;
+
+		if (forward_amount > 0.0f) {
+			// user is pressing forward, so only stay on the ladder if it's
+			// still in front of the player
+			if (!bHitLadder) {
+				// ladder is no longer in front of the player, so move off the
+				// ladder and stop climbing
+				move_off_amount = 100.0f;
+			}
+		} else if (forward_amount < 0.0f) {
+			// user is pressing backward, so only stay on the ladder if the
+			// ground is still below the player
+			if (!bHitGround) {
+				// ground is no longer below the player, so move off the ladder
+				// and stop climbing
+				move_off_amount = -100.0f;
+			}
+		}
+
+		if (move_off_amount != 0.0f) {
+			AddMovementInput(ToLadder, move_off_amount);
+		}
+
 		// we're done here
 		return true;
 	}
@@ -204,6 +273,11 @@ bool AWotCharacter::Look_Implementation(const FVector &LookDirection)
 	}
 	if (LookDirection.Size() < 0.25f) {
 		// no look input, so we don't do anything
+		return false;
+	}
+
+	if (IsClimbing()) {
+		// if we're on a ladder, we don't want to rotate the character
 		return false;
 	}
 

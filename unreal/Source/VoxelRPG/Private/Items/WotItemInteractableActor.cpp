@@ -28,7 +28,7 @@ void AWotItemInteractableActor::Interact_Implementation(APawn* InstigatorPawn, F
       WotCharacter->PlaySoundGet();
     }
     if (NumAdded == TotalCount) {
-      UE_LOG(LogTemp, Log, TEXT("InteractableActor: We've added all our items, destroying!"));
+      // UE_LOG(LogTemp, Log, TEXT("InteractableActor: We've added all our items, destroying!"));
       // destroy this object
       Destroy();
     }

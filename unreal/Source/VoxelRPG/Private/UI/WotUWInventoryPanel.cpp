@@ -108,7 +108,7 @@ void UWotUWInventoryPanel::UpdateInventory()
   // if there are children, then focus on the first on, otherwise, focus on the
   // close button
   if (ItemBox->GetChildrenCount() > 0) {
-    UE_LOG(LogTemp, Warning, TEXT("Focusing first item in inventory"));
+    // UE_LOG(LogTemp, Log, TEXT("Focusing first item in inventory"));
     ItemBox->GetChildAt(0)->SetFocus();
   }
 }

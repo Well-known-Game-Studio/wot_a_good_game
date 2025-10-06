@@ -60,17 +60,14 @@ void AWotArrowProjectile::OnStateBegin(EWotArrowState BeginArrowState)
 {
   switch (BeginArrowState) {
     case EWotArrowState::Default: {
-      UE_LOG(LogTemp, Log, TEXT("On State Begin: Default"));
       break;
     }
     case EWotArrowState::InBow: {
-      UE_LOG(LogTemp, Log, TEXT("On State Begin: InBow"));
       // Disable collision
       SphereComp->SetCollisionProfileName("NoCollision");
       break;
     }
     case EWotArrowState::InAir: {
-      UE_LOG(LogTemp, Log, TEXT("On State Begin: InAir"));
       // standard projectile collision
       SphereComp->SetCollisionProfileName(CollisionProfileName);
       EffectAudioComp->SetSound(EffectSound);
@@ -85,7 +82,6 @@ void AWotArrowProjectile::OnStateBegin(EWotArrowState BeginArrowState)
       break;
     }
     case EWotArrowState::Unobtained: {
-      UE_LOG(LogTemp, Log, TEXT("On State Begin: Unobtained"));
       // Don't need the shere component anymore
       SphereComp->SetCollisionProfileName("NoCollision");
       EffectAudioComp->Stop();
@@ -100,20 +96,16 @@ void AWotArrowProjectile::OnStateEnd(EWotArrowState EndArrowState)
 {
   switch (EndArrowState) {
     case EWotArrowState::Default: {
-      UE_LOG(LogTemp, Log, TEXT("On State End: Default"));
       break;
     }
     case EWotArrowState::InBow: {
-      UE_LOG(LogTemp, Log, TEXT("On State End: InBow"));
       break;
     }
     case EWotArrowState::InAir: {
-      UE_LOG(LogTemp, Log, TEXT("On State End: InAir"));
       MovementComp->Deactivate();
       break;
     }
     case EWotArrowState::Unobtained: {
-      UE_LOG(LogTemp, Log, TEXT("On State End: Unobtained"));
       break;
     }
     default:
@@ -123,13 +115,11 @@ void AWotArrowProjectile::OnStateEnd(EWotArrowState EndArrowState)
 
 void AWotArrowProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-  UE_LOG(LogTemp, Log, TEXT("OnActorOverlap"));
   HandleCollision(OtherActor, SweepResult);
 }
 
 void AWotArrowProjectile::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-  UE_LOG(LogTemp, Log, TEXT("OnComponentHit"));
   HandleCollision(OtherActor, Hit);
 }
 
@@ -171,7 +161,6 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
     return;
   }
 
-  UE_LOG(LogTemp, Log, TEXT("%s Hit %s"), *GetNameSafe(this), *GetNameSafe(OtherActor));
   // set new state to unobtained
   SetArrowState(EWotArrowState::Unobtained);
   // Debug helping
@@ -191,7 +180,6 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
   FActorSpawnParameters SpawnParams;
   SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
   // Spawn one actor for each item dropped
-  UE_LOG(LogTemp, Log, TEXT("Spawning New ItemInteractable for arrow!"));
   AWotItemInteractableActor* NewItemInteractable =
     GetWorld()->SpawnActor<AWotItemInteractableActor>(AWotItemInteractableActor::StaticClass(),
                                                       NewLocation,
@@ -202,7 +190,6 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
     NewItemInteractable->SetLifeSpan(ProjectileLifeSpan);
   }
   // and create WotItem (for collecting into inventory)
-  UE_LOG(LogTemp, Log, TEXT("Creating New Item!"));
   UWotItem* NewItem = NewObject<UWotItem>(NewItemInteractable, ItemClass);
   NewItem->OwningInventory = nullptr;
   NewItem->Count = 1;
