@@ -1,6 +1,7 @@
 #include "AI/WotAICharacter.h"
 #include "AI/WotAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "AIController.h"
 #include "WotActionComponent.h"
@@ -115,7 +116,12 @@ void AWotAICharacter::PrimaryAttackStop()
 	}
 }
 
-void AWotAICharacter::HitFlash()
+void AWotAICharacter::Knockback_Implementation(const FVector &Direction, float Amount) {
+  UE_LOG(LogTemp, Warning, TEXT("Applying knockback: %0.1f"), Amount);
+  GetCharacterMovement()->AddImpulse(Direction * Amount);
+}
+
+void AWotAICharacter::HitFlash_Implementation()
 {
 	auto _mesh = GetMesh();
 	// register that we were hit now
@@ -183,11 +189,11 @@ void AWotAICharacter::SetBlackboardActor(const FString BlackboardKeyName, AActor
   BBComp->SetValueAsObject(FName(*BlackboardKeyName), Actor);
 }
 
-void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
+void AWotAICharacter::OnHealthChanged_Implementation(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
   // set the instigator as the damage actor
   SetBlackboardActor("DamageActor", InstigatorActor);
-  UE_LOG(LogTemp, Warning, TEXT("Run away from %s"), *GetNameSafe(InstigatorActor));
+  // UE_LOG(LogTemp, Warning, TEXT("Run away from %s"), *GetNameSafe(InstigatorActor));
   SetBlackboardActor("TargetActor", InstigatorActor);
   // Then forget damage actor after a delay
   GetWorldTimerManager().SetTimer(TimerHandle_ForgetDamageActor,
@@ -201,10 +207,18 @@ void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComp
   if (Delta < 0.0f) {
 		HitFlash();
     // TODO: how do we want to apply stun effect?
+
+    // get the vector from the attacker to the ai character
+    auto attacker_location = InstigatorActor->GetActorLocation();
+    auto location = GetActorLocation();
+    auto knock_direction = (location - attacker_location).GetSafeNormal();
+
+    // // apply knockback to the actor
+    // Knockback(knock_direction, KnockbackFactor * -Delta);
   }
 }
 
-void AWotAICharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp)
+void AWotAICharacter::OnKilled_Implementation(AActor* InstigatorActor, UWotAttributeComponent* OwningComp)
 {
 	// turn off collision & physics
 	TurnOff(); // freezes the pawn state
