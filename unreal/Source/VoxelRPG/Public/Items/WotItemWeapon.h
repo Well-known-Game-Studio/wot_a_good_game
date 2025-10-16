@@ -18,6 +18,9 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ClampMin = 0.0))
     float DamageAmount;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ClampMin = 0.0))
+    float KnockbackFactor = 50000.0f;
+
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     bool PrimaryAttackStart();
 
