@@ -124,7 +124,8 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
     return;
   }
 
-  UWotGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
+  // UWotGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
+  UWotGameplayFunctionLibrary::ApplyDamageInDirection(GetInstigator(), OtherActor, Damage, GetActorForwardVector(), KnockbackFactor * std::abs(Damage));
   Explode();
 }
 
