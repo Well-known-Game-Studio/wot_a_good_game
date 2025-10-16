@@ -26,7 +26,10 @@ public:
     static bool ApplyDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount);
 
     UFUNCTION(BlueprintCallable, Category = "Gameplay")
-    static bool ApplyDirectionalDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FHitResult&HitResult);
+    static bool ApplyDamageInDirection(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FVector &Direction, float Knockback = 3000.0f);
+
+    UFUNCTION(BlueprintCallable, Category = "Gameplay")
+    static bool ApplyDirectionalDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FHitResult&HitResult, float Knockback = 3000.0f);
 
     static FString GetFloatAsStringWithPrecision(float TheFloat, int32 Precision, bool IncludeLeadingZero=true);
     static FText GetFloatAsTextWithPrecision(float TheFloat, int32 Precision, bool IncludeLeadingZero=true);

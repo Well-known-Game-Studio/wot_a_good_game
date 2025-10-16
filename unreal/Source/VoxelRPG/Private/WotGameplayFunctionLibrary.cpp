@@ -2,6 +2,8 @@
 #include "WotInteractableInterface.h"
 #include "WotAttributeComponent.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 bool UWotGameplayFunctionLibrary::GetClosestInteractableInRange(AActor* InstigatorActor, float InteractionRange, FVector BoxHalfExtent, AActor* &ClosestActor, UActorComponent* &ClosestComponent, FHitResult &ClosestHit) {
 	FVector EyeLocation;
@@ -105,7 +107,7 @@ bool UWotGameplayFunctionLibrary::ApplyDamage(AActor* DamageCauser, AActor* Targ
   return false;
 }
 
-bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FHitResult& HitResult)
+bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FHitResult& HitResult, float Knockback)
 {
   if (ApplyDamage(DamageCauser, TargetActor, DamageAmount)) {
     // Ensure the actor we're going to apply an impulse (for explosion) to has
@@ -115,13 +117,55 @@ bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, A
     if (HitComp && HitComp->IsSimulatingPhysics(HitResult.BoneName)) {
       FVector Direction = HitResult.TraceEnd - HitResult.TraceStart;
       Direction.Normalize();
-      HitComp->AddImpulseAtLocation(Direction * 3000.0f, HitResult.ImpactPoint, HitResult.BoneName);
+      HitComp->AddImpulseAtLocation(Direction.GetSafeNormal() * Knockback, HitResult.ImpactPoint, HitResult.BoneName);
     } else {
-      UE_LOG(LogTemp, Warning, TEXT("ApplyDirectionalDamage: HitComp is null or not simulating physics"));
+      FVector Direction;
+      if (DamageCauser) {
+        // Use direction from causer to target
+        Direction = TargetActor->GetActorLocation() - DamageCauser->GetActorLocation();
+      } else {
+        // Use negative forward vector
+        Direction = - TargetActor->GetActorForwardVector();
+      }
+      // since it's not simulating physics, we should apply an impulse to the character movement component
+      ACharacter* Character = Cast<ACharacter>(TargetActor);
+      if (Character) {
+        auto *MovementComp = Character->GetCharacterMovement();
+        MovementComp->AddImpulse(Direction.GetSafeNormal() * Knockback);
+      } else {
+        UE_LOG(LogTemp, Warning, TEXT("ApplyDirectionalDamage: HitComp is null or not simulating physics and could not cast to ACharacter!"));
+      }
     }
     return true;
   }
-  UE_LOG(LogTemp, Log, TEXT("ApplyDirectionalDamage: ApplyDamage failed"));
+  // UE_LOG(LogTemp, Log, TEXT("ApplyDirectionalDamage: ApplyDamage failed"));
+  return false;
+}
+
+bool UWotGameplayFunctionLibrary::ApplyDamageInDirection(AActor* DamageCauser, AActor* TargetActor, float DamageAmount, const FVector &Direction, float Knockback)
+{
+  if (ApplyDamage(DamageCauser, TargetActor, DamageAmount)) {
+    // Ensure the actor we're going to apply an impulse (for explosion) to has
+    // collision enabled
+    TargetActor->SetActorEnableCollision(true);
+    UPrimitiveComponent *BaseComp = Cast<UPrimitiveComponent>(TargetActor->GetComponentByClass(UPrimitiveComponent::StaticClass()));
+    if (BaseComp && BaseComp->IsSimulatingPhysics()) {
+      BaseComp->AddImpulse(Direction.GetSafeNormal() * Knockback);
+      UE_LOG(LogTemp, Warning, TEXT("ApplyDamageInDirection: AddImpulse to uprimitive component!"));
+    } else {
+      // since it's not simulating physics, we should apply an impulse to the character movement component
+      ACharacter* Character = Cast<ACharacter>(TargetActor);
+      if (Character) {
+        auto *MovementComp = Character->GetCharacterMovement();
+        MovementComp->AddImpulse(Direction.GetSafeNormal() * Knockback);
+        UE_LOG(LogTemp, Warning, TEXT("ApplyDamageInDirection: AddImpulse %f to character movement component"), Knockback);
+      } else {
+        UE_LOG(LogTemp, Warning, TEXT("ApplyDamageInDirection: HitComp is null or not simulating physics and could not cast to ACharacter!"));
+      }
+    }
+    return true;
+  }
+  // UE_LOG(LogTemp, Log, TEXT("ApplyDamageInDirection: ApplyDamage failed"));
   return false;
 }
 
