@@ -7,6 +7,7 @@
 #include "WotAttributeComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnKilled, AActor*, InstigatorActor, UWotAttributeComponent*, OwningComp);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStunChanged, UWotAttributeComponent*, OwningComp, bool, NewIsStunned);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, InstigatorActor, UWotAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
 
 UCLASS( ClassGroup=(Custom), EditInlineNew, meta=(BlueprintSpawnableComponent) )
@@ -89,6 +90,9 @@ public:
 
     UPROPERTY(BlueprintAssignable)
     FOnHealthChanged OnHealthChanged;
+
+    UPROPERTY(BlueprintAssignable)
+    FOnStunChanged OnStunChanged;
 
     UPROPERTY(BlueprintAssignable)
     FOnKilled OnKilled;
