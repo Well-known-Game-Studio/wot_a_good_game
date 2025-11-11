@@ -133,7 +133,7 @@ bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, A
         auto *MovementComp = Character->GetCharacterMovement();
         MovementComp->AddImpulse(Direction.GetSafeNormal() * Knockback);
       } else {
-        UE_LOG(LogTemp, Warning, TEXT("ApplyDirectionalDamage: HitComp is null or not simulating physics and could not cast to ACharacter!"));
+        UE_LOG(LogTemp, Warning, TEXT("ApplyDirectionalDamage: Could not apply knockback: target is not a Character and has no simulating physics component."));
       }
     }
     return true;
