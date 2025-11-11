@@ -31,7 +31,7 @@ public:
   UFUNCTION(BlueprintCallable)
   void PrimaryAttackStop();
 
-  UPROPERTY(BlueprintReadWRite, EditAnywhere, Category = "Knockback")
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Knockback")
   float KnockbackFactor = 500.0f;
 
   virtual void Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration) override;

@@ -98,10 +98,10 @@ void AWotAICharacter::PrimaryAttack(AActor* TargetActor)
 	// have weapon equipped; there's gotta be a better way..
 	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
 	if (EquippedWeapon) {
-		UE_LOG(LogTemp, Log, TEXT("Got Equipped Weapon %s"), *GetNameSafe(EquippedWeapon));
+		UE_LOG(LogTemp, Verbose, TEXT("Got Equipped Weapon %s"), *GetNameSafe(EquippedWeapon));
 		EquippedWeapon->PrimaryAttackStart();
 	} else {
-		UE_LOG(LogTemp, Log, TEXT("No weapon equipped starting action 'PrimaryAttack'"));
+		UE_LOG(LogTemp, Verbose, TEXT("No weapon equipped starting action 'PrimaryAttack'"));
 		ActionComp->StartActionByName("PrimaryAttack", this);
 	}
 }
@@ -117,7 +117,7 @@ void AWotAICharacter::PrimaryAttackStop()
 }
 
 void AWotAICharacter::Knockback_Implementation(const FVector &Direction, float Amount) {
-  UE_LOG(LogTemp, Warning, TEXT("Applying knockback: %0.1f"), Amount);
+  UE_LOG(LogTemp, Verbose, TEXT("Applying knockback: %0.1f"), Amount);
   GetCharacterMovement()->AddImpulse(Direction * Amount);
 }
 
@@ -193,7 +193,7 @@ void AWotAICharacter::OnHealthChanged_Implementation(AActor* InstigatorActor, UW
 {
   // set the instigator as the damage actor
   SetBlackboardActor("DamageActor", InstigatorActor);
-  // UE_LOG(LogTemp, Warning, TEXT("Run away from %s"), *GetNameSafe(InstigatorActor));
+  UE_LOG(LogTemp, Verbose, TEXT("Run away from %s"), *GetNameSafe(InstigatorActor));
   SetBlackboardActor("TargetActor", InstigatorActor);
   // Then forget damage actor after a delay
   GetWorldTimerManager().SetTimer(TimerHandle_ForgetDamageActor,
@@ -201,20 +201,14 @@ void AWotAICharacter::OnHealthChanged_Implementation(AActor* InstigatorActor, UW
                                   &AWotAICharacter::ForgetDamageActor_TimeElapsed,
                                   DamageActorForgetDelay);
   // and show the health widgets
-	ShowHealthBarWidget(NewHealth, Delta, 1.0f);
-	ShowPopupWidgetNumber(Delta, 1.0f);
+  ShowHealthBarWidget(NewHealth, Delta, 1.0f);
+  ShowPopupWidgetNumber(Delta, 1.0f);
   // and flash that we were hit
   if (Delta < 0.0f) {
-		HitFlash();
-    // TODO: how do we want to apply stun effect?
-
-    // get the vector from the attacker to the ai character
-    auto attacker_location = InstigatorActor->GetActorLocation();
-    auto location = GetActorLocation();
-    auto knock_direction = (location - attacker_location).GetSafeNormal();
-
-    // // apply knockback to the actor
-    // Knockback(knock_direction, KnockbackFactor * -Delta);
+    HitFlash();
+    // NOTE: we could apply knockback here, but for now, just let the
+    // ApplyDamageInDirection do it for us, since that way it takes into account
+    // the damage direction, the causer of the damage (e.g. weapon type, etc.)
   }
 }
 

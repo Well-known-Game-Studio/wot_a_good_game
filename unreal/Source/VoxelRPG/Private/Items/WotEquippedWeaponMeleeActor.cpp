@@ -87,7 +87,6 @@ void AWotEquippedWeaponMeleeActor::AttackSweep()
   }
   float Damage = ItemWeapon->DamageAmount;
   float KnockbackFactor = ItemWeapon->KnockbackFactor;
-  float Knockback = Damage * KnockbackFactor;
 
   bool bDidDamage = false;
 

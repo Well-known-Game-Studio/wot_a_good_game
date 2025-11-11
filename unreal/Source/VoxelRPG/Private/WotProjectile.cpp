@@ -68,21 +68,21 @@ void AWotProjectile::BeginPlay()
 bool AWotProjectile::ShouldHitActor_Implementation(AActor* OtherActor, UPrimitiveComponent* OtherComp)
 {
   if (!OtherActor) {
-    UE_LOG(LogTemp, Log, TEXT("HandleCollision: !OtherActor"));
+    UE_LOG(LogTemp, Verbose, TEXT("HandleCollision: !OtherActor"));
     return false;
   }
   // if the other actor is a trigger box (or any other actor that we don't want to explode on)
   // then return
   if (OtherActor->IsA(ATriggerBase::StaticClass())) {
-    UE_LOG(LogTemp, Log, TEXT("HandleCollision: OtherActor->IsA(ATriggerBase::StaticClass())"));
+    UE_LOG(LogTemp, Verbose, TEXT("HandleCollision: OtherActor->IsA(ATriggerBase::StaticClass())"));
     return false;
   }
   if (OtherActor == this) {
-    UE_LOG(LogTemp, Log, TEXT("Projectiles shouldn't be able to collide with themselves... should they?"));
+    UE_LOG(LogTemp, Verbose, TEXT("Projectiles shouldn't be able to collide with themselves... should they?"));
     return false;
   }
   if (OtherActor == GetInstigator()) {
-    UE_LOG(LogTemp, Log, TEXT("HandleCollision: OtherActor == GetInstigator()"));
+    UE_LOG(LogTemp, Verbose, TEXT("HandleCollision: OtherActor == GetInstigator()"));
     return false;
   }
   return true;
@@ -93,12 +93,12 @@ bool AWotProjectile::HandleParry_Implementation(AActor* OtherActor) {
     return false;
   }
   if (!OtherActor) {
-    UE_LOG(LogTemp, Log, TEXT("HandleParry: !OtherActor"));
+    UE_LOG(LogTemp, Verbose, TEXT("HandleParry: !OtherActor"));
     return false;
   }
   UWotActionComponent* ActionComp = UWotActionComponent::GetActions(OtherActor);
   if (ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTag)) {
-    UE_LOG(LogTemp, Log, TEXT("Projectile was parried!"));
+    UE_LOG(LogTemp, Verbose, TEXT("Projectile was parried!"));
     // reflect projectile back to where it came from
     MovementComp->Velocity = -MovementComp->Velocity;
     // Make sure to update the instigator so that it can damage the original actor if it hits them
@@ -117,7 +117,7 @@ void AWotProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AA
   }
 
   // print the display name of the actor we overlapped with
-  UE_LOG(LogTemp, Log, TEXT("Overlapped with %s"), *OtherActor->GetName());
+  UE_LOG(LogTemp, Verbose, TEXT("Overlapped with %s"), *OtherActor->GetName());
 
   if (HandleParry(OtherActor)) {
     // we were parried, so we don't want to explode

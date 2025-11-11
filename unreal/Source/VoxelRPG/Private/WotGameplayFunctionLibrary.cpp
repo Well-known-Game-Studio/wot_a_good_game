@@ -101,7 +101,7 @@ bool UWotGameplayFunctionLibrary::ApplyDamage(AActor* DamageCauser, AActor* Targ
     // See if the actor we hit is actually attached to an actor that can be
     // damaged; if so then damage that actor
     AActor* ParentActor = TargetActor->GetAttachParentActor();
-    // UE_LOG(LogTemp, Log, TEXT("ApplyDamage: got attach parent actor '%s'"), *GetNameSafe(ParentActor));
+    UE_LOG(LogTemp, Verbose, TEXT("ApplyDamage: got attach parent actor '%s'"), *GetNameSafe(ParentActor));
     return ApplyDamage(DamageCauser, ParentActor, DamageAmount);
   }
   return false;
@@ -116,7 +116,6 @@ bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, A
     UPrimitiveComponent* HitComp = HitResult.GetComponent();
     if (HitComp && HitComp->IsSimulatingPhysics(HitResult.BoneName)) {
       FVector Direction = HitResult.TraceEnd - HitResult.TraceStart;
-      Direction.Normalize();
       HitComp->AddImpulseAtLocation(Direction.GetSafeNormal() * Knockback, HitResult.ImpactPoint, HitResult.BoneName);
     } else {
       FVector Direction;
@@ -138,7 +137,7 @@ bool UWotGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, A
     }
     return true;
   }
-  // UE_LOG(LogTemp, Log, TEXT("ApplyDirectionalDamage: ApplyDamage failed"));
+  UE_LOG(LogTemp, Verbose, TEXT("ApplyDirectionalDamage: ApplyDamage did not apply damage"));
   return false;
 }
 
@@ -151,21 +150,21 @@ bool UWotGameplayFunctionLibrary::ApplyDamageInDirection(AActor* DamageCauser, A
     UPrimitiveComponent *BaseComp = Cast<UPrimitiveComponent>(TargetActor->GetComponentByClass(UPrimitiveComponent::StaticClass()));
     if (BaseComp && BaseComp->IsSimulatingPhysics()) {
       BaseComp->AddImpulse(Direction.GetSafeNormal() * Knockback);
-      UE_LOG(LogTemp, Warning, TEXT("ApplyDamageInDirection: AddImpulse to uprimitive component!"));
+      UE_LOG(LogTemp, Verbose, TEXT("ApplyDamageInDirection: AddImpulse to uprimitive component!"));
     } else {
       // since it's not simulating physics, we should apply an impulse to the character movement component
       ACharacter* Character = Cast<ACharacter>(TargetActor);
       if (Character) {
         auto *MovementComp = Character->GetCharacterMovement();
         MovementComp->AddImpulse(Direction.GetSafeNormal() * Knockback);
-        UE_LOG(LogTemp, Warning, TEXT("ApplyDamageInDirection: AddImpulse %f to character movement component"), Knockback);
+        UE_LOG(LogTemp, Verbose, TEXT("ApplyDamageInDirection: AddImpulse %f to character movement component"), Knockback);
       } else {
         UE_LOG(LogTemp, Warning, TEXT("ApplyDamageInDirection: Could not apply knockback: target is not a Character and has no simulating physics component."));
       }
     }
     return true;
   }
-  // UE_LOG(LogTemp, Log, TEXT("ApplyDamageInDirection: ApplyDamage failed"));
+  UE_LOG(LogTemp, Verbose, TEXT("ApplyDamageInDirection: ApplyDamage did not apply damage"));
   return false;
 }
 
@@ -201,65 +200,65 @@ FString UWotGameplayFunctionLibrary::GetIntAsString(int TheNumber)
 
 void UWotGameplayFunctionLibrary::GetAllCppSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray)
 {
-	FName BaseClassName = BaseClass->GetFName();
-	// UE_LOG(LogTemp, Log, TEXT("Getting all c++ subclasses of '%s'"), *BaseClassName.ToString());
+  FName BaseClassName = BaseClass->GetFName();
+  UE_LOG(LogTemp, Verbose, TEXT("Getting all c++ subclasses of '%s'"), *BaseClassName.ToString());
   bool bRecursive = true;
   GetDerivedClasses(BaseClass, ClassArray, bRecursive);
 }
 
 void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, TArray<UClass*>& ClassArray)
 {
-	FName BaseClassName = BaseClass->GetFName();
+  FName BaseClassName = BaseClass->GetFName();
   FTopLevelAssetPath BaseClassPath = FTopLevelAssetPath(BaseClass->GetPathName());
-	// UE_LOG(LogTemp, Log, TEXT("Getting all blueprint subclasses of '%s'"), *BaseClassName.ToString());
+  UE_LOG(LogTemp, Verbose, TEXT("Getting all blueprint subclasses of '%s'"), *BaseClassName.ToString());
 
-	FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
-	IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
-	TArray<FAssetData> AssetData;
-	// The asset registry is populated asynchronously at startup, so there's no guarantee it has finished.
-	// This simple approach just runs a synchronous scan on the entire content directory.
-	// Better solutions would be to specify only the path to where the relevant blueprints are,
-	// or to register a callback with the asset registry to be notified of when it's finished populating.
-	TArray< FString > ContentPaths;
-	ContentPaths.Add(TEXT("/Game"));
-	AssetRegistry.ScanPathsSynchronous(ContentPaths);
+  FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry");
+  IAssetRegistry& AssetRegistry = AssetRegistryModule.Get();
+  TArray<FAssetData> AssetData;
+  // The asset registry is populated asynchronously at startup, so there's no guarantee it has finished.
+  // This simple approach just runs a synchronous scan on the entire content directory.
+  // Better solutions would be to specify only the path to where the relevant blueprints are,
+  // or to register a callback with the asset registry to be notified of when it's finished populating.
+  TArray< FString > ContentPaths;
+  ContentPaths.Add(TEXT("/Game"));
+  AssetRegistry.ScanPathsSynchronous(ContentPaths);
 
   // USE FTopLevelAssetPath
 
-	// Use the asset registry to get the set of all class names deriving from Base
-	TSet< FTopLevelAssetPath > DerivedNames;
-	{
-		TArray< FTopLevelAssetPath > BaseNames;
-		BaseNames.Add(BaseClassPath);
+  // Use the asset registry to get the set of all class names deriving from Base
+  TSet< FTopLevelAssetPath > DerivedNames;
+  {
+    TArray< FTopLevelAssetPath > BaseNames;
+    BaseNames.Add(BaseClassPath);
 
-		TSet< FTopLevelAssetPath > Excluded;
+    TSet< FTopLevelAssetPath > Excluded;
     AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
-		// AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
-	}
+    // AssetRegistry.GetDerivedClassNames(BaseNames, Excluded, DerivedNames);
+  }
 
-	FARFilter Filter;
-    Filter.ClassPaths.Add(UBlueprint::StaticClass()->GetClassPathName());
-	// Filter.ClassNames.Add(UBlueprint::StaticClass()->GetFName());
-	Filter.bRecursiveClasses = true;
-	Filter.bRecursivePaths = true;
+  FARFilter Filter;
+  Filter.ClassPaths.Add(UBlueprint::StaticClass()->GetClassPathName());
+  // Filter.ClassNames.Add(UBlueprint::StaticClass()->GetFName());
+  Filter.bRecursiveClasses = true;
+  Filter.bRecursivePaths = true;
 
-	TArray< FAssetData > AssetList;
-	AssetRegistry.GetAssets(Filter, AssetList);
+  TArray< FAssetData > AssetList;
+  AssetRegistry.GetAssets(Filter, AssetList);
 
-	// Iterate over retrieved blueprint assets
-	for(auto const& Asset : AssetList) {
-		// Get the the class this blueprint generates (this is stored as a full path)
+  // Iterate over retrieved blueprint assets
+  for(auto const& Asset : AssetList) {
+    // Get the the class this blueprint generates (this is stored as a full path)
     auto GeneratedClassPathPtr = Asset.TagsAndValues.FindTag(TEXT("GeneratedClass")).AsString();
-		if(!GeneratedClassPathPtr.IsEmpty()) {
-			// Convert path to just the name part
-			const FString ClassObjectPath = FPackageName::ExportTextPathToObjectPath(*GeneratedClassPathPtr);
-			const FString ObjectClassName = FPackageName::ObjectPathToObjectName(ClassObjectPath);
+    if(!GeneratedClassPathPtr.IsEmpty()) {
+      // Convert path to just the name part
+      const FString ClassObjectPath = FPackageName::ExportTextPathToObjectPath(*GeneratedClassPathPtr);
+      const FString ObjectClassName = FPackageName::ObjectPathToObjectName(ClassObjectPath);
       const FTopLevelAssetPath ClassPath = FTopLevelAssetPath(ClassObjectPath);
 
-			// Check if this class is in the derived set
-			if(!DerivedNames.Contains(ClassPath)) {
-				continue;
-			}
+      // Check if this class is in the derived set
+      if(!DerivedNames.Contains(ClassPath)) {
+        continue;
+      }
 
       // determine if it's a blueprint class
       if (!Asset.IsValid()) {
@@ -280,20 +279,20 @@ void UWotGameplayFunctionLibrary::GetAllBlueprintSubclasses(UClass* BaseClass, T
 
       // UObject* AssetObject = AssetReference.ResolveObject();
       // // UObject* AssetObject = AssetReference.TryLoad();
-			UClass* Class = nullptr;
-			UBlueprint* BlueprintAsset = Cast<UBlueprint>(AssetObject);
-			if (BlueprintAsset) {
-				Class = BlueprintAsset->GeneratedClass;
-			} else {
-				UE_LOG(LogTemp, Error, TEXT("Could not cast '%s' to blueprint class"), *ObjectClassName);
-			}
-			if (Class) {
-				ClassArray.Add(Class);
-			} else {
-				UE_LOG(LogTemp, Error, TEXT("Invalid BP Class Data for '%s'"), *ObjectClassName);
-			}
-		} else {
+      UClass* Class = nullptr;
+      UBlueprint* BlueprintAsset = Cast<UBlueprint>(AssetObject);
+      if (BlueprintAsset) {
+        Class = BlueprintAsset->GeneratedClass;
+      } else {
+        UE_LOG(LogTemp, Error, TEXT("Could not cast '%s' to blueprint class"), *ObjectClassName);
+      }
+      if (Class) {
+        ClassArray.Add(Class);
+      } else {
+        UE_LOG(LogTemp, Error, TEXT("Invalid BP Class Data for '%s'"), *ObjectClassName);
+      }
+    } else {
       UE_LOG(LogTemp, Warning, TEXT("No GeneratedClass tag found for asset '%s'"), *Asset.AssetName.ToString());
     }
-	}
+  }
 }
