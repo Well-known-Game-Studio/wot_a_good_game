@@ -85,14 +85,15 @@ void AWotEquippedWeaponMeleeActor::AttackSweep()
     UE_LOG(LogTemp, Warning, TEXT("Not a valid weapon item!"));
     return;
   }
-  float Damage = -ItemWeapon->DamageAmount;
+  float Damage = ItemWeapon->DamageAmount;
+  float KnockbackFactor = ItemWeapon->KnockbackFactor;
 
   bool bDidDamage = false;
 
 	for (auto Hit : Hits) {
 		AActor* HitActor = Hit.GetActor();
 		if (HitActor && HitActor != MyOwner) {
-      bDidDamage |= UWotGameplayFunctionLibrary::ApplyDirectionalDamage(MyOwner, HitActor, Damage, Hit);
+      bDidDamage |= UWotGameplayFunctionLibrary::ApplyDirectionalDamage(MyOwner, HitActor, -Damage, Hit, KnockbackFactor);
       if (bDrawDebug) {
         FVector HitActorLocation;
         FVector HitBoxExtent;

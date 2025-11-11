@@ -99,9 +99,14 @@ bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor
 											   this,
 											   &UWotAttributeComponent::Stunned_TimeElapsed,
 											   StunDuration);
+		OnStunChanged.Broadcast(this, bIsStunned);
 	} else if (ActualDelta > 0.0f) {
+		bool WasStunned = bIsStunned;
 		// if we are being healed, reset the stunned flag
 		bIsStunned = false;
+		if (WasStunned) {
+			OnStunChanged.Broadcast(this, bIsStunned);
+		}
 		// and cancel the stunned timer
 		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_Stunned);
 	}
@@ -111,6 +116,7 @@ bool UWotAttributeComponent::ApplyHealthChangeInstigator(AActor* InstigatorActor
 void UWotAttributeComponent::Stunned_TimeElapsed()
 {
 	bIsStunned = false;
+	OnStunChanged.Broadcast(this, bIsStunned);
 }
 
 bool UWotAttributeComponent::ApplyMagicChange(float Delta)

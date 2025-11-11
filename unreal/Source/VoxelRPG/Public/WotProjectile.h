@@ -51,6 +51,9 @@ protected:
   FGameplayTag ParryTag = FGameplayTag::RequestGameplayTag(FName("Status.Parrying"));
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Damage")
+  float KnockbackFactor = 5000.0f;
+
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Damage")
   float Damage = -20.0f;
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Movement")

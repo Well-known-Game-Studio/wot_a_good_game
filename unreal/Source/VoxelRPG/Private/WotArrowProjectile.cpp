@@ -203,7 +203,9 @@ void AWotArrowProjectile::HandleCollision(AActor* OtherActor, const FHitResult& 
                                             true);
   NewItemInteractable->AttachToActor(OtherActor, AttachmentRules, FName());
   // if the actor is damage-able, then damage them
-  UWotGameplayFunctionLibrary::ApplyDamage(Shooter, OtherActor, Damage + Damage * BowCharge);
+  UWotGameplayFunctionLibrary::ApplyDamageInDirection(Shooter, OtherActor, Damage + Damage * BowCharge, GetActorForwardVector(), KnockbackFactor * std::abs(Damage));
+  // UWotGameplayFunctionLibrary::ApplyDirectionalDamage(Shooter, OtherActor, Damage + Damage * BowCharge, SweepResult);
+  // UWotGameplayFunctionLibrary::ApplyDamage(Shooter, OtherActor, Damage + Damage * BowCharge);
   // Destroy this actor since we've now created the interactible item for it
   Destroy();
 }

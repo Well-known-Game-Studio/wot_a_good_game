@@ -1,6 +1,7 @@
 #include "AI/WotAICharacter.h"
 #include "AI/WotAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "AIController.h"
 #include "WotActionComponent.h"
@@ -97,10 +98,10 @@ void AWotAICharacter::PrimaryAttack(AActor* TargetActor)
 	// have weapon equipped; there's gotta be a better way..
 	UWotItemWeapon* EquippedWeapon = EquipmentComp->GetEquippedWeapon();
 	if (EquippedWeapon) {
-		UE_LOG(LogTemp, Log, TEXT("Got Equipped Weapon %s"), *GetNameSafe(EquippedWeapon));
+		UE_LOG(LogTemp, Verbose, TEXT("Got Equipped Weapon %s"), *GetNameSafe(EquippedWeapon));
 		EquippedWeapon->PrimaryAttackStart();
 	} else {
-		UE_LOG(LogTemp, Log, TEXT("No weapon equipped starting action 'PrimaryAttack'"));
+		UE_LOG(LogTemp, Verbose, TEXT("No weapon equipped starting action 'PrimaryAttack'"));
 		ActionComp->StartActionByName("PrimaryAttack", this);
 	}
 }
@@ -115,7 +116,12 @@ void AWotAICharacter::PrimaryAttackStop()
 	}
 }
 
-void AWotAICharacter::HitFlash()
+void AWotAICharacter::Knockback_Implementation(const FVector &Direction, float Amount) {
+  UE_LOG(LogTemp, Verbose, TEXT("Applying knockback: %0.1f"), Amount);
+  GetCharacterMovement()->AddImpulse(Direction * Amount);
+}
+
+void AWotAICharacter::HitFlash_Implementation()
 {
 	auto _mesh = GetMesh();
 	// register that we were hit now
@@ -183,11 +189,11 @@ void AWotAICharacter::SetBlackboardActor(const FString BlackboardKeyName, AActor
   BBComp->SetValueAsObject(FName(*BlackboardKeyName), Actor);
 }
 
-void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
+void AWotAICharacter::OnHealthChanged_Implementation(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta)
 {
   // set the instigator as the damage actor
   SetBlackboardActor("DamageActor", InstigatorActor);
-  UE_LOG(LogTemp, Warning, TEXT("Run away from %s"), *GetNameSafe(InstigatorActor));
+  UE_LOG(LogTemp, Verbose, TEXT("Run away from %s"), *GetNameSafe(InstigatorActor));
   SetBlackboardActor("TargetActor", InstigatorActor);
   // Then forget damage actor after a delay
   GetWorldTimerManager().SetTimer(TimerHandle_ForgetDamageActor,
@@ -195,16 +201,18 @@ void AWotAICharacter::OnHealthChanged(AActor* InstigatorActor, UWotAttributeComp
                                   &AWotAICharacter::ForgetDamageActor_TimeElapsed,
                                   DamageActorForgetDelay);
   // and show the health widgets
-	ShowHealthBarWidget(NewHealth, Delta, 1.0f);
-	ShowPopupWidgetNumber(Delta, 1.0f);
+  ShowHealthBarWidget(NewHealth, Delta, 1.0f);
+  ShowPopupWidgetNumber(Delta, 1.0f);
   // and flash that we were hit
   if (Delta < 0.0f) {
-		HitFlash();
-    // TODO: how do we want to apply stun effect?
+    HitFlash();
+    // NOTE: we could apply knockback here, but for now, just let the
+    // ApplyDamageInDirection do it for us, since that way it takes into account
+    // the damage direction, the causer of the damage (e.g. weapon type, etc.)
   }
 }
 
-void AWotAICharacter::OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp)
+void AWotAICharacter::OnKilled_Implementation(AActor* InstigatorActor, UWotAttributeComponent* OwningComp)
 {
 	// turn off collision & physics
 	TurnOff(); // freezes the pawn state

@@ -31,6 +31,9 @@ public:
   UFUNCTION(BlueprintCallable)
   void PrimaryAttackStop();
 
+  UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Knockback")
+  float KnockbackFactor = 500.0f;
+
   virtual void Highlight_Implementation(FHitResult Hit, int HighlightValue, float Duration) override;
 
   virtual void Unhighlight_Implementation(FHitResult Hit) override;
@@ -42,13 +45,16 @@ protected:
     FTimerHandle HighlightTimerHandle;
     void OnHighlightTimerExpired();
 
-	UFUNCTION(BlueprintCallable)
+  UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+  void Knockback(const FVector &Direction, float Amount=5000.0f);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void HitFlash();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnHealthChanged(AActor* InstigatorActor, UWotAttributeComponent* OwningComp, float NewHealth, float Delta);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp);
 
 	virtual void PostInitializeComponents() override;
