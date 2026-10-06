@@ -18,12 +18,20 @@ void AWotOpenableDoor::SetHighlightEnabled(int HighlightValue, bool Enabled)
 
 void AWotOpenableDoor::Open_Implementation(APawn* InstigatorPawn)
 {
+  const bool bWasOpen = bIsOpen;
   Super::Open_Implementation(InstigatorPawn);
-  DoorMesh->AddLocalRotation(TargetRotation);
+  // only move the mesh if the base class actually opened us
+  if (!bWasOpen && bIsOpen) {
+    DoorMesh->AddLocalRotation(TargetRotation);
+  }
 }
 
 void AWotOpenableDoor::Close_Implementation(APawn* InstigatorPawn)
 {
+  const bool bWasOpen = bIsOpen;
   Super::Close_Implementation(InstigatorPawn);
-  DoorMesh->AddLocalRotation(TargetRotation.GetInverse());
+  // only move the mesh if the base class actually closed us
+  if (bWasOpen && !bIsOpen) {
+    DoorMesh->AddLocalRotation(TargetRotation.GetInverse());
+  }
 }

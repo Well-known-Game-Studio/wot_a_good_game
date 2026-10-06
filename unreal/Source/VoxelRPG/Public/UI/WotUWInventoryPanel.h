@@ -21,18 +21,18 @@ public:
 	FText LabelText;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Inventory Panel",  meta = (ExposeOnSpawn=true))
-    UWotInventoryComponent* InventoryComp;
+    TObjectPtr<UWotInventoryComponent> InventoryComp;
 
 	UPROPERTY(EditAnywhere, Category = "Inventory Panel")
 	TSubclassOf<UWotUWItem> ItemWidgetClass = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory Panel",
 		meta=(BindWidget))
-	UWotTextBlock* Label = nullptr;
+	TObjectPtr<UWotTextBlock> Label = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Inventory Panel",
 		meta=(BindWidget))
-	UWrapBox* ItemBox = nullptr;
+	TObjectPtr<UWrapBox> ItemBox = nullptr;
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Inventory Panel")
     void Close();

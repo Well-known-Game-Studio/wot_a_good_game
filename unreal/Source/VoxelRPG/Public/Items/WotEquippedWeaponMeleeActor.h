@@ -31,10 +31,10 @@ public:
     FVector HitBoxHalfExtent{20.0f, 100.0f, 50.0f};
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
-    USoundBase* HitSound;
+    TObjectPtr<USoundBase> HitSound;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects")
-    UAudioComponent* EffectAudioComp;
+    TObjectPtr<UAudioComponent> EffectAudioComp;
 
 	// Sets default values for this component's properties
 	AWotEquippedWeaponMeleeActor();

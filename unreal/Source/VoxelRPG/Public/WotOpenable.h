@@ -37,13 +37,13 @@ public:
     FText CloseText = FText::FromString("Close");
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
-    USoundBase* OpenSound;
+    TObjectPtr<USoundBase> OpenSound;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
-    USoundBase* CloseSound;
+    TObjectPtr<USoundBase> CloseSound;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects")
-    UAudioComponent* EffectAudioComp;
+    TObjectPtr<UAudioComponent> EffectAudioComp;
 
     virtual void Interact_Implementation(APawn* InstigatorPawn, FHitResult HitResult) override;
 
@@ -79,7 +79,7 @@ protected:
 	virtual void BeginPlay() override;
 
     UPROPERTY(VisibleAnywhere)
-    USceneComponent* BaseSceneComp;
+    TObjectPtr<USceneComponent> BaseSceneComp;
 
     FTimerHandle HighlightTimerHandle;
     void OnHighlightTimerExpired();

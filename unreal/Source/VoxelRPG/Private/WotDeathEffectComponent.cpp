@@ -3,6 +3,7 @@
 #include "WotDeathEffectComponent.h"
 #include "GameFramework/Character.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
@@ -35,23 +36,20 @@ void UWotDeathEffectComponent::Play()
 	  UE_LOG(LogTemp, Warning, TEXT("No Material!"));
 	  return;
   }
-  // Get the parent of material instance dynamic (if it exists), otherwise it
-  // will find invalid parameters
-  UMaterialInterface* Parent = MeshMaterial;
-  UMaterialInstance* MatInst = Cast<UMaterialInstance>(MeshMaterial);
-  if (MatInst) {
-	  Parent = MatInst;
-  }
-  UTexture* MeshTexture;
-  if (!Parent->GetTextureParameterValue(TextureParameterName, MeshTexture)) {
-	  UE_LOG(LogTemp, Warning, TEXT("Could not get texture!"));
-  }
-  if (!ensure(MeshTexture)) {
-	  UE_LOG(LogTemp, Warning, TEXT("No Texture!"));
+  // GetTextureParameterValue does not write the out value on failure, so
+  // initialize it and bail out if the material has no such parameter.
+  UTexture* MeshTexture = nullptr;
+  if (!MeshMaterial->GetTextureParameterValue(TextureParameterName, MeshTexture) || !MeshTexture) {
+	  UE_LOG(LogTemp, Warning, TEXT("Could not get texture parameter '%s' from material %s!"),
+	         *TextureParameterName.ToString(), *GetNameSafe(MeshMaterial));
 	  return;
   }
   if (!ensure(EffectNiagaraSystem)) {
 	  UE_LOG(LogTemp, Warning, TEXT("No System!"));
+	  return;
+  }
+  if (!ensure(EffectMaterialBase)) {
+	  UE_LOG(LogTemp, Warning, TEXT("No EffectMaterialBase!"));
 	  return;
   }
   // Now actually make the effect
@@ -62,12 +60,17 @@ void UWotDeathEffectComponent::Play()
 																		FRotator(0.f),
 																		EAttachLocation::Type::KeepRelativeOffset,
 																		true);
-  // create dynamic material instance for the mesh
-  UMaterialInstanceDynamic* EffectMaterial = UMaterialInstanceDynamic::Create(EffectMaterialBase, this);
-  // set the texture for the new material
-  EffectMaterial->SetTextureParameterValue("Color Texture", MeshTexture);
-  // Set the material for the meshes (cubes) in the niagara effect
-  EffectNiagaraComp->SetVariableMaterial("Material", EffectMaterial);
+  // SpawnSystemAttached can return null (dedicated server, culled, etc.)
+  if (EffectNiagaraComp) {
+	  // create dynamic material instance for the mesh
+	  UMaterialInstanceDynamic* EffectMaterial = UMaterialInstanceDynamic::Create(EffectMaterialBase, this);
+	  if (EffectMaterial) {
+		  // set the texture for the new material
+		  EffectMaterial->SetTextureParameterValue("Color Texture", MeshTexture);
+		  // Set the material for the meshes (cubes) in the niagara effect
+		  EffectNiagaraComp->SetVariableMaterial("Material", EffectMaterial);
+	  }
+  }
   if (EffectSound) {
 	  UGameplayStatics::PlaySoundAtLocation(this, EffectSound, Character->GetActorLocation(), 1.0f, 1.0f, 0.0f);
   }

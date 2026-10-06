@@ -15,6 +15,10 @@ bool UWotAction::CanStart_Implementation(AActor* Instigator)
   }
 
   UWotActionComponent* Comp = GetOwningComponent();
+  if (!Comp) {
+    UE_LOG(LogTemp, Warning, TEXT("Action %s has no owning ActionComponent!"), *GetNameSafe(this));
+    return false;
+  }
 
   if (Comp->ActiveGameplayTags.HasAny(BlockedTags)) {
     return false;
@@ -27,7 +31,8 @@ bool UWotAction::CanStart_Implementation(AActor* Instigator)
   if (!bAllowedWhileFalling) {
     // cast the actor to a pawn
     APawn* Pawn = Cast<APawn>(Instigator);
-    if (Pawn && Pawn->GetMovementComponent()->IsFalling()) {
+    UPawnMovementComponent* MovementComp = Pawn ? Pawn->GetMovementComponent() : nullptr;
+    if (MovementComp && MovementComp->IsFalling()) {
       return false;
     }
   }

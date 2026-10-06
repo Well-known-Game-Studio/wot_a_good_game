@@ -28,7 +28,7 @@ public:
 protected:
 
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    UStaticMeshComponent* DoorMesh;
+    TObjectPtr<UStaticMeshComponent> DoorMesh;
 
 public:
     // Sets default values for this actor's properties

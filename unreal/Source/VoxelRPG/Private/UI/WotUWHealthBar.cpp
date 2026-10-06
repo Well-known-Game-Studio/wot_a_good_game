@@ -8,13 +8,13 @@ void UWotUWHealthBar::NativeConstruct()
   Offset = FVector(0, 0, 100.0f);
 }
 
-void UWotUWHealthBar::SetFillColor(FLinearColor& NewFillColor)
+void UWotUWHealthBar::SetFillColor(const FLinearColor& NewFillColor)
 {
   HealthBar->SetFillColorAndOpacity(NewFillColor);
 }
 
 void UWotUWHealthBar::SetDuration(float NewDuration) {
-  TimeRemaining = Duration;
+  TimeRemaining = NewDuration;
   Super::SetDuration(NewDuration);
 }
 

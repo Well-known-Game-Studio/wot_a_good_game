@@ -8,7 +8,7 @@ void UWotUWPopup::SetText(const FText& NewText)
   TextWidget->SetText(NewText);
 }
 
-void UWotUWPopup::SetColor(FLinearColor& NewColor)
+void UWotUWPopup::SetColor(const FLinearColor& NewColor)
 {
   TextWidget->SetColorAndOpacity(NewColor);
 }

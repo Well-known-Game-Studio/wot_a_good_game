@@ -80,8 +80,12 @@ AActor* AWotGameModeBase::FindPlayerStart_Implementation(AController* Player, co
       return PS;
     }
   }
-  // if we didn't find a player start with the matching name, just return the first one
-  return PlayerStarts[0];
+  // if we didn't find a player start with the matching name, just return the
+  // first one (falling back to the engine's search if the level has none)
+  if (PlayerStarts.Num() > 0) {
+    return PlayerStarts[0];
+  }
+  return Super::FindPlayerStart_Implementation(Player, IncomingName);
 }
 
 void AWotGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
@@ -128,7 +132,7 @@ void AWotGameModeBase::ResumeSpawningEnemies()
 
 void AWotGameModeBase::StopSpawningEnemies()
 {
-  bShouldSpawnEnemies = true;
+  bShouldSpawnEnemies = false;
   SpawnStartTime = -1;
 }
 

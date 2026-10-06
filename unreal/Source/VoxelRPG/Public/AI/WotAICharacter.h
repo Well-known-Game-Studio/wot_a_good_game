@@ -48,6 +48,9 @@ protected:
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
   void Knockback(const FVector &Direction, float Amount=5000.0f);
 
+  UFUNCTION(BlueprintCallable)
+  void GetKnockbackVectorFromActor(AActor* FromActor, FVector& OutDirection, float& OutAmount);
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void HitFlash();
 
@@ -72,22 +75,22 @@ protected:
 	void ShowPopupWidgetNumber(int Number, float Duration);
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	UWotAttributeComponent* AttributeComp;
+	TObjectPtr<UWotAttributeComponent> AttributeComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	UWotActionComponent* ActionComp;
+	TObjectPtr<UWotActionComponent> ActionComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	UWotEquipmentComponent* EquipmentComp;
+	TObjectPtr<UWotEquipmentComponent> EquipmentComp;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
-	UWotInventoryComponent* InventoryComp;
+	TObjectPtr<UWotInventoryComponent> InventoryComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UAIPerceptionComponent* AIPerceptionComp;
+	TObjectPtr<UAIPerceptionComponent> AIPerceptionComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	UWotDeathEffectComponent* DeathEffectComp;
+	TObjectPtr<UWotDeathEffectComponent> DeathEffectComp;
 
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<UWotUWHealthBar> HealthBarWidgetClass;

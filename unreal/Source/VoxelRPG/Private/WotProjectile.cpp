@@ -141,7 +141,9 @@ void AWotProjectile::Explode_Implementation()
                                                                               GetActorLocation(),
                                                                               GetActorRotation());
     }
-    EffectNiagaraComp->Deactivate();
+    if (EffectNiagaraComp) {
+      EffectNiagaraComp->Deactivate();
+    }
     MovementComp->StopMovementImmediately();
     SetActorEnableCollision(false);
     if (ImpactSound) {

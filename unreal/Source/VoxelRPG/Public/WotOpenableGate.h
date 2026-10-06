@@ -29,10 +29,10 @@ public:
 protected:
 
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    UStaticMeshComponent* LeftMesh;
+    TObjectPtr<UStaticMeshComponent> LeftMesh;
 
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    UStaticMeshComponent* RightMesh;
+    TObjectPtr<UStaticMeshComponent> RightMesh;
 
 public:
     // Sets default values for this actor's properties

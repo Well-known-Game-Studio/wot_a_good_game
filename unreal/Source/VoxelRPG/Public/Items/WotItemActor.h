@@ -29,9 +29,9 @@ public:
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    UStaticMeshComponent* Mesh;
+    TObjectPtr<UStaticMeshComponent> Mesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Items")
-	UWotItem* Item;
+	TObjectPtr<UWotItem> Item;
 
 };

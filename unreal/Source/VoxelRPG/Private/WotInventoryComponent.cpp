@@ -10,6 +10,10 @@ void UWotInventoryComponent::BeginPlay()
   Super::BeginPlay();
   // Start the owning actor with the default items
   for (auto& item : DefaultItems) {
+    // skip empty slots in the instanced array
+    if (!item) {
+      continue;
+    }
     // get a random number
     float RandomNumber = FMath::FRandRange(0.0f, 1.0f);
     auto spawn_info = item->SpawnInfo;
@@ -132,11 +136,20 @@ void UWotInventoryComponent::DeleteItem(UWotItem* Item) {
 
 void UWotInventoryComponent::DropAll() {
   FVector Location = GetOwner()->GetActorLocation();
-  // TODO: cannot use range-based for loop here since Drop() will remove it from
-  // our array
-  while (Items.Num()) {
-    UWotItem* Item = Items[0];
-    Item->Drop(Location, Item->Count);
+  // Drop() removes items from our array, so iterate over a copy. Any item that
+  // can't be dropped (e.g. Count <= 0, or not actually owned by us) is removed
+  // directly so this can never spin forever.
+  TArray<UWotItem*> ItemsToDrop(Items);
+  for (UWotItem* Item : ItemsToDrop) {
+    if (!Item) {
+      continue;
+    }
+    if (Item->Count > 0 && Item->OwningInventory == this) {
+      Item->Drop(Location, Item->Count);
+    }
+    if (Items.Contains(Item)) {
+      DeleteItem(Item);
+    }
   }
 }
 

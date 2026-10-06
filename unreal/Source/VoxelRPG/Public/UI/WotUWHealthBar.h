@@ -17,7 +17,7 @@ public:
     void SetHealth(float NewHealthStart, float NewHealthEnd, float HealthMax);
 
     UFUNCTION(BlueprintCallable)
-    void SetFillColor(FLinearColor& NewFillColor);
+    void SetFillColor(const FLinearColor& NewFillColor);
 
     virtual void SetDuration(float NewDuration) override;
 
@@ -32,16 +32,16 @@ protected:
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
     UPROPERTY( meta = ( BindWidget ) )
-    UWotProgressBar* HealthBar;
+    TObjectPtr<UWotProgressBar> HealthBar;
 
     UPROPERTY( meta = ( BindWidget ) )
-    UWotTextBlock* CurrentHealthLabel;
+    TObjectPtr<UWotTextBlock> CurrentHealthLabel;
 
     UPROPERTY( meta = ( BindWidget ) )
-    UWotTextBlock* MaxHealthLabel;
+    TObjectPtr<UWotTextBlock> MaxHealthLabel;
 
     UPROPERTY( Transient, meta = ( BindWidgetAnimOptional ) )
-    UWidgetAnimation* TextUpdateAnim;
+    TObjectPtr<UWidgetAnimation> TextUpdateAnim;
 
     float HealthStart;
     float HealthCurrent;

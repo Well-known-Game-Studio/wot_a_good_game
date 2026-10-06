@@ -79,7 +79,7 @@ void UWotEquipmentComponent::EquipArmor(UWotItemArmor* NewItemArmor) {
     UE_LOG(LogTemp, Warning, TEXT("Cannot equip weapon at unregistered socket %s"), *SocketName.ToString());
     return;
   }
-  UWotItemArmor** EquippedArmor = ArmorItems.Find(SocketName);
+  TObjectPtr<UWotItemArmor>* EquippedArmor = ArmorItems.Find(SocketName);
   if (EquippedArmor) {
     UE_LOG(LogTemp, Warning, TEXT("Equip: already equipped, unequipping previously equipped armor!"));
     // We have a weapon already equipped there, unequip it
@@ -97,7 +97,7 @@ void UWotEquipmentComponent::EquipWeapon(UWotItemWeapon* NewItemWeapon) {
     UE_LOG(LogTemp, Warning, TEXT("Cannot equip weapon at unregistered socket %s"), *SocketName.ToString());
     return;
   }
-  UWotItemWeapon** EquippedWeapon = WeaponItems.Find(SocketName);
+  TObjectPtr<UWotItemWeapon>* EquippedWeapon = WeaponItems.Find(SocketName);
   if (EquippedWeapon) {
     UE_LOG(LogTemp, Warning, TEXT("Equip: already equipped, unequipping previously equipped weapon!"));
     // We have a weapon already equipped there, unequip it

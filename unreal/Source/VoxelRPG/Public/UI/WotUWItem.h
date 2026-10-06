@@ -16,7 +16,7 @@ class VOXELRPG_API UWotUWItem : public UWotUserWidget
 public:
     // The actual item this widget represents
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Details",  meta = (ExposeOnSpawn=true))
-	UWotItem* Item;
+	TObjectPtr<UWotItem> Item;
 
     // True of the item is in the inventory of the player viewing this widget.
     // Controls whether the item can be dropped and whether the use text shows
@@ -32,15 +32,15 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Details",
 		meta=(BindWidget))
-	UImage* Image = nullptr;
+	TObjectPtr<UImage> Image = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Details",
 		meta=(BindWidget))
-	UWotTextBlock* NameLabel = nullptr;
+	TObjectPtr<UWotTextBlock> NameLabel = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Details",
 		meta=(BindWidget))
-	UWotTextBlock* CountLabel = nullptr;
+	TObjectPtr<UWotTextBlock> CountLabel = nullptr;
 
     void SetItem(UWotItem* NewItem, bool NewInOwningPlayerInventory);
 

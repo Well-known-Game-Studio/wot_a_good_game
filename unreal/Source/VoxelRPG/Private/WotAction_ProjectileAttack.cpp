@@ -2,6 +2,8 @@
 #include "GameFramework/Character.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 UWotAction_ProjectileAttack::UWotAction_ProjectileAttack()
 {
@@ -35,7 +37,6 @@ void UWotAction_ProjectileAttack::Start_Implementation(AActor* Instigator)
   }
 
   // Start the timer for launching the projectile
-  FTimerHandle TimerHandle_AttackDelay;
   FTimerDelegate Delegate;
   Delegate.BindUFunction(this, "AttackDelay_TimerElapsed", Character);
   GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
@@ -43,6 +44,11 @@ void UWotAction_ProjectileAttack::Start_Implementation(AActor* Instigator)
 
 void UWotAction_ProjectileAttack::Stop_Implementation(AActor* Instigator)
 {
+  // If we're stopped before the projectile launched (e.g. the character died or
+  // StopAllActions was called), make sure the pending launch is cancelled.
+  if (UWorld* World = GetWorld()) {
+    World->GetTimerManager().ClearTimer(TimerHandle_AttackDelay);
+  }
   Super::Stop_Implementation(Instigator);
 }
 

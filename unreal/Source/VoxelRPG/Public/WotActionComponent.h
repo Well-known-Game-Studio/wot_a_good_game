@@ -58,5 +58,5 @@ public:
     TArray<TSubclassOf<UWotAction>> DefaultActions;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Actions")
-    TArray<UWotAction*> Actions;
+    TArray<TObjectPtr<UWotAction>> Actions;
 };

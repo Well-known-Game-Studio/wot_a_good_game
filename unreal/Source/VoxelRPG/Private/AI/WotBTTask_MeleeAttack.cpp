@@ -19,7 +19,12 @@ EBTNodeResult::Type UWotBTTask_MeleeAttack::ExecuteTask(UBehaviorTreeComponent& 
       return EBTNodeResult::Failed;
     }
 
-    AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("TargetActor"));
+    UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+    if (BlackboardComp == nullptr) {
+      UE_LOG(LogTemp, Warning, TEXT("No blackboard component!"));
+      return EBTNodeResult::Failed;
+    }
+    AActor* TargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject("TargetActor"));
     if (TargetActor == nullptr) {
       UE_LOG(LogTemp, Warning, TEXT("No target to attack!"));
       return EBTNodeResult::Failed;

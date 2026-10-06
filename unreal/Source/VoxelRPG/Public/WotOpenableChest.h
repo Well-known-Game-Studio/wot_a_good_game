@@ -36,13 +36,13 @@ protected:
 	FName InventoryPanelTitle = "Chest Loot";
 
     UPROPERTY(VisibleAnywhere)
-    UStaticMeshComponent* BaseMesh;
+    TObjectPtr<UStaticMeshComponent> BaseMesh;
 
     UPROPERTY(VisibleAnywhere)
-    UStaticMeshComponent* LidMesh;
+    TObjectPtr<UStaticMeshComponent> LidMesh;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
-	UWotInventoryComponent* InventoryComp;
+	TObjectPtr<UWotInventoryComponent> InventoryComp;
 
 public:
     // Sets default values for this actor's properties

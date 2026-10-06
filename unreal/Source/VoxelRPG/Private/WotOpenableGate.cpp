@@ -23,14 +23,22 @@ void AWotOpenableGate::SetHighlightEnabled(int HighlightValue, bool Enabled)
 
 void AWotOpenableGate::Open_Implementation(APawn* InstigatorPawn)
 {
+  const bool bWasOpen = bIsOpen;
   Super::Open_Implementation(InstigatorPawn);
-  LeftMesh->AddLocalRotation(TargetRotation);
-  RightMesh->AddLocalRotation(TargetRotation.GetInverse());
+  // only move the meshes if the base class actually opened us
+  if (!bWasOpen && bIsOpen) {
+    LeftMesh->AddLocalRotation(TargetRotation);
+    RightMesh->AddLocalRotation(TargetRotation.GetInverse());
+  }
 }
 
 void AWotOpenableGate::Close_Implementation(APawn* InstigatorPawn)
 {
+  const bool bWasOpen = bIsOpen;
   Super::Close_Implementation(InstigatorPawn);
-  LeftMesh->AddLocalRotation(TargetRotation.GetInverse());
-  RightMesh->AddLocalRotation(TargetRotation);
+  // only move the meshes if the base class actually closed us
+  if (bWasOpen && !bIsOpen) {
+    LeftMesh->AddLocalRotation(TargetRotation.GetInverse());
+    RightMesh->AddLocalRotation(TargetRotation);
+  }
 }

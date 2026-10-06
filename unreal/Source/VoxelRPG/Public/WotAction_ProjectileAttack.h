@@ -30,13 +30,16 @@ protected:
 	float AttackAnimDelay;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	UAnimMontage* AttackAnim;
+	TObjectPtr<UAnimMontage> AttackAnim;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
-	UNiagaraSystem* CastingNiagaraSystem;
+	TObjectPtr<UNiagaraSystem> CastingNiagaraSystem;
 
 	UFUNCTION()
 	void AttackDelay_TimerElapsed(ACharacter* InstigatorCharacter);
+
+	// Held as a member so Stop() can cancel a pending projectile launch
+	FTimerHandle TimerHandle_AttackDelay;
 
 public:
 
