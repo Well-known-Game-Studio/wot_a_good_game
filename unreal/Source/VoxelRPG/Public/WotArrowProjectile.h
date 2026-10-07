@@ -28,7 +28,7 @@ protected:
   EWotArrowState CurrentState;
 
   UPROPERTY(EditAnywhere, BlueprintReadOnly)
-  AActor* Shooter;
+  TObjectPtr<AActor> Shooter;
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite)
   float BowCharge;

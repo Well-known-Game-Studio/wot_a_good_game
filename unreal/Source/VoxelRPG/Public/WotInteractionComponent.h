@@ -30,10 +30,10 @@ public:
     void PrimaryInteract();
 
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
-	AActor* LastInteractedActor = nullptr;
+	TObjectPtr<AActor> LastInteractedActor = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
-	UActorComponent *LastInteractedComponent = nullptr;
+	TObjectPtr<UActorComponent> LastInteractedComponent = nullptr;
 
 public:
 

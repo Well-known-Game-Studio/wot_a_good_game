@@ -39,7 +39,7 @@ protected:
   FName CollisionProfileName = "Projectile";
 
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Interaction")
-  USphereComponent* SphereComp;
+  TObjectPtr<USphereComponent> SphereComp;
 
   UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Parry")
   bool HandleParry(AActor* OtherActor);
@@ -60,28 +60,28 @@ protected:
   float ProjectileLifeSpan = 1.0f;
 
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
-  UProjectileMovementComponent* MovementComp;
+  TObjectPtr<UProjectileMovementComponent> MovementComp;
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
-  USoundBase* EffectSound;
+  TObjectPtr<USoundBase> EffectSound;
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects")
-  UAudioComponent* EffectAudioComp;
+  TObjectPtr<UAudioComponent> EffectAudioComp;
 
   UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
-  USoundBase* ImpactSound;
+  TObjectPtr<USoundBase> ImpactSound;
 
   UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Visual Effects")
-  UStaticMeshComponent* StaticMeshComp;
+  TObjectPtr<UStaticMeshComponent> StaticMeshComp;
 
   UPROPERTY(EditDefaultsOnly, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
-  UNiagaraSystem* EffectNiagaraSystem;
+  TObjectPtr<UNiagaraSystem> EffectNiagaraSystem;
 
   UPROPERTY()
-  UNiagaraComponent* EffectNiagaraComp;
+  TObjectPtr<UNiagaraComponent> EffectNiagaraComp;
 
   UPROPERTY(EditDefaultsOnly, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
-  UNiagaraSystem* ImpactNiagaraSystem;
+  TObjectPtr<UNiagaraSystem> ImpactNiagaraSystem;
 
   UPROPERTY(EditDefaultsOnly, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
   TSubclassOf<UCameraShakeBase> CameraShakeEffect;

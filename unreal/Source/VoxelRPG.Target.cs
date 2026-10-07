@@ -8,7 +8,7 @@ public class VoxelRPGTarget : TargetRules
 	public VoxelRPGTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
-		DefaultBuildSettings = BuildSettingsVersion.V6;
+		DefaultBuildSettings = BuildSettingsVersion.V7;
 		CppStandard = CppStandardVersion.Cpp20;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 

@@ -55,9 +55,10 @@ void AWotOpenableChest::Interact_Implementation(APawn* InstigatorPawn, FHitResul
 
   // if we still have items in our inventory, show it
   if (InventoryComp->Items.Num()) {
-		UWotUWInventoryPanel* InventoryWidget;
-    WotCharacter->ShowInventoryWidget(InventoryWidget);
-		InventoryWidget->SetInventory(InventoryComp, FText::FromName(InventoryPanelTitle));
+    UWotUWInventoryPanel* InventoryWidget = nullptr;
+    if (WotCharacter->ShowInventoryWidget(InventoryWidget) && InventoryWidget) {
+      InventoryWidget->SetInventory(InventoryComp, FText::FromName(InventoryPanelTitle));
+    }
   }
 }
 

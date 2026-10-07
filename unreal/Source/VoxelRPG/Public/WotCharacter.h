@@ -69,38 +69,38 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
-	USpringArmComponent* SpringArmComp;
+	TObjectPtr<USpringArmComponent> SpringArmComp;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
-	UCineCameraComponent* CineCameraComp;
+	TObjectPtr<UCineCameraComponent> CineCameraComp;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
-	UWotInteractionComponent* InteractionComp;
+	TObjectPtr<UWotInteractionComponent> InteractionComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	UWotAttributeComponent* AttributeComp;
+	TObjectPtr<UWotAttributeComponent> AttributeComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	UWotEquipmentComponent* EquipmentComp;
+	TObjectPtr<UWotEquipmentComponent> EquipmentComp;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
-	UWotInventoryComponent* InventoryComp;
+	TObjectPtr<UWotInventoryComponent> InventoryComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	UWotDeathEffectComponent* DeathEffectComp;
+	TObjectPtr<UWotDeathEffectComponent> DeathEffectComp;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
-	UWotActionComponent* ActionComp;
+	TObjectPtr<UWotActionComponent> ActionComp;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
-    UNiagaraSystem* LandingEffect;
+    TObjectPtr<UNiagaraSystem> LandingEffect;
 
 	// Sound effect for when the character gets something
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
-    USoundBase* GetSound;
+    TObjectPtr<USoundBase> GetSound;
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects")
-    UAudioComponent* EffectAudioComp;
+    TObjectPtr<UAudioComponent> EffectAudioComp;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Interaction")
 	bool bCanInteract;
@@ -110,7 +110,7 @@ protected:
 
 	// Movement
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
-	AActor* CurrentLadderActor{nullptr};
+	TObjectPtr<AActor> CurrentLadderActor{nullptr};
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
 	void GetCharacterMovementAxes(FVector& OutForward, FVector& OutRight) const;
@@ -149,7 +149,7 @@ protected:
 	void RotateCamera(float YawDelta, float PitchDelta);
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "UI")
-	UWotUWInventoryPanel *InventoryWidget = nullptr;
+	TObjectPtr<UWotUWInventoryPanel> InventoryWidget = nullptr;
 
 	float KilledDestroyDelay = 2.0f;
 
@@ -161,9 +161,9 @@ protected:
 	float InteractionCheckPeriod = 0.1f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
-	AActor* InteractionTargetActor = nullptr;
+	TObjectPtr<AActor> InteractionTargetActor = nullptr;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Interaction")
-	UActorComponent* InteractionTargetComponent = nullptr;
+	TObjectPtr<UActorComponent> InteractionTargetComponent = nullptr;
 	FHitResult InteractionTargetHitResult;
 
 	FTimerHandle TimerHandle_InteractionCheck;

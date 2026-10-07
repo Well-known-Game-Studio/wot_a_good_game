@@ -45,6 +45,13 @@ void UWotUWInventoryPanel::NativeTick(const FGeometry& MyGeometry, float InDelta
 
 void UWotUWInventoryPanel::SetInventory(UWotInventoryComponent* NewInventoryComp, FText NewLabelText)
 {
+  // Move our update binding from the old inventory to the new one
+  if (InventoryComp && InventoryComp != NewInventoryComp) {
+    InventoryComp->OnInventoryUpdated.RemoveDynamic(this, &UWotUWInventoryPanel::UpdateInventory);
+  }
+  if (NewInventoryComp && InventoryComp != NewInventoryComp) {
+    NewInventoryComp->OnInventoryUpdated.AddUniqueDynamic(this, &UWotUWInventoryPanel::UpdateInventory);
+  }
   // Store the values
   InventoryComp = NewInventoryComp;
   LabelText = NewLabelText;
@@ -61,17 +68,20 @@ void UWotUWInventoryPanel::Close_Implementation()
   RemoveFromParent();
   // Reset the mouse cursor and input mode
   APlayerController* PC = GetOwningPlayer();
-  // convert to WotCharacter and inform it that the inventory panel is closed
-  auto WotCharacter = Cast<AWotCharacter>(PC->GetPawn());
-  if (WotCharacter) {
-    WotCharacter->CloseInventoryWidget();
+  if (PC) {
+    // convert to WotCharacter and inform it that the inventory panel is closed
+    auto WotCharacter = Cast<AWotCharacter>(PC->GetPawn());
+    if (WotCharacter) {
+      WotCharacter->CloseInventoryWidget();
+    }
+    PC->bShowMouseCursor = bControllerWasShowingCursor;
+    // FInputModeGameOnly InputMode;
+    // PC->SetInputMode(InputMode);
   }
-
-  PC->bShowMouseCursor = bControllerWasShowingCursor;
-  // FInputModeGameOnly InputMode;
-  // PC->SetInputMode(InputMode);
   // Make sure we don't update ourselves when the inventory updates
-  InventoryComp->OnInventoryUpdated.RemoveDynamic(this, &UWotUWInventoryPanel::UpdateInventory);
+  if (InventoryComp) {
+    InventoryComp->OnInventoryUpdated.RemoveDynamic(this, &UWotUWInventoryPanel::UpdateInventory);
+  }
 }
 
 void UWotUWInventoryPanel::Setup()
@@ -81,13 +91,15 @@ void UWotUWInventoryPanel::Setup()
   }
   // Show mouse and focus this widget
   APlayerController* PC = GetOwningPlayer();
-  bControllerWasShowingCursor = PC->bShowMouseCursor;
-  PC->bShowMouseCursor = true;
-  // FInputModeGameAndUI InputMode;
-  // InputMode.SetWidgetToFocus(this);
-  // PC->SetInputMode(InputMode);
+  if (PC) {
+    bControllerWasShowingCursor = PC->bShowMouseCursor;
+    PC->bShowMouseCursor = true;
+    // FInputModeGameAndUI InputMode;
+    // InputMode.SetWidgetToFocus(this);
+    // PC->SetInputMode(InputMode);
+  }
   // Make sure we update ourselves when the inventory updates
-  InventoryComp->OnInventoryUpdated.AddDynamic(this, &UWotUWInventoryPanel::UpdateInventory);
+  InventoryComp->OnInventoryUpdated.AddUniqueDynamic(this, &UWotUWInventoryPanel::UpdateInventory);
   // Now actually update the inventory
   UpdateInventory();
 }
@@ -101,6 +113,9 @@ void UWotUWInventoryPanel::UpdateInventory()
   bool bIsOwningPlayersInventory = IsOwningPlayersInventory();
   for (auto& Item : InventoryComp->Items) {
     UWotUWItem* Widget = CreateWidget<UWotUWItem>(GetOwningPlayer(), ItemWidgetClass);
+    if (!Widget) {
+      continue;
+    }
     Widget->Item = Item;
     Widget->bInOwningPlayerInventory = bIsOwningPlayersInventory;
     ItemBox->AddChildToWrapBox(Widget);

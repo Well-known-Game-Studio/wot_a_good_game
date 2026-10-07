@@ -24,7 +24,11 @@ EBTNodeResult::Type UWotBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent&
       UE_LOG(LogTemp, Warning, TEXT("UWotBTTask_RangedAttack::ExecuteTask - SpawnLocation is zero"));
       return EBTNodeResult::Failed;
     }
-    AActor* TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("TargetActor"));
+    UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+    if (BlackboardComp == nullptr) {
+      return EBTNodeResult::Failed;
+    }
+    AActor* TargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject("TargetActor"));
     if (TargetActor == nullptr) {
       return EBTNodeResult::Failed;
     }

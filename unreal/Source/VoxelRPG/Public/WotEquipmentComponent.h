@@ -60,8 +60,8 @@ protected:
     TArray<FName> WeaponSocketNames;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Equipment")
-    TMap<FName, UWotItemArmor*> ArmorItems;
+    TMap<FName, TObjectPtr<UWotItemArmor>> ArmorItems;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Equipment")
-    TMap<FName, UWotItemWeapon*> WeaponItems;
+    TMap<FName, TObjectPtr<UWotItemWeapon>> WeaponItems;
 };

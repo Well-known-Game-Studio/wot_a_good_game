@@ -21,14 +21,12 @@ public:
 
     virtual void SetHighlightEnabled(int HighlightValue, bool Enabled) override;
 
-    virtual void Open_Implementation(APawn* InstigatorPawn) override;
-
-    virtual void Close_Implementation(APawn* InstigatorPawn) override;
+    virtual void SetOpenVisuals(bool bOpen) override;
 
 protected:
 
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    UStaticMeshComponent* DoorMesh;
+    TObjectPtr<UStaticMeshComponent> DoorMesh;
 
 public:
     // Sets default values for this actor's properties

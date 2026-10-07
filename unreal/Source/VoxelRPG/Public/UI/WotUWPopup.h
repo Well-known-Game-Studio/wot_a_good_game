@@ -16,15 +16,15 @@ public:
     void SetText(const FText& NewText);
 
     UFUNCTION(BlueprintCallable)
-    void SetColor(FLinearColor& NewColor);
+    void SetColor(const FLinearColor& NewColor);
 
     UFUNCTION(BlueprintCallable)
     void PlayPopupAnimation();
 
 protected:
     UPROPERTY( Transient, meta = ( BindWidgetAnimOptional ) )
-    UWidgetAnimation* PopupAnim;
+    TObjectPtr<UWidgetAnimation> PopupAnim;
 
     UPROPERTY( meta = ( BindWidget ) )
-    UWotTextBlock* TextWidget;
+    TObjectPtr<UWotTextBlock> TextWidget;
 };

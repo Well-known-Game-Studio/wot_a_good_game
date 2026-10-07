@@ -55,22 +55,22 @@ public:
     virtual UWorld* GetWorld() const override;
 
     UPROPERTY(Transient)
-    UWorld* World;
+    TObjectPtr<UWorld> World;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item")
     TSubclassOf<AWotItemActor> ItemActorClass;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item")
-    AWotItemActor* ItemActor;
+    TObjectPtr<AWotItemActor> ItemActor;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item")
     FText UseActionText;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item")
-    UStaticMesh* PickupMesh;
+    TObjectPtr<UStaticMesh> PickupMesh;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
-    UTexture2D* Thumbnail;
+    TObjectPtr<UTexture2D> Thumbnail;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item")
     FText ItemDisplayName;
@@ -92,7 +92,7 @@ public:
     FWotItemSpawnInfo SpawnInfo;
 
     UPROPERTY()
-    UWotInventoryComponent* OwningInventory;
+    TObjectPtr<UWotInventoryComponent> OwningInventory;
 
     // returns how many we were able to add
     UFUNCTION(BlueprintCallable)

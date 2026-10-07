@@ -46,8 +46,8 @@ public:
     FOnInventoryUpdated OnInventoryUpdated;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Instanced)
-    TArray<UWotItem*> DefaultItems;
+    TArray<TObjectPtr<UWotItem>> DefaultItems;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Items")
-    TArray<UWotItem*> Items;
+    TArray<TObjectPtr<UWotItem>> Items;
 };

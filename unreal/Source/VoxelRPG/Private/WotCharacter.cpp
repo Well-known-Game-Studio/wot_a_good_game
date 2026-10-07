@@ -428,6 +428,10 @@ bool AWotCharacter::ShowInventoryWidget_Implementation(UWotUWInventoryPanel*& Ou
 	// Now actually try to open the menu
 	if (CanOpenInventory()) {
 		InventoryWidget = CreateWidget<UWotUWInventoryPanel>(GetWorld(), InventoryWidgetClass);
+		if (!InventoryWidget) {
+			UE_LOG(LogTemp, Warning, TEXT("Could not create inventory widget (is InventoryWidgetClass set?)"));
+			return false;
+		}
 		InventoryWidget->SetInventory(InventoryComp, FText::FromString("Your Items"));
 		InventoryWidget->AddToViewport();
 		OutInventoryWidget = InventoryWidget;

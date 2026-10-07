@@ -34,7 +34,7 @@ public:
 protected:
 
     UPROPERTY(VisibleAnywhere)
-    UStaticMeshComponent* BaseMesh;
+    TObjectPtr<UStaticMeshComponent> BaseMesh;
 
     virtual void SetPowerupState(bool bNewIsInteractable);
 

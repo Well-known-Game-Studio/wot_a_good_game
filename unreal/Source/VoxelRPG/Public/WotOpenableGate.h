@@ -22,17 +22,15 @@ public:
 
     virtual void SetHighlightEnabled(int HighlightValue, bool Enabled) override;
 
-    virtual void Open_Implementation(APawn* InstigatorPawn) override;
-
-    virtual void Close_Implementation(APawn* InstigatorPawn) override;
+    virtual void SetOpenVisuals(bool bOpen) override;
 
 protected:
 
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    UStaticMeshComponent* LeftMesh;
+    TObjectPtr<UStaticMeshComponent> LeftMesh;
 
     UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
-    UStaticMeshComponent* RightMesh;
+    TObjectPtr<UStaticMeshComponent> RightMesh;
 
 public:
     // Sets default values for this actor's properties

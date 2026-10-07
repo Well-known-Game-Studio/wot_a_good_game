@@ -22,13 +22,13 @@ public:
 protected:
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Audio Effects", meta = (AllowPrivateAccess = "true"))
-    USoundBase* EffectSound;
+    TObjectPtr<USoundBase> EffectSound;
 
     UPROPERTY(EditDefaultsOnly, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
-    UNiagaraSystem* EffectNiagaraSystem;
+    TObjectPtr<UNiagaraSystem> EffectNiagaraSystem;
 
     UPROPERTY(EditDefaultsOnly, Category = "Visual Effects")
-    UMaterialInterface* EffectMaterialBase;
+    TObjectPtr<UMaterialInterface> EffectMaterialBase;
 
     UPROPERTY(EditDefaultsOnly, Category = "Visual Effects")
     FName TextureParameterName = "Color Texture";

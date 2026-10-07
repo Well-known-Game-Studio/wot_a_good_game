@@ -44,10 +44,10 @@ protected:
   TSubclassOf<AActor> MinionClass;
 
   UPROPERTY(EditDefaultsOnly, Category = "AI")
-  UEnvQuery* SpawnBotQuery;
+  TObjectPtr<UEnvQuery> SpawnBotQuery;
 
   UPROPERTY(EditDefaultsOnly, Category = "AI")
-  UCurveFloat* DifficultyCurve;
+  TObjectPtr<UCurveFloat> DifficultyCurve;
 
   UFUNCTION()
   void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);

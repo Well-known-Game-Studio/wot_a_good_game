@@ -71,7 +71,7 @@ void AWotAICharacter::SetHighlightEnabled(int HighlightValue, bool Enabled)
   // set the character mesh to render custom depth
   GetMesh()->SetRenderCustomDepth(Enabled);
   // set the custom depth stencil value
-  GetMesh()->CustomDepthStencilValue = HighlightValue;
+  GetMesh()->SetCustomDepthStencilValue(HighlightValue);
 }
 
 void AWotAICharacter::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
@@ -116,6 +116,27 @@ void AWotAICharacter::PrimaryAttackStop()
 	}
 }
 
+void AWotAICharacter::GetKnockbackVectorFromActor(AActor* FromActor, FVector& OutDirection, float& OutAmount)
+{
+  if (!FromActor) {
+    OutDirection = FVector::ZeroVector;
+    OutAmount = 0.0f;
+    return;
+  }
+  // Push away from the actor that hit us (same convention as
+  // UWotGameplayFunctionLibrary::ApplyDirectionalDamage: target - causer)
+  FVector KnockbackDirection = GetActorLocation() - FromActor->GetActorLocation();
+  KnockbackDirection.Z = 0.0f;
+  if (!KnockbackDirection.Normalize()) {
+    // attacker is directly above/below us; fall back to pushing backwards
+    KnockbackDirection = -GetActorForwardVector();
+  }
+  // Pitch the horizontal direction 45 degrees upward regardless of heading.
+  // (Rotating about world RightVector only works when the direction is along X.)
+  OutDirection = (KnockbackDirection + FVector::UpVector).GetSafeNormal();
+  OutAmount = KnockbackFactor;
+}
+
 void AWotAICharacter::Knockback_Implementation(const FVector &Direction, float Amount) {
   UE_LOG(LogTemp, Verbose, TEXT("Applying knockback: %0.1f"), Amount);
   GetCharacterMovement()->AddImpulse(Direction * Amount);
@@ -142,6 +163,9 @@ void AWotAICharacter::ShowHealthBarWidget(float NewHealth, float Delta, float Du
 {
 	if (HealthBarWidgetClass) {
 		UWotUWHealthBar* HealthBarWidget = CreateWidget<UWotUWHealthBar>(GetWorld(), HealthBarWidgetClass);
+		if (!HealthBarWidget) {
+			return;
+		}
 		HealthBarWidget->SetDuration(Duration);
 		float HealthMax = AttributeComp->GetHealthMax();
 		float HealthStart = NewHealth - Delta;
@@ -157,6 +181,9 @@ void AWotAICharacter::ShowPopupWidgetNumber(int Number, float Duration)
 {
 	if (PopupWidgetClass) {
 		UWotUWPopupNumber* PopupWidget = CreateWidget<UWotUWPopupNumber>(GetWorld(), PopupWidgetClass);
+		if (!PopupWidget) {
+			return;
+		}
 		PopupWidget->SetDuration(Duration);
 		PopupWidget->SetNumber(Number);
 		PopupWidget->SetAttachTo(this);
@@ -169,6 +196,9 @@ void AWotAICharacter::ShowPopupWidget(const FText& Text, float Duration)
 {
 	if (PopupWidgetClass) {
 		UWotUWPopup* PopupWidget = CreateWidget<UWotUWPopup>(GetWorld(), PopupWidgetClass);
+		if (!PopupWidget) {
+			return;
+		}
 		PopupWidget->SetDuration(Duration);
 		PopupWidget->SetText(Text);
 		PopupWidget->SetAttachTo(this);
@@ -186,6 +216,10 @@ void AWotAICharacter::SetBlackboardActor(const FString BlackboardKeyName, AActor
     return;
   }
   UBlackboardComponent* BBComp = AIC->GetBlackboardComponent();
+  if (!BBComp) {
+    // no behavior tree running yet (or none configured)
+    return;
+  }
   BBComp->SetValueAsObject(FName(*BlackboardKeyName), Actor);
 }
 
@@ -240,7 +274,7 @@ void AWotAICharacter::OnKilled_Implementation(AActor* InstigatorActor, UWotAttri
 	}
   // Stop the behavior tree
 	AAIController* AIC = Cast<AAIController>(GetController());
-  if (AIC) {
+  if (AIC && AIC->GetBrainComponent()) {
     AIC->GetBrainComponent()->StopLogic("Killed");
   }
   // Play the death component animation

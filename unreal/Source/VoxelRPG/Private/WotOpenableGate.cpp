@@ -21,16 +21,11 @@ void AWotOpenableGate::SetHighlightEnabled(int HighlightValue, bool Enabled)
   RightMesh->SetCustomDepthStencilValue(HighlightValue);
 }
 
-void AWotOpenableGate::Open_Implementation(APawn* InstigatorPawn)
+void AWotOpenableGate::SetOpenVisuals(bool bOpen)
 {
-  Super::Open_Implementation(InstigatorPawn);
-  LeftMesh->AddLocalRotation(TargetRotation);
-  RightMesh->AddLocalRotation(TargetRotation.GetInverse());
-}
-
-void AWotOpenableGate::Close_Implementation(APawn* InstigatorPawn)
-{
-  Super::Close_Implementation(InstigatorPawn);
-  LeftMesh->AddLocalRotation(TargetRotation.GetInverse());
-  RightMesh->AddLocalRotation(TargetRotation);
+  // Rotation is applied incrementally, so this must only be called on a real
+  // state transition (which the base class guarantees).
+  const FRotator Rotation = bOpen ? TargetRotation : TargetRotation.GetInverse();
+  LeftMesh->AddLocalRotation(Rotation);
+  RightMesh->AddLocalRotation(Rotation.GetInverse());
 }

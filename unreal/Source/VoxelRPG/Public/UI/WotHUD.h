@@ -25,5 +25,5 @@ protected:
   TSubclassOf<UWotUserWidget> MainMenuClass;
 
   UPROPERTY()
-  UWotUserWidget* MainMenu;
+  TObjectPtr<UWotUserWidget> MainMenu;
 };

@@ -16,14 +16,9 @@ void AWotOpenableDoor::SetHighlightEnabled(int HighlightValue, bool Enabled)
   DoorMesh->SetCustomDepthStencilValue(HighlightValue);
 }
 
-void AWotOpenableDoor::Open_Implementation(APawn* InstigatorPawn)
+void AWotOpenableDoor::SetOpenVisuals(bool bOpen)
 {
-  Super::Open_Implementation(InstigatorPawn);
-  DoorMesh->AddLocalRotation(TargetRotation);
-}
-
-void AWotOpenableDoor::Close_Implementation(APawn* InstigatorPawn)
-{
-  Super::Close_Implementation(InstigatorPawn);
-  DoorMesh->AddLocalRotation(TargetRotation.GetInverse());
+  // Rotation is applied incrementally, so this must only be called on a real
+  // state transition (which the base class guarantees).
+  DoorMesh->AddLocalRotation(bOpen ? TargetRotation : TargetRotation.GetInverse());
 }
