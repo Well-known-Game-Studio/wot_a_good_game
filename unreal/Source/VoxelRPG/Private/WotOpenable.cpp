@@ -19,10 +19,12 @@ AWotOpenable::AWotOpenable()
 void AWotOpenable::BeginPlay()
 {
   Super::BeginPlay();
-  // Assume that the door is closed at the beginning, so we need to open it if
-  // it is open
+  // Meshes are authored in the closed pose, so an actor configured to start
+  // open needs its visuals synchronized. Do this directly rather than via
+  // Open(): the state flag is already true, so there is no transition to
+  // broadcast and no sound to play.
   if (bIsOpen) {
-    Open(nullptr);
+    SetOpenVisuals(true);
   }
 }
 
@@ -70,11 +72,17 @@ void AWotOpenable::SetHighlightEnabled(int HighlightValue, bool Enabled)
   // Let the subclasses handle the highlighting
 }
 
+void AWotOpenable::SetOpenVisuals(bool bOpen)
+{
+  // Let the subclasses handle the visuals
+}
+
 void AWotOpenable::Open_Implementation(APawn* InstigatorPawn)
 {
   if (bCanBeOpened && !bIsOpen) {
     // only update the state if it was closed
     bIsOpen = true;
+    SetOpenVisuals(true);
     OnOpened.Broadcast(InstigatorPawn, this);
     OnStateChanged.Broadcast(InstigatorPawn, this, bIsOpen);
     // play open sound
@@ -88,6 +96,7 @@ void AWotOpenable::Close_Implementation(APawn* InstigatorPawn)
   if (bCanBeClosed && bIsOpen) {
     // only update the state if it was open
     bIsOpen = false;
+    SetOpenVisuals(false);
     OnClosed.Broadcast(InstigatorPawn, this);
     OnStateChanged.Broadcast(InstigatorPawn, this, bIsOpen);
     // play close sound

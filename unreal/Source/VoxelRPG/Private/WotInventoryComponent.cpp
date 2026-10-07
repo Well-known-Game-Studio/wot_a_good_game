@@ -139,11 +139,13 @@ void UWotInventoryComponent::DropAll() {
   // Drop() removes items from our array, so iterate over a copy. Any item that
   // can't be dropped (e.g. Count <= 0, or not actually owned by us) is removed
   // directly so this can never spin forever.
+  // Items is Blueprint-writable, so empty slots are possible; purge them first.
+  const int32 NumNullRemoved = Items.RemoveAll([](const TObjectPtr<UWotItem>& Item) { return Item == nullptr; });
+  if (NumNullRemoved > 0) {
+    OnInventoryUpdated.Broadcast();
+  }
   TArray<UWotItem*> ItemsToDrop(Items);
   for (UWotItem* Item : ItemsToDrop) {
-    if (!Item) {
-      continue;
-    }
     if (Item->Count > 0 && Item->OwningInventory == this) {
       Item->Drop(Location, Item->Count);
     }

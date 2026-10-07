@@ -55,6 +55,12 @@ public:
 
     virtual void SetHighlightEnabled(int HighlightValue, bool Enabled);
 
+    // Apply the visual representation of the open/closed state (e.g. rotate a
+    // door mesh). Called by the base class exactly once per real state
+    // transition and once at BeginPlay for actors that start open, so
+    // subclasses may use incremental transforms safely.
+    virtual void SetOpenVisuals(bool bOpen);
+
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Openable")
     void Open(APawn* InstigatorPawn);
 

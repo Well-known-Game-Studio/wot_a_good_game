@@ -178,6 +178,11 @@ void AWotGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* Query
     return;
   }
 
+  // Spawning may have been paused/stopped while the query was in flight
+  if (!bShouldSpawnEnemies || !CVarSpawnBots.GetValueOnGameThread()) {
+    return;
+  }
+
   TArray<FVector> Locations = QueryInstance->GetResultsAsLocations();
   if (Locations.Num() <= 0) {
     return;
