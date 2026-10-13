@@ -16,18 +16,27 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   into static meshes under `/Game/Wot/Towns/Common/Buildings` (SM_GableHouse, SM_TowerHouse,
   SM_DomeHouse, SM_CourtyardHouse, SM_Keep, SM_Longhouse, SM_MarketStall, SM_StoneWell, SM_LampPost,
   SM_Obelisk, SM_GateHouse, SM_RuinWall, SM_BridgeArch, SM_Pine, SM_Palm, SM_DeadTree, SM_Boulder,
-  SM_Cactus, SM_Reeds, SM_FlowerShrub, SM_SnowPatch, SM_Birch). Material slots follow the first-appearance
+  SM_Cactus, SM_Reeds, SM_FlowerShrub, SM_SnowPatch, SM_Birch, SM_Stairs200…600, SM_Ladder600/900, SM_WhiteBridge). Material slots follow the first-appearance
   order of the part colours; `kit_entry(name, {"P_Plaster":"P_White"})` recolours per town.
-* `city_specs.py` – specs for Caemlyn, Cairhien, Tear, Tar Valon, Fal Dara, Tanchico, Illian,
-  Shadar Logoth, Whitebridge, Baerlon. `ef_spec.py` – Emond's Field.
-* `city_terrain.py` – per-town terrain layer: terraces (stacked slabs with heights), stairs and BP_Ladder
-  placement, water pools/rivers/moats, chests and potions on upper levels, wandering villager NPCs
-  (`NPC_Villager_BP`, a child of `NPC_Base_BP` that periodically sets the blackboard MoveToLocation) and
-  their dialogue rows (written into `DT_HybridRPG_Dialogue`; `unreal/DT_HybridRPG_Dialogue.csv` mirrors them).
-  Heights are deterministic: roads get explicit z with vertical jumps at terrace edges, the foliage
-  lattice is split per terrace, props carry their own z.
-* `ow_portals.py` – Overworld portal/player-start/landmark placement for every town.
-* `run_town.py <Town>|--kit|--overworld` – regenerate a town, the kit, or the Overworld portals.
+* `relief.py` – deterministic voxel heightfield per town. A `Relief` is a sum of continuous features (hills, ridges,
+  valleys/rivers, slopes, value noise) plus plateaus (flat terraces with optional rim blending; rim 0 = cliff),
+  quantised to 40 cm steps (the character's MaxStepHeight is 45) on a 250 cm cell grid. Roads are then *carved*: each
+  road gets a walkable profile (at most one step per cell, so hills become ramps cut into or built up from the ground),
+  and wherever a road meets a terrace edge of 160–600 cm a kit staircase is placed automatically (rise snapped to
+  SM_Stairs200…600). Water-kind roads become channels (filled by the per-town water plane, or drawn with water tiles when
+  there is none), walls just follow the ground, piers/bridges keep their own z (`nocarve`, `rel`). Plazas and house slots
+  (same spacing/setback as the PCG samplers) are flattened into pads, landmark props get `pads`. Output: run-merged terrain
+  boxes spawned by the PCG graph (grass/rock/sand/snow palette, rock columns under cliff tops), a height-aware foliage
+  lattice, and `zat(x,y)` which lifts every prop, NPC and portal onto the ground. Also the NPC/dialogue/chest helpers.
+* `specs_common.py`, `specs_a.py` (Emond's Field, Baerlon, Whitebridge, Shadar Logoth, Fal Dara), `specs_b.py`
+  (Caemlyn, Cairhien, Tear, Tar Valon, Tanchico, Illian) – the town specs: roads, districts (dense alley sets vs grand
+  avenues), plazas, house kits, foliage, props, NPCs with dialogue rows (written into `DT_HybridRPG_Dialogue`;
+  `unreal/DT_HybridRPG_Dialogue.csv` mirrors them) and the per-town relief.
+* `ow_fit.py` – fits the Randland reference map (`maps/westlands-national-borders-and-cities.png`) onto the Overworld
+  heightmap (`blender/overworld-full.png`, which the landscape was sculpted from) and writes `ow_sites.json`; `ow_portals.py`
+  places/moves the Overworld portals, player starts and landmarks there. Overworld axes: +X east, +Y south.
+* `run_town.py <Town>...|--all|--dry|--kit|--overworld` – regenerate towns, dry-run the relief locally, rebuild the kit,
+  or re-place the Overworld portals.
 
 Portals: the Portal blueprint now has a `ToLevel` string (used when set, otherwise the old
 `ToMap` enum). Overworld portals are named `Overworld<Town>` and each town's return portal

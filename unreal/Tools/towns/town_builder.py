@@ -46,7 +46,7 @@ def build_town_graph(spec):
     if gv(spec,"exclusions"):
         pts=[]
         for (ex,ey,hx,hy) in spec["exclusions"]:
-            p=point(ex,ey,0,0,1.0,50); p["boundsMin"]={"x":-hx,"y":-hy,"z":-200}; p["boundsMax"]={"x":hx,"y":hy,"z":800}; pts.append(p)
+            p=point(ex,ey,0,0,1.0,50); p["boundsMin"]={"x":-hx,"y":-hy,"z":-2500}; p["boundsMax"]={"x":hx,"y":hy,"z":3500}; pts.append(p)
         B.node("Create Points","ExclPts",{"pointsToCreate":pts,"coordinateSpace":"World"},title="Hand-placed exclusions",x=0,y=y); excl.append(("ExclPts","Out")); y+=1
     plaza_surfs=[]
     for i,pz in enumerate(gv(spec,"plazas") or []):
@@ -96,7 +96,7 @@ def build_town_graph(spec):
         if gk not in groups: groups[gk]=[]; gorder.append(gk)
         groups[gk].append(tiles_node)
         if gv(rd,"houses",False): house_samplers.append((i,rd))
-        for li,ln in enumerate(gv(rd,"lines") or []):
+        for li,ln in enumerate(([] if gv(spec,"line_sets") is not None else gv(rd,"lines")) or []):
             sc=gv(ln,"scale",(1,1,1)); off=ln["offset"]; mats=[gv(ln,"mat")] if gv(ln,"mat") else None
             B.node("Spline Sampler",f"LineSamp{i}_{li}",{"samplerParams":{"dimension":"OnSpline","mode":"Distance","distanceIncrement":ln["step"],"bUnbounded":True}},x=2,y=y+1)
             B.link(f"RoadSpl{i}","Out",f"LineSamp{i}_{li}","Spline")
@@ -108,7 +108,7 @@ def build_town_graph(spec):
                 B.set_meshes(f"LineSpawn{i}_{li}_{si}",[(ln["mesh"],1,mats)])
                 B.link(f"LineSamp{i}_{li}","Out",f"LineXf{i}_{li}_{si}","In"); B.link(f"LineXf{i}_{li}_{si}","Out",f"LineSpawn{i}_{li}_{si}","In")
             y+=1
-        tw=gv(rd,"towers")
+        tw=None if gv(spec,"tower_sets") is not None else gv(rd,"towers")
         if tw:
             sc=tw["scale"]
             B.node("Spline Sampler",f"TowerSamp{i}",{"samplerParams":{"dimension":"OnSpline","mode":"Distance","distanceIncrement":tw["step"],"bUnbounded":True}},x=2,y=y+1)
@@ -130,7 +130,7 @@ def build_town_graph(spec):
         y+=1
     B.node("Merge Points","RoadAll",{},x=5,y=y)
     for n in road_merges: B.link(n,"Out","RoadAll","In")
-    B.node("Bounds Modifier","RoadExcl",{"mode":"Set","boundsMin":{"x":-70,"y":-70,"z":-700},"boundsMax":{"x":70,"y":70,"z":700}},title="Road exclusion",x=6,y=y)
+    B.node("Bounds Modifier","RoadExcl",{"mode":"Set","boundsMin":{"x":-30,"y":-30,"z":-3000},"boundsMax":{"x":30,"y":30,"z":3000}},title="Road exclusion",x=6,y=y)
     B.link("RoadAll","Out","RoadExcl","In"); y+=1
     for j,gk in enumerate(gorder):
         mat,mesh,kind=gk; src=gsrc[gk]
@@ -144,7 +144,7 @@ def build_town_graph(spec):
     hs=gv(spec,"houses"); house_inputs=[]
     sets=gv(spec,"house_sets") or {}
     set_inputs={k:[] for k in sets}
-    for (i,rd) in house_samplers:
+    for (i,rd) in ([] if gv(spec,"house_slots") is not None else house_samplers):
         sp=gv(rd,"spacing",hs["spacing"]); sb=gv(rd,"setback",hs["setback"]); sides=gv(rd,"sides","both")
         B.node("Spline Sampler",f"HSamp{i}",{"samplerParams":{"dimension":"OnSpline","mode":"Distance","distanceIncrement":sp,"bUnbounded":True}},title=f"House slots {i}",x=2,y=y)
         B.link(f"RoadSpl{i}","Out",f"HSamp{i}","Spline")
@@ -157,9 +157,31 @@ def build_town_graph(spec):
             B.link(f"HSamp{i}","Out",f"HR{i}","In"); target.append(f"HR{i}")
         y+=2
     hp=gv(spec,"house_pts")
-    if hp:
+    if hp and gv(spec,"house_slots") is None:
         B.node("Create Points","HousePts",{"pointsToCreate":[point(x,yy,0,yaw,1.0,50) for (x,yy,yaw) in hp],"coordinateSpace":"World"},title="Hand-placed house slots",x=3,y=y)
         house_inputs.append("HousePts"); y+=1
+    def chunked_points(prefix,pts,x,y,title="",chunk=1200):
+        """Create Points nodes in chunks merged into one; returns (merge node name, node rows used)."""
+        names=[]
+        for ci in range(0,max(1,len(pts)),chunk):
+            nm=f"{prefix}{ci//chunk}"; B.node("Create Points",nm,{"pointsToCreate":pts[ci:ci+chunk],"coordinateSpace":"World"},title=f"{title} {ci//chunk}",x=x,y=y+ci//chunk); names.append(nm)
+        B.node("Merge Points",f"{prefix}Merge",{},title=title,x=x+1,y=y)
+        for nm in names: B.link(nm,"Out",f"{prefix}Merge","In")
+        return f"{prefix}Merge", max(1,len(names))
+    hsl=gv(spec,"house_slots")
+    if hsl is not None:
+        for k,pts in hsl.items():
+            if not pts: continue
+            nm,cnt=chunked_points(f"Slots{k}",[point(x,yy,z,yaw,1.0,50) for (x,yy,z,yaw) in pts],2,y,title=f"house slots {k or 'default'}")
+            (set_inputs[k] if k in sets else house_inputs).append(nm); y+=cnt
+    for li,ls in enumerate(gv(spec,"line_sets") or []):
+        if not ls["pts"]: continue
+        sc=ls["scale"]; nm,cnt=chunked_points(f"Line{li}",[point(x,yy,z,yaw,(sc[0],sc[1],sc[2]),50) for (x,yy,z,yaw) in ls["pts"]],2,y,title=f"line {li} {ls['name']}")
+        B.node("Static Mesh Spawner",f"LineSpawn{li}",{},title=f"line {li} {ls['name']}",x=4,y=y); B.set_meshes(f"LineSpawn{li}",[(ls["mesh"],1,ls["mats"])]); B.link(nm,"Out",f"LineSpawn{li}","In"); y+=cnt
+    for ti,ts_ in enumerate(gv(spec,"tower_sets") or []):
+        if not ts_["pts"]: continue
+        sc=ts_["scale"]; nm,cnt=chunked_points(f"Tower{ti}",[point(x,yy,z,yaw,(sc[0],sc[1],sc[2]),50) for (x,yy,z,yaw) in ts_["pts"]],2,y,title=f"towers {ts_['name']}")
+        B.node("Static Mesh Spawner",f"TowerSpawn{ti}",{},title=f"towers {ts_['name']}",x=4,y=y); B.set_meshes(f"TowerSpawn{ti}",[(ts_["mesh"],1,ts_["mats"])]); B.link(nm,"Out",f"TowerSpawn{ti}","In"); y+=cnt
     house_excl_nodes=[]
     def house_pipeline(tag,inputs,cfg):
         nonlocal y
@@ -169,30 +191,49 @@ def build_town_graph(spec):
         smin,smax=cfg["scale"]; fp=gv(cfg,"footprint",(-560,-560,740,420)); jit=gv(cfg,"jitter",120)
         B.node("Transform Points",f"HouseJitter{tag}",{"offsetMin":{"x":-jit,"y":-40,"z":0},"offsetMax":{"x":jit,"y":40,"z":0},"rotationMin":{"pitch":0,"yaw":-4,"roll":0},"rotationMax":{"pitch":0,"yaw":4,"roll":0},"scaleMin":{"x":smin,"y":smin,"z":smin},"scaleMax":{"x":smax,"y":smax,"z":smax},"bUniformScale":True,"bRecomputeSeed":True},x=5,y=y)
         B.node("Random Choice",f"HouseChoice{tag}",{"bFixedMode":False,"ratio":gv(cfg,"keep",0.9)},x=6,y=y)
-        B.node("Bounds Modifier",f"HouseBounds{tag}",{"mode":"Set","boundsMin":{"x":fp[0],"y":fp[1],"z":0},"boundsMax":{"x":fp[2],"y":fp[3],"z":700}},title="House footprint",x=7,y=y)
+        sh=gv(cfg,"excl_shrink",0.55)   # the Difference is binary (any overlap culls), so test a shrunken core of the footprint
+        B.node("Bounds Modifier",f"HouseCore{tag}",{"mode":"Set","boundsMin":{"x":fp[0]*sh,"y":fp[1]*sh,"z":0},"boundsMax":{"x":fp[2]*sh,"y":fp[3]*sh,"z":700}},title="House core (exclusion test)",x=7,y=y)
         B.node("Difference",f"HouseDiff{tag}",{"densityFunction":"Binary","mode":"Inferred"},title="Not on roads/plazas/walls",x=8,y=y)
-        B.node("Self Pruning",f"HousePrune{tag}",{"parameters":{"pruningType":"LargeToSmall","bRandomizedPruning":True}},x=9,y=y)
-        B.node("Static Mesh Spawner",f"HouseSpawn{tag}",{"bApplyMeshBoundsToPoints":True},title=f"Houses {tag}",x=10,y=y)
+        B.node("Bounds Modifier",f"HouseBounds{tag}",{"mode":"Set","boundsMin":{"x":fp[0],"y":fp[1],"z":0},"boundsMax":{"x":fp[2],"y":fp[3],"z":700}},title="House footprint",x=9,y=y)
+        B.node("Self Pruning",f"HousePrune{tag}",{"parameters":{"pruningType":"LargeToSmall","bRandomizedPruning":True}},x=10,y=y)
+        B.node("Static Mesh Spawner",f"HouseSpawn{tag}",{"bApplyMeshBoundsToPoints":True},title=f"Houses {tag}",x=11,y=y)
         B.set_meshes(f"HouseSpawn{tag}",cfg["entries"])
-        B.chain((f"HouseMerge{tag}","Out","In"),(f"HouseJitter{tag}","Out","In"),(f"HouseChoice{tag}","Chosen","In"),(f"HouseBounds{tag}","Out","In"),(f"HouseDiff{tag}","Out","Source"))
-        B.link(f"HouseDiff{tag}","Out",f"HousePrune{tag}","In"); B.link(f"HousePrune{tag}","Out",f"HouseSpawn{tag}","In")
+        B.chain((f"HouseMerge{tag}","Out","In"),(f"HouseJitter{tag}","Out","In"),(f"HouseChoice{tag}","Chosen","In"),(f"HouseCore{tag}","Out","In"),(f"HouseDiff{tag}","Out","Source"))
+        B.chain((f"HouseDiff{tag}","Out","In"),(f"HouseBounds{tag}","Out","In"),(f"HousePrune{tag}","Out","In"),(f"HouseSpawn{tag}","Out","In"))
         B.link("RoadExcl","Out",f"HouseDiff{tag}","Differences")
         for n in wall_nodes+other_merges: B.link(n,"Out",f"HouseDiff{tag}","Differences")
         for (n,p) in plaza_surfs+excl: B.link(n,p,f"HouseDiff{tag}","Differences")
         for n in house_excl_nodes: B.link(n,"Out",f"HouseDiff{tag}","Differences")   # later sets avoid earlier houses
-        B.node("Bounds Modifier",f"HouseExcl{tag}",{"mode":"Scale","boundsMin":{"x":1.25,"y":1.25,"z":1},"boundsMax":{"x":1.25,"y":1.25,"z":1}},title="House exclusion",x=11,y=y)
+        B.node("Bounds Modifier",f"HouseExcl{tag}",{"mode":"Scale","boundsMin":{"x":1.0,"y":1.0,"z":1},"boundsMax":{"x":1.0,"y":1.0,"z":1}},title="House exclusion",x=12,y=y)
         B.link(f"HouseSpawn{tag}","Out",f"HouseExcl{tag}","In"); house_excl_nodes.append(f"HouseExcl{tag}")
         y+=1
     house_pipeline("",house_inputs,hs)
     for k in sets: house_pipeline(k,set_inputs[k],sets[k])
+    terr=gv(spec,"terrain")
+    if terr:
+        groups={}
+        for (m,tx,ty,tz,sx,sy,sz) in terr["boxes"]:
+            if m not in groups: groups[m]=[]
+            groups[m].append(point(tx,ty,tz,0,(sx/100.0,sy/100.0,sz/100.0),50))
+        for gi,(m,pts) in enumerate(groups.items()):
+            mat=terr["palette"][m] if m in terr["palette"] else m
+            mg,cnt=chunked_points(f"Terr{gi}",pts,0,y,title=f"terrain {m.split('/')[-1]}")
+            B.node("Static Mesh Spawner",f"TerrSpawn{gi}",{},title=f"terrain {m.split('/')[-1]}",x=2,y=y)
+            B.set_meshes(f"TerrSpawn{gi}",[(CUBE,1,[mat])])
+            B.link(mg,"Out",f"TerrSpawn{gi}","In"); y+=cnt
     fo=spec["foliage"]; E=fo["extent"]; cx,cy=spec["center"]
-    B.node("Create Points Grid","Grid",{"gridExtents":{"x":E,"y":E,"z":1},"cellSize":{"x":100,"y":100,"z":100},"coordinateSpace":"World","pointPosition":"CellCenter","bSetPointsBounds":True},title="Ground lattice",x=0,y=y)
+    if not gv(spec,"lattice"): B.node("Create Points Grid","Grid",{"gridExtents":{"x":E,"y":E,"z":1},"cellSize":{"x":100,"y":100,"z":100},"coordinateSpace":"World","pointPosition":"CellCenter","bSetPointsBounds":True},title="Ground lattice",x=0,y=y)
     B.node("Transform Points","GridJitter",{"offsetMin":{"x":-45,"y":-45,"z":0},"offsetMax":{"x":45,"y":45,"z":0},"bRecomputeSeed":True},x=1,y=y)
     B.node("Create Points","Center",{"pointsToCreate":[point(cx,cy,0,0,1.0,10)],"coordinateSpace":"World"},title="Town center",x=0,y=y+1)
     B.node("Distance","Dist",{"bSetDensity":True,"maximumDistance":fo["forest_radius"],"sourceShape":"Center","targetShape":"Center","bOutputToAttribute":True,"outputAttribute":"Dist"},title="Density = distance from center",x=2,y=y)
     B.node("Difference","Excl",{"densityFunction":"Minimum","mode":"Inferred"},title="Remove roads/houses/plazas",x=3,y=y)
-    terr=gv(spec,"terraces") or []; bz=gv(spec,"base_z",0)
-    if terr:
+    lat=gv(spec,"lattice"); terr=gv(spec,"terraces") or []; bz=gv(spec,"base_z",0)
+    if lat:
+        lp=[point(px,py,pz,0,1.0,50) for (px,py,pz) in lat]
+        mg,cnt=chunked_points("Lat",lp,0,y+1,title="terrain lattice")
+        B.update("GridJitter",{"offsetMin":{"x":-110,"y":-110,"z":0},"offsetMax":{"x":110,"y":110,"z":0},"bRecomputeSeed":True})
+        B.link(mg,"Out","GridJitter","In"); B.link("GridJitter","Out","Dist","Source"); y+=1+cnt
+    elif terr:
         B.node("Merge Points","GridMerge",{},title="lattice by terrace",x=2,y=y+1)
         B.node("Difference","GridBase",{"densityFunction":"Binary","mode":"Inferred"},title="base ground",x=1,y=y+2)
         B.link("Grid","Out","GridBase","Source")
@@ -220,11 +261,11 @@ def build_town_graph(spec):
     for n in house_excl_nodes: B.link(n,"Out","Excl","Differences")
     for (n,p) in plaza_surfs+excl: B.link(n,p,"Excl","Differences")
     y+=2
-    clip=gv(fo,"clip_density",1.0)
+    clip=gv(fo,"clip_density",1.0); dens=gv(spec,"lattice_density",1.0)
     def scatter(name,lo,hi,ratio,entries,smin,smax,prune=None,yawrand=True,x0=4):
         nonlocal y
         if ratio<=0 or not entries: return
-        hi=min(hi,clip)
+        ratio=min(1.0,ratio*dens); hi=min(hi,clip)
         B.node("Density Filter",f"{name}Band",{"lowerBound":lo,"upperBound":hi},title=f"{name}: density {lo}-{hi}",x=x0,y=y)
         B.node("Random Choice",f"{name}Pick",{"bFixedMode":False,"ratio":ratio},x=x0+1,y=y)
         rot={"pitch":0,"yaw":0,"roll":0}; rot2={"pitch":0,"yaw":360 if yawrand else 0,"roll":0}
@@ -252,9 +293,12 @@ def build_town_graph(spec):
     info["nodes"]=len(B.nodes)
     return g,info
 
+def _rot(yaw):
+    if isinstance(yaw,(list,tuple)): return {"pitch":yaw[0],"yaw":yaw[1],"roll":yaw[2]}
+    return {"pitch":0,"yaw":yaw,"roll":0}
 def place_mesh(path,label,loc,yaw=0,scale=1.0,mats=None,tag=TOWNPROP,tags=(),props=None):
     s=scale if isinstance(scale,(list,tuple)) else (scale,scale,scale)
-    a=T(SC+"add_to_scene_from_asset",{"asset_path":path,"name":label,"xform":{"location":{"x":loc[0],"y":loc[1],"z":loc[2] if len(loc)>2 else 0},"rotation":{"pitch":0,"yaw":yaw,"roll":0},"scale":{"x":s[0],"y":s[1],"z":s[2]}}})
+    a=T(SC+"add_to_scene_from_asset",{"asset_path":path,"name":label,"xform":{"location":{"x":loc[0],"y":loc[1],"z":loc[2] if len(loc)>2 else 0},"rotation":_rot(yaw),"scale":{"x":s[0],"y":s[1],"z":s[2]}}})
     ap=a["refPath"] if isinstance(a,dict) else a
     if mats:
         comps=T(AC+"get_components",{"actor":ref(ap),"component_type":ref("/Script/Engine.StaticMeshComponent")})
@@ -266,7 +310,7 @@ def place_mesh(path,label,loc,yaw=0,scale=1.0,mats=None,tag=TOWNPROP,tags=(),pro
     return ap
 def place_class(cls,label,loc,yaw=0,scale=1.0,tag=TOWNPROP):
     s=scale if isinstance(scale,(list,tuple)) else (scale,scale,scale)
-    a=T(SC+"add_to_scene_from_class",{"actor_type":ref(cls),"name":label,"xform":{"location":{"x":loc[0],"y":loc[1],"z":loc[2] if len(loc)>2 else 0},"rotation":{"pitch":0,"yaw":yaw,"roll":0},"scale":{"x":s[0],"y":s[1],"z":s[2]}}})
+    a=T(SC+"add_to_scene_from_class",{"actor_type":ref(cls),"name":label,"xform":{"location":{"x":loc[0],"y":loc[1],"z":loc[2] if len(loc)>2 else 0},"rotation":_rot(yaw),"scale":{"x":s[0],"y":s[1],"z":s[2]}}})
     ap=a["refPath"] if isinstance(a,dict) else a
     if tag: T(AC+"add_tag",{"actor":ref(ap),"tag":tag})
     return ap
@@ -302,19 +346,23 @@ def spawn_and_run(graph,label,extent):
 def build_level(spec,extra_clean=()):
     out={"cleaned":clean_town(extra_clean)}
     g,info=build_town_graph(spec); out["info"]=info
-    placed=0
+    placed=0; R=gv(spec,"_relief")
+    def lift(loc,absolute=False):
+        if R is None or absolute: return loc
+        return (loc[0],loc[1],R.zat(loc[0],loc[1])+(loc[2] if len(loc)>2 else 0))
     for item in gv(spec,"props") or []:
+        absolute=len(item)>7 and item[7]=="abs"
         if item[0]=="mesh":
-            _,path,label,loc,yaw,scale,mats=item; place_mesh(path,label,loc,yaw,scale,mats); placed+=1
+            path,label,loc,yaw,scale,mats=item[1:7]; place_mesh(path,label,lift(loc,absolute),yaw,scale,mats); placed+=1
         elif item[0]=="ground":
-            _,path,label,loc,yaw,scale,mats=item; place_mesh(path,label,loc,yaw,scale,mats,tags=(GROUND_TAG,)); placed+=1
+            path,label,loc,yaw,scale,mats=item[1:7]; place_mesh(path,label,loc,yaw,scale,mats,tags=(GROUND_TAG,)); placed+=1
         elif item[0]=="class":
-            _,cls,label,loc,yaw,scale=item; place_class(cls,label,loc,yaw,scale); placed+=1
+            cls,label,loc,yaw,scale=item[1:6]; place_class(cls,label,lift(loc,absolute),yaw,scale); placed+=1
         elif item[0]=="actor":
-            _,path,label,loc,yaw,scale,props=item; place_mesh(path,label,loc,yaw,scale,None,props=props); placed+=1
+            path,label,loc,yaw,scale,props=item[1:7]; place_mesh(path,label,lift(loc,absolute),yaw,scale,None,props=props); placed+=1
         elif item[0]=="npc":
             _,label,loc,yaw,props=item
-            z=ground_z(loc[0],loc[1])+96
+            z=(R.zat(loc[0],loc[1]) if R is not None else ground_z(loc[0],loc[1]))+96
             place_mesh("/Game/Wot/NPCs/NPC_Villager_BP",label,(loc[0],loc[1],z),yaw,1.0,None,props=props); placed+=1
     out["placed"]=placed
     vol,msgs=spawn_and_run(g,spec["graph_name"],spec["foliage"]["extent"]*2); out["vol"]=vol; out["msgs"]=msgs
@@ -339,5 +387,5 @@ def build_level(spec,extra_clean=()):
     if ls:
         for lab in ("NavMeshBounds","BP_LevelBounds"):
             for p in find_by_label(lab):
-                T(AC+"set_actor_transform",{"actor":ref(p),"xform":{"location":{"x":0,"y":0,"z":500 if lab=="NavMeshBounds" else 0},"scale":{"x":ls[0],"y":ls[1],"z":ls[2]}},"worldspace":True})
+                T(AC+"set_actor_transform",{"actor":ref(p),"xform":{"location":{"x":0,"y":0,"z":500 if lab=="NavMeshBounds" else 0},"scale":{"x":ls[0],"y":ls[1],"z":ls[2]*3}},"worldspace":True})
     return out

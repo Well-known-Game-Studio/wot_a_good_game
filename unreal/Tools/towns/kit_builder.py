@@ -5,9 +5,9 @@ def PM(n): return f"/Game/Wot/Towns/Common/Materials/{n}.{n}"
 KIT_FOLDER="/Game/Wot/Towns/Common/Buildings"
 SCRATCH=(0,0,-30000)   # parts are assembled far below the level, merged, and the sources destroyed
 
-def box(x,y,z,sx,sy,sz,mat,yaw=0):
-    """A cube scaled to (sx,sy,sz) cm, centred at (x,y,z) relative to the part pivot."""
-    return (CUBE,(x,y,z),yaw,(sx/100.0,sy/100.0,sz/100.0),mat)
+def box(x,y,z,sx,sy,sz,mat,yaw=0,pitch=0,roll=0):
+    """A cube scaled to (sx,sy,sz) cm, centred at (x,y,z) relative to the part pivot; rotation (pitch,yaw,roll)."""
+    return (CUBE,(x,y,z),(pitch,yaw,roll) if (pitch or roll) else yaw,(sx/100.0,sy/100.0,sz/100.0),mat)
 def cyl(x,y,z,d,h,mat):
     return (CYL,(x,y,z),0,(d/100.0,d/100.0,h/100.0),mat)
 
@@ -136,7 +136,7 @@ KIT={
  "SM_Pine":pine,"SM_Palm":palm,"SM_DeadTree":dead_tree,"SM_Boulder":boulder,"SM_Cactus":cactus,"SM_Reeds":reeds,"SM_FlowerShrub":shrub_flower,"SM_SnowPatch":snow_patch,"SM_Birch":birch,
 }
 
-def stairs(rise=300,width=500,step_rise=25,step_run=50,mat="P_LightGrey",side="P_Grey"):
+def stairs(rise=300,width=500,step_rise=20,step_run=40,mat="P_LightGrey",side="P_Grey"):
     """Voxel stairs climbing toward +X from the pivot (bottom front centre)."""
     n=int(rise/step_rise); p=[]
     for i in range(n):
@@ -149,7 +149,21 @@ def ladder(h=600,mat="P_DarkWood"):
     p=[box(0,-45,h/2,15,15,h,mat),box(0,45,h/2,15,15,h,mat)]
     for i in range(int(h/60)): p.append(box(0,0,40+i*60,12,100,12,mat))
     return p
-KIT.update({"SM_Stairs200":lambda: stairs(200),"SM_Stairs300":lambda: stairs(300),"SM_Stairs400":lambda: stairs(400),"SM_Stairs600":lambda: stairs(600),"SM_Ladder600":lambda: ladder(600),"SM_Ladder900":lambda: ladder(900)})
+def white_bridge(span=4000,rise=650,width=700,n=24,mat="P_White",rail="P_Ice",pier="P_LightGrey"):
+    """The White Bridge: a tall glassy arch (deck segments along a parabola, pivot at the centre of the span at deck-foot level)."""
+    p=[]; seg=span/n
+    for i in range(n):
+        x0=-span/2+i*seg; x1=x0+seg; xm=(x0+x1)/2
+        f=lambda x: rise*(1-(2*x/span)**2)
+        z0=f(x0); z1=f(x1); zm=(z0+z1)/2; L=math.hypot(seg,z1-z0); pitch=math.degrees(math.atan2(z1-z0,seg))
+        p.append(box(xm,0,zm+20,L+6,width,40,mat,pitch=pitch))
+        for sy in (-1,1): p.append(box(xm,sy*(width/2-20),zm+90,L+6,36,100,rail,pitch=pitch))
+        if i%3==1 and abs(xm)<span*0.42: p.append(box(xm,0,zm/2,80,width*0.6,max(zm-40,20),pier))
+    for sx in (-1,1):
+        p.append(box(sx*(span/2+80),0,120,200,width+160,240,pier)); p.append(box(sx*(span/2+80),0,280,160,width+100,60,mat))
+    return p
+KIT.update({f"SM_Stairs{r}":(lambda r=r: stairs(r)) for r in (200,240,280,320,360,400,480,600)})
+KIT.update({"SM_Ladder600":lambda: ladder(600),"SM_Ladder900":lambda: ladder(900),"SM_WhiteBridge":white_bridge})
 
 def build_kit_mesh(name,parts,folder=KIT_FOLDER):
     """Places parts as StaticMeshActors in the scratch area, merges them into one StaticMesh asset, destroys sources."""
