@@ -17,12 +17,10 @@ def call_script(script):
     print(r.stdout[:3000]); print(r.stderr[-800:])
 def main():
     arg=sys.argv[1]
-    base="\n".join(rd(f) for f in ("pcg_lib.py","town_builder.py","kit_builder.py","make_city.py","city_specs.py","ef_spec.py"))
+    base="\n".join(rd(f) for f in ("pcg_lib.py","town_builder.py","kit_builder.py","make_city.py","city_specs.py","city_terrain.py","ef_spec.py"))
     if arg=="--kit":
         call_script(base+"\n"+rd("run_kit.py")); return
     if arg=="--overworld":
         call_script(base+"\n"+rd("ow_portals.py")); return
-    if arg=="EmondsField":
-        call_script(base+'\ndef run():\n    s=ef_spec(); s["town"]="EmondsField"\n    out=build_level(s)\n    save(["/Game/Wot/Maps/EmondsField/EmondsField"])\n    return out\n'); return
     call_script(base+"\nTOWNS=["+json.dumps(arg)+"]\n"+rd("run_cities.py"))
 if __name__=="__main__": main()

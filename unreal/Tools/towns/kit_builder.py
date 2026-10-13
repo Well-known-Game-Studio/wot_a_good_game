@@ -135,6 +135,22 @@ KIT={
  "SM_Obelisk":obelisk,"SM_GateHouse":gate_house,"SM_RuinWall":ruin_wall,"SM_BridgeArch":bridge_arch,
  "SM_Pine":pine,"SM_Palm":palm,"SM_DeadTree":dead_tree,"SM_Boulder":boulder,"SM_Cactus":cactus,"SM_Reeds":reeds,"SM_FlowerShrub":shrub_flower,"SM_SnowPatch":snow_patch,"SM_Birch":birch,
 }
+
+def stairs(rise=300,width=500,step_rise=25,step_run=50,mat="P_LightGrey",side="P_Grey"):
+    """Voxel stairs climbing toward +X from the pivot (bottom front centre)."""
+    n=int(rise/step_rise); p=[]
+    for i in range(n):
+        h=(i+1)*step_rise
+        p.append(box(i*step_run+step_run/2,0,h/2,step_run,width,h,mat))
+    L=n*step_run
+    p.append(box(L/2,-width/2-15,rise*0.35,L,30,rise*0.7,side)); p.append(box(L/2,width/2+15,rise*0.35,L,30,rise*0.7,side))
+    return p
+def ladder(h=600,mat="P_DarkWood"):
+    p=[box(0,-45,h/2,15,15,h,mat),box(0,45,h/2,15,15,h,mat)]
+    for i in range(int(h/60)): p.append(box(0,0,40+i*60,12,100,12,mat))
+    return p
+KIT.update({"SM_Stairs200":lambda: stairs(200),"SM_Stairs300":lambda: stairs(300),"SM_Stairs400":lambda: stairs(400),"SM_Stairs600":lambda: stairs(600),"SM_Ladder600":lambda: ladder(600),"SM_Ladder900":lambda: ladder(900)})
+
 def build_kit_mesh(name,parts,folder=KIT_FOLDER):
     """Places parts as StaticMeshActors in the scratch area, merges them into one StaticMesh asset, destroys sources."""
     actors=[]

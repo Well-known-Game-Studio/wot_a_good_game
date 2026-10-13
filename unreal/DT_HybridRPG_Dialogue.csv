@@ -16,3 +16,85 @@ Tam_trollocs_3,"I can't help you, I gave you my sword!",
 Tam_fade_1,"We have no chance against that thing!",
 Tam_fade_2,"Our only chance is to run!",
 Tam_win_1,"I can't believe you beat that thing!",
+EF_Cenn_1,"Thatching, thatching, always thatching. The Winespring Inn wants a tile roof, can you believe it?",EF_Cenn_2
+EF_Cenn_2,"Mark my words, lad, those Coplin boys will be trouble before Bel Tine.",
+EF_Bran_1,Welcome to the Winespring Inn! Finest ale this side of the Mountains of Mist.,EF_Bran_2
+EF_Bran_2,The spring up on the knoll never runs dry. Sweetest water in the Two Rivers.,
+EF_Egwene_1,Rand! Have you seen Nynaeve? She's looking for anyone who skipped their chores.,EF_Egwene_2
+EF_Egwene_2,"I'm going to see the world one day. Caemlyn, Tar Valon... all of it.",
+EF_Mat_1,Psst. Want to see something? I found a badger down by the Old Road.,EF_Mat_2
+EF_Mat_2,Don't tell Nynaeve. She'd have my hide with that switch of hers.,
+CM_Guard_1,Halt! State your business in the Inner City.,CM_Guard_2
+CM_Guard_2,"...Very well. Mind the Queen's Guards, and keep off the palace steps.",
+CM_Gill_1,"The Queen's Blessing has the best room in the New City, if you ask me.",CM_Gill_2
+CM_Gill_2,"Trouble in the streets lately. Red cloths, white cloths... stay out of it.",
+CM_Elayne_1,Mother says a Daughter-Heir should not talk to strangers in the gardens.,CM_Elayne_2
+CM_Elayne_2,But you look like you have seen more of the world than I have. Tell me of it sometime.,
+CM_Domon_1,"I do be a river man, not a city man. Caemlyn be too far from the water.",CM_Domon_2
+CM_Domon_2,"If you ever need passage down the Erinin, look for the Spray in Whitebridge.",
+CM_Thom_1,"A gleeman's tales are worth a coin or two, young friend.",CM_Thom_2
+CM_Thom_2,Did you know the topless towers of Cairhien were never finished? Now there is a story.,
+CH_Barthanes_1,"Daes Dae'mar, the Game of Houses. Every word you say here has three meanings.",CH_Barthanes_2
+CH_Barthanes_2,"Choose your friends in Cairhien carefully, outlander. Choose your enemies more carefully still.",
+CH_Beggar_1,Spare a coin? The Foregate burned and the nobles never noticed.,CH_Beggar_2
+CH_Beggar_2,They say the King hoards grain in the Sun Palace. I say the towers are hollow.,
+CH_Clerk_1,The grid of the city was laid out by Ogier masons. Every street exactly so.,CH_Clerk_2
+CH_Clerk_2,Please do not walk on the grass. It was imported from Andor at great expense.,
+CH_Guard_1,The topless towers have stood half-built since the Aiel War.,CH_Guard_2
+CH_Guard_2,Climb the ladders if you like. Mind the drop.,
+TR_Defender_1,The Stone of Tear has never fallen. Not once in three thousand years.,TR_Defender_2
+TR_Defender_2,"Keep your hands where I can see them, outlander.",
+TR_Docker_1,The Erinin brings the grain and the Erinin takes the coin.,TR_Docker_2
+TR_Docker_2,"Watch your step on the piers, the planks are rotten and the river is deep.",
+TR_Fisher_1,Fresh eels! Caught this morning below the Stone.,TR_Fisher_2
+TR_Fisher_2,"No channeling in Tear, mind. The Defenders do not take kindly to it.",
+TR_Darlin_1,The Maule stinks of fish and the High Lords stink of politics.,TR_Darlin_2
+TR_Darlin_2,"If you have a strong arm, there is always work with the Defenders.",
+TV_Novice_1,Novices are not supposed to talk to visitors. Please do not tell the Mistress of Novices.,TV_Novice_2
+TV_Novice_2,The Tower has a hundred levels and I have scrubbed every one of them.,
+TV_Warder_1,The Tower grounds are closed to the public. Admire it from the steps.,TV_Warder_2
+TV_Warder_2,An Aes Sedai is not to be disturbed. Move along.,
+TV_Loial_1,"Ogier built this city, you know. Every bridge, every street. Hasty work, only three hundred years.",TV_Loial_2
+TV_Loial_2,I would very much like to see a stedding again. The trees here are so young.,
+TV_Hob_1,"Four bridges in and four bridges out, and a toll on every one of them.",TV_Hob_2
+TV_Hob_2,"Silk from Arafel, ice peppers from Shienar. Have a look, friend.",
+FD_Agelmar_1,"Peace favor your sword, traveler. Fal Dara is the last light before the Blight.",FD_Agelmar_2
+FD_Agelmar_2,The keep has stood against Trollocs for a thousand years. It will stand tonight.,
+FD_Ingtar_1,Every Shienaran man carries a sword. Every woman knows how to use one.,FD_Ingtar_2
+FD_Ingtar_2,The Gap is quiet. Too quiet. Keep your lantern lit.,
+FD_Ragan_1,"Good steel comes from the forges here, hammered in the cold.",FD_Ragan_2
+FD_Ragan_2,Snow in the streets till Sunday. Mind the ice on the keep stairs.,
+FD_Uno_1,Bloody flaming Trollocs took my goat last winter.,FD_Uno_2
+FD_Uno_2,"If you see a goat with one horn, that one's mine.",
+TC_Guard_1,The Panarch's Palace is closed. The Panarch's Palace is always closed.,TC_Guard_2
+TC_Guard_2,Tanchico has three hills and three kinds of trouble. Pick one.,
+TC_Trader_1,"Silk, dyes, honey from the Mountains of Mist! Best prices in the Souk.",TC_Trader_2
+TC_Trader_2,Mind the stairs down to the harbour. The steps are older than the city.,
+TC_Sailor_1,"Ships from Illian, ships from the Sea Folk, ships from places with no names.",TC_Sailor_2
+TC_Sailor_2,The Great Dome? The Panarch's folk say it is older than the Breaking.,
+TC_Child_1,Race you to the top of the medina! Last one up is a Whitecloak.,TC_Child_2
+TC_Child_2,I know a secret way down the cliff. It's a ladder. Don't tell.,
+IL_Crane_1,The Council of Nine do say the King rules Illian. The King do say otherwise.,IL_Crane_2
+IL_Crane_2,Mind the canals after dark. The water be deeper than it looks.,
+IL_Boat_1,"A boat ride through the canals, two coppers. Bridges be free.",IL_Boat_2
+IL_Boat_2,"The reeds grow thick this year. Good for baskets, bad for boats.",
+IL_Hunter_1,I have sworn the oath of the Hunters of the Horn. Have you heard it sounded?,IL_Hunter_2
+IL_Hunter_2,Every road out of Illian leads to the Horn of Valere. I just do not know which.,
+IL_Nieda_1,Flowers for your lady? The ones from the marsh never wilt.,IL_Nieda_2
+IL_Nieda_2,"The Bees of Illian, they call us. Busy, busy, and the honey all goes to the Nine.",
+SL_Mordeth_1,"Treasure... there is treasure here, friend. Take what you like.",SL_Mordeth_2
+SL_Mordeth_2,No one leaves Shadar Logoth with more than they brought. Except me.,
+WB_Fitch_1,"The Wayfarer's Rest, best inn on the Arinelle. Mind the stairs, the cellar floods.",WB_Fitch_2
+WB_Fitch_2,The White Bridge? Older than the town. Harder than steel. Nobody knows who built it.,
+WB_Ferry_1,Nobody takes the ferry since the bridge. Cheaper to walk.,WB_Ferry_2
+WB_Ferry_2,The water runs cold and fast below the bridge. I have fished men out of it.,
+WB_Olver_1,Did you know the bridge looks like glass but you can't see through it?,WB_Olver_2
+WB_Olver_2,Thom the gleeman said he'd teach me to juggle. Then he left.,
+BL_Fitch_1,"The Stag and Lion welcomes you. Rooms upstairs, stew downstairs, and no fighting.",BL_Fitch_2
+BL_Fitch_2,The Whitecloaks have been asking questions. I did not tell them anything.,
+BL_Miner_1,"Baerlon is a mining town, whatever the fine folk say. Iron and silver.",BL_Miner_2
+BL_Miner_2,The hills north of here are full of old shafts. Mind where you step.,
+BL_Whitecloak_1,"Walk in the Light, friend. The Children watch over Baerlon.",BL_Whitecloak_2
+BL_Whitecloak_2,Darkfriends hide in plain sight. Report anything unusual to the Children.,
+BL_Nynaeve_1,You came all this way with no cloak? You will catch your death.,BL_Nynaeve_2
+BL_Nynaeve_2,"When we get home, there will be words. Many words.",

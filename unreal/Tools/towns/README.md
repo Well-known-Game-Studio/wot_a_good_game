@@ -20,6 +20,12 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   order of the part colours; `kit_entry(name, {"P_Plaster":"P_White"})` recolours per town.
 * `city_specs.py` – specs for Caemlyn, Cairhien, Tear, Tar Valon, Fal Dara, Tanchico, Illian,
   Shadar Logoth, Whitebridge, Baerlon. `ef_spec.py` – Emond's Field.
+* `city_terrain.py` – per-town terrain layer: terraces (stacked slabs with heights), stairs and BP_Ladder
+  placement, water pools/rivers/moats, chests and potions on upper levels, wandering villager NPCs
+  (`NPC_Villager_BP`, a child of `NPC_Base_BP` that periodically sets the blackboard MoveToLocation) and
+  their dialogue rows (written into `DT_HybridRPG_Dialogue`; `unreal/DT_HybridRPG_Dialogue.csv` mirrors them).
+  Heights are deterministic: roads get explicit z with vertical jumps at terrace edges, the foliage
+  lattice is split per terrace, props carry their own z.
 * `ow_portals.py` – Overworld portal/player-start/landmark placement for every town.
 * `run_town.py <Town>|--kit|--overworld` – regenerate a town, the kit, or the Overworld portals.
 
