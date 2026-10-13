@@ -128,3 +128,25 @@ IL_Docker_1,The Sea of Storms do bring the ships and the ships do bring the coin
 IL_Docker_2,"Fish, olives, and lacquerware. Nothing leaves this harbour without a tally.",
 IL_Lady_1,"The Perfumed Quarter, dear. It do not smell of perfume. It never did.",IL_Lady_2
 IL_Lady_2,Every alley here ends at a canal. Learn to swim or learn to ask directions.,
+EF_Egwene_3,"If you are leaving, I am coming with you. Don't argue.",
+EF_Mat_3,"Blood and ashes, Rand. If Moiraine says Trollocs are coming, I'm not waiting around to find out.",
+EF_Perrin_3,I will bring the big axe. Someone should carry it.,
+EF_Moiraine_1,"You are Tam al'Thor's son. I am Moiraine, and the man watching the door is Lan. We have come a very long way to find you.",EF_Moiraine_2
+EF_Moiraine_2,Listen carefully. Trollocs came to the Two Rivers for you and your friends. They will come again.,EF_Moiraine_3
+EF_Moiraine_3,"Gather Mat and Perrin, and Egwene if she insists. We leave before the Dark One's eyes find us. Tell no one else but the Wisdom.",EF_Moiraine_4
+EF_Moiraine_4,The road north goes through Taren Ferry to Baerlon. Find me there when you arrive.,
+EF_Nynaeve_1,"Rand al'Thor. If you think I don't know what that Aes Sedai is planning, you are a bigger wool-head than Mat.",EF_Nynaeve_2
+EF_Nynaeve_2,"Leaving? With her? Light, you boys will be the death of me.",EF_Nynaeve_3
+EF_Nynaeve_3,"Go then. But I am Wisdom of this village, and where my people go, I follow. I will find you on the road.",
+EF_Thom_1,"Thom Merrilin, gleeman, at your service. Juggling, tales, and the harp, for the price of a bed and a meal.",EF_Thom_2
+EF_Thom_2,"Here is a tale: the Dragon Reborn, the Horn of Valere, and a shepherd who never asked for any of it. Hmm? Just a story.",EF_Thom_3
+EF_Thom_3,"If you are heading to Baerlon, a gleeman could use company on the road. The Aes Sedai may not like it. Good.",
+BL_Moiraine_1,You came. Good. Baerlon has eyes too; Whitecloaks in the streets and worse things in the alleys.,BL_Moiraine_2
+BL_Moiraine_2,"We ride for Caemlyn at first light. The road runs past a dead city, Shadar Logoth. Whatever happens there, take nothing from it.",
+BL_Thom_1,The Stag and Lion. I have played worse rooms. The ale is honest.,BL_Thom_2
+BL_Thom_2,"Watch the Whitecloaks, boy. They see Darkfriends in every shadow, and they do not care to be wrong.",
+WB_Thom_1,Across the White Bridge and we are out of Andor's shadow at last. Or into Caemlyn's. Hard to say which is worse.,WB_Thom_2
+WB_Thom_2,"If a Fade comes, boy, you run. I have run from worse things than Fades. Let an old gleeman buy you a little time.",WB_Thom_3
+WB_Thom_3,Caemlyn. Find the Queen's Blessing inn; Master Gill owes me a favor. Go. GO.,
+CM_Moiraine_1,"Caemlyn, at last. The Queen's Blessing has been watching for you.",CM_Moiraine_2
+CM_Moiraine_2,"Rest here. The road ahead goes to Tar Valon, and from there to the Eye of the World. But not tonight.",

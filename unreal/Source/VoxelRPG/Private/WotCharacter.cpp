@@ -24,6 +24,9 @@
 #include "Items/WotItem.h"
 #include "Items/WotItemWeapon.h"
 #include "Components/AudioComponent.h"
+#include "WotMountComponent.h"
+#include "AI/WotAICharacter.h"
+#include "Quests/WotQuestSubsystem.h"
 
 // Sets default values
 AWotCharacter::AWotCharacter()
@@ -78,6 +81,12 @@ void AWotCharacter::BeginPlay()
 	SetupCineCamera();
 	// start the interaction check timer
 	GetWorldTimerManager().SetTimer(TimerHandle_InteractionCheck, this, &AWotCharacter::InteractionCheck_TimeElapsed, InteractionCheckPeriod, true);
+	// quest tracker for the local player
+	if (IsLocallyControlled()) {
+		if (UWotQuestSubsystem* Quests = UWotQuestSubsystem::Get(this)) {
+			Quests->OnPlayerBeginPlay(this);
+		}
+	}
 }
 
 void AWotCharacter::SetupSpringArm()
@@ -128,15 +137,53 @@ void AWotCharacter::PrimaryInteract_Implementation()
 	if (!InputEnabled()) {
 		return;
 	}
-	if (InteractionComp)
-	{
-		InteractionComp->PrimaryInteract();
+	// riding: interact dismounts
+	if (IsMounted()) {
+		Dismount();
+		return;
+	}
+	if (!InteractionComp) {
+		return;
+	}
+	// rideable animals are mounted instead of talked to
+	AActor* ClosestActor = nullptr;
+	UActorComponent* ClosestComponent = nullptr;
+	FHitResult Hit;
+	if (InteractionComp->GetInteractableInRange(ClosestActor, ClosestComponent, Hit)) {
+		if (UWotMountComponent* Mount = UWotMountComponent::FindMount(ClosestActor)) {
+			if (!IsClimbing() && !GetCharacterMovement()->IsFalling()) {
+				Mount->Mount(this);
+			}
+			return;
+		}
+	}
+	InteractionComp->PrimaryInteract();
+	// report conversations to the quest system
+	if (AActor* Talked = InteractionComp->LastInteractedActor) {
+		if (Talked->IsA(AWotAICharacter::StaticClass())) {
+			if (UWotQuestSubsystem* Quests = UWotQuestSubsystem::Get(this)) {
+				Quests->NotifyTalkedTo(this, Talked);
+			}
+		}
 	}
 }
 
 bool AWotCharacter::IsClimbing() const
 {
 	return CurrentLadderActor != nullptr;
+}
+
+void AWotCharacter::SetMount(UWotMountComponent* NewMount)
+{
+	CurrentMount = NewMount;
+}
+
+bool AWotCharacter::Dismount()
+{
+	if (!CurrentMount) {
+		return false;
+	}
+	return CurrentMount->Dismount();
 }
 
 void AWotCharacter::HandleMovementInput_Implementation(const FVector &MoveDirection, const FVector &LookDirection)
@@ -168,6 +215,19 @@ bool AWotCharacter::Move_Implementation(const FVector &MoveVector)
 	if (MoveVector.Size() < 0.25f) {
 		// no movement input, so we don't do anything
 		return false;
+	}
+
+	// riding: steer the mount instead of the character
+	if (IsMounted()) {
+		auto ride_value = MoveVector;
+		if (ride_value.Size() > 1.0f) {
+			ride_value = ride_value.GetSafeNormal();
+		}
+		FVector ride_right, ride_up;
+		GetCharacterMovementAxes(ride_up, ride_right);
+		CurrentMount->AddRiderMovementInput(ride_right, ride_value.X);
+		CurrentMount->AddRiderMovementInput(ride_up, ride_value.Y);
+		return true;
 	}
 
 	// if the player is on a ladder, we want to move the player up/down the
@@ -286,6 +346,13 @@ bool AWotCharacter::Look_Implementation(const FVector &LookDirection)
 
 	// now get the user's input turn commands
 	auto look_vector = up * LookDirection.Y + right * LookDirection.X;
+	if (IsMounted()) {
+		// turn the mount; the rider is attached to it
+		if (AActor* MountActor = CurrentMount->GetOwner()) {
+			MountActor->SetActorRotation(look_vector.GetSafeNormal().ToOrientationRotator());
+		}
+		return true;
+	}
 	SetActorRotation(look_vector.GetSafeNormal().ToOrientationRotator());
 	return true;
 }
@@ -341,6 +408,17 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// PlayerInputComponent->BindAction("IA_Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
 
 	// PlayerInputComponent->BindAction("IA_Camera", IE_Pressed, this, &AWotCharacter::RotateCamera);
+}
+
+void AWotCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	// the pawn is possessed after BeginPlay, so this is where the local player becomes known
+	if (NewController && NewController->IsLocalPlayerController()) {
+		if (UWotQuestSubsystem* Quests = UWotQuestSubsystem::Get(this)) {
+			Quests->OnPlayerBeginPlay(this);
+		}
+	}
 }
 
 void AWotCharacter::Landed(const FHitResult& Hit)
@@ -580,6 +658,10 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 	if (!InteractionComp) {
 		return;
 	}
+	if (IsMounted()) {
+		ShowInteractionWidgetAttachedTo(FText::FromString(TEXT("Dismount")), InteractionCheckPeriod*1.1f, this, FVector(0, 0, 120.0f), false);
+		return;
+	}
 	// use the interaction component to get the closest interactable
 	AActor *ClosestInteractable = nullptr;
 	UActorComponent *ClosestInteractionComp = nullptr;
@@ -621,6 +703,10 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 		IWotInteractableInterface::Execute_GetInteractionText(ClosestInteractable, this, HitResult, InteractionText);
 	}
 
+	// rideable animals get a ride prompt instead of their dialogue prompt
+	if (UWotMountComponent* Mount = UWotMountComponent::FindMount(ClosestInteractable)) {
+		InteractionText = FText::Format(NSLOCTEXT("Wot", "RidePrompt", "Ride {0}"), Mount->MountDisplayName);
+	}
 	// if the text is empty, don't show the widget
 	if (InteractionText.IsEmpty()) {
 		return;

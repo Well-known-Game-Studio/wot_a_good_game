@@ -8,6 +8,7 @@
 #include "WotAttributeComponent.h"
 #include "WotGameInstance.h"
 #include "EngineUtils.h"
+#include "Quests/WotQuestSubsystem.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("wot.SpawnBots"), true, TEXT("Enable spawning of bots via timer"), ECVF_Cheat);
 
@@ -88,6 +89,25 @@ AActor* AWotGameModeBase::FindPlayerStart_Implementation(AController* Player, co
   return Super::FindPlayerStart_Implementation(Player, IncomingName);
 }
 
+APawn* AWotGameModeBase::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
+{
+  UClass* PawnClass = GetDefaultPawnClassForController(NewPlayer);
+  if (!PawnClass) {
+    return nullptr;
+  }
+  FActorSpawnParameters SpawnInfo;
+  SpawnInfo.Instigator = GetInstigator();
+  SpawnInfo.ObjectFlags |= RF_Transient;
+  SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+  FTransform Xform = SpawnTransform;
+  Xform.AddToTranslation(FVector(0.0f, 0.0f, 20.0f));
+  APawn* Result = GetWorld()->SpawnActor<APawn>(PawnClass, Xform, SpawnInfo);
+  if (!Result) {
+    UE_LOG(LogTemp, Warning, TEXT("SpawnDefaultPawnAtTransform: could not spawn %s at %s"), *GetNameSafe(PawnClass), *Xform.GetLocation().ToString());
+  }
+  return Result;
+}
+
 void AWotGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 {
   AWotCharacter* Player = Cast<AWotCharacter>(VictimActor);
@@ -99,6 +119,12 @@ void AWotGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
     GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
   }
   UE_LOG(LogTemp, Log, TEXT("OnActorKilled: Victim: %s, Killer: %s"), *GetNameSafe(VictimActor), *GetNameSafe(Killer));
+  // report kills to the quest system
+  if (!Player) {
+    if (UWotQuestSubsystem* Quests = UWotQuestSubsystem::Get(this)) {
+      Quests->NotifyKilled(Killer, VictimActor);
+    }
+  }
 }
 
 void AWotGameModeBase::RespawnPlayerTimerElapsed(AController* Controller)

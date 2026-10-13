@@ -21,6 +21,7 @@ void UWotCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     AWotCharacter* WotCharacter = Cast<AWotCharacter>(Pawn);
     if (WotCharacter) {
       bIsClimbing = WotCharacter->IsClimbing();
+      bIsRiding = WotCharacter->IsMounted();
     }
   }
   // update the falling / air state

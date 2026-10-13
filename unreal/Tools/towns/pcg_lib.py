@@ -1,4 +1,4 @@
-import json
+import json, re
 PC="PCGToolset.PCGToolset."; OB="editor_toolset.toolsets.object.ObjectTools."; SC="editor_toolset.toolsets.scene.SceneTools."; AS="editor_toolset.toolsets.asset.AssetTools."; AC="editor_toolset.toolsets.actor.ActorTools."
 def gv(d,k,default=None):
     try:
@@ -17,6 +17,24 @@ def create_graph(name,folder):
     if T(AS+"exists",{"path":f"{folder}/{name}"}):
         T(AS+"delete",{"path":f"{folder}/{name}"})
     return T(PC+"CreateGraph",{"name":name,"path":folder})["refPath"]
+NOCOLLISION_MESH=re.compile(r"grass|flower|shrub|reed|mush|snowpatch|fern|weed|moss|pebble|ivy|vine",re.I)
+def mesh_blocks(mesh_path):
+    """True when instances of this mesh should block the player."""
+    return not NOCOLLISION_MESH.search(mesh_path.split("/")[-1])
+WALKABLE_MESH=re.compile(r"BasicShapes/Cube|Stairs|Bridge|Ladder|Tile|Plaza|Dock|Pier",re.I)
+def mesh_walkable(mesh_path):
+    """True when the navmesh should be generated on top of this mesh (terrain cubes, road tiles, stairs, bridges)."""
+    return bool(WALKABLE_MESH.search(mesh_path))
+def collision_descriptor(mesh_path):
+    """Descriptor fields that give PCG-spawned instances collision and navigation.
+    PCG defaults every instance to NoCollision and bForceNavigationObstacle, which
+    leaves the player falling through terrain and the navmesh empty."""
+    if not mesh_blocks(mesh_path): return {"bUseDefaultCollision":False,"bCanEverAffectNavigation":False,"bForceNavigationObstacle":False,"bodyInstance":{"collisionProfileName":"NoCollision","collisionEnabled":"NoCollision"}}
+    # export real geometry (bForceNavigationObstacle only paints a high-cost area and skips the geometry,
+    # which left navmesh inside every house); walkable meshes get navmesh on top, buildings carve it
+    return {"bUseDefaultCollision":False,"bCanEverAffectNavigation":True,"bForceNavigationObstacle":False,
+            "bodyInstance":{"collisionProfileName":"BlockAll","collisionEnabled":"QueryAndPhysics","objectType":"ECC_WorldStatic"}}
+
 class G:
     def __init__(self,graph): self.g=graph; self.nodes={}; self.col=0
     def node(self,ntype,name,params=None,title="",x=None,y=0,comment=""):
@@ -48,12 +66,16 @@ class G:
             sel=self.nodes[name]+".PCGStaticMeshSpawnerSettings_0.DefaultSelectorInstance"
         return sel
     def set_meshes(self,name,entries):
-        """entries: list of (meshPath, weight, overrideMaterials list or None)"""
+        """entries: list of (meshPath, weight, overrideMaterials list or None).
+        PCG spawner descriptors default to NoCollision; everything except soft
+        ground cover gets BlockAll so the player can stand on terrain and bump
+        into buildings (see mesh_blocks)."""
         sel=self.selector_path(name)
         me=[]
         for m,w,mats in entries:
             d={"staticMesh":ref(m)}
             if mats: d["overrideMaterials"]=[ref(x) if x else "None" for x in mats]
+            d.update(collision_descriptor(m))
             me.append({"weight":w,"descriptor":d})
         return T(OB+"set_properties",{"instance":ref(sel),"values":json.dumps({"MeshEntries":me})}), sel
 def point(x,y,z=0,yaw=0,scale=1.0,ext=50,density=1.0,seed=0):

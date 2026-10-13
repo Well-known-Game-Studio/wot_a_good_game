@@ -55,6 +55,8 @@ def caemlyn_spec():
                    **lines("CM_Thom",["A gleeman's tales are worth a coin or two, young friend.","Did you know the topless towers of Cairhien were never finished? Now there is a story."]),
                    **lines("CM_Beggar",["Low Caemlyn, they call it. Outside the walls, outside the law.","The Queen's Guards never come this far. Neither does the Queen's bread."]),
                    **lines("CM_Urchin",["Lost? Everyone gets lost in the alleys. Two coppers and I'll show you the way.","Don't go in the Inner City. They make you wash."])}
+    s["props"]+=[hero("Moiraine","Moiraine","CM_Moiraine",-3000,100,0,0,tags=("QuestName=Moiraine",))]
+    s["dialogue"].update(lines("CM_Moiraine",["Caemlyn, at last. The Queen's Blessing has been watching for you.","Rest here. The road ahead goes to Tar Valon, and from there to the Eye of the World. But not tonight."]))
     s["moves"]=portal_moves(12500,0,180)
     Rl=Relief(E,base=0,water=None,seed=31)
     Rl.hill(0,0,9000,420); Rl.hill(-9500,-8000,4500,320); Rl.hill(9000,9000,5000,380); Rl.hill(-10000,9000,4000,260)

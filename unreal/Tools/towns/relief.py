@@ -379,8 +379,15 @@ def stair_prop(label,x,y,yaw,rise,z=0,mats=None):
     return ("mesh",kit_mesh(f"SM_Stairs{rise}"),label,(x,y,z),yaw,1.0,mats)
 def ladder(label,x,y,yaw,h,z=0):
     return ("actor",LADDER_BP,label,(x,y,z),yaw,1.0,{"LadderSize":{"x":0,"y":0,"z":h}})
-def npc(label,name,row,x,y,yaw=0,radius=900):
-    return ("npc",label,(x,y),yaw,{"Name":name,"CurrentRowName":row,"WanderRadius":float(radius)})
+def npc(label,name,row,x,y,yaw=0,radius=900,cls=None,tags=()):
+    """A villager (or, with cls, a main-character NPC Blueprint). tags become actor tags, e.g. 'QuestStart=Q_Winternight'."""
+    props={"Name":name,"CurrentRowName":row,"WanderRadius":float(radius)}
+    if tags: props["Tags"]=list(tags)
+    return ("npc",label,(x,y),yaw,props,cls)
+MAIN_NPC="/Game/Wot/NPCs/Main/%s_NPC"
+def hero(label,name,row,x,y,yaw=0,radius=350,tags=()):
+    """Main character NPC (Blueprint under /Game/Wot/NPCs/Main, created by setup_cast.py)."""
+    return npc(label,name,row,x,y,yaw,radius,cls=MAIN_NPC%label,tags=tags)
 def lines(prefix,texts):
     d={}
     for i,t in enumerate(texts): d[f"{prefix}_{i+1}"]=(t, f"{prefix}_{i+2}" if i+1<len(texts) else "")

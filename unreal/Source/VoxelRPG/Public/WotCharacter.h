@@ -25,6 +25,7 @@ class UWotItem;
 class USoundBase;
 class UAudioComponent;
 class UNiagaraSystem;
+class UWotMountComponent;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -112,6 +113,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
 	TObjectPtr<AActor> CurrentLadderActor{nullptr};
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Mount")
+	TObjectPtr<UWotMountComponent> CurrentMount{nullptr};
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
 	void GetCharacterMovementAxes(FVector& OutForward, FVector& OutRight) const;
 
@@ -181,6 +185,27 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsClimbing() const;
 
+	// Mounts
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mount")
+	bool IsMounted() const { return CurrentMount != nullptr; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mount")
+	UWotMountComponent* GetMount() const { return CurrentMount; }
+
+	/** Called by UWotMountComponent when the character mounts or dismounts. */
+	void SetMount(UWotMountComponent* NewMount);
+
+	/** Dismounts when riding; returns true if the character was riding. */
+	UFUNCTION(BlueprintCallable, Category = "Mount")
+	bool Dismount();
+
+	/** Used by the interaction check and the play-test harness. */
+	UWotInteractionComponent* GetInteractionComponent() const { return InteractionComp; }
+
+	/** Public entry point for the interact action (same as the IA_Interact binding). */
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void TryInteract() { PrimaryInteract(); }
+
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	bool CanOpenInventory() const;
 
@@ -224,5 +249,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void Landed(const FHitResult& Hit) override;
+
+	virtual void PossessedBy(AController* NewController) override;
 
 };

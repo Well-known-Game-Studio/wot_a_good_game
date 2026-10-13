@@ -35,14 +35,18 @@ def emondsfield_spec():
        chest("QuarryChest",-4100,-4500,0,60),chest("SpringChest",3350,2850,0,40),potion("Potion_Spring",2800,2300,0),potion("Potion_Hill",-4300,4500,0),potion("Potion_Mill",4300,-4800,0),
        ladder("KnollLadder",3100+1160,2500,180,600),
        npc("Villager_Cenn","Cenn Buie","EF_Cenn",-1600,900,0,1000),npc("Villager_Bran","Bran al'Vere","EF_Bran",1300,1000,-120,700),
-       npc("Villager_Egwene","Egwene","EF_Egwene",400,-1700,90,1200),npc("Villager_Mat","Mat Cauthon","EF_Mat",-2200,-2200,30,1500),npc("Villager_Perrin","Perrin Aybara","EF_Perrin",3300,-3400,120,900)]
+       hero("Egwene","Egwene al'Vere","EF_Egwene",400,-1700,90,500),hero("Mat","Mat Cauthon","EF_Mat",-2200,-2200,30,600),hero("Perrin","Perrin Aybara","EF_Perrin",3300,-3400,120,400),
+       hero("Moiraine","Moiraine","EF_Moiraine",-350,-650,60,0,tags=("QuestName=Moiraine",)),hero("Nynaeve","Nynaeve al'Meara","EF_Nynaeve",-900,1500,-60,400),hero("Thom","Thom Merrilin","EF_Thom",2300,1550,-150,250)]
     s["props"]+=waterfall("Winespring",3100,1370,-90,0,0)[:1]+[("mesh",WF_FOAM,"Winespring_foam",(3100,1150,20),-90,1.0,None)]
     s["dialogue"]={**lines("EF_Cenn",["Thatching, thatching, always thatching. The Winespring Inn wants a tile roof, can you believe it?","Mark my words, lad, those Coplin boys will be trouble before Bel Tine."]),
                    **lines("EF_Bran",["Welcome to the Winespring Inn! Finest ale this side of the Mountains of Mist.","The spring up on the knoll never runs dry. Sweetest water in the Two Rivers."]),
-                   **lines("EF_Egwene",["Rand! Have you seen Nynaeve? She's looking for anyone who skipped their chores.","I'm going to see the world one day. Caemlyn, Tar Valon... all of it."]),
-                   **lines("EF_Mat",["Psst. Want to see something? I found a badger down by the Old Road.","Don't tell Nynaeve. She'd have my hide with that switch of hers."]),
-                   **lines("EF_Perrin",["Master Luhhan has me at the forge till dark. The whole village wants new hinges before winter.","The hills up toward the Mountains of Mist are full of wolves this year. Keep to the road."])}
-    s["moves"]=[("Tam_NPC",(1250,700,96),-140),("Lan_NPC",(1500,450,121),160)]+portal_moves(-5100,-200,0)
+                   **lines("EF_Egwene",["Rand! There is a lady at the inn in a blue dress, and a man with a sword who never smiles. Who are they?","Nynaeve says I am to be her apprentice. Wisdom of Emond's Field one day... unless I see the world first.","If you are leaving, I am coming with you. Don't argue."]),
+                   **lines("EF_Mat",["Psst. Want to see something? I found a badger down by the Old Road. Thought we'd loose it on the Green for Bel Tine.","That black-cloaked rider on the road... you saw him too, didn't you? Perrin says I'm making it up.","Blood and ashes, Rand. If Moiraine says Trollocs are coming, I'm not waiting around to find out."]),
+                   **lines("EF_Perrin",["Master Luhhan has me at the forge till dark. The whole village wants new hinges before winter.","I saw a rider on the road with a cloak that did not move in the wind. I have not told anyone but you.","I will bring the big axe. Someone should carry it."]),
+                   **lines("EF_Moiraine",["You are Tam al'Thor's son. I am Moiraine, and the man watching the door is Lan. We have come a very long way to find you.","Listen carefully. Trollocs came to the Two Rivers for you and your friends. They will come again.","Gather Mat and Perrin, and Egwene if she insists. We leave before the Dark One's eyes find us. Tell no one else but the Wisdom.","The road north goes through Taren Ferry to Baerlon. Find me there when you arrive."]),
+                   **lines("EF_Nynaeve",["Rand al'Thor. If you think I don't know what that Aes Sedai is planning, you are a bigger wool-head than Mat.","Leaving? With her? Light, you boys will be the death of me.","Go then. But I am Wisdom of this village, and where my people go, I follow. I will find you on the road."]),
+                   **lines("EF_Thom",["Thom Merrilin, gleeman, at your service. Juggling, tales, and the harp, for the price of a bed and a meal.","Here is a tale: the Dragon Reborn, the Horn of Valere, and a shepherd who never asked for any of it. Hmm? Just a story.","If you are heading to Baerlon, a gleeman could use company on the road. The Aes Sedai may not like it. Good."])}
+    s["moves"]=[("Tam_NPC",(1250,700,170),-140),("Lan_NPC",(1500,450,121),160)]+portal_moves(-5100,-200,0)
     Rl=Relief(E,base=0,water=None,seed=5)
     Rl.slope(7000,0,-7000,0,0,520)
     peaks(Rl,[(-7700,-7500),(-7400,-2000),(-7800,3000),(-7300,7500)],3400,2000,n=5,seed=5)
@@ -90,6 +94,9 @@ def baerlon_spec():
                    **lines("BL_Whitecloak",["Walk in the Light, friend. The Children watch over Baerlon.","Darkfriends hide in plain sight. Report anything unusual to the Children."]),
                    **lines("BL_Nynaeve",["You came all this way with no cloak? You will catch your death.","When we get home, there will be words. Many words."]),
                    **lines("BL_Min",["I see things around people. Sparks, and a shadow. Don't ask.","The stable boy has a hole in his boot. See? Sometimes it's just boots."])}
+    s["props"]+=[hero("Moiraine","Moiraine","BL_Moiraine",300,-900,180,0,tags=("QuestName=Moiraine",)),hero("Thom","Thom Merrilin","BL_Thom",-700,-500,60,250)]
+    s["dialogue"].update(lines("BL_Moiraine",["You came. Good. Baerlon has eyes too; Whitecloaks in the streets and worse things in the alleys.","We ride for Caemlyn at first light. The road runs past a dead city, Shadar Logoth. Whatever happens there, take nothing from it."]))
+    s["dialogue"].update(lines("BL_Thom",["The Stag and Lion. I have played worse rooms. The ale is honest.","Watch the Whitecloaks, boy. They see Darkfriends in every shadow, and they do not care to be wrong."]))
     s["moves"]=portal_moves(0,7400,-90)
     Rl=Relief(E,base=0,water=None,seed=8)
     Rl.slope(0,8000,0,-8000,0,420)
@@ -136,6 +143,8 @@ def whitebridge_spec():
                    **lines("WB_Ferry",["Nobody takes the ferry since the bridge. Cheaper to walk.","The water runs cold and fast below the bridge. I have fished men out of it."]),
                    **lines("WB_Olver",["Did you know the bridge looks like glass but you can't see through it?","Thom the gleeman said he'd teach me to juggle. Then he left."]),
                    **lines("WB_Barge",["Barges from Baerlon, barges to Caemlyn. Everything on the Arinelle stops at Whitebridge.","Down those stairs is the quay. Mind the crates, the cooper will have your ears."])}
+    s["props"]+=[hero("Thom","Thom Merrilin","WB_Thom",1800,-700,-120,0,tags=("QuestName=Thom Merrilin",))]
+    s["dialogue"].update(lines("WB_Thom",["Across the White Bridge and we are out of Andor's shadow at last. Or into Caemlyn's. Hard to say which is worse.","If a Fade comes, boy, you run. I have run from worse things than Fades. Let an old gleeman buy you a little time.","Caemlyn. Find the Queen's Blessing inn; Master Gill owes me a favor. Go. GO."]))
     s["moves"]=portal_moves(-7300,0,0)
     Rl=Relief(E,base=0,water=WL,seed=12)
     Rl.slope(1000,0,-8000,0,0,420)

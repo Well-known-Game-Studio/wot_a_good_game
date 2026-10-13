@@ -25,6 +25,10 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
   bool bIsInAir = false;
 
+  /** True while the character is riding a mount (play a seated pose). */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+  bool bIsRiding = false;
+
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacking")
   bool bIsAttacking = false;
 

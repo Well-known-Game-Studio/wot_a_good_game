@@ -355,15 +355,16 @@ def build_level(spec,extra_clean=()):
         if item[0]=="mesh":
             path,label,loc,yaw,scale,mats=item[1:7]; place_mesh(path,label,lift(loc,absolute),yaw,scale,mats); placed+=1
         elif item[0]=="ground":
+            if R is not None: continue  # the relief terrain is the ground; a flat plane underneath only confuses the navmesh
             path,label,loc,yaw,scale,mats=item[1:7]; place_mesh(path,label,loc,yaw,scale,mats,tags=(GROUND_TAG,)); placed+=1
         elif item[0]=="class":
             cls,label,loc,yaw,scale=item[1:6]; place_class(cls,label,lift(loc,absolute),yaw,scale); placed+=1
         elif item[0]=="actor":
             path,label,loc,yaw,scale,props=item[1:7]; place_mesh(path,label,lift(loc,absolute),yaw,scale,None,props=props); placed+=1
         elif item[0]=="npc":
-            _,label,loc,yaw,props=item
+            label,loc,yaw,props=item[1:5]; cls=item[5] if len(item)>5 and item[5] else "/Game/Wot/NPCs/NPC_Villager_BP"
             z=(R.zat(loc[0],loc[1]) if R is not None else ground_z(loc[0],loc[1]))+96
-            place_mesh("/Game/Wot/NPCs/NPC_Villager_BP",label,(loc[0],loc[1],z),yaw,1.0,None,props=props); placed+=1
+            place_mesh(cls,label,(loc[0],loc[1],z),yaw,1.0,None,props=props); placed+=1
     out["placed"]=placed
     vol,msgs=spawn_and_run(g,spec["graph_name"],spec["foliage"]["extent"]*2); out["vol"]=vol; out["msgs"]=msgs
     dl=gv(spec,"dialogue")

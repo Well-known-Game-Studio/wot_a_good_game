@@ -43,3 +43,39 @@ Portals: the Portal blueprint now has a `ToLevel` string (used when set, otherwi
 `<Town>Overworld`; the arriving level picks the PlayerStart whose tag matches the portal name.
 Palette material instances (`P_*`, `MI_Ground_*`) under `/Game/Wot/Towns/Common/Materials` take
 linear colour values (display colour ^ 2.2).
+
+## Collision, navigation and play-testing
+
+PCG spawner descriptors default to **NoCollision** and `bForceNavigationObstacle`; `pcg_lib.collision_descriptor`
+now gives every blocking mesh `BlockAll` collision and real navigation geometry (navmesh on top of terrain cubes,
+tiles, stairs and bridges, carved around buildings and trees; ground cover such as grass/reeds/flowers stays
+non-colliding). The kit meshes carry convex simple collision (`StaticMeshTools.generate_convex_collisions`) so the
+navmesh sees them. `DefaultEngine.ini` raises the Recast agent step height to 45 cm to match the 40 cm terraces.
+When relief terrain is present the flat `TownGround` plane is no longer placed.
+
+The C++ module has a play-test harness (`Source/VoxelRPG/.../Testing/WotPlayTestSubsystem`). Because the MCP
+server has no console-exec tool, the subsystem polls `Saved/PlayTest/commands.txt` (PIE/game worlds) and
+`Saved/PlayTest/commands_editor.txt` (editor world) every half second and runs each line as a console command:
+
+* `wot.PlayTest.Spawn` – where the player spawned, ground under it, NPC ground clearance, navmesh state.
+* `wot.PlayTest.Walk [N] [Seconds] [Interact]` – path (navmesh) to the N nearest NPCs, jump when wedged, report
+  REACHED / UNREACHED / STUCK (with what is around the capsule), talk through dialogue lines when Interact=1.
+* `wot.PlayTest.Goto X Y`, `wot.PlayTest.Stop`, `wot.PlayTest.Status`
+* `wot.Nav.Rebuild`, `wot.Nav.Status`, `wot.Nav.Probe X Y ...` – rebuild / inspect the navmesh.
+
+Everything is logged under `LogWotTest` with a `[PT]` prefix and read back through `LogsToolset.GetLogEntries`.
+`EditorAppToolset.StartPIE/StopPIE` drive the session (see the scratch `pietest.py` flow: load level → StartPIE →
+write commands → poll the log for `[PT] SUMMARY`).
+
+## Main cast, quests and mounts
+
+* `relief.hero(label, name, row, x, y, yaw, radius, tags)` places a main-character NPC Blueprint from
+  `/Game/Wot/NPCs/Main/<Label>_NPC` (Moiraine, Egwene, Nynaeve, Mat, Perrin, Thom; meshes made in Blender on the
+  Rand medium-flat rig under `/Game/Wot/Characters/Main`). Actor tags `QuestStart=<QuestId>` and `QuestName=<Name>`
+  are read by the quest subsystem.
+* Quests are `UWotQuestDefinition` data assets under `/Game/Wot/Quests` (objectives: TalkTo, Reach, Kill, Collect,
+  Custom; chained with `NextQuestId`). `UWotQuestSubsystem` (GameInstance subsystem) tracks progress, saves it to the
+  `WotQuests` slot, shows the C++ tracker widget and toasts; console: `wot.Quest.List/Start/Advance/Reset`.
+* Horses carry `UWotMountComponent` (interact = ride, interact again = dismount; rider input steers the horse,
+  rider plays the Blender `ride_idle` / `ride_walk` poses). Animals without an AnimBP graph use
+  `UWotAnimalAnimationComponent` with idle/walk/run sequences imported from `scratch anims/`.
