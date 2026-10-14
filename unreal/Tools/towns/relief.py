@@ -173,15 +173,32 @@ class Relief:
                             t=st/20.0; sx=x+(x2-x)*t; sy=y+(y2-y)*t
                             if abs(self.zat(sx,sy)-z)>=4*Q: ex,ey=sx,sy; break
                         up=z2>z; zhi=max(z,z2); S=min([s_ for s_ in STAIR_RISES if s_>=R]); zlo=zhi-S
-                        dx=x2-x; dy=y2-y; L=math.hypot(dx,dy) or 1.0; dx/=L; dy/=L
-                        if up: fx,fy=ex-dx*2*S,ey-dy*2*S; yaw=math.degrees(math.atan2(dy,dx))
-                        else: fx,fy=ex+dx*2*S,ey+dy*2*S; yaw=math.degrees(math.atan2(-dy,-dx))
+                        # the terraces are axis-aligned cell edges, so the staircase climbs along the dominant grid axis
+                        # and its top edge is placed exactly on the nearest cell boundary (the terrace edge)
+                        dx=x2-x; dy=y2-y
+                        if not up: dx,dy=-dx,-dy            # ascent direction (low -> high)
+                        if abs(dx)>=abs(dy): ax,ay=(1 if dx>=0 else -1),0
+                        else: ax,ay=0,(1 if dy>=0 else -1)
+                        yaw=math.degrees(math.atan2(ay,ax))
+                        Lrun=2*S; piv=20                    # SM_Stairs: run 40 per 20 rise, pivot at the centre of the first step
+                        if ax: edge=-self.E+round((ex+self.E)/cell)*cell; ex=edge; tx=edge-ax*(Lrun-piv); ty=ey
+                        else: edge=-self.E+round((ey+self.E)/cell)*cell; ey=edge; ty=edge-ay*(Lrun-piv); tx=ex
+                        fx,fy=tx,ty                          # stair pivot (bottom of the flight)
                         props.append(("mesh",kit_mesh(f"SM_Stairs{S}"),f"Stairs_{ri}_{k}",(fx,fy,zlo),yaw,(1.0,max(1.0,w*pitch/500.0),1.0),self.stairs_mats,"abs"))  # zlo is already terrain height
                         self._stair_pts.append((fx,fy))
-                        sgn=1 if up else -1
-                        for st in range(0,int(2*S/50)+2):
-                            px=fx+dx*st*50*sgn; py=fy+dy*st*50*sgn
-                            for i,j in self.cells_near(px,py,half+cell*0.5): self.set_cell(i,j,zlo,True,True); self.cellmat[(i,j)]=rmat
+                        # terrain under and above the flight: a flat landing at zlo along the run, the upper terrace at zhi just past the edge
+                        for st in range(-1,int(Lrun/50)+1):
+                            px=fx+ax*st*50; py=fy+ay*st*50
+                            along=(px-fx)*ax+(py-fy)*ay
+                            zz=zlo if along<Lrun-piv-1 else zhi
+                            for i,j in self.cells_near(px,py,half+cell*0.5):
+                                a_=(self.cx(i)-fx)*ax+(self.cx(j)-fy)*ay
+                                self.set_cell(i,j,zlo if a_<Lrun-piv else zhi,True,True); self.cellmat[(i,j)]=rmat
+                        for st in range(1,3):               # one or two cells of upper terrace beyond the edge
+                            px=ex+ax*st*cell*0.5; py=ey+ay*st*cell*0.5
+                            for i,j in self.cells_near(px,py,half+cell*0.5):
+                                a_=(self.cx(i)-ex)*ax+(self.cx(j)-ey)*ay
+                                if a_>0: self.set_cell(i,j,zhi,True,True); self.cellmat[(i,j)]=rmat
                         last_stair=k
                         if up:
                             while out and math.hypot(out[-1][0]-ex,out[-1][1]-ey)<2*S+1: out.pop()
