@@ -25,6 +25,7 @@
 #include "Items/WotItemWeapon.h"
 #include "Components/AudioComponent.h"
 #include "WotMountComponent.h"
+#include "Channeling/WotChannelComponent.h"
 #include "AI/WotAICharacter.h"
 #include "Quests/WotQuestSubsystem.h"
 #include "Save/WotSaveSubsystem.h"
@@ -61,6 +62,8 @@ AWotCharacter::AWotCharacter()
 	DeathEffectComp = CreateDefaultSubobject<UWotDeathEffectComponent>("DeathEffectComp");
 
 	ActionComp = CreateDefaultSubobject<UWotActionComponent>("ActionComp");
+
+	ChannelComp = CreateDefaultSubobject<UWotChannelComponent>("ChannelComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -401,6 +404,17 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		}
 	}
 	if (PlayerInputComponent) {
+		// channeling: hold Q (gamepad right shoulder) to embrace the Power, release to loose the weave; 1-4 / Tab pick the weave
+		PlayerInputComponent->BindKey(EKeys::Q, IE_Pressed, this, &AWotCharacter::ChannelPressed);
+		PlayerInputComponent->BindKey(EKeys::Q, IE_Released, this, &AWotCharacter::ChannelReleased);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_RightShoulder, IE_Pressed, this, &AWotCharacter::ChannelPressed);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_RightShoulder, IE_Released, this, &AWotCharacter::ChannelReleased);
+		PlayerInputComponent->BindKey(EKeys::Tab, IE_Pressed, this, &AWotCharacter::NextWeave);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_DPad_Up, IE_Pressed, this, &AWotCharacter::NextWeave);
+		PlayerInputComponent->BindKey(EKeys::One, IE_Pressed, this, &AWotCharacter::SelectWeaveFire);
+		PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AWotCharacter::SelectWeaveAir);
+		PlayerInputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AWotCharacter::SelectWeaveWater);
+		PlayerInputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AWotCharacter::SelectWeaveEarth);
 		PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AWotCharacter::TogglePauseMenu).bConsumeInput = false;
 		PlayerInputComponent->BindKey(EKeys::P, IE_Pressed, this, &AWotCharacter::TogglePauseMenu);
 		PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &AWotCharacter::TogglePauseMenu);
@@ -425,6 +439,32 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	// PlayerInputComponent->BindAction("IA_Camera", IE_Pressed, this, &AWotCharacter::RotateCamera);
 }
+
+void AWotCharacter::ChannelPressed()
+{
+	if (ChannelComp && InputEnabled() && !IsInventoryWidgetOpen() && !IsMounted()) {
+		ChannelComp->BeginChannel();
+	}
+}
+
+void AWotCharacter::ChannelReleased()
+{
+	if (ChannelComp) {
+		ChannelComp->ReleaseWeave();
+	}
+}
+
+void AWotCharacter::NextWeave()
+{
+	if (ChannelComp) {
+		ChannelComp->NextWeave();
+	}
+}
+
+void AWotCharacter::SelectWeaveFire() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Fire); }
+void AWotCharacter::SelectWeaveAir() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Air); }
+void AWotCharacter::SelectWeaveWater() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Water); }
+void AWotCharacter::SelectWeaveEarth() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Earth); }
 
 void AWotCharacter::TogglePauseMenu()
 {

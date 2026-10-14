@@ -183,6 +183,7 @@ def shadarlogoth_spec():
        npc("Ghost_Mordeth","Mordeth","SL_Mordeth",-600,-600,45,300),npc("Scout_Child","Child Byar","SL_Byar",8200,-600,180,500)]
     s["dialogue"]={**lines("SL_Mordeth",["Treasure... there is treasure here, friend. Take what you like.","No one leaves Shadar Logoth with more than they brought. Except me."]),
                    **lines("SL_Byar",["The Children do not enter this cursed place. Nor should you.","Shadows move in the ravines after dark. Do not follow them."])}
+    s["props"]+=waygate("ShadarLogoth",-5200,2600,90,"Ways","ShadarLogothWays","WaysShadarLogoth")
     s["moves"]=portal_moves(9000,0,180)
     Rl=Relief(E,base=0,water=-200,seed=17)
     Rl.hill(0,0,8000,700); Rl.hill(-5000,4500,3200,300); Rl.hill(5000,-4500,3200,260)
@@ -231,6 +232,7 @@ def faldara_spec():
                    **lines("FD_Ragan",["Good steel comes from the forges here, hammered in the cold.","Snow in the streets till Sunday. Mind the ice on the keep stairs."]),
                    **lines("FD_Uno",["Bloody flaming Trollocs took my goat last winter.","If you see a goat with one horn, that one's mine."]),
                    **lines("FD_Hurin",["I can smell violence, you know. Old killings. The mountains north of here reek of it.","The camp outside the walls is for traders. Nobody sleeps outside the walls by choice."])}
+    s["props"]+=waygate("FalDara",5200,-4300,-90,"Ways","FalDaraWays","WaysFalDara")
     s["moves"]=portal_moves(8700,0,180)
     Rl=Relief(E,base=0,water=None,seed=23)
     Rl.slope(0,10000,0,-10000,0,500)

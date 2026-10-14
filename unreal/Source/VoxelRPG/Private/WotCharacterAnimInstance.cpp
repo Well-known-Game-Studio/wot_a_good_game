@@ -1,6 +1,7 @@
 #include "WotCharacterAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "WotCharacter.h"
+#include "Channeling/WotChannelComponent.h"
 
 UWotCharacterAnimInstance::UWotCharacterAnimInstance()
 {
@@ -22,6 +23,7 @@ void UWotCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
     if (WotCharacter) {
       bIsClimbing = WotCharacter->IsClimbing();
       bIsRiding = WotCharacter->IsMounted();
+      bIsChanneling = WotCharacter->GetChannelComponent() && WotCharacter->GetChannelComponent()->IsChanneling();
     }
   }
   // update the falling / air state

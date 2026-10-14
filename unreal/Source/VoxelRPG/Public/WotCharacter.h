@@ -26,6 +26,7 @@ class USoundBase;
 class UAudioComponent;
 class UNiagaraSystem;
 class UWotMountComponent;
+class UWotChannelComponent;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -92,6 +93,9 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
 	TObjectPtr<UWotActionComponent> ActionComp;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
+	TObjectPtr<UWotChannelComponent> ChannelComp;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UNiagaraSystem> LandingEffect;
@@ -205,6 +209,23 @@ public:
 	/** Public entry point for the interact action (same as the IA_Interact binding). */
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void TryInteract() { PrimaryInteract(); }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Channeling")
+	UWotChannelComponent* GetChannelComponent() const { return ChannelComp; }
+
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void ChannelPressed();
+
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void ChannelReleased();
+
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void NextWeave();
+
+	void SelectWeaveFire();
+	void SelectWeaveAir();
+	void SelectWeaveWater();
+	void SelectWeaveEarth();
 
 	/** Opens or closes the C++ pause menu (bound to the pause input action below). */
 	UFUNCTION(BlueprintCallable, Category = "UI")

@@ -366,7 +366,8 @@ def build_level(spec,extra_clean=()):
             if R is not None: continue  # the relief terrain is the ground; a flat plane underneath only confuses the navmesh
             path,label,loc,yaw,scale,mats=item[1:7]; place_mesh(path,label,loc,yaw,scale,mats,tags=(GROUND_TAG,)); placed+=1
         elif item[0]=="class":
-            cls,label,loc,yaw,scale=item[1:6]; place_class(cls,label,lift(loc,absolute),yaw,scale); placed+=1
+            cls,label,loc,yaw,scale=item[1:6]; ap=place_class(cls,label,lift(loc,absolute),yaw,scale); placed+=1
+            if len(item)>6 and item[6]: T(OB+"set_properties",{"instance":ref(ap),"values":json.dumps(item[6])})
         elif item[0]=="actor":
             path,label,loc,yaw,scale,props=item[1:7]; place_mesh(path,label,lift(loc,absolute),yaw,scale,None,props=props); placed+=1
         elif item[0]=="npc":

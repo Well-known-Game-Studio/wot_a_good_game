@@ -47,6 +47,13 @@ def TREES_PINE(snow=False):
 TREES_DESERT=[kit_entry("SM_Palm",None,3),kit_entry("SM_Palm",{"P_Green":"P_Olive"},2),(MESH["tree3"],1,None)]
 TREES_DEAD=[kit_entry("SM_DeadTree",None,4),kit_entry("SM_DeadTree",{"P_DarkGrey":"P_Black"},2)]
 def level_scale(size): return (size/200.0,size/200.0,10)
+def waygate(town,x,y,yaw,to_level,from_tag,to_tag,z=0):
+    """A Waygate into the Ways: the carved arch, a Portal actor (ToLevel/PortalName) and a tagged PlayerStart in front of it.
+    from_tag is this gate's PortalName (<Town>Ways), to_tag the PlayerStart tag arrivals from the Ways use (Ways<Town>)."""
+    dx=math.cos(math.radians(yaw)); dy=math.sin(math.radians(yaw))
+    return [("mesh",kit_mesh("SM_Waygate"),f"Waygate_{town}",(x,y,z),yaw,1.0,None),
+            ("actor",PORTAL_BP,f"WaysPortal_{town}",(x-dx*120,y-dy*120,z+20),yaw,1.0,{"ToLevel":to_level,"PortalName":from_tag,"Enabled":True}),
+            ("class","/Script/Engine.PlayerStart",f"WaysPlayerStart_{town}",(x-dx*320,y-dy*320,z+95),yaw+180,1.0,{"PlayerStartTag":to_tag})]
 def portal_moves(x,y,yaw):
     """Portal and player start at the town entrance, facing yaw (player looks along yaw into town). z is relative to the ground."""
     dx=math.cos(math.radians(yaw)); dy=math.sin(math.radians(yaw))

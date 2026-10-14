@@ -129,10 +129,86 @@ def snow_patch(): return [box(0,0,4,260,220,8,"P_Snow"), box(90,60,6,160,140,8,"
 def birch(h=550,trunk="P_White",leaf="P_Olive"):
     return [box(0,0,h/2,45,45,h,trunk), box(0,0,h*0.78,260,260,180,leaf), box(0,0,h*0.95,180,180,120,leaf), box(15,0,h*0.5,50,50,30,"P_DarkGrey")]
 
+# ---------------- the Ways: dark decayed stone built by Ogier and Aes Sedai, floating in a void ----------------
+class WotRandom:
+    """Deterministic LCG with the subset of random.Random the generators use (the toolset sandbox forbids `random`)."""
+    def __init__(self,seed=1): self.s=(int(seed)*2654435761+12345)&0xFFFFFFFF
+    def random(self):
+        self.s=(self.s*1664525+1013904223)&0xFFFFFFFF; return self.s/4294967296.0
+    def uniform(self,a,b): return a+(b-a)*self.random()
+    def choice(self,seq): return seq[int(self.random()*len(seq))%len(seq)]
+    def randint(self,a,b): return a+int(self.random()*(b-a+1))
+    def randrange(self,n): return int(self.random()*n)%max(1,n)
+class _RndShim:
+    Random=WotRandom
+_rnd=_RndShim()
+def way_island(radius=1400,thick=320,seed=1,stone="P_WayStone",dark="P_WayStoneDark"):
+    """A ragged disc of blackened stone (pivot at the walking surface centre): a top plate of 100 cm voxels with
+    crumbled rim, a thicker underside that tapers, and a few pits. Top surface at z=0."""
+    r=_rnd.Random(seed); p=[]; cell=100
+    n=int(radius/cell)
+    for i in range(-n,n+1):
+        for j in range(-n,n+1):
+            x=i*cell; y=j*cell; d=math.hypot(x,y)
+            edge=radius*(0.86+0.14*math.sin(3*math.atan2(y,x)+seed)+0.05*r.random())
+            if d>edge: continue
+            if d>edge-160 and r.random()<0.35: continue           # crumbled rim
+            h=cell*(1 if d<edge-250 or r.random()<0.6 else 0.6)
+            p.append(box(x,y,-h/2,cell,cell,h,stone if r.random()<0.75 else dark))
+    # underside: stepped taper
+    for k,(f,t) in enumerate(((0.8,thick*0.45),(0.55,thick*0.35),(0.3,thick*0.2))):
+        z0=-cell-sum(tt for _,tt in (((0.8,thick*0.45),(0.55,thick*0.35),(0.3,thick*0.2))[:k]))
+        p.append(cyl(0,0,z0-t/2,radius*2*f,t,dark))
+    return p
+def way_bridge(length=1200,width=500,seed=3,stone="P_WayStone",dark="P_WayStoneDark"):
+    """One bridge span (pivot at the near end, centre, deck top at z=0): deck slabs 200 long with a missing or
+    sunken slab now and then, thin side kerbs and a sagging underside."""
+    r=_rnd.Random(seed); p=[]; slab=200; n=int(length/slab)
+    for i in range(n):
+        x=i*slab+slab/2; roll=r.random()
+        drop=0 if roll>0.3 else r.choice((0,10,20,30))           # sunken slabs instead of gaps: the navmesh must stay continuous
+        p.append(box(x,0,-30-drop,slab-6,width,60,stone if roll>0.25 else dark))
+    for sg in (1,-1):                                            # low flush kerb stones (nothing above the deck: the collision hull must stay flat)
+        for i in range(n):
+            if r.random()<0.7: p.append(box(i*slab+slab/2,sg*(width/2-20),-30,slab-6,40,60,dark))
+    p.append(box(length/2,0,-120,length-100,width*0.5,120,dark))
+    return p
+def guiding(h=520,w=260,stone="P_GuidingPale",script="P_GuidingScript",base="P_WayStoneDark"):
+    """A Guiding: tall pale slab with Ogier script (emissive) on both faces, on a stepped base. Pivot at the base centre."""
+    p=[box(0,0,30,w+120,160,60,base),box(0,0,80,w+40,110,40,base),box(0,0,100+h/2,w,70,h,stone)]
+    for k in range(6):
+        z=160+k*(h-80)/6
+        for face in (1,-1): p.append(box(face*38,-w/2+40+(k%3)*60,z,8,w-80-(k%3)*60,22,script))
+    p.append(box(0,0,h+100+15,w+30,90,30,stone))
+    return p
+def waygate(w=420,h=560,frame="P_WayStone",dark="P_WayStoneDark",leaf="P_GuidingPale"):
+    """A Waygate: a carved arch of pale stone around a dark doorway, the Avendesora leaf above. Opening faces -X. Pivot floor centre."""
+    p=[box(0,-w/2-60,h/2,120,120,h,frame),box(0,w/2+60,h/2,120,120,h,frame),box(0,0,h+60,120,w+240,120,frame)]
+    p.append(box(40,0,h/2,20,w,h,dark))                           # the door itself (dark)
+    for k in range(5): p.append(box(-10,-w/2-70+k*((w+140)/4),h+130,60,40,40,leaf))
+    p.append(box(-50,0,h+180,30,60,80,leaf)); p.append(box(-50,0,h+230,30,120,30,leaf))
+    p.append(box(0,0,-10,260,w+300,20,dark))
+    return p
+def way_pillar(h=700,seed=5,stone="P_WayStone",dark="P_WayStoneDark"):
+    """A broken pillar; height varies with seed. Pivot floor centre."""
+    r=_rnd.Random(seed); hh=h*(0.5+0.5*r.random()); p=[box(0,0,20,180,180,40,dark)]
+    z=40
+    while z<hh:
+        seg=min(120,hh-z); p.append(box(r.uniform(-8,8),r.uniform(-8,8),z+seg/2,120,120,seg,stone if r.random()<0.7 else dark)); z+=seg
+    return p
+def way_rubble(seed=7,dark="P_WayStoneDark",stone="P_WayStone"):
+    r=_rnd.Random(seed); p=[]
+    for k in range(6):
+        sz=r.uniform(40,110); p.append(box(r.uniform(-120,120),r.uniform(-120,120),sz/2,sz,sz*r.uniform(0.6,1.2),sz,dark if r.random()<0.6 else stone,r.uniform(0,90)))
+    return p
+
 KIT={
  "SM_GableHouse":gable_house,"SM_TowerHouse":tower_house,"SM_DomeHouse":dome_house,"SM_CourtyardHouse":courtyard_house,
  "SM_Keep":keep,"SM_Longhouse":longhouse,"SM_MarketStall":market_stall,"SM_StoneWell":well_stone,"SM_LampPost":lamp_post,
  "SM_Obelisk":obelisk,"SM_GateHouse":gate_house,"SM_RuinWall":ruin_wall,"SM_BridgeArch":bridge_arch,
+ "SM_WayIsland":way_island,"SM_WayIsland2":lambda:way_island(1100,300,2),"SM_WayIsland3":lambda:way_island(1700,380,3),
+ "SM_WayBridge":way_bridge,"SM_WayBridge2":lambda:way_bridge(1200,500,8),"SM_Guiding":guiding,"SM_Waygate":waygate,
+ "SM_WayPillar":way_pillar,"SM_WayPillar2":lambda:way_pillar(700,9),"SM_WayRubble":way_rubble,
  "SM_Pine":pine,"SM_Palm":palm,"SM_DeadTree":dead_tree,"SM_Boulder":boulder,"SM_Cactus":cactus,"SM_Reeds":reeds,"SM_FlowerShrub":shrub_flower,"SM_SnowPatch":snow_patch,"SM_Birch":birch,
 }
 

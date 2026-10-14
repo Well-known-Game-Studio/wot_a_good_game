@@ -25,6 +25,10 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
   bool bIsInAir = false;
 
+  /** True while the character channels the One Power (arms raised). */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacking")
+  bool bIsChanneling = false;
+
   /** True while the character is riding a mount (play a seated pose). */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
   bool bIsRiding = false;
