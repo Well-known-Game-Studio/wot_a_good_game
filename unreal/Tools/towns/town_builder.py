@@ -142,7 +142,9 @@ def build_town_graph(spec):
         if kind=="nobuild" or painted: y+=1; continue
         if kind=="wall":
             B.node("Difference",f"WallCut{j}",{"densityFunction":"Binary","mode":"Inferred"},title="Gates where roads cross",x=6,y=y)
-            B.link(src,"Out",f"WallCut{j}","Source"); B.link("RoadExcl","Out",f"WallCut{j}","Differences"); src=f"WallCut{j}"
+            B.link(src,"Out",f"WallCut{j}","Source"); B.link("RoadExcl","Out",f"WallCut{j}","Differences")
+            for (n_,p_) in excl: B.link(n_,p_,f"WallCut{j}","Differences")   # hand-placed exclusions and stair footprints open the wall too
+            src=f"WallCut{j}"
         B.node("Static Mesh Spawner",f"GrpSpawn{j}",{},title=f"{kind} spawner",x=7,y=y)
         B.set_meshes(f"GrpSpawn{j}",[(mesh,1,[mat] if mat else None)])
         B.link(src,"Out",f"GrpSpawn{j}","In"); y+=1

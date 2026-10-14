@@ -45,8 +45,8 @@ def caemlyn_spec():
        ("mesh",FIRE,"Fireflies0",(5000,5000,150),0,1.0,None),("mesh",FIRE,"Fireflies1",(-5000,-5000,150),0,1.0,None),
        ladder("PalaceLadder",0,-2560,-90,600),ladder("InnerLadder",-4460,0,180,600),
        chest("PalaceChest",-1500,1200,0,90),potion("Potion_Palace",1300,-900,0),potion("Potion_Market",9300,-1200,0),chest("HillChest",3600,-2500,0,0),chest("LowChest",11500,3000,0,45),potion("Potion_Low",-11500,-2500,0),
-       npc("Guard_Tallanvor","Guardsman Tallanvor","CM_Guard",600,-1200,90,600),npc("Merchant_Gill","Master Gill","CM_Gill",9300,-1500,-90,800),
-       npc("Lady_Elayne","Elayne","CM_Elayne",-900,1500,-45,700),npc("Boy_Bayle","Bayle Domon","CM_Domon",-8800,-2200,0,1200),npc("Wanderer_Thom","Thom Merrilin","CM_Thom",5000,5200,0,1500),
+       npc("Guard_Tallanvor","Guardsman Tallanvor","CM_Guard",1700,-1400,120,600),npc("Merchant_Gill","Master Gill","CM_Gill",9300,-1500,-90,800),
+       npc("Lady_Elayne","Elayne","CM_Elayne",-1300,2000,-45,700),npc("Boy_Bayle","Bayle Domon","CM_Domon",-8800,-2200,0,1200),npc("Wanderer_Thom","Thom Merrilin","CM_Thom",5000,5200,0,1500),
        npc("Beggar_Low","Low Caemlyn beggar","CM_Beggar",11300,2400,120,900),npc("Alley_Urchin","Street urchin","CM_Urchin",-6800,-6800,30,900)]
     s["dialogue"]={**lines("CM_Guard",["Halt! State your business in the Inner City.","...Very well. Mind the Queen's Guards, and keep off the palace steps."]),
                    **lines("CM_Gill",["The Queen's Blessing has the best room in the New City, if you ask me.","Trouble in the streets lately. Red cloths, white cloths... stay out of it."]),

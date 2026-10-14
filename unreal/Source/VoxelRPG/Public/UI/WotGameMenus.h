@@ -24,6 +24,7 @@ protected:
 	virtual void BuildContent() override;
 
 	UFUNCTION() void OnResume();
+	UFUNCTION() void OnJournal();
 	UFUNCTION() void OnSave();
 	UFUNCTION() void OnLoad();
 	UFUNCTION() void OnMainMenu();

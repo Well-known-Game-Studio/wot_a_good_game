@@ -126,8 +126,31 @@ class Relief:
             ax,ay=seq[i]; bx,by=seq[i+1]; L=math.hypot(bx-ax,by-ay); n=max(1,int(L/step))
             for k in range(n): out.append((ax+(bx-ax)*k/n, ay+(by-ay)*k/n))
         out.append(seq[-1]); return out
+    def _flight_box(self,footx,footy,ax,ay,Lrun,halfw):
+        """World AABB of a flight's run plus its upper landing (what finalize_stairs will paint)."""
+        cell=self.cell; a0,a1=-cell*0.6,Lrun+cell*1.6; c=halfw+cell*0.5
+        xs=[footx+ax*a0-ay*c,footx+ax*a1-ay*c,footx+ax*a0+ay*c,footx+ax*a1+ay*c]; ys=[footy+ay*a0+ax*c,footy+ay*a1+ax*c,footy+ay*a0-ax*c,footy+ay*a1-ax*c]
+        return (min(xs),min(ys),max(xs),max(ys))
+    def _flight_clear(self,footx,footy,ax,ay,Lrun,halfw):
+        b=self._flight_box(footx,footy,ax,ay,Lrun,halfw)
+        for st in getattr(self,"_stairs",[]):
+            (ox,oy)=st["foot"]; (oax,oay)=st["axis"]; o=self._flight_box(ox,oy,oax,oay,st["run"],st["halfw"])
+            if b[0]<o[2] and o[0]<b[2] and b[1]<o[3] and o[1]<b[3]: return False
+        return True
+    def finalize_stairs(self):
+        """Last word on the ground under every flight: the run sits on the lower level, the cells just past the top edge are
+        the upper level (the corridor cut and later roads/pads may have repainted them), all paved."""
+        cell=self.cell
+        for st in getattr(self,"_stairs",[]):
+            (footx,footy)=st["foot"]; (ax,ay)=st["axis"]; Lrun=st["run"]; half=st["half"]; zlo=st["zlo"]; zhi=st["zhi"]
+            for a_ in range(-int(cell*0.5),int(Lrun+cell*1.6),int(cell*0.5)):
+                qx=footx+ax*a_; qy=footy+ay*a_
+                for i,j in self.cells_near(qx,qy,half+cell*0.5):
+                    al=(self.cx(i)-footx)*ax+(self.cx(j)-footy)*ay; ac=abs(-(self.cx(i)-footx)*ay+(self.cx(j)-footy)*ax)
+                    if ac>half+cell*0.5 or al<-cell*0.6 or al>Lrun+cell*1.6: continue
+                    self.set_cell(i,j,zlo if al<Lrun-1 else zhi,True,True); self.cellmat[(i,j)]=st["mat"]
     def carve_roads(self,spec):
-        self._stair_pts=[]
+        self._stair_pts=[]; self._stairs=[]
         """Gives every road a walkable height profile (<= one Q step per cell), cuts it into the terrain and places stairs where it
         meets a terrace edge (a jump >= 4Q between otherwise flat ground). Returns stairs props.
         'nocarve' roads keep their own z (bridges/piers); 'water' roads become channels; walls just follow the ground."""
@@ -192,6 +215,13 @@ class Relief:
                         halfw=max(500.0,w*pitch)/2.0+15     # flight width incl. side walls
                         if ax: edge=-self.E+round((ex+self.E)/cell)*cell; along=edge; across=ey
                         else: edge=-self.E+round((ey+self.E)/cell)*cell; along=edge; across=ex
+                        # snap to the boundary where the ground actually steps up (within 3 cells of the guess), nearest first
+                        best_e=None
+                        for t_ in sorted(range(-3,4),key=abs):
+                            e_=edge+t_*cell
+                            lo_=(e_-ax*cell*0.5,across) if ax else (across,e_-ay*cell*0.5); hi_=(e_+ax*cell*0.5,across) if ax else (across,e_+ay*cell*0.5)
+                            if self.zat(*lo_)<=zlo+2*Q and self.zat(*hi_)>=zhi-2*Q: best_e=e_; break
+                        if best_e is not None: edge=best_e; along=edge
                         # corner: a wall beside the top of the flight -> slide the flight against it
                         px_,py_=(along+ax*cell*0.5,across) if ax else (across,along+ay*cell*0.5)
                         for sg in (1,-1):
@@ -201,8 +231,31 @@ class Relief:
                                 across=wall-sg*halfw; break
                         if ax: ex,ey=along,across; fx,fy=along-ax*(Lrun-piv),across
                         else: ex,ey=across,along; fx,fy=across,along-ay*(Lrun-piv)
-                        props.append(("mesh",kit_mesh(f"SM_Stairs{S}"),f"Stairs_{ri}_{k}",(fx,fy,zlo),yaw,(1.0,max(1.0,w*pitch/500.0),1.0),self.stairs_mats,"abs"))  # zlo is already terrain height
-                        self._stair_pts.append((fx,fy))
+                        # two roads crossing the same edge within a flight's width share one flight: reuse the earlier one
+                        shared=None
+                        for st_ in self._stairs:
+                            if st_["axis"]!=(ax,ay) or abs(st_["zlo"]-zlo)>Q or abs(st_["zhi"]-zhi)>Q: continue
+                            (sfx,sfy)=st_["foot"]; dal=(fx-ax*piv-sfx)*ax+(fy-ay*piv-sfy)*ay; dac=abs(-(fx-ax*piv-sfx)*ay+(fy-ay*piv-sfy)*ax)
+                            if dac<=halfw+st_["halfw"] and -Lrun<dal<st_["run"]: shared=st_; break
+                        skip=False
+                        if shared:
+                            (sfx,sfy)=shared["foot"]; Lrun=shared["run"]; S=int(Lrun/2); fx,fy=sfx+ax*piv,sfy+ay*piv; ex,ey=sfx+ax*Lrun,sfy+ay*Lrun
+                            if ax: across=ey
+                            else: across=ex
+                        elif not self._flight_clear(fx-ax*piv,fy-ay*piv,ax,ay,Lrun,halfw):
+                            # a flight from another road already owns this ground (a corner): slide along the edge until clear
+                            for sh_ in (1,-1,2,-2,3,-3,4,-4):
+                                acr=across+sh_*cell
+                                tfx,tfy=(fx,acr) if ax else (acr,fy)
+                                if self._flight_clear(tfx-ax*piv,tfy-ay*piv,ax,ay,Lrun,halfw): across=acr; fx,fy=tfx,tfy; ex,ey=(ex,acr) if ax else (acr,ey); break
+                            else: skip=True
+                        if skip: pass
+                        elif not shared:
+                            props.append(("mesh",kit_mesh(f"SM_Stairs{S}"),f"Stairs_{ri}_{k}",(fx,fy,zlo),yaw,(1.0,max(1.0,w*pitch/500.0),1.0),self.stairs_mats,"abs"))  # zlo is already terrain height
+                            self._stair_pts.append((fx,fy))
+                            self._stairs.append({"foot":(fx-ax*piv,fy-ay*piv),"axis":(ax,ay),"run":Lrun,"halfw":halfw,"half":half,"zlo":zlo,"zhi":zhi,"mat":rmat})
+                            for a_ in range(-60,int(Lrun)+int(cell)+1,int(cell*0.5)):
+                                self.keepout(fx-ax*piv+ax*a_,fy-ay*piv+ay*a_,halfw+80)
                         def paint_seg(ax_,ay_,bx_,by_,zz):
                             n_=max(1,int(math.hypot(bx_-ax_,by_-ay_)/(cell*0.5)))
                             for t_ in range(n_+1):
@@ -225,6 +278,8 @@ class Relief:
                         lx,ly=(x,y) if up else (x2,y2); hx_,hy_=(x2,y2) if up else (x,y)
                         if ax: paint_seg(lx,ly,lx,footy,zlo); paint_seg(lx,footy,footx,footy,zlo); paint_seg(ex,ey,hx_,ey,zhi); paint_seg(hx_,ey,hx_,hy_,zhi)
                         else: paint_seg(lx,ly,footx,ly,zlo); paint_seg(footx,ly,footx,footy,zlo); paint_seg(ex,ey,ex,hy_,zhi); paint_seg(ex,hy_,hx_,hy_,zhi)
+                        if skip:
+                            out.append([x,y,z,fixed[k]]); k+=1; continue
                         last_stair=k
                         if up:
                             while out and math.hypot(out[-1][0]-ex,out[-1][1]-ey)<2*S+1: out.pop()
@@ -474,6 +529,12 @@ def relief_apply(spec,R,palette,water_mat=None):
             p0=rd["pts"][0]; z0=R.zat(p0[0],p0[1]); rd["pts"]=[(p[0],p[1],z0+(p[2] if len(p)>2 else 0)) for p in rd["pts"]]
     R.carve_plazas(spec)
     R.house_pads(spec)
+    R.finalize_stairs()
+    # every flight is also a PCG exclusion (axis-aligned box): keeps foliage, houses and wall tiles out of it
+    for st in getattr(R,"_stairs",[]):
+        (fx_,fy_)=st["foot"]; (ax_,ay_)=st["axis"]; L_=st["run"]+R.cell; cx_=fx_+ax_*(L_/2-R.cell*0.3); cy_=fy_+ay_*(L_/2-R.cell*0.3)
+        hx_=L_/2+60 if ax_ else st["halfw"]+40; hy_=st["halfw"]+40 if ax_ else L_/2+60
+        spec["exclusions"]=list(gv(spec,"exclusions") or [])+[(cx_,cy_,hx_,hy_)]
     R.road_props(spec)
     spec["props"]=[p for p in spec["props"] if p[2]!="Ground"]+stairs
     spec["terrain"]={"boxes":R.boxes(),"palette":palette}

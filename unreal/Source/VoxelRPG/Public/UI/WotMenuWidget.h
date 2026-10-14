@@ -26,6 +26,8 @@ namespace WotUI
 	const FLinearColor ButtonPressed(0.45f, 0.35f, 0.16f, 1.0f);
 	const FLinearColor Selected(0.36f, 0.28f, 0.12f, 1.0f);
 	const FLinearColor Danger(0.45f, 0.14f, 0.12f, 1.0f);
+	/** Rounded, outlined panel brush shared by every C++ widget. */
+	VOXELRPG_API FSlateBrush RoundedBrush(const FLinearColor& Fill, float Radius, const FLinearColor& Outline, float OutlineWidth);
 }
 
 /**

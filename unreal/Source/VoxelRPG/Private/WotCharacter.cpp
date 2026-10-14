@@ -26,6 +26,7 @@
 #include "Components/AudioComponent.h"
 #include "WotMountComponent.h"
 #include "Channeling/WotChannelComponent.h"
+#include "UI/WotQuestJournal.h"
 #include "AI/WotAICharacter.h"
 #include "Quests/WotQuestSubsystem.h"
 #include "Save/WotSaveSubsystem.h"
@@ -419,6 +420,8 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		PlayerInputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AWotCharacter::SelectWeaveEarth);
 		PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AWotCharacter::TogglePauseMenu).bConsumeInput = false;
 		PlayerInputComponent->BindKey(EKeys::P, IE_Pressed, this, &AWotCharacter::TogglePauseMenu);
+		PlayerInputComponent->BindKey(EKeys::J, IE_Pressed, this, &AWotCharacter::ToggleJournal);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Left, IE_Pressed, this, &AWotCharacter::ToggleJournal);
 		PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &AWotCharacter::TogglePauseMenu);
 	}
 
@@ -474,6 +477,11 @@ void AWotCharacter::SelectWeaveFire() { if (ChannelComp) ChannelComp->SelectWeav
 void AWotCharacter::SelectWeaveAir() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Air); }
 void AWotCharacter::SelectWeaveWater() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Water); }
 void AWotCharacter::SelectWeaveEarth() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Earth); }
+
+void AWotCharacter::ToggleJournal()
+{
+	UWotQuestJournal::Toggle(this);
+}
 
 void AWotCharacter::TogglePauseMenu()
 {

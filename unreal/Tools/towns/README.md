@@ -96,3 +96,28 @@ time of day, playtime) and applies a loaded slot once the player pawn is possess
 (`UI/WotMenuWidget`, `UI/WotGameMenus`: pause, save/load, main) and the inventory screen (`UI/WotInventoryScreen`) are
 built in C++ with a shared style; Esc / P / gamepad Start opens the pause menu. Console: `wot.Save`, `wot.Load`,
 `wot.Saves`, `wot.NewGame`, `wot.Menu.Pause|Main|Save|Load|Inventory|CloseAll`.
+
+## Stairs and placement rules (shared by every town)
+
+All of this lives in `relief.py` and applies to every level built from a spec; specs only describe roads, terrain and
+hand-placed props. Stairs are placed in `carve_roads` where a road meets a terrace edge (a jump of at least 4 steps):
+
+- the climb axis is the axis along which the ground actually steps, and the top edge snaps to the cell boundary where
+  it does (searching three cells either side of the road's crossing), so the top of a flight is flush with the wall;
+- two roads crossing the same edge within a flight's width share one flight; a flight whose footprint would land on
+  another flight (terrace corners) slides along the edge until it is clear, or the road becomes a ramp;
+- `finalize_stairs` runs after every carve (roads, plazas, house pads): the ground under the run is forced to the
+  lower level and the cells just past the top edge to the upper level, so a flight can sink into the floor but never
+  into a wall and always reaches its terrace;
+- every flight registers a keep-out (`keepout`) so the lattice (trees, bushes, grass), house slots and street lines
+  (lamp posts, tree lines) stay out of it, and an axis-aligned PCG exclusion that also opens the wall tiles where a
+  flight crosses a city wall.
+
+The stairs meshes carry no simple collision and use complex-as-simple: a merged kit mesh's navigation collision only
+exports its convex hull (gathered when the mesh was created, i.e. empty), so with a hull the navmesh ran flat under every
+flight and nobody could path up a terrace; with the step triangles both physics and the navmesh climb them. After any town
+rebuild run `Tools/playtest/nav_rebuild_all.py`: the runtime navmesh starts from the saved tiles and does not regenerate
+stale ones.
+
+`audit_stairs.py [Town ...] [-v]` rebuilds the specs locally (no editor) and reports, per flight, ground above the lower
+level under the run, a missing upper level past the top, and lattice / house-slot / street-line / wall-road overlaps.

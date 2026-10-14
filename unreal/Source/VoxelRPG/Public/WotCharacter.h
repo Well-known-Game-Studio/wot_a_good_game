@@ -231,6 +231,10 @@ public:
 	void SelectWeaveWater();
 	void SelectWeaveEarth();
 
+	/** Opens or closes the quest journal (J / gamepad Back). */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ToggleJournal();
+
 	/** Opens or closes the C++ pause menu (bound to the pause input action below). */
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	void TogglePauseMenu();

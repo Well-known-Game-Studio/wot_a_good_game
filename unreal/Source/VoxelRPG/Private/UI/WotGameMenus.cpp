@@ -1,4 +1,5 @@
 #include "UI/WotGameMenus.h"
+#include "UI/WotQuestJournal.h"
 #include "Save/WotSaveSubsystem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/WidgetTree.h"
@@ -27,6 +28,7 @@ UWotPauseMenu::UWotPauseMenu(const FObjectInitializer& ObjectInitializer) : Supe
 void UWotPauseMenu::BuildContent()
 {
 	if (UButton* B = AddButton(NSLOCTEXT("Wot", "Resume", "Resume"))) B->OnClicked.AddDynamic(this, &UWotPauseMenu::OnResume);
+	if (UButton* B = AddButton(NSLOCTEXT("Wot", "JournalButton", "Journal"))) B->OnClicked.AddDynamic(this, &UWotPauseMenu::OnJournal);
 	if (UButton* B = AddButton(NSLOCTEXT("Wot", "SaveGame", "Save Game"))) B->OnClicked.AddDynamic(this, &UWotPauseMenu::OnSave);
 	if (UButton* B = AddButton(NSLOCTEXT("Wot", "LoadGame", "Load Game"))) B->OnClicked.AddDynamic(this, &UWotPauseMenu::OnLoad);
 	if (UButton* B = AddButton(NSLOCTEXT("Wot", "MainMenu", "Main Menu"))) B->OnClicked.AddDynamic(this, &UWotPauseMenu::OnMainMenu);
@@ -35,6 +37,13 @@ void UWotPauseMenu::BuildContent()
 		const int32 Secs = int32(S->GetPlaytimeSeconds());
 		AddLabel(FText::Format(NSLOCTEXT("Wot", "Playtime", "Played {0}h {1}m"), Secs / 3600, (Secs / 60) % 60), 13, WotUI::Muted);
 	}
+}
+
+void UWotPauseMenu::OnJournal()
+{
+	UObject* Ctx = GetWorld();
+	Close();
+	UWotQuestJournal::Toggle(Ctx);
 }
 
 void UWotPauseMenu::Toggle(UObject* WorldContextObject)
@@ -285,6 +294,12 @@ static FAutoConsoleCommandWithWorldAndArgs GWotMenuSave(
 static FAutoConsoleCommandWithWorldAndArgs GWotMenuLoad(
 	TEXT("wot.Menu.Load"), TEXT("Open the load menu"),
 	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) { UWotSaveLoadMenu::OpenSaveLoad(World, false); }));
+
+static FAutoConsoleCommandWithWorldAndArgs GWotMenuJournal(
+	TEXT("wot.Menu.Journal"), TEXT("Toggle the quest journal"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		UWotQuestJournal::Toggle(World);
+	}));
 
 static FAutoConsoleCommandWithWorldAndArgs GWotMenuInventory(
 	TEXT("wot.Menu.Inventory"), TEXT("Open the player's inventory screen"),

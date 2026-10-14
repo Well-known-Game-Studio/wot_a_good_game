@@ -20,7 +20,7 @@
 #include "Styling/SlateBrush.h"
 #include "Styling/SlateTypes.h"
 
-static FSlateBrush WotRoundedBrush(const FLinearColor& Fill, float Radius, const FLinearColor& Outline, float OutlineWidth)
+FSlateBrush WotUI::RoundedBrush(const FLinearColor& Fill, float Radius, const FLinearColor& Outline, float OutlineWidth)
 {
 	FSlateBrush Brush;
 	Brush.DrawAs = ESlateBrushDrawType::RoundedBox;
@@ -36,10 +36,10 @@ void UWotMenuWidget::StyleButton(UButton* Button, const FLinearColor& Normal)
 		return;
 	}
 	FButtonStyle Style;
-	Style.Normal = WotRoundedBrush(Normal, 6.0f, WotUI::PanelLine * FLinearColor(1, 1, 1, 0.6f), 1.0f);
-	Style.Hovered = WotRoundedBrush(WotUI::ButtonHover, 6.0f, WotUI::Title, 1.5f);
-	Style.Pressed = WotRoundedBrush(WotUI::ButtonPressed, 6.0f, WotUI::Title, 1.5f);
-	Style.Disabled = WotRoundedBrush(Normal * FLinearColor(1, 1, 1, 0.4f), 6.0f, WotUI::Muted, 1.0f);
+	Style.Normal = WotUI::RoundedBrush(Normal, 6.0f, WotUI::PanelLine * FLinearColor(1, 1, 1, 0.6f), 1.0f);
+	Style.Hovered = WotUI::RoundedBrush(WotUI::ButtonHover, 6.0f, WotUI::Title, 1.5f);
+	Style.Pressed = WotUI::RoundedBrush(WotUI::ButtonPressed, 6.0f, WotUI::Title, 1.5f);
+	Style.Disabled = WotUI::RoundedBrush(Normal * FLinearColor(1, 1, 1, 0.4f), 6.0f, WotUI::Muted, 1.0f);
 	Style.NormalPadding = FMargin(14.0f, 8.0f);
 	Style.PressedPadding = FMargin(14.0f, 9.0f, 14.0f, 7.0f);
 	Button->SetStyle(Style);
@@ -81,7 +81,7 @@ TSharedRef<SWidget> UWotMenuWidget::RebuildWidget()
 			S->SetVerticalAlignment(VAlign_Center);
 		}
 		UBorder* Panel = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(), TEXT("Panel"));
-		Panel->SetBrush(WotRoundedBrush(WotUI::Panel, 10.0f, WotUI::PanelLine, 2.0f));
+		Panel->SetBrush(WotUI::RoundedBrush(WotUI::Panel, 10.0f, WotUI::PanelLine, 2.0f));
 		Panel->SetPadding(FMargin(28.0f, 22.0f));
 		Size->AddChild(Panel);
 		UVerticalBox* Column = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(), TEXT("Column"));
