@@ -148,9 +148,12 @@ class Relief:
                 else:   # no water plane: a stream bed following the ground, drawn with water tiles
                     pts=[]; zs=[self.zat(x,y) for (x,y) in samples]
                     for a in range(1,len(zs)): zs[a]=min(zs[a],zs[a-1]+Q)      # streams run downhill-ish
+                    wmat=gv(rd,"mat",WATER)
                     for (x,y),zz in zip(samples,zs):
                         zc=qz(zz-dep)
-                        for i,j in self.cells_near(x,y,half+cell*0.5): self.set_cell(i,j,zc,True,True)
+                        for i,j in self.cells_near(x,y,half+cell*0.5):
+                            self.set_cell(i,j,zc,True,True)
+                            if math.hypot(self.cx(i)-x,self.cx(j)-y)<=half+cell*0.25: self.cellmat[(i,j)]=wmat   # the bed itself is water-coloured
                         pts.append((x,y,zc+30))
                 rd["pts"]=pts; rd["linear"]=True; rd["_profile"]=list(pts)
                 continue
@@ -173,7 +176,7 @@ class Relief:
                         dx=x2-x; dy=y2-y; L=math.hypot(dx,dy) or 1.0; dx/=L; dy/=L
                         if up: fx,fy=ex-dx*2*S,ey-dy*2*S; yaw=math.degrees(math.atan2(dy,dx))
                         else: fx,fy=ex+dx*2*S,ey+dy*2*S; yaw=math.degrees(math.atan2(-dy,-dx))
-                        props.append(("mesh",kit_mesh(f"SM_Stairs{S}"),f"Stairs_{ri}_{k}",(fx,fy,zlo),yaw,(1.0,max(1.0,w*pitch/500.0),1.0),self.stairs_mats))
+                        props.append(("mesh",kit_mesh(f"SM_Stairs{S}"),f"Stairs_{ri}_{k}",(fx,fy,zlo),yaw,(1.0,max(1.0,w*pitch/500.0),1.0),self.stairs_mats,"abs"))  # zlo is already terrain height
                         self._stair_pts.append((fx,fy))
                         sgn=1 if up else -1
                         for st in range(0,int(2*S/50)+2):

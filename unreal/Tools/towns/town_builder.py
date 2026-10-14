@@ -57,10 +57,12 @@ def build_town_graph(spec):
         B.node("Create Surface From Spline",f"PlazaSurf{i}",{},x=2,y=y)
         B.node("Spline Sampler",f"PlazaSamp{i}",{"samplerParams":{"dimension":"OnInterior","interiorSampleSpacing":100,"interiorBorderSampleSpacing":100,"bUnbounded":True,"bTreatSplineAsPolyline":lin}},x=2,y=y+1)
         B.node("Transform Points",f"PlazaScale{i}",{"scaleMin":{"x":1,"y":1,"z":0.06},"scaleMax":{"x":1,"y":1,"z":0.06},"bAbsoluteScale":True},x=3,y=y+1)
-        B.node("Static Mesh Spawner",f"PlazaSpawn{i}",{},title=f"Plaza {i} tiles",x=6,y=y+1)
-        B.set_meshes(f"PlazaSpawn{i}",[(CUBE,1,[pz["mat"]])])
         B.chain((f"PlazaPts{i}","Out","In"),(f"PlazaSpl{i}","Out","In"),(f"PlazaSurf{i}","Out","In"))
-        B.chain((f"PlazaSpl{i}","Out","In"),(f"PlazaSamp{i}","Out","Spline"),(f"PlazaScale{i}","Out","In"),(f"PlazaSpawn{i}","Out","In"))
+        B.chain((f"PlazaSpl{i}","Out","In"),(f"PlazaSamp{i}","Out","Spline"),(f"PlazaScale{i}","Out","In"))
+        if not gv(spec,"_relief") or gv(pz,"tiles",False):
+            B.node("Static Mesh Spawner",f"PlazaSpawn{i}",{},title=f"Plaza {i} tiles",x=6,y=y+1)
+            B.set_meshes(f"PlazaSpawn{i}",[(CUBE,1,[pz["mat"]])])
+            B.link(f"PlazaScale{i}","Out",f"PlazaSpawn{i}","In")
         pg=f"PlazaSamp{i}"
         for si,(smesh,sratio,smin_,smax_,smats) in enumerate(gv(pz,"scatter") or []):
             B.node("Random Choice",f"PlazaPick{i}_{si}",{"bFixedMode":False,"ratio":sratio},x=3,y=y+2+si)
@@ -92,7 +94,10 @@ def build_town_graph(spec):
             B.node("Random Choice",f"RoadKeep{i}",{"bFixedMode":False,"ratio":rd["keep"]},title="gaps",x=4,y=y)
             B.link(tiles_node,"Out",f"RoadKeep{i}","In"); tiles_node=f"RoadKeep{i}"
         mat=gv(rd,"mat",spec["road_mat"]); mesh=gv(rd,"mesh",CUBE)
-        gk=(mat,mesh,kind)
+        # relief paints carved roads (and water channels with a water plane) into the terrain: their tile slabs would only
+        # z-fight / float at the steps, so such groups keep their points for exclusions but spawn no tiles
+        painted=bool(gv(spec,"_relief")) and not gv(rd,"nocarve",False) and kind in ("road","water")
+        gk=(mat,mesh,kind,painted)
         if gk not in groups: groups[gk]=[]; gorder.append(gk)
         groups[gk].append(tiles_node)
         if gv(rd,"houses",False): house_samplers.append((i,rd))
@@ -120,8 +125,8 @@ def build_town_graph(spec):
         y+=1
     road_merges=[]; other_merges=[]; gsrc={}
     for j,gk in enumerate(gorder):
-        mat,mesh,kind=gk
-        B.node("Merge Points",f"GrpMerge{j}",{},title=f"{kind} tiles",x=4,y=y)
+        mat,mesh,kind,painted=gk
+        B.node("Merge Points",f"GrpMerge{j}",{},title=f"{kind} tiles"+(" (painted)" if painted else ""),x=4,y=y)
         for n in groups[gk]: B.link(n,"Chosen" if n.startswith("RoadKeep") else "Out",f"GrpMerge{j}","In")
         gsrc[gk]=f"GrpMerge{j}"
         if kind=="wall": wall_nodes.append(f"GrpMerge{j}")
@@ -133,8 +138,8 @@ def build_town_graph(spec):
     B.node("Bounds Modifier","RoadExcl",{"mode":"Set","boundsMin":{"x":-30,"y":-30,"z":-3000},"boundsMax":{"x":30,"y":30,"z":3000}},title="Road exclusion",x=6,y=y)
     B.link("RoadAll","Out","RoadExcl","In"); y+=1
     for j,gk in enumerate(gorder):
-        mat,mesh,kind=gk; src=gsrc[gk]
-        if kind=="nobuild": y+=1; continue
+        mat,mesh,kind,painted=gk; src=gsrc[gk]
+        if kind=="nobuild" or painted: y+=1; continue
         if kind=="wall":
             B.node("Difference",f"WallCut{j}",{"densityFunction":"Binary","mode":"Inferred"},title="Gates where roads cross",x=6,y=y)
             B.link(src,"Out",f"WallCut{j}","Source"); B.link("RoadExcl","Out",f"WallCut{j}","Differences"); src=f"WallCut{j}"
