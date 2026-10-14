@@ -306,7 +306,10 @@ def place_mesh(path,label,loc,yaw=0,scale=1.0,mats=None,tag=TOWNPROP,tags=(),pro
             T(OB+"set_properties",{"instance":ref(c["refPath"]),"values":json.dumps({"OverrideMaterials":[ref(m) if m else "None" for m in mats]})})
     if tag: T(AC+"add_tag",{"actor":ref(ap),"tag":tag})
     for t_ in tags: T(AC+"add_tag",{"actor":ref(ap),"tag":t_})
-    if props: T(OB+"set_properties",{"instance":ref(ap),"values":json.dumps(props)})
+    if props:
+        props=dict(props); extra_tags=props.pop("Tags",None) or []
+        if props: T(OB+"set_properties",{"instance":ref(ap),"values":json.dumps(props)})
+        for t_ in extra_tags: T(AC+"add_tag",{"actor":ref(ap),"tag":t_})  # Tags is an array: set_properties cannot grow it
     return ap
 def place_class(cls,label,loc,yaw=0,scale=1.0,tag=TOWNPROP):
     s=scale if isinstance(scale,(list,tuple)) else (scale,scale,scale)
