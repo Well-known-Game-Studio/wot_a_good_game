@@ -410,6 +410,8 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		PlayerInputComponent->BindKey(EKeys::Gamepad_RightShoulder, IE_Pressed, this, &AWotCharacter::ChannelPressed);
 		PlayerInputComponent->BindKey(EKeys::Gamepad_RightShoulder, IE_Released, this, &AWotCharacter::ChannelReleased);
 		PlayerInputComponent->BindKey(EKeys::Tab, IE_Pressed, this, &AWotCharacter::NextWeave);
+		PlayerInputComponent->BindKey(EKeys::T, IE_Pressed, this, &AWotCharacter::TieOffWeave);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_LeftShoulder, IE_Pressed, this, &AWotCharacter::TieOffWeave);
 		PlayerInputComponent->BindKey(EKeys::Gamepad_DPad_Up, IE_Pressed, this, &AWotCharacter::NextWeave);
 		PlayerInputComponent->BindKey(EKeys::One, IE_Pressed, this, &AWotCharacter::SelectWeaveFire);
 		PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AWotCharacter::SelectWeaveAir);
@@ -458,6 +460,13 @@ void AWotCharacter::NextWeave()
 {
 	if (ChannelComp) {
 		ChannelComp->NextWeave();
+	}
+}
+
+void AWotCharacter::TieOffWeave()
+{
+	if (ChannelComp) {
+		ChannelComp->TieOffWeave();
 	}
 }
 

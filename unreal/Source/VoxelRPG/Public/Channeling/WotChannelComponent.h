@@ -8,6 +8,7 @@
 class UNiagaraSystem;
 class UNiagaraComponent;
 class AWotCharacter;
+class AWotTiedWeave;
 
 /** Which half of the One Power the channeler touches. */
 UENUM(BlueprintType)
@@ -63,9 +64,38 @@ public:
 	FName RightHandSocket = TEXT("Hand_R");
 
 	// --- effects (soft so the component works without the marketplace pack)
-	/** Threads gathering on the hands while channeling (both halves). */
+	/** Legacy hand effect (unused when ThreadSystem is set). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects")
 	TSoftObjectPtr<UNiagaraSystem> ThreadsSystem;
+
+	/**
+	 * The braided ribbon (NS_WeaveThread) drawn from each environment source to the hands: fire is pulled from
+	 * lamps, torches and hearths, water from streams, wells and reeds, earth from the ground and stone, air from
+	 * the sky around the channeler. Each thread is one component with User.Source / User.Target / User.Color.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects")
+	TSoftObjectPtr<UNiagaraSystem> ThreadSystem;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects")
+	int32 ThreadCount = 5;
+
+	/** How far the channeler reaches for sources in the environment. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects")
+	float SourceSearchRadius = 2400.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects")
+	float ThreadWidth = 20.0f;
+
+	/** Actor spawned when a weave is tied off (T / gamepad LB while channeling). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Weaves")
+	TSubclassOf<AWotTiedWeave> TiedWeaveClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Weaves")
+	float TiedWeaveSeconds = 30.0f;
+
+	/** Oldest tied weave unravels when more than this many are held. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Weaves")
+	int32 MaxTiedWeaves = 3;
 
 	/** Glow burst on the hands when the Power is first embraced. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects")
@@ -131,6 +161,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Channeling")
 	void NextWeave();
 
+	/** Ties off the weave being channeled so it holds on its own in front of the channeler. */
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	bool TieOffWeave();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Channeling")
+	static FLinearColor ElementColor(EWotWeave Weave, EWotPowerHalf InHalf);
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Channeling")
 	static FText WeaveName(EWotWeave Weave);
 
@@ -143,6 +182,34 @@ protected:
 
 	UPROPERTY()
 	TArray<TObjectPtr<UNiagaraComponent>> ActiveEffects;
+
+	/** One environment thread: where it is drawn from and the ribbon component drawing it. */
+	struct FWotThread
+	{
+		TWeakObjectPtr<UNiagaraComponent> Comp;
+		TWeakObjectPtr<AActor> SourceActor;   // follows a moving source (a carried lantern, a horse)
+		FVector SourceOffset = FVector::ZeroVector;
+		FVector Source = FVector::ZeroVector;
+		FVector Drift = FVector::ZeroVector;  // free sources (air, mist, embers) wander
+		float Bob = 0.0f;
+		bool bFromEnvironment = false;
+	};
+	TArray<FWotThread> Threads;
+
+	UPROPERTY()
+	TArray<TObjectPtr<UNiagaraComponent>> ThreadComps;
+
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AWotTiedWeave>> TiedWeaves;
+
+	FTimerHandle ThreadFadeTimer;
+
+	void SpawnThreads();
+	void GatherSources(EWotWeave Weave, const FVector& Origin, int32 Count, TArray<FWotThread>& Out) const;
+	void UpdateThreads(float DeltaTime);
+	void ReleaseThreads(const FVector& To);
+	void DestroyThreads();
+	FVector HandsPoint() const;
 
 	AWotCharacter* GetCharacter() const;
 	UNiagaraComponent* AttachEffect(const TSoftObjectPtr<UNiagaraSystem>& System, FName Socket, bool bLoop);

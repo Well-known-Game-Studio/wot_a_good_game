@@ -222,6 +222,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Channeling")
 	void NextWeave();
 
+	/** T / gamepad LB while channeling: ties the weave off so it holds on its own. */
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void TieOffWeave();
+
 	void SelectWeaveFire();
 	void SelectWeaveAir();
 	void SelectWeaveWater();

@@ -9,8 +9,9 @@ console command; results are `[PT]` lines in the `LogWotTest` category, read bac
     python3 systems_test.py [Town]                                    # pause menu, inventory screen, save and load
     python3 ways_nav.py                                               # editor-world navmesh rebuild + probes along the first Ways bridge
     python3 ways_test.py                                              # the Ways: spawn, channel Fire, walk from the entry to the exit Waygate
+    python3 channel_test.py [Town]                                    # every weave for saidar and saidin (captures), then tie off Fire and Earth
 
 Useful console commands: `wot.PlayTest.Spawn|Walk|Goto x y z|Stop|Status|Mount|Screenshot <name> [ui]`,
 `wot.Nav.Rebuild|Status|Probe x y ...`, `wot.Quest.*`, `wot.Save|Load|Saves|NewGame`, `wot.Menu.*`,
-`wot.Channel.Weave <Fire|Air|Water|Earth>|Begin|Release|Half <Saidin|Saidar>`.
+`wot.Channel.Weave <Fire|Air|Water|Earth>|Begin|Release|Tie|Half <Saidin|Saidar>`.
 Captures and logs are written to `out/` (git-ignored); `wot.PlayTest.Screenshot` writes to `Saved/Screenshots`.

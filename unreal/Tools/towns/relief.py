@@ -333,14 +333,14 @@ class Relief:
         foot=gv(spec,"slot_clear",260); minslot=gv(spec,"slot_spacing",780)
         allkept=[]
         for k in list(slots.keys()):
-            cand=[sl for sl in slots[k] if not self.near_paved(sl[0],sl[1],foot) and not self._near_any(getattr(self,"_stair_pts",()),sl[0],sl[1],gv(spec,"slot_stair_clear",560))]
+            cand=[sl for sl in slots[k] if not self.near_paved(sl[0],sl[1],foot) and not self._kept_out(sl[0],sl[1],400) and not self._near_any(getattr(self,"_stair_pts",()),sl[0],sl[1],gv(spec,"slot_stair_clear",560))]
             kept=self._thin(allkept+cand,minslot)[len(allkept):]
             slots[k]=kept; allkept+=kept
         self._slot_pts=[(sl[0],sl[1]) for sl in allkept]
         # street furniture: never on pavement, never in a doorway, never doubled up where roads meet
         self._line_pts=[]
         for ln in lines:
-            pts=[p for p in ln["pts"] if not self.near_paved(p[0],p[1],gv(spec,"line_clear",110)) and not self._near_any(self._slot_pts,p[0],p[1],gv(spec,"line_house_clear",330)) and not self._near_any(getattr(self,"_stair_pts",()),p[0],p[1],280)]
+            pts=[p for p in ln["pts"] if not self.near_paved(p[0],p[1],gv(spec,"line_clear",110)) and not self._kept_out(p[0],p[1]) and not self._near_any(self._slot_pts,p[0],p[1],gv(spec,"line_house_clear",330)) and not self._near_any(getattr(self,"_stair_pts",()),p[0],p[1],280)]
             step=min((l["step"] for rd in spec["roads"] for l in (gv(rd,"lines") or []) if l["mesh"]==ln["mesh"]),default=1000)
             pts=self._thin(self._line_pts_all(lines,ln)+pts,0.55*step)[len(self._line_pts_all(lines,ln)):]
             ln["pts"]=pts; self._line_pts+=[(p[0],p[1]) for p in pts]
@@ -400,6 +400,14 @@ class Relief:
                 if not ok: break
             if ok: kept.append(p); grid.setdefault((gi,gj),[]).append((x,y))
         return kept
+    def keepout(self,x,y,r):
+        """Registers a circle no prop, house slot, street-line item or lattice point may enter (e.g. in front of a Waygate)."""
+        if not hasattr(self,"_keep"): self._keep=[]
+        self._keep.append((x,y,r))
+    def _kept_out(self,x,y,extra=0):
+        for (kx,ky,kr) in getattr(self,"_keep",()):
+            if (kx-x)**2+(ky-y)**2<=(kr+extra)**2: return True
+        return False
     def _near_any(self,pts,x,y,r):
         for (px,py) in pts:
             if abs(px-x)<=r and abs(py-y)<=r and (px-x)**2+(py-y)**2<=r*r: return True
@@ -429,7 +437,7 @@ class Relief:
                 m=self._mat(i,j)
                 if m in ("rock","snow") or self.is_cliff(i,j): continue
                 x,y=self.cx(i),self.cx(j)
-                if (i,j) in self.cellmat or self.near_paved(x,y,self.cell*0.75): continue
+                if (i,j) in self.cellmat or self.near_paved(x,y,self.cell*0.75) or self._kept_out(x,y): continue
                 if self._near_any(getattr(self,"_slot_pts",()),x,y,330) or self._near_any(getattr(self,"_line_pts",()),x,y,170) or self._near_any(getattr(self,"_stair_pts",()),x,y,220): continue
                 pts.append((x,y,z))
         return pts
@@ -453,6 +461,13 @@ def relief_apply(spec,R,palette,water_mat=None):
     """Builds the grid, carves roads/plazas/pads/prop pads, and attaches terrain boxes, lattice and water to the spec."""
     R.build()
     for (shape,z) in gv(spec,"pads") or []: R.flatten(shape,z,True)
+    # Waygates: a level pad under the arch and its approach, nothing placed within reach of the doorway
+    for p in gv(spec,"props") or []:
+        if p[0]=="mesh" and str(p[2]).startswith("Waygate_"):
+            (x,y)=p[3][0],p[3][1]; yaw=p[4]; fx,fy=-math.cos(math.radians(yaw)),-math.sin(math.radians(yaw))   # the opening faces -X at yaw 0
+            cx,cy=x+fx*250,y+fy*250
+            R.flatten(("circle",cx,cy,850),None,True); R.keepout(cx,cy,950)
+            spec["exclusions"]=list(gv(spec,"exclusions") or [])+[(cx,cy,950,950)]
     stairs=R.carve_roads(spec)
     for rd in spec["roads"]:
         if gv(rd,"nocarve",False) and gv(rd,"rel",False):
