@@ -127,6 +127,7 @@ class Relief:
             for k in range(n): out.append((ax+(bx-ax)*k/n, ay+(by-ay)*k/n))
         out.append(seq[-1]); return out
     def carve_roads(self,spec):
+        self._stair_pts=[]
         """Gives every road a walkable height profile (<= one Q step per cell), cuts it into the terrain and places stairs where it
         meets a terrace edge (a jump >= 4Q between otherwise flat ground). Returns stairs props.
         'nocarve' roads keep their own z (bridges/piers); 'water' roads become channels; walls just follow the ground."""
@@ -173,6 +174,7 @@ class Relief:
                         if up: fx,fy=ex-dx*2*S,ey-dy*2*S; yaw=math.degrees(math.atan2(dy,dx))
                         else: fx,fy=ex+dx*2*S,ey+dy*2*S; yaw=math.degrees(math.atan2(-dy,-dx))
                         props.append(("mesh",kit_mesh(f"SM_Stairs{S}"),f"Stairs_{ri}_{k}",(fx,fy,zlo),yaw,(1.0,max(1.0,w*pitch/500.0),1.0),self.stairs_mats))
+                        self._stair_pts.append((fx,fy))
                         sgn=1 if up else -1
                         for st in range(0,int(2*S/50)+2):
                             px=fx+dx*st*50*sgn; py=fy+dy*st*50*sgn
@@ -281,7 +283,28 @@ class Relief:
                 pts=[(x,y,z+tw["z"],0) for (x,y,z,yaw) in self._walk(prof,tw["step"])]
                 towers.append({"mesh":gv(tw,"mesh",CUBE),"mats":[tw["mat"]],"scale":tw["scale"],"pts":pts,"name":gv(rd,"name","")})
         for (x,y,yaw) in gv(spec,"house_pts") or []: slots[""].append((x,y,self.zat(x,y),yaw))
+        # placement rules: no house footprint over a crossing road/plaza, no two slots on top of each other
+        foot=gv(spec,"slot_clear",260); minslot=gv(spec,"slot_spacing",780)
+        allkept=[]
+        for k in list(slots.keys()):
+            cand=[sl for sl in slots[k] if not self.near_paved(sl[0],sl[1],foot) and not self._near_any(getattr(self,"_stair_pts",()),sl[0],sl[1],gv(spec,"slot_stair_clear",560))]
+            kept=self._thin(allkept+cand,minslot)[len(allkept):]
+            slots[k]=kept; allkept+=kept
+        self._slot_pts=[(sl[0],sl[1]) for sl in allkept]
+        # street furniture: never on pavement, never in a doorway, never doubled up where roads meet
+        self._line_pts=[]
+        for ln in lines:
+            pts=[p for p in ln["pts"] if not self.near_paved(p[0],p[1],gv(spec,"line_clear",110)) and not self._near_any(self._slot_pts,p[0],p[1],gv(spec,"line_house_clear",330)) and not self._near_any(getattr(self,"_stair_pts",()),p[0],p[1],280)]
+            step=min((l["step"] for rd in spec["roads"] for l in (gv(rd,"lines") or []) if l["mesh"]==ln["mesh"]),default=1000)
+            pts=self._thin(self._line_pts_all(lines,ln)+pts,0.55*step)[len(self._line_pts_all(lines,ln)):]
+            ln["pts"]=pts; self._line_pts+=[(p[0],p[1]) for p in pts]
         spec["house_slots"]=slots; spec["line_sets"]=lines; spec["tower_sets"]=towers
+    def _line_pts_all(self,lines,upto):
+        out=[]
+        for ln in lines:
+            if ln is upto: break
+            out+=[(p[0],p[1]) for p in ln["pts"]]
+        return out
     def carve_plazas(self,spec):
         for pz in gv(spec,"plazas") or []:
             pts=pz["pts"]; z=gv(pz,"z")
@@ -308,6 +331,33 @@ class Relief:
         for (a,b) in ((i-1,j),(i+1,j),(i,j-1),(i,j+1)):
             if 0<=a<self.n and 0<=b<self.n and z-self.z[a][b]>=3*Q: return True
         return False
+    # ---- placement rules (roads, plazas and water are painted into cellmat) ----
+    def paved(self,x,y): return (self.idx(x),self.idx(y)) in self.cellmat
+    def near_paved(self,x,y,r):
+        """True when any painted (road/plaza/water) cell centre lies within r of (x,y)."""
+        i0,j0=self.idx(x-r),self.idx(y-r); i1,j1=self.idx(x+r),self.idx(y+r)
+        for i in range(i0,i1+1):
+            for j in range(j0,j1+1):
+                if (i,j) in self.cellmat and math.hypot(self.cx(i)-x,self.cx(j)-y)<=r: return True
+        return False
+    @staticmethod
+    def _thin(pts,mind,key=lambda p:(p[0],p[1])):
+        """Greedy spacing filter: keeps a point only when no kept point is closer than mind (grid hash)."""
+        kept=[]; grid={}; g=max(1.0,mind)
+        for p in pts:
+            x,y=key(p); gi,gj=int(x//g),int(y//g); ok=True
+            for a in (gi-1,gi,gi+1):
+                for b in (gj-1,gj,gj+1):
+                    for (qx,qy) in grid.get((a,b),()):
+                        if (qx-x)**2+(qy-y)**2<mind*mind: ok=False; break
+                    if not ok: break
+                if not ok: break
+            if ok: kept.append(p); grid.setdefault((gi,gj),[]).append((x,y))
+        return kept
+    def _near_any(self,pts,x,y,r):
+        for (px,py) in pts:
+            if abs(px-x)<=r and abs(py-y)<=r and (px-x)**2+(py-y)**2<=r*r: return True
+        return False
     def boxes(self):
         """Run-merged terrain boxes: list of (matkey, x, y, zcenter, sx, sy, sz) in cm."""
         n=self.n; zmin=min(min(r) for r in self.z); floor=zmin-400
@@ -332,7 +382,10 @@ class Relief:
                 if self.water is not None and z<=self.water: continue
                 m=self._mat(i,j)
                 if m in ("rock","snow") or self.is_cliff(i,j): continue
-                pts.append((self.cx(i),self.cx(j),z))
+                x,y=self.cx(i),self.cx(j)
+                if (i,j) in self.cellmat or self.near_paved(x,y,self.cell*0.75): continue
+                if self._near_any(getattr(self,"_slot_pts",()),x,y,330) or self._near_any(getattr(self,"_line_pts",()),x,y,170) or self._near_any(getattr(self,"_stair_pts",()),x,y,220): continue
+                pts.append((x,y,z))
         return pts
 def W_is_rel(pz): return False
 def peaks(R,pts,w,h,n=5,seed=3,jag=0.45):

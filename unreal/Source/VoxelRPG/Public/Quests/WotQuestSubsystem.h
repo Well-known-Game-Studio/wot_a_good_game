@@ -130,6 +130,10 @@ public:
 	/** One-line text summary of every quest (used by the wot.Quest.List console command). */
 	FString DescribeState() const;
 
+	/** Progress as stored in a game save. */
+	void GetProgressSnapshot(TArray<FWotQuestProgress>& OutProgress, bool& bOutAutoStartDone) const;
+	void SetProgressSnapshot(const TArray<FWotQuestProgress>& InProgress, bool bInAutoStartDone);
+
 protected:
 	UPROPERTY()
 	TMap<FName, TObjectPtr<const UWotQuestDefinition>> Definitions;

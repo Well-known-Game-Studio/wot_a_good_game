@@ -27,6 +27,10 @@
 #include "WotMountComponent.h"
 #include "AI/WotAICharacter.h"
 #include "Quests/WotQuestSubsystem.h"
+#include "Save/WotSaveSubsystem.h"
+#include "UI/WotGameMenus.h"
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
 
 // Sets default values
 AWotCharacter::AWotCharacter()
@@ -390,6 +394,18 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// pause menu (the rest of the input is bound in the Blueprint)
+	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+		if (UInputAction* Action = PauseMenuAction.LoadSynchronous()) {
+			EIC->BindAction(Action, ETriggerEvent::Started, this, &AWotCharacter::TogglePauseMenu);
+		}
+	}
+	if (PlayerInputComponent) {
+		PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AWotCharacter::TogglePauseMenu).bConsumeInput = false;
+		PlayerInputComponent->BindKey(EKeys::P, IE_Pressed, this, &AWotCharacter::TogglePauseMenu);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &AWotCharacter::TogglePauseMenu);
+	}
+
 	// // We're interested in knowing the axis value, but don't need a delegate for
 	// // it (we read it in the tick event)
 	// PlayerInputComponent->BindVectorAxis("IA_Move");
@@ -410,6 +426,11 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// PlayerInputComponent->BindAction("IA_Camera", IE_Pressed, this, &AWotCharacter::RotateCamera);
 }
 
+void AWotCharacter::TogglePauseMenu()
+{
+	UWotPauseMenu::Toggle(this);
+}
+
 void AWotCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -417,6 +438,9 @@ void AWotCharacter::PossessedBy(AController* NewController)
 	if (NewController && NewController->IsLocalPlayerController()) {
 		if (UWotQuestSubsystem* Quests = UWotQuestSubsystem::Get(this)) {
 			Quests->OnPlayerBeginPlay(this);
+		}
+		if (UWotSaveSubsystem* Saves = UWotSaveSubsystem::Get(this)) {
+			Saves->OnPlayerReady(this);
 		}
 	}
 }

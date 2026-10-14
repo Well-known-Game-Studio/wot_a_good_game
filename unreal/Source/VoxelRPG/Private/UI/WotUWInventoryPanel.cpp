@@ -106,6 +106,9 @@ void UWotUWInventoryPanel::Setup()
 
 void UWotUWInventoryPanel::UpdateInventory()
 {
+  if (!ItemBox) {
+    return; // C++-built subclasses (UWotInventoryScreen) have no UMG parts
+  }
   ItemBox->ClearChildren();
   if (!InventoryComp) {
     return;

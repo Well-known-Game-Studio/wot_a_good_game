@@ -79,3 +79,20 @@ write commands → poll the log for `[PT] SUMMARY`).
 * Horses carry `UWotMountComponent` (interact = ride, interact again = dismount; rider input steers the horse,
   rider plays the Blender `ride_idle` / `ride_walk` poses). Animals without an AnimBP graph use
   `UWotAnimalAnimationComponent` with idle/walk/run sequences imported from `scratch anims/`.
+
+## Placement rules (relief.py)
+
+Roads, plazas and water are painted into `Relief.cellmat`, and `road_props` / `lattice` use it as the single source of
+truth: street furniture is dropped on pavement, inside a house slot or near a staircase and thinned to half its spacing;
+house slots whose footprint touches a crossing road are dropped and thinned against other streets; the foliage lattice
+skips paved cells and their neighbours, doorways, lamp spots and stairs. Tunables per spec: `slot_clear`, `slot_spacing`,
+`slot_stair_clear`, `line_clear`, `line_house_clear`. Never patch PCG `MeshEntries` in place from `get_properties`
+(unloaded soft material references read back as None and wipe the overrides) — change `pcg_lib` and rebuild.
+
+## Save / load and menus (C++)
+
+`Save/WotSaveSubsystem` writes `UWotGameSave` slots (level, player transform, health, inventory, quests, story flags,
+time of day, playtime) and applies a loaded slot once the player pawn is possessed; portals autosave. The menus
+(`UI/WotMenuWidget`, `UI/WotGameMenus`: pause, save/load, main) and the inventory screen (`UI/WotInventoryScreen`) are
+built in C++ with a shared style; Esc / P / gamepad Start opens the pause menu. Console: `wot.Save`, `wot.Load`,
+`wot.Saves`, `wot.NewGame`, `wot.Menu.Pause|Main|Save|Load|Inventory|CloseAll`.

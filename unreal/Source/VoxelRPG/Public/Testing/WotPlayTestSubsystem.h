@@ -45,7 +45,7 @@ public:
 	void StartWalkToLocation(const FVector& Location, float TimeLimit);
 	/** Walk to the nearest rideable animal, mount it, ride for RideSeconds, take a screenshot, dismount. */
 	void StartMountTest(float RideSeconds);
-	void Screenshot(const FString& Name);
+	void Screenshot(const FString& Name, bool bWithUI = false);
 	void StopWalk(const TCHAR* Reason);
 	void LogStatus();
 

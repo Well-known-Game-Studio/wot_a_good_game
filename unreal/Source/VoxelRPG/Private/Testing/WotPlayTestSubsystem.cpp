@@ -647,10 +647,10 @@ void UWotPlayTestSubsystem::Tick(float DeltaTime)
 	}
 }
 
-void UWotPlayTestSubsystem::Screenshot(const FString& Name)
+void UWotPlayTestSubsystem::Screenshot(const FString& Name, bool bWithUI)
 {
 	const FString File = FString::Printf(TEXT("%s_%s"), *Name, *FDateTime::Now().ToString(TEXT("%H%M%S")));
-	FScreenshotRequest::RequestScreenshot(File, false, false);
+	FScreenshotRequest::RequestScreenshot(File, bWithUI, false);
 	PT_LOG("SCREENSHOT requested %s (Saved/Screenshots)", *File);
 }
 
@@ -790,7 +790,7 @@ static FAutoConsoleCommandWithWorldAndArgs GWotPlayTestShot(
 	TEXT("wot.PlayTest.Screenshot"), TEXT("Save a screenshot of the game viewport: wot.PlayTest.Screenshot <name>"),
 	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
 		if (UWotPlayTestSubsystem* PT = GetPlayTest(World)) {
-			PT->Screenshot(Args.Num() > 0 ? Args[0] : TEXT("playtest"));
+			PT->Screenshot(Args.Num() > 0 ? Args[0] : TEXT("playtest"), Args.Num() > 1 && FCString::Atoi(*Args[1]) != 0);
 		}
 	}));
 

@@ -579,6 +579,27 @@ void UWotQuestSubsystem::OnPlayerBeginPlay(AWotCharacter* Player)
 	EnsureTracker(Player);
 }
 
+void UWotQuestSubsystem::GetProgressSnapshot(TArray<FWotQuestProgress>& OutProgress, bool& bOutAutoStartDone) const
+{
+	OutProgress = Progress;
+	bOutAutoStartDone = bAutoStartDone;
+}
+
+void UWotQuestSubsystem::SetProgressSnapshot(const TArray<FWotQuestProgress>& InProgress, bool bInAutoStartDone)
+{
+	Progress = InProgress;
+	bAutoStartDone = bInAutoStartDone;
+	for (FWotQuestProgress& P : Progress) {
+		if (const UWotQuestDefinition* Def = GetQuestDefinition(P.QuestId)) {
+			P.ObjectiveCounts.SetNum(Def->Objectives.Num());
+		}
+	}
+	SaveProgress();
+	if (Tracker) {
+		Tracker->Refresh();
+	}
+}
+
 FString UWotQuestSubsystem::DescribeState() const
 {
 	FString Out;

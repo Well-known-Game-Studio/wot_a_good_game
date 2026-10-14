@@ -206,6 +206,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void TryInteract() { PrimaryInteract(); }
 
+	/** Opens or closes the C++ pause menu (bound to the pause input action below). */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void TogglePauseMenu();
+
+	/** Input action that toggles the pause menu; bound natively in SetupPlayerInputComponent when set. */
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSoftObjectPtr<class UInputAction> PauseMenuAction;
+
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	bool CanOpenInventory() const;
 

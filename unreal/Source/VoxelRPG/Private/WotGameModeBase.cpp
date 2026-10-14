@@ -9,6 +9,7 @@
 #include "WotGameInstance.h"
 #include "EngineUtils.h"
 #include "Quests/WotQuestSubsystem.h"
+#include "Save/WotSaveSubsystem.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("wot.SpawnBots"), true, TEXT("Enable spawning of bots via timer"), ECVF_Cheat);
 
@@ -35,6 +36,9 @@ void AWotGameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
   switch (EndPlayReason) {
     case EEndPlayReason::LevelTransition:
       SaveTime();
+      if (UWotSaveSubsystem* Saves = UWotSaveSubsystem::Get(this)) {
+        Saves->OnLevelTransition(GetWorld());
+      }
       break;
     case EEndPlayReason::Destroyed:
     case EEndPlayReason::EndPlayInEditor:
