@@ -1,4 +1,5 @@
 #include "UI/WotInventoryScreen.h"
+#include "WotCharacter.h"
 #include "UI/WotMenuWidget.h"
 #include "WotInventoryComponent.h"
 #include "Items/WotItem.h"
@@ -349,7 +350,14 @@ void UWotInventoryScreen::Close_Implementation()
 {
 	if (APlayerController* PC = GetOwningPlayer()) {
 		PC->SetInputMode(FInputModeGameOnly());
-		PC->SetShowMouseCursor(bControllerWasShowingCursor);
+		PC->SetShowMouseCursor(false);   // menus that stay open show it again themselves
+	}
+	// the character gates movement, camera and channeling on IsInventoryWidgetOpen(): clear its reference whichever way
+	// the screen was closed (Esc / I / the button, not only the Blueprint toggle)
+	if (AWotCharacter* Char = Cast<AWotCharacter>(GetOwningPlayerPawn())) {
+		if (Char->IsInventoryWidgetOpen()) {
+			Char->CloseInventoryWidget();
+		}
 	}
 	if (InventoryComp) {
 		InventoryComp->OnInventoryUpdated.RemoveDynamic(this, &UWotUWInventoryPanel::UpdateInventory);

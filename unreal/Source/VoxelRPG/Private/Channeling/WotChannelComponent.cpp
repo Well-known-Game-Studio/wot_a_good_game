@@ -177,6 +177,11 @@ void UWotChannelComponent::NextWeave()
 	SelectWeave(static_cast<EWotWeave>((static_cast<uint8>(SelectedWeave) + 1) % 4));
 }
 
+void UWotChannelComponent::PrevWeave()
+{
+	SelectWeave(static_cast<EWotWeave>((static_cast<uint8>(SelectedWeave) + 3) % 4));
+}
+
 void UWotChannelComponent::WeaveFire(float Charge)
 {
 	ACharacter* Char = Cast<ACharacter>(GetOwner());

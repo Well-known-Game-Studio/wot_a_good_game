@@ -29,7 +29,7 @@ void UWotQuestJournal::Toggle(UObject* WorldContextObject)
 	}
 	TArray<UUserWidget*> Found;
 	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(World, Found, UWotQuestJournal::StaticClass(), false);
-	if (Found.Num() > 0) {
+	if (Found.ContainsByPredicate([](UUserWidget* W) { UWotMenuWidget* M = Cast<UWotMenuWidget>(W); return M && M->IsOpen(); })) {
 		CloseAllMenus(WorldContextObject);
 		return;
 	}

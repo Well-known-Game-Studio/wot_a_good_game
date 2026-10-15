@@ -54,7 +54,8 @@ void UWotPauseMenu::Toggle(UObject* WorldContextObject)
 	}
 	TArray<UUserWidget*> Found;
 	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(World, Found, UWotMenuWidget::StaticClass(), false);
-	if (Found.Num() > 0) {
+	const bool bAnyOpen = Found.ContainsByPredicate([](UUserWidget* W) { UWotMenuWidget* M = Cast<UWotMenuWidget>(W); return M && M->IsOpen(); });
+	if (bAnyOpen) {
 		CloseAllMenus(WorldContextObject);
 		return;
 	}
@@ -311,14 +312,35 @@ static FAutoConsoleCommandWithWorldAndArgs GWotMenuInventory(
 		}
 	}));
 
+static FAutoConsoleCommandWithWorldAndArgs GWotMenuEsc(
+	TEXT("wot.Menu.Esc"), TEXT("What the Escape key does: close the inventory if it is up, else toggle the pause menu"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		APlayerController* PC = World ? World->GetFirstPlayerController() : nullptr;
+		if (AWotCharacter* Player = PC ? Cast<AWotCharacter>(PC->GetPawn()) : nullptr) {
+			Player->TogglePauseMenu();
+		}
+	}));
+
+static FAutoConsoleCommandWithWorldAndArgs GWotMenuStatus(
+	TEXT("wot.Menu.Status"), TEXT("Log the UI input gates: inventory open, menus open, paused, cursor"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		APlayerController* PC = World ? World->GetFirstPlayerController() : nullptr;
+		AWotCharacter* Player = PC ? Cast<AWotCharacter>(PC->GetPawn()) : nullptr;
+		TArray<UUserWidget*> Found;
+		if (World) {
+			UWidgetBlueprintLibrary::GetAllWidgetsOfClass(World, Found, UWotMenuWidget::StaticClass(), false);
+		}
+		const int32 OpenMenus = Found.FilterByPredicate([](UUserWidget* W) { UWotMenuWidget* M = Cast<UWotMenuWidget>(W); return M && M->IsOpen(); }).Num();
+		UE_LOG(LogTemp, Display, TEXT("[PT] MENUSTATUS inventory=%d menus=%d paused=%d cursor=%d inputEnabled=%d"), Player && Player->IsInventoryWidgetOpen() ? 1 : 0, OpenMenus,
+			World && World->IsPaused() ? 1 : 0, PC && PC->ShouldShowMouseCursor() ? 1 : 0, Player && Player->InputEnabled() ? 1 : 0);
+	}));
+
 static FAutoConsoleCommandWithWorldAndArgs GWotMenuCloseAll(
 	TEXT("wot.Menu.CloseAll"), TEXT("Close every open menu and the inventory"),
 	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
 		UWotMenuWidget::CloseAllMenus(World);
 		APlayerController* PC = World ? World->GetFirstPlayerController() : nullptr;
 		if (AWotCharacter* Player = PC ? Cast<AWotCharacter>(PC->GetPawn()) : nullptr) {
-			if (Player->IsInventoryWidgetOpen()) {
-				Player->CloseInventoryWidget();
-			}
+			Player->CloseInventory();
 		}
 	}));

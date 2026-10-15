@@ -27,6 +27,7 @@
 #include "WotMountComponent.h"
 #include "Channeling/WotChannelComponent.h"
 #include "UI/WotQuestJournal.h"
+#include "UI/WotInventoryScreen.h"
 #include "AI/WotAICharacter.h"
 #include "Quests/WotQuestSubsystem.h"
 #include "Save/WotSaveSubsystem.h"
@@ -405,12 +406,13 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 		}
 	}
 	if (PlayerInputComponent) {
-		// channeling: hold Q (gamepad right shoulder) to embrace the Power, release to loose the weave; 1-4 / Tab pick the weave
+		// channeling: hold Q (gamepad right shoulder) to embrace the Power, release to loose the weave; 1-4, the mouse wheel or D-pad up pick the weave
 		PlayerInputComponent->BindKey(EKeys::Q, IE_Pressed, this, &AWotCharacter::ChannelPressed);
 		PlayerInputComponent->BindKey(EKeys::Q, IE_Released, this, &AWotCharacter::ChannelReleased);
 		PlayerInputComponent->BindKey(EKeys::Gamepad_RightShoulder, IE_Pressed, this, &AWotCharacter::ChannelPressed);
 		PlayerInputComponent->BindKey(EKeys::Gamepad_RightShoulder, IE_Released, this, &AWotCharacter::ChannelReleased);
-		PlayerInputComponent->BindKey(EKeys::Tab, IE_Pressed, this, &AWotCharacter::NextWeave);
+		PlayerInputComponent->BindKey(EKeys::MouseScrollUp, IE_Pressed, this, &AWotCharacter::NextWeave).bConsumeInput = false;
+		PlayerInputComponent->BindKey(EKeys::MouseScrollDown, IE_Pressed, this, &AWotCharacter::PrevWeave).bConsumeInput = false;
 		PlayerInputComponent->BindKey(EKeys::T, IE_Pressed, this, &AWotCharacter::TieOffWeave);
 		PlayerInputComponent->BindKey(EKeys::Gamepad_LeftShoulder, IE_Pressed, this, &AWotCharacter::TieOffWeave);
 		PlayerInputComponent->BindKey(EKeys::Gamepad_DPad_Up, IE_Pressed, this, &AWotCharacter::NextWeave);
@@ -466,6 +468,13 @@ void AWotCharacter::NextWeave()
 	}
 }
 
+void AWotCharacter::PrevWeave()
+{
+	if (ChannelComp) {
+		ChannelComp->PrevWeave();
+	}
+}
+
 void AWotCharacter::TieOffWeave()
 {
 	if (ChannelComp) {
@@ -483,8 +492,30 @@ void AWotCharacter::ToggleJournal()
 	UWotQuestJournal::Toggle(this);
 }
 
+void AWotCharacter::CloseInventory()
+{
+	if (!IsInventoryWidgetOpen()) {
+		return;
+	}
+	if (UWotInventoryScreen* Screen = Cast<UWotInventoryScreen>(InventoryWidget)) {
+		Screen->Close();   // restores input mode + cursor, then clears our reference
+	} else {
+		InventoryWidget->RemoveFromParent();
+		if (APlayerController* PC = Cast<APlayerController>(GetController())) {
+			PC->SetInputMode(FInputModeGameOnly());
+			PC->SetShowMouseCursor(false);
+		}
+		CloseInventoryWidget();
+	}
+}
+
 void AWotCharacter::TogglePauseMenu()
 {
+	// Esc with the inventory up closes the inventory, not the game
+	if (IsInventoryWidgetOpen()) {
+		CloseInventory();
+		return;
+	}
 	UWotPauseMenu::Toggle(this);
 }
 
@@ -613,7 +644,7 @@ void AWotCharacter::CloseInventoryWidget_Implementation()
 bool AWotCharacter::IsInventoryWidgetOpen() const
 {
 	// Check if the inventory widget is set and is currently visible
-	return InventoryWidget != nullptr;
+	return InventoryWidget != nullptr && InventoryWidget->IsInViewport();
 }
 
 bool AWotCharacter::CanOpenInventory() const {

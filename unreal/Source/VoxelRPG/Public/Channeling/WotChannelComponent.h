@@ -161,6 +161,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Channeling")
 	void NextWeave();
 
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void PrevWeave();
+
 	/** Ties off the weave being channeled so it holds on its own in front of the channeler. */
 	UFUNCTION(BlueprintCallable, Category = "Channeling")
 	bool TieOffWeave();

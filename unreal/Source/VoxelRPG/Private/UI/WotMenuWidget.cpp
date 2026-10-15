@@ -242,7 +242,9 @@ void UWotMenuWidget::CloseAllMenus(UObject* WorldContextObject)
 	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(World, Found, UWotMenuWidget::StaticClass(), false);
 	for (UUserWidget* W : Found) {
 		if (UWotMenuWidget* M = Cast<UWotMenuWidget>(W)) {
-			M->Close();
+			if (M->IsOpen()) {
+				M->Close();
+			}
 		}
 	}
 }

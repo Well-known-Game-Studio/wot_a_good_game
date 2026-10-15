@@ -10,6 +10,7 @@ console command; results are `[PT]` lines in the `LogWotTest` category, read bac
     python3 ways_nav.py                                               # editor-world navmesh rebuild + probes along the first Ways bridge
     python3 ways_test.py                                              # the Ways: spawn, channel Fire, walk from the entry to the exit Waygate
     python3 channel_test.py [Town]                                    # every weave for saidar and saidin (captures), then tie off Fire and Earth
+    python3 menu_input_test.py [Town]                                # open/close inventory (Esc), pause and journal, log the input gates, then walk
     python3 quest_ui_test.py [Town]                                   # quest tracker + journal captures (reset, advance an objective, open the journal)
     python3 record_clips.py [walk|ride|climb|channel ...]            # record PIE clips with wot.PlayTest.Record, then: make_clips.sh <outdir> [name ...] (ffmpeg -> mp4 + gif)
     python3 nav_rebuild_all.py [Town ...]                             # rebuild + save every town's editor navmesh (run after any town rebuild)
@@ -17,6 +18,6 @@ console command; results are `[PT]` lines in the `LogWotTest` category, read bac
     python3 goto_test.py <Town> x y [z] [seconds]                     # route to a point in PIE, harness summary
 
 Useful console commands: `wot.PlayTest.Spawn|Walk|Goto x y z|Stop|Status|Mount|Screenshot <name> [ui]|Record <name> [fps] [seconds] [ui]|RecordStop`,
-`wot.Nav.Rebuild|Status|Probe x y ...`, `wot.Quest.List|Start|Advance|Reset`, `wot.Save|Load|Saves|NewGame`, `wot.Menu.Pause|Journal|Inventory|Save|Load|Main|CloseAll`,
+`wot.Nav.Rebuild|Status|Probe x y ...`, `wot.Quest.List|Start|Advance|Reset`, `wot.Save|Load|Saves|NewGame`, `wot.Menu.Pause|Journal|Inventory|Esc|Status|Save|Load|Main|CloseAll`,
 `wot.Channel.Weave <Fire|Air|Water|Earth>|Begin|Release|Tie|Half <Saidin|Saidar>`.
 Captures and logs are written to `out/` (git-ignored); `wot.PlayTest.Screenshot` writes to `Saved/Screenshots`.

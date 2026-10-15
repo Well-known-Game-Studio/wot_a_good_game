@@ -61,6 +61,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Menu", meta = (WorldContext = "WorldContextObject", DeterminesOutputType = "MenuClass"))
 	static UWotMenuWidget* OpenMenu(UObject* WorldContextObject, TSubclassOf<UWotMenuWidget> MenuClass);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Menu")
+	bool IsOpen() const { return bOpen; }
+
 	/** Closes every open C++ menu for the local player. */
 	UFUNCTION(BlueprintCallable, Category = "Menu", meta = (WorldContext = "WorldContextObject"))
 	static void CloseAllMenus(UObject* WorldContextObject);

@@ -222,6 +222,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Channeling")
 	void NextWeave();
 
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void PrevWeave();
+
 	/** T / gamepad LB while channeling: ties the weave off so it holds on its own. */
 	UFUNCTION(BlueprintCallable, Category = "Channeling")
 	void TieOffWeave();
@@ -230,6 +233,10 @@ public:
 	void SelectWeaveAir();
 	void SelectWeaveWater();
 	void SelectWeaveEarth();
+
+	/** Closes the inventory screen the way the player does (restores input mode and cursor, clears the gate). */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void CloseInventory();
 
 	/** Opens or closes the quest journal (J / gamepad Back). */
 	UFUNCTION(BlueprintCallable, Category = "UI")
