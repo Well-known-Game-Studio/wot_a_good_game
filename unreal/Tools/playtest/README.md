@@ -1,5 +1,9 @@
 # Play-test drivers
 
+Start and stop the tools' editor only with `editor.sh start|stop|restart|status`: it records the PID it launched and
+stops that PID alone after checking its command line, because other Unreal editors run on this machine. Never kill
+`UnrealEditor` by name.
+
 Scripts that drive the C++ play-test harness (`Source/VoxelRPG/Testing/WotPlayTestSubsystem`) through the editor's MCP
 server (`towns/mcp.py`, editor launched with `-ModelContextProtocolStartServer -ModelContextProtocolPort=8000`). The
 subsystem polls `Saved/PlayTest/commands.txt` (PIE world) and `commands_editor.txt` (editor world) and runs each line as a
