@@ -419,6 +419,17 @@ void UWotPlayTestSubsystem::PollCommandFile()
 
 void UWotPlayTestSubsystem::Tick(float DeltaTime)
 {
+	if (bRecording) {
+		SinceFrame += DeltaTime;
+		RecordLeft -= DeltaTime;
+		if (SinceFrame >= RecordInterval) {
+			SinceFrame = 0.0f;
+			FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("rec_%s_%05d"), *RecordName, RecordFrame++), bRecordUI, false);
+		}
+		if (RecordLeft <= 0.0f) {
+			StopRecording();
+		}
+	}
 	SinceCommandPoll += DeltaTime;
 	if (SinceCommandPoll >= 0.5f) {
 		SinceCommandPoll = 0.0f;
@@ -654,6 +665,26 @@ void UWotPlayTestSubsystem::Screenshot(const FString& Name, bool bWithUI)
 	PT_LOG("SCREENSHOT requested %s (Saved/Screenshots)", *File);
 }
 
+void UWotPlayTestSubsystem::StartRecording(const FString& Name, float Fps, float Seconds, bool bWithUI)
+{
+	RecordName = Name;
+	RecordInterval = 1.0f / FMath::Clamp(Fps, 1.0f, 30.0f);
+	RecordLeft = FMath::Max(1.0f, Seconds);
+	bRecordUI = bWithUI;
+	SinceFrame = RecordInterval;   // first frame now
+	RecordFrame = 0;
+	bRecording = true;
+	PT_LOG("RECORD start %s fps=%.0f seconds=%.0f ui=%d", *Name, Fps, Seconds, bWithUI ? 1 : 0);
+}
+
+void UWotPlayTestSubsystem::StopRecording()
+{
+	if (bRecording) {
+		PT_LOG("RECORD stop %s frames=%d", *RecordName, RecordFrame);
+	}
+	bRecording = false;
+}
+
 void UWotPlayTestSubsystem::StartMountTest(float InRideSeconds)
 {
 	APawn* Pawn = GetPlayerPawn();
@@ -851,6 +882,22 @@ static FAutoConsoleCommandWithWorldAndArgs GWotNavStatus(
 	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
 		if (UWotPlayTestSubsystem* PT = GetPlayTest(World)) {
 			PT->LogNavState(TEXT("status"));
+		}
+	}));
+
+static FAutoConsoleCommandWithWorldAndArgs GWotPlayTestRecord(
+	TEXT("wot.PlayTest.Record"), TEXT("Record frames for a video: wot.PlayTest.Record <name> [fps=5] [seconds=30] [ui=0]"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		if (UWotPlayTestSubsystem* PT = GetPlayTest(World)) {
+			PT->StartRecording(Args.Num() > 0 ? Args[0] : TEXT("clip"), Args.Num() > 1 ? FCString::Atof(*Args[1]) : 5.0f, Args.Num() > 2 ? FCString::Atof(*Args[2]) : 30.0f, Args.Num() > 3 && FCString::Atoi(*Args[3]) != 0);
+		}
+	}));
+
+static FAutoConsoleCommandWithWorldAndArgs GWotPlayTestRecordStop(
+	TEXT("wot.PlayTest.RecordStop"), TEXT("Stop recording frames"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		if (UWotPlayTestSubsystem* PT = GetPlayTest(World)) {
+			PT->StopRecording();
 		}
 	}));
 

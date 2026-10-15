@@ -46,6 +46,9 @@ public:
 	/** Walk to the nearest rideable animal, mount it, ride for RideSeconds, take a screenshot, dismount. */
 	void StartMountTest(float RideSeconds);
 	void Screenshot(const FString& Name, bool bWithUI = false);
+	/** Save a frame every 1/Fps seconds for Seconds (Saved/Screenshots/<platform>/rec_<Name>_NNNNN.png) to cut into a video. */
+	void StartRecording(const FString& Name, float Fps, float Seconds, bool bWithUI);
+	void StopRecording();
 	void StopWalk(const TCHAR* Reason);
 	void LogStatus();
 
@@ -69,6 +72,13 @@ protected:
 	float SinceRideLog = 0.0f;
 	bool bRideShotTaken = false;
 	FString ScreenshotPrefix;
+	bool bRecording = false;
+	bool bRecordUI = false;
+	float RecordInterval = 0.2f;
+	float RecordLeft = 0.0f;
+	float SinceFrame = 0.0f;
+	int32 RecordFrame = 0;
+	FString RecordName;
 	bool bWaitingForNav = false;
 	float NavWait = 0.0f;
 	void StartWalkNow();
