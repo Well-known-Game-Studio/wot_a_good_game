@@ -1,3 +1,4 @@
+import re
 # ---------- relief: deterministic stepped (voxel) heightfield terrain for the town levels ----------
 Q=40            # height quantum (cm); MaxStepHeight is 45 so one step is always walkable
 CELL=250        # terrain cell size (cm)
@@ -556,7 +557,9 @@ def ladder(label,x,y,yaw,h,z=0):
     return ("actor",LADDER_BP,label,(x,y,z),yaw,1.0,{"LadderSize":{"x":0,"y":0,"z":h}})
 def npc(label,name,row,x,y,yaw=0,radius=900,cls=None,tags=()):
     """A villager (or, with cls, a main-character NPC Blueprint). tags become actor tags, e.g. 'QuestStart=Q_Winternight'."""
-    props={"Name":name,"CurrentRowName":row,"WanderRadius":float(radius)}
+    # dialogue rows are numbered (lines() makes <prefix>_1, _2, ...): an NPC starts on the first line
+    first=row if re.match(r".*_\d+$",row) else f"{row}_1"
+    props={"Name":name,"CurrentRowName":first,"WanderRadius":float(radius)}
     if tags: props["Tags"]=list(tags)
     return ("npc",label,(x,y),yaw,props,cls)
 MAIN_NPC="/Game/Wot/NPCs/Main/%s_NPC"

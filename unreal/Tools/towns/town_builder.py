@@ -385,6 +385,9 @@ def build_level(spec,extra_clean=()):
         new=[k for k in dl if k not in existing]
         if new: T(DT+"add_rows",{"data_table":table,"row_names":new})
         T(DT+"set_rows",{"data_table":table,"values":json.dumps({k:{"dialogueText":v[0],"nextRow":v[1]} for k,v in dl.items()})})
+        existing|=set(dl.keys())
+        missing=[it[1] for it in (gv(spec,"props") or []) if it[0]=="npc" and it[4].get("CurrentRowName") and it[4]["CurrentRowName"] not in existing]
+        if missing: out["dialogue_missing"]=missing   # an NPC whose first row is not in the table would lock the player with nothing to say
         save(["/Game/Wot/DataTables/DT_HybridRPG_Dialogue"]); out["dialogue_rows"]=len(dl)
     for (label,loc,yaw) in gv(spec,"moves") or []:
         for p in find_by_label(label): move_actor(p,loc,yaw)
