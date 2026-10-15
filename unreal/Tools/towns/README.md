@@ -33,8 +33,10 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   avenues), plazas, house kits, foliage, props, NPCs with dialogue rows (written into `DT_HybridRPG_Dialogue`;
   `unreal/DT_HybridRPG_Dialogue.csv` mirrors them) and the per-town relief.
 * `ow_fit.py` – fits the Randland reference map (`maps/westlands-national-borders-and-cities.png`) onto the Overworld
-  heightmap (`blender/overworld-full.png`, which the landscape was sculpted from) and writes `ow_sites.json`; `ow_portals.py`
-  places/moves the Overworld portals, player starts and landmarks there. Overworld axes: +X east, +Y south.
+  heightmap (`blender/overworld-full.png`, which the landscape was sculpted from) and writes `ow_sites.json` (all 11 towns);
+  `ow_portals.py` places or moves a portal and a tagged PlayerStart for every town in that file, plus a generic landmark
+  mesh for each town except Tar Valon and Tear, whose hand-placed landmarks (the White Tower, Dragonmount, the Stone)
+  are moved to the fitted sites instead. Overworld axes: +X east, +Y south.
 * `run_town.py <Town>...|--all|--dry|--kit|--overworld` – regenerate towns, dry-run the relief locally, rebuild the kit,
   or re-place the Overworld portals.
 

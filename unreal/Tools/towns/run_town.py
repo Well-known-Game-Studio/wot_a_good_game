@@ -16,10 +16,23 @@ TOWNS=["EmondsField","Baerlon","Whitebridge","ShadarLogoth","FalDara","Caemlyn",
 FILES=("pcg_lib.py","town_builder.py","kit_builder.py","relief.py","specs_common.py","specs_a.py","specs_b.py")
 def rd(f): return open(os.path.join(HERE,f)).read()
 def base(): return "import time\n"+"\n".join(rd(f) for f in FILES)
-def call_script(script):
+FAILED=[]
+def call_script(script,label=""):
+    """Runs a script in the editor; returns False (and records the failure) when the MCP client exits nonzero or the
+    script reports a town with ok=False, so the CLI's exit status reflects what actually happened."""
     args=json.dumps({"toolset_name":"editor_toolset.toolsets.programmatic.ProgrammaticToolset","tool_name":"execute_tool_script","arguments":{"script":script}})
     r=subprocess.run(["python3",os.path.join(HERE,"mcp.py"),"call","call_tool",args],capture_output=True,text=True)
     print(r.stdout[:3000]); print(r.stderr[-800:])
+    ok=r.returncode==0
+    try:
+        j=json.loads(r.stdout[r.stdout.index("{"):r.stdout.rindex("}")+1]); rv=j.get("returnValue",j)
+        rv=json.loads(rv) if isinstance(rv,str) else rv
+        if isinstance(rv,dict):
+            for k,v in rv.items():
+                if isinstance(v,dict) and v.get("ok") is False: ok=False; print(f"FAILED {k}: {v.get('err','')[:300]}")
+    except Exception: pass
+    if not ok: FAILED.append(label or "script")
+    return ok
 def dry(towns):
     g={"execute_tool":lambda n,a:(_ for _ in ()).throw(RuntimeError("no editor in dry run")),"math":math,"json":json,"time":time}
     exec(base(),g)
@@ -29,12 +42,16 @@ def dry(towns):
 def main():
     args=sys.argv[1:]
     if not args: print(__doc__); return
-    if args[0]=="--kit": call_script(base()+"\n"+rd("run_kit.py")); return
+    if args[0]=="--kit": call_script(base()+"\n"+rd("run_kit.py"),"kit"); return
     if args[0]=="--overworld":
         sites=json.load(open(os.path.join(HERE,"ow_sites.json")))
-        call_script(base()+"\n"+rd("ow_portals.py").replace("__SITES__",json.dumps(sites))); return
+        call_script(base()+"\n"+rd("ow_portals.py").replace("__SITES__",json.dumps(sites)),"overworld"); return
     if args[0]=="--dry": dry(args[1:] or TOWNS); return
     towns=TOWNS if args[0]=="--all" else args
     for town in towns:
-        print("===",town); call_script(base()+"\nTOWNS=["+json.dumps(town)+"]\n"+rd("run_cities.py"))
-if __name__=="__main__": main()
+        print("===",town)
+        if not call_script(base()+"\nTOWNS=["+json.dumps(town)+"]\n"+rd("run_cities.py"),town):
+            print(f"stopping: {town} failed (the level is left open and unsaved in the editor for inspection)"); break
+if __name__=="__main__":
+    main()
+    if FAILED: print("FAILED:",", ".join(FAILED)); sys.exit(1)

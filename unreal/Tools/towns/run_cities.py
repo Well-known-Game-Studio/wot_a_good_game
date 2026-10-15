@@ -23,5 +23,8 @@ def run():
                 r=make_city(spec,town,["Tam_NPC","Lan_NPC","Ground"])
             out[town]={"ok":True,"nodes":r["build"]["info"]["nodes"],"msgs":str(r["build"]["msgs"])[:300],"placed":r["build"]["placed"],"boxes":len(spec["terrain"]["boxes"]),"lattice":len(spec["lattice"]),"s":round(time.time()-t0)}
         except Exception as e:
+            # the level may be half rebuilt (old actors removed, new ones missing): leave it open and unsaved,
+            # and stop so the next town's level switch cannot save it
             out[town]={"ok":False,"err":str(e)[:600],"s":round(time.time()-t0)}
+            break
     return out

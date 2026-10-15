@@ -75,6 +75,8 @@ def main():
     elif a[0] == "call":
         args = json.loads(a[2]) if len(a) > 2 else {}
         r, _ = rpc("tools/call", {"name": a[1], "arguments": args}, sid)
+        if isinstance(r, dict) and "error" in r and "result" not in r:
+            print(json.dumps(r["error"], indent=1)); sys.exit(2)
         out = r.get("result", r)
         # unwrap text content
         if isinstance(out, dict) and "content" in out:
@@ -93,7 +95,7 @@ def main():
                     fn = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"img_{int(_t.time()*1000)}.{ 'png' if 'png' in c.get('mimeType','') else 'jpg'}")
                     open(fn, "wb").write(base64.b64decode(c["data"])); print("[image saved]", fn)
                 else: print(json.dumps(c)[:500])
-            if out.get("isError"): print("[isError]")
+            if out.get("isError"): print("[isError]"); sys.exit(1)
             if "structuredContent" in out:
                 sc = out["structuredContent"]; rv = sc.get("returnValue") if isinstance(sc, dict) else None
                 if isinstance(rv, dict) and "data" in rv and "mimeType" in rv and str(rv["mimeType"]).startswith("image/"):
