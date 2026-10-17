@@ -77,6 +77,13 @@ https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/e68240f3
 
 https://github.com/Well-known-Game-Studio/wot_a_good_game/assets/213467/b3bde112-3e55-42ee-baf5-fece5317146d
 
+## World generation
+
+The town levels are generated from Python specs through the editor's MCP server: terrain relief, carved roads and
+stairs, placement rules, and one PCG graph per town built on five shared subgraphs. See
+[docs/world_gen.md](docs/world_gen.md) for what the pieces do, how the graphs work and how to build with them
+(`unreal/Tools/towns`), and [docs/ways_and_channeling_design.md](docs/ways_and_channeling_design.md) for the Ways.
+
 ## Development
 
 If on MacOS: [using modern xcode](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-modern-xcode-in-unreal-engine)

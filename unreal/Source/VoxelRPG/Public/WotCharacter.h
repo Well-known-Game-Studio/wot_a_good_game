@@ -25,6 +25,8 @@ class UWotItem;
 class USoundBase;
 class UAudioComponent;
 class UNiagaraSystem;
+class UWotMountComponent;
+class UWotChannelComponent;
 
 UCLASS()
 class VOXELRPG_API AWotCharacter : public ACharacter
@@ -92,6 +94,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
 	TObjectPtr<UWotActionComponent> ActionComp;
 
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Components")
+	TObjectPtr<UWotChannelComponent> ChannelComp;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Visual Effects", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UNiagaraSystem> LandingEffect;
 
@@ -111,6 +116,9 @@ protected:
 	// Movement
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Movement")
 	TObjectPtr<AActor> CurrentLadderActor{nullptr};
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Mount")
+	TObjectPtr<UWotMountComponent> CurrentMount{nullptr};
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Movement")
 	void GetCharacterMovementAxes(FVector& OutForward, FVector& OutRight) const;
@@ -181,6 +189,67 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsClimbing() const;
 
+	// Mounts
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mount")
+	bool IsMounted() const { return CurrentMount != nullptr; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mount")
+	UWotMountComponent* GetMount() const { return CurrentMount; }
+
+	/** Called by UWotMountComponent when the character mounts or dismounts. */
+	void SetMount(UWotMountComponent* NewMount);
+
+	/** Dismounts when riding; returns true if the character was riding. */
+	UFUNCTION(BlueprintCallable, Category = "Mount")
+	bool Dismount();
+
+	/** Used by the interaction check and the play-test harness. */
+	UWotInteractionComponent* GetInteractionComponent() const { return InteractionComp; }
+
+	/** Public entry point for the interact action (same as the IA_Interact binding). */
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void TryInteract() { PrimaryInteract(); }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Channeling")
+	UWotChannelComponent* GetChannelComponent() const { return ChannelComp; }
+
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void ChannelPressed();
+
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void ChannelReleased();
+
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void NextWeave();
+
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void PrevWeave();
+
+	/** T / gamepad LB while channeling: ties the weave off so it holds on its own. */
+	UFUNCTION(BlueprintCallable, Category = "Channeling")
+	void TieOffWeave();
+
+	void SelectWeaveFire();
+	void SelectWeaveAir();
+	void SelectWeaveWater();
+	void SelectWeaveEarth();
+
+	/** Closes the inventory screen the way the player does (restores input mode and cursor, clears the gate). */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void CloseInventory();
+
+	/** Opens or closes the quest journal (J / gamepad Back). */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void ToggleJournal();
+
+	/** Opens or closes the C++ pause menu (bound to the pause input action below). */
+	UFUNCTION(BlueprintCallable, Category = "UI")
+	void TogglePauseMenu();
+
+	/** Input action that toggles the pause menu; bound natively in SetupPlayerInputComponent when set. */
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSoftObjectPtr<class UInputAction> PauseMenuAction;
+
 	UFUNCTION(BlueprintCallable, Category = "UI")
 	bool CanOpenInventory() const;
 
@@ -224,5 +293,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void Landed(const FHitResult& Hit) override;
+
+	virtual void PossessedBy(AController* NewController) override;
 
 };

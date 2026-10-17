@@ -8,7 +8,7 @@ public class VoxelRPG : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Niagara", "CinematicCamera", "AIModule", "GameplayTasks", "GameplayTags", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Niagara", "CinematicCamera", "AIModule", "GameplayTasks", "GameplayTags", "UMG", "NavigationSystem", "EnhancedInput" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AssetRegistry" });
 

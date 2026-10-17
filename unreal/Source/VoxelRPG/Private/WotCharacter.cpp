@@ -24,6 +24,16 @@
 #include "Items/WotItem.h"
 #include "Items/WotItemWeapon.h"
 #include "Components/AudioComponent.h"
+#include "WotMountComponent.h"
+#include "Channeling/WotChannelComponent.h"
+#include "UI/WotQuestJournal.h"
+#include "UI/WotInventoryScreen.h"
+#include "AI/WotAICharacter.h"
+#include "Quests/WotQuestSubsystem.h"
+#include "Save/WotSaveSubsystem.h"
+#include "UI/WotGameMenus.h"
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
 
 // Sets default values
 AWotCharacter::AWotCharacter()
@@ -55,6 +65,8 @@ AWotCharacter::AWotCharacter()
 
 	ActionComp = CreateDefaultSubobject<UWotActionComponent>("ActionComp");
 
+	ChannelComp = CreateDefaultSubobject<UWotChannelComponent>("ChannelComp");
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	EffectAudioComp = CreateDefaultSubobject<UAudioComponent>("EffectAudioComp");
@@ -78,6 +90,12 @@ void AWotCharacter::BeginPlay()
 	SetupCineCamera();
 	// start the interaction check timer
 	GetWorldTimerManager().SetTimer(TimerHandle_InteractionCheck, this, &AWotCharacter::InteractionCheck_TimeElapsed, InteractionCheckPeriod, true);
+	// quest tracker for the local player
+	if (IsLocallyControlled()) {
+		if (UWotQuestSubsystem* Quests = UWotQuestSubsystem::Get(this)) {
+			Quests->OnPlayerBeginPlay(this);
+		}
+	}
 }
 
 void AWotCharacter::SetupSpringArm()
@@ -128,15 +146,53 @@ void AWotCharacter::PrimaryInteract_Implementation()
 	if (!InputEnabled()) {
 		return;
 	}
-	if (InteractionComp)
-	{
-		InteractionComp->PrimaryInteract();
+	// riding: interact dismounts
+	if (IsMounted()) {
+		Dismount();
+		return;
+	}
+	if (!InteractionComp) {
+		return;
+	}
+	// rideable animals are mounted instead of talked to
+	AActor* ClosestActor = nullptr;
+	UActorComponent* ClosestComponent = nullptr;
+	FHitResult Hit;
+	if (InteractionComp->GetInteractableInRange(ClosestActor, ClosestComponent, Hit)) {
+		if (UWotMountComponent* Mount = UWotMountComponent::FindMount(ClosestActor)) {
+			if (!IsClimbing() && !GetCharacterMovement()->IsFalling()) {
+				Mount->Mount(this);
+			}
+			return;
+		}
+	}
+	InteractionComp->PrimaryInteract();
+	// report conversations to the quest system
+	if (AActor* Talked = InteractionComp->LastInteractedActor) {
+		if (Talked->IsA(AWotAICharacter::StaticClass())) {
+			if (UWotQuestSubsystem* Quests = UWotQuestSubsystem::Get(this)) {
+				Quests->NotifyTalkedTo(this, Talked);
+			}
+		}
 	}
 }
 
 bool AWotCharacter::IsClimbing() const
 {
 	return CurrentLadderActor != nullptr;
+}
+
+void AWotCharacter::SetMount(UWotMountComponent* NewMount)
+{
+	CurrentMount = NewMount;
+}
+
+bool AWotCharacter::Dismount()
+{
+	if (!CurrentMount) {
+		return false;
+	}
+	return CurrentMount->Dismount();
 }
 
 void AWotCharacter::HandleMovementInput_Implementation(const FVector &MoveDirection, const FVector &LookDirection)
@@ -168,6 +224,19 @@ bool AWotCharacter::Move_Implementation(const FVector &MoveVector)
 	if (MoveVector.Size() < 0.25f) {
 		// no movement input, so we don't do anything
 		return false;
+	}
+
+	// riding: steer the mount instead of the character
+	if (IsMounted()) {
+		auto ride_value = MoveVector;
+		if (ride_value.Size() > 1.0f) {
+			ride_value = ride_value.GetSafeNormal();
+		}
+		FVector ride_right, ride_up;
+		GetCharacterMovementAxes(ride_up, ride_right);
+		CurrentMount->AddRiderMovementInput(ride_right, ride_value.X);
+		CurrentMount->AddRiderMovementInput(ride_up, ride_value.Y);
+		return true;
 	}
 
 	// if the player is on a ladder, we want to move the player up/down the
@@ -286,6 +355,13 @@ bool AWotCharacter::Look_Implementation(const FVector &LookDirection)
 
 	// now get the user's input turn commands
 	auto look_vector = up * LookDirection.Y + right * LookDirection.X;
+	if (IsMounted()) {
+		// turn the mount; the rider is attached to it
+		if (AActor* MountActor = CurrentMount->GetOwner()) {
+			MountActor->SetActorRotation(look_vector.GetSafeNormal().ToOrientationRotator());
+		}
+		return true;
+	}
 	SetActorRotation(look_vector.GetSafeNormal().ToOrientationRotator());
 	return true;
 }
@@ -323,6 +399,34 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	// pause menu (the rest of the input is bound in the Blueprint)
+	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+		if (UInputAction* Action = PauseMenuAction.LoadSynchronous()) {
+			EIC->BindAction(Action, ETriggerEvent::Started, this, &AWotCharacter::TogglePauseMenu);
+		}
+	}
+	if (PlayerInputComponent) {
+		// channeling: hold Q (gamepad right shoulder) to embrace the Power, release to loose the weave; 1-4, the mouse wheel or D-pad up pick the weave
+		PlayerInputComponent->BindKey(EKeys::Q, IE_Pressed, this, &AWotCharacter::ChannelPressed);
+		PlayerInputComponent->BindKey(EKeys::Q, IE_Released, this, &AWotCharacter::ChannelReleased);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_RightShoulder, IE_Pressed, this, &AWotCharacter::ChannelPressed);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_RightShoulder, IE_Released, this, &AWotCharacter::ChannelReleased);
+		PlayerInputComponent->BindKey(EKeys::MouseScrollUp, IE_Pressed, this, &AWotCharacter::NextWeave).bConsumeInput = false;
+		PlayerInputComponent->BindKey(EKeys::MouseScrollDown, IE_Pressed, this, &AWotCharacter::PrevWeave).bConsumeInput = false;
+		PlayerInputComponent->BindKey(EKeys::T, IE_Pressed, this, &AWotCharacter::TieOffWeave);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_LeftShoulder, IE_Pressed, this, &AWotCharacter::TieOffWeave);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_DPad_Up, IE_Pressed, this, &AWotCharacter::NextWeave);
+		PlayerInputComponent->BindKey(EKeys::One, IE_Pressed, this, &AWotCharacter::SelectWeaveFire);
+		PlayerInputComponent->BindKey(EKeys::Two, IE_Pressed, this, &AWotCharacter::SelectWeaveAir);
+		PlayerInputComponent->BindKey(EKeys::Three, IE_Pressed, this, &AWotCharacter::SelectWeaveWater);
+		PlayerInputComponent->BindKey(EKeys::Four, IE_Pressed, this, &AWotCharacter::SelectWeaveEarth);
+		PlayerInputComponent->BindKey(EKeys::Escape, IE_Pressed, this, &AWotCharacter::TogglePauseMenu).bConsumeInput = false;
+		PlayerInputComponent->BindKey(EKeys::P, IE_Pressed, this, &AWotCharacter::TogglePauseMenu);
+		PlayerInputComponent->BindKey(EKeys::J, IE_Pressed, this, &AWotCharacter::ToggleJournal);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Left, IE_Pressed, this, &AWotCharacter::ToggleJournal);
+		PlayerInputComponent->BindKey(EKeys::Gamepad_Special_Right, IE_Pressed, this, &AWotCharacter::TogglePauseMenu);
+	}
+
 	// // We're interested in knowing the axis value, but don't need a delegate for
 	// // it (we read it in the tick event)
 	// PlayerInputComponent->BindVectorAxis("IA_Move");
@@ -341,6 +445,92 @@ void AWotCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	// PlayerInputComponent->BindAction("IA_Interact", IE_Pressed, this, &AWotCharacter::PrimaryInteract);
 
 	// PlayerInputComponent->BindAction("IA_Camera", IE_Pressed, this, &AWotCharacter::RotateCamera);
+}
+
+void AWotCharacter::ChannelPressed()
+{
+	if (ChannelComp && InputEnabled() && !IsInventoryWidgetOpen() && !IsMounted()) {
+		ChannelComp->BeginChannel();
+	}
+}
+
+void AWotCharacter::ChannelReleased()
+{
+	if (ChannelComp) {
+		ChannelComp->ReleaseWeave();
+	}
+}
+
+void AWotCharacter::NextWeave()
+{
+	if (ChannelComp) {
+		ChannelComp->NextWeave();
+	}
+}
+
+void AWotCharacter::PrevWeave()
+{
+	if (ChannelComp) {
+		ChannelComp->PrevWeave();
+	}
+}
+
+void AWotCharacter::TieOffWeave()
+{
+	if (ChannelComp) {
+		ChannelComp->TieOffWeave();
+	}
+}
+
+void AWotCharacter::SelectWeaveFire() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Fire); }
+void AWotCharacter::SelectWeaveAir() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Air); }
+void AWotCharacter::SelectWeaveWater() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Water); }
+void AWotCharacter::SelectWeaveEarth() { if (ChannelComp) ChannelComp->SelectWeave(EWotWeave::Earth); }
+
+void AWotCharacter::ToggleJournal()
+{
+	UWotQuestJournal::Toggle(this);
+}
+
+void AWotCharacter::CloseInventory()
+{
+	if (!IsInventoryWidgetOpen()) {
+		return;
+	}
+	if (UWotInventoryScreen* Screen = Cast<UWotInventoryScreen>(InventoryWidget)) {
+		Screen->Close();   // restores input mode + cursor, then clears our reference
+	} else {
+		InventoryWidget->RemoveFromParent();
+		if (APlayerController* PC = Cast<APlayerController>(GetController())) {
+			PC->SetInputMode(FInputModeGameOnly());
+			PC->SetShowMouseCursor(false);
+		}
+		CloseInventoryWidget();
+	}
+}
+
+void AWotCharacter::TogglePauseMenu()
+{
+	// Esc with the inventory up closes the inventory, not the game
+	if (IsInventoryWidgetOpen()) {
+		CloseInventory();
+		return;
+	}
+	UWotPauseMenu::Toggle(this);
+}
+
+void AWotCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	// the pawn is possessed after BeginPlay, so this is where the local player becomes known
+	if (NewController && NewController->IsLocalPlayerController()) {
+		if (UWotQuestSubsystem* Quests = UWotQuestSubsystem::Get(this)) {
+			Quests->OnPlayerBeginPlay(this);
+		}
+		if (UWotSaveSubsystem* Saves = UWotSaveSubsystem::Get(this)) {
+			Saves->OnPlayerReady(this);
+		}
+	}
 }
 
 void AWotCharacter::Landed(const FHitResult& Hit)
@@ -454,7 +644,7 @@ void AWotCharacter::CloseInventoryWidget_Implementation()
 bool AWotCharacter::IsInventoryWidgetOpen() const
 {
 	// Check if the inventory widget is set and is currently visible
-	return InventoryWidget != nullptr;
+	return InventoryWidget != nullptr && InventoryWidget->IsInViewport();
 }
 
 bool AWotCharacter::CanOpenInventory() const {
@@ -580,6 +770,10 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 	if (!InteractionComp) {
 		return;
 	}
+	if (IsMounted()) {
+		ShowInteractionWidgetAttachedTo(FText::FromString(TEXT("Dismount")), InteractionCheckPeriod*1.1f, this, FVector(0, 0, 120.0f), false);
+		return;
+	}
 	// use the interaction component to get the closest interactable
 	AActor *ClosestInteractable = nullptr;
 	UActorComponent *ClosestInteractionComp = nullptr;
@@ -621,6 +815,10 @@ void AWotCharacter::InteractionCheck_TimeElapsed()
 		IWotInteractableInterface::Execute_GetInteractionText(ClosestInteractable, this, HitResult, InteractionText);
 	}
 
+	// rideable animals get a ride prompt instead of their dialogue prompt
+	if (UWotMountComponent* Mount = UWotMountComponent::FindMount(ClosestInteractable)) {
+		InteractionText = FText::Format(NSLOCTEXT("Wot", "RidePrompt", "Ride {0}"), Mount->MountDisplayName);
+	}
 	// if the text is empty, don't show the widget
 	if (InteractionText.IsEmpty()) {
 		return;
