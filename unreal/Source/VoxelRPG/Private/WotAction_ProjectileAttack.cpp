@@ -1,4 +1,6 @@
 #include "WotAction_ProjectileAttack.h"
+#include "WotCharacterAnimInstance.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Character.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
@@ -22,8 +24,12 @@ void UWotAction_ProjectileAttack::Start_Implementation(AActor* Instigator)
     return;
   }
 
-  // Play the casting animation
-  Character->PlayAnimMontage(AttackAnim);
+  // Play the casting animation: a montage when one is set, otherwise the shared cast clip (or the light attack)
+  if (AttackAnim) {
+    Character->PlayAnimMontage(AttackAnim);
+  } else if (UWotCharacterAnimInstance* AI = Cast<UWotCharacterAnimInstance>(Character->GetMesh()->GetAnimInstance())) {
+    AI->PlayCast();
+  }
 
   // We don't require a casting system, so don't ensure it
   if (CastingNiagaraSystem) {

@@ -17,9 +17,17 @@ ours() {  # the PID we own, verified by its command line; empty if none
   fi
   [ -n "$pid" ] && ps -o command= -p "$pid" 2>/dev/null | grep -q "VoxelRPG.uproject.*-ModelContextProtocolStartServer" && echo "$pid" || true
 }
+reaper() {  # SIGTERM makes the editor spawn a CrashReportClient for OUR pid that inherits the MCP socket; close that one only
+  sleep 2
+  for c in $(pgrep -f "CrashReportClient.*VoxelRPG-pid-$1-" 2>/dev/null); do kill -TERM "$c" 2>/dev/null && echo "closed crash reporter $c (pid $1)"; done
+}
 case "${1:-status}" in
   start)
     if [ -n "$(ours)" ]; then echo "already running: pid $(ours)"; exit 0; fi
+    # a crashed VoxelRPG editor leaves a CrashReportClient that inherited the MCP socket: close that one (ours by project), nothing else
+    for c in $(lsof -nP -iTCP:8000 -sTCP:LISTEN -t 2>/dev/null); do
+      if ps -o command= -p "$c" | grep -q "CrashReportClient.*VoxelRPG-pid-"; then kill -TERM "$c" && echo "closed crash reporter $c holding port 8000"; sleep 2; fi
+    done
     if lsof -nP -iTCP:8000 -sTCP:LISTEN >/dev/null 2>&1; then echo "port 8000 is held by another process; not starting:"; lsof -nP -iTCP:8000 -sTCP:LISTEN; exit 1; fi
     rm -f ~/.ue_mcp_session
     nohup "$UE" "$UPROJECT" -ModelContextProtocolStartServer -ModelContextProtocolPort=8000 -log > "$LOG" 2>&1 &
@@ -28,7 +36,7 @@ case "${1:-status}" in
     echo "mcp did not answer within 200s"; exit 1;;
   stop)
     pid="$(ours)"; [ -z "$pid" ] && { echo "no editor of ours running"; exit 0; }
-    kill -TERM "$pid"; for i in $(seq 1 60); do ps -p "$pid" >/dev/null 2>&1 || { echo "stopped pid $pid"; rm -f "$PIDFILE"; exit 0; }; sleep 3; done
+    kill -TERM "$pid"; for i in $(seq 1 60); do ps -p "$pid" >/dev/null 2>&1 || { echo "stopped pid $pid"; rm -f "$PIDFILE"; reaper "$pid"; exit 0; }; sleep 3; done
     echo "pid $pid did not exit after 180s (hung shutdown); sending SIGKILL to that PID only"; kill -9 "$pid" || true; rm -f "$PIDFILE";;
   restart) "$0" stop; "$0" start;;
   status)

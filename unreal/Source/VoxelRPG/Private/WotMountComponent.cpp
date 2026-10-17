@@ -1,4 +1,6 @@
 #include "WotMountComponent.h"
+#include "WotCharacterAnimInstance.h"
+#include "Animation/WotAnimSet.h"
 #include "WotCharacter.h"
 #include "AIController.h"
 #include "BrainComponent.h"
@@ -185,6 +187,11 @@ void UWotMountComponent::PlayRiderAnim(UAnimSequenceBase* Anim)
 	USkeletalMeshComponent* RiderMesh = Rider->GetMesh();
 	if (!RiderMesh) {
 		return;
+	}
+	if (UWotCharacterAnimInstance* Shared = Cast<UWotCharacterAnimInstance>(RiderMesh->GetAnimInstance())) {
+		if (Shared->AnimSet && (Shared->AnimSet->RideIdle || Shared->AnimSet->RideMove)) {
+			return;   // the shared anim instance plays the seated poses from its clip set (bIsRiding)
+		}
 	}
 	RiderMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 	RiderMesh->PlayAnimation(Anim, true);

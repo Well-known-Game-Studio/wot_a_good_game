@@ -15,6 +15,23 @@ class UWotDeathEffectComponent;
 class UWotUWHealthBar;
 class UWotUWPopupNumber;
 
+class USkeletalMesh;
+class UMaterialInterface;
+
+/** One body a generic NPC can wear: a humanoid mesh and its palette materials. */
+USTRUCT(BlueprintType)
+struct FWotLook
+{
+  GENERATED_BODY()
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Look")
+  TSoftObjectPtr<USkeletalMesh> Mesh;
+
+  /** Per-slot material overrides (empty entries keep the mesh's own material). */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Look")
+  TArray<TSoftObjectPtr<UMaterialInterface>> Materials;
+};
+
 UCLASS()
 class VOXELRPG_API AWotAICharacter : public ACharacter, public IWotInteractableInterface, public IWotGameplayInterface
 {
@@ -23,6 +40,18 @@ class VOXELRPG_API AWotAICharacter : public ACharacter, public IWotInteractableI
 public:
   // Sets default values for this character's properties
   AWotAICharacter();
+
+  /** Bodies for NPCs whose Blueprint sets no mesh (villagers): one is picked per actor name, so a town keeps the same faces. */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Look")
+  TArray<FWotLook> RandomLooks;
+
+  /** Anim Blueprint applied with a random look (the shared humanoid Anim Blueprint). */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Look")
+  TSubclassOf<UAnimInstance> RandomLookAnimClass;
+
+  /** Gives the mesh a body from RandomLooks when it has none. Returns the look index or -1. */
+  UFUNCTION(BlueprintCallable, Category = "Look")
+  int32 ApplyRandomLook();
 
   // Attacking
   UFUNCTION(BlueprintCallable)

@@ -27,6 +27,17 @@
 #include "UObject/SoftObjectPath.h"
 #include "UnrealClient.h"
 #include "Misc/DateTime.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimClassInterface.h"
+#include "ReferenceSkeleton.h"
+#include "Animation/AnimSequence.h"
+#include "Animation/BlendSpace.h"
+#include "Animation/AnimationAsset.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "TimerManager.h"
+#include "WotCharacterAnimInstance.h"
+#include "WotActionComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogWotTest, Log, All);
 
@@ -899,6 +910,123 @@ static FAutoConsoleCommandWithWorldAndArgs GWotPlayTestRecordStop(
 		if (UWotPlayTestSubsystem* PT = GetPlayTest(World)) {
 			PT->StopRecording();
 		}
+	}));
+
+
+// ---------------------------------------------------------------------------
+// wot.Anim.Status [ActorNameSubstring] : log how a character is animated right now and whether its bones move.
+static void WotLogAnimStatus(UWorld* World, const FString& Who)
+{
+	ACharacter* C = nullptr;
+	if (Who.IsEmpty()) {
+		APlayerController* PC = World ? World->GetFirstPlayerController() : nullptr;
+		C = PC ? Cast<ACharacter>(PC->GetPawn()) : nullptr;
+	} else {
+		for (TActorIterator<ACharacter> It(World); It; ++It) {
+			bool bMatch = It->GetName().Contains(Who);
+#if WITH_EDITOR
+			bMatch = bMatch || It->GetActorLabel().Contains(Who);
+#endif
+			if (bMatch) { C = *It; break; }
+		}
+	}
+	if (!C) {
+		PT_LOG("ANIM no character for '%s'", *Who);
+		return;
+	}
+	USkeletalMeshComponent* M = C->GetMesh();
+	if (!M) {
+		PT_LOG("ANIM %s has no mesh component", *C->GetName());
+		return;
+	}
+	USkeletalMesh* SkM = M->GetSkeletalMeshAsset();
+	USkeleton* Skel = SkM ? SkM->GetSkeleton() : nullptr;
+	UAnimInstance* AI = M->GetAnimInstance();
+	PT_LOG("ANIM %s mesh=%s skeleton=%s bones=%d mode=%d animClass=%s instance=%s pause=%d noSkelUpdate=%d tickOpt=%d ticking=%d rendered=%d rate=%.2f playing=%d vel=%.0f",
+		*C->GetName(), *GetNameSafe(SkM), *GetNameSafe(Skel), M->GetNumBones(), (int32)M->GetAnimationMode(), *GetNameSafe(M->GetAnimClass()), *GetNameSafe(AI ? AI->GetClass() : nullptr),
+		M->bPauseAnims ? 1 : 0, M->bNoSkeletonUpdate ? 1 : 0, (int32)M->VisibilityBasedAnimTickOption, M->IsComponentTickEnabled() ? 1 : 0, M->bRecentlyRendered ? 1 : 0, M->GlobalAnimRateScale, M->IsPlaying() ? 1 : 0, C->GetVelocity().Size());
+	{
+		IAnimClassInterface* ACI = IAnimClassInterface::GetFromClass(M->GetAnimClass());
+		USkeleton* ClassSkel = ACI ? ACI->GetTargetSkeleton() : nullptr;
+		TArray<FString> MeshBones, SkelBones;
+		if (SkM) for (int32 i = 0; i < SkM->GetRefSkeleton().GetRawBoneNum(); ++i) MeshBones.Add(SkM->GetRefSkeleton().GetBoneName(i).ToString());
+		if (Skel) for (int32 i = 0; i < Skel->GetReferenceSkeleton().GetRawBoneNum(); ++i) SkelBones.Add(Skel->GetReferenceSkeleton().GetBoneName(i).ToString());
+		PT_LOG("ANIM   spawn enable=%d classSkeleton=%s needSpawn=%d compatMesh=%d registered=%d", M->bEnableAnimation ? 1 : 0, *GetNameSafe(ClassSkel), -1,
+			(Skel && SkM) ? (Skel->IsCompatibleMesh(SkM, false) ? 1 : 0) : -1, M->IsRegistered() ? 1 : 0);
+		PT_LOG("ANIM   meshBones=[%s]", *FString::Join(MeshBones, TEXT(",")));
+		if (SkM) {
+			const FReferenceSkeleton& RS = SkM->GetRefSkeleton();
+			for (int32 i = 0; i < RS.GetRawBoneNum(); ++i) {
+				const FTransform& T = RS.GetRefBonePose()[i];
+				const FRotator R = T.GetRotation().Rotator();
+				PT_LOG("ANIM   refpose %s parent=%s t=(%.1f %.1f %.1f) r=(p%.1f y%.1f r%.1f)", *RS.GetBoneName(i).ToString(), RS.GetParentIndex(i) >= 0 ? *RS.GetBoneName(RS.GetParentIndex(i)).ToString() : TEXT("-"), T.GetLocation().X, T.GetLocation().Y, T.GetLocation().Z, R.Pitch, R.Yaw, R.Roll);
+			}
+		}
+		PT_LOG("ANIM   skelBones=[%s]", *FString::Join(SkelBones, TEXT(",")));
+	}
+	if (UWotCharacterAnimInstance* W = Cast<UWotCharacterAnimInstance>(AI)) {
+		PT_LOG("ANIM   vars speed=%.0f attacking=%d heavy=%d inAir=%d riding=%d channeling=%d climbing=%d montage=%s", W->Speed, W->bIsAttacking ? 1 : 0, W->bIsHeavyAttack ? 1 : 0, W->bIsInAir ? 1 : 0, W->bIsRiding ? 1 : 0, W->bIsChanneling ? 1 : 0, W->bIsClimbing ? 1 : 0, *GetNameSafe(W->GetCurrentActiveMontage()));
+	}
+	if (AI) {
+		for (TFieldIterator<FObjectProperty> It(AI->GetClass()); It; ++It) {
+			if (!It->PropertyClass || !It->PropertyClass->IsChildOf(UAnimationAsset::StaticClass())) continue;
+			UAnimationAsset* Asset = Cast<UAnimationAsset>(It->GetObjectPropertyValue_InContainer(AI));
+			FString Extra;
+			if (UAnimSequence* Seq = Cast<UAnimSequence>(Asset)) {
+				Extra = FString::Printf(TEXT("len=%.2f keys=%d compressedValid=%d"), Seq->GetPlayLength(), Seq->GetNumberOfSampledKeys(), Seq->IsCompressedDataValid() ? 1 : 0);
+			} else if (UBlendSpace* BS = Cast<UBlendSpace>(Asset)) {
+				TArray<FString> Names;
+				for (const FBlendSample& Smp : BS->GetBlendSamples()) Names.Add(FString::Printf(TEXT("%s@%.0f"), *GetNameSafe(Smp.Animation), Smp.SampleValue.X));
+				Extra = FString::Printf(TEXT("samples=[%s]"), *FString::Join(Names, TEXT(",")));
+			}
+			PT_LOG("ANIM   asset %s = %s skeleton=%s compatible=%d %s", *It->GetName(), *GetNameSafe(Asset), Asset ? *GetNameSafe(Asset->GetSkeleton()) : TEXT(""),
+				(Asset && Skel) ? (Skel->IsCompatibleForEditor(Asset->GetSkeleton()) ? 1 : 0) : -1, *Extra);
+		}
+	}
+	// bone motion: compare component-space transforms now and 0.35 s later
+	TArray<FTransform> Before = M->GetComponentSpaceTransforms();
+	TWeakObjectPtr<USkeletalMeshComponent> WeakM = M;
+	FTimerHandle H;
+	World->GetTimerManager().SetTimer(H, FTimerDelegate::CreateLambda([WeakM, Before]() {
+		if (!WeakM.IsValid()) return;
+		const TArray<FTransform>& After = WeakM->GetComponentSpaceTransforms();
+		float Moved = 0.0f; int32 N = FMath::Min(Before.Num(), After.Num()); int32 Movers = 0;
+		for (int32 i = 0; i < N; ++i) {
+			const float D = FVector::Dist(Before[i].GetLocation(), After[i].GetLocation()) + (float)FMath::RadiansToDegrees(Before[i].GetRotation().AngularDistance(After[i].GetRotation()));
+			Moved += D; if (D > 0.5f) ++Movers;
+		}
+		UWotCharacterAnimInstance* W = Cast<UWotCharacterAnimInstance>(WeakM->GetAnimInstance());
+		PT_LOG("ANIM   motion bones=%d moved=%d total=%.1f speed=%.0f attacking=%d", N, Movers, Moved, W ? W->Speed : -1.0f, W ? (W->bIsAttacking ? 1 : 0) : -1);
+	}), 0.35f, false);
+}
+
+static FAutoConsoleCommandWithWorldAndArgs GWotPlayTestAttack(
+	TEXT("wot.PlayTest.Attack"), TEXT("Start the player's primary attack (released 0.4 s later): wot.PlayTest.Attack"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		APlayerController* PC = World ? World->GetFirstPlayerController() : nullptr;
+		AWotCharacter* C = PC ? Cast<AWotCharacter>(PC->GetPawn()) : nullptr;
+		if (!C) {
+			PT_LOG("ATTACK no player character");
+			return;
+		}
+		UWotActionComponent* AC = C->FindComponentByClass<UWotActionComponent>();
+		if (!AC) {
+			PT_LOG("ATTACK no action component");
+			return;
+		}
+		const bool bStarted = AC->StartActionByName(FName("PrimaryAttack"), C);
+		PT_LOG("ATTACK started=%d", bStarted ? 1 : 0);
+		TWeakObjectPtr<UWotActionComponent> Weak = AC; TWeakObjectPtr<AWotCharacter> WeakC = C;
+		FTimerHandle H;
+		World->GetTimerManager().SetTimer(H, FTimerDelegate::CreateLambda([Weak, WeakC]() {
+			if (Weak.IsValid()) { Weak->StopActionByName(FName("PrimaryAttack"), WeakC.Get()); PT_LOG("ATTACK stopped"); }
+		}), 0.4f, false);
+	}));
+
+static FAutoConsoleCommandWithWorldAndArgs GWotAnimStatus(
+	TEXT("wot.Anim.Status"), TEXT("Log how a character is animated: wot.Anim.Status [ActorNameSubstring] (default: the player)"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		WotLogAnimStatus(World, Args.Num() > 0 ? Args[0] : FString());
 	}));
 
 static FAutoConsoleCommandWithWorldAndArgs GWotPlayTestStatus(

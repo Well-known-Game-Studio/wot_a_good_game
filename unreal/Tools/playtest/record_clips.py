@@ -2,7 +2,7 @@
 """Record PIE clips for the PR with the harness frame recorder (wot.PlayTest.Record), then cut them with ffmpeg
 (make_clips.sh). usage: record_clips.py [walk|ride|climb|channel ...]  (default: all)"""
 import os, re, sys, time
-which = [a for a in sys.argv[1:]] or ["walk", "ride", "climb", "channel"]
+which = [a for a in sys.argv[1:]] or ["walk", "ride", "climb", "channel", "anim"]
 sys.argv = ['x', 'EmondsField']
 exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pietest.py')).read().split("def main():")[0])
 SHOTS = os.path.join(PROJ, "Saved", "Screenshots", "MacEditor")
@@ -47,3 +47,12 @@ if "channel" in which:
         send("wot.Channel.Weave Earth", "wot.Channel.Begin"); time.sleep(3)
         send("wot.Channel.Tie"); time.sleep(5)
     session("Caemlyn", "channel", 30, False, body)
+
+if "anim" in which:
+    # Emond's Field: the shared humanoid animations: run to two villagers, cast three times, channel, then ride
+    def body():
+        send("wot.PlayTest.Walk 2 40 0"); wait_for("[PT] SUMMARY", 60, len(pt_lines()))
+        for _ in range(3): send("wot.PlayTest.Attack"); time.sleep(1.2)
+        send("wot.Channel.Begin"); time.sleep(3.0); send("wot.Channel.Release"); time.sleep(1.0)
+        send("wot.PlayTest.Mount 8 anim_ride"); wait_for("[PT] SUMMARY", 60, len(pt_lines()))
+    session("EmondsField", "anim", 75, False, body)
