@@ -34,6 +34,13 @@ def _polyline_dist(x,y,pts):
     d=1e18
     for i in range(len(pts)-1): d=min(d,_seg_dist(x,y,pts[i],pts[i+1]))
     return d
+def _seg_cross(a,b,c,d):
+    """Intersection point of segments a-b and c-d (2D) or None."""
+    r=(b[0]-a[0],b[1]-a[1]); s_=(d[0]-c[0],d[1]-c[1]); den=r[0]*s_[1]-r[1]*s_[0]
+    if abs(den)<1e-9: return None
+    t=((c[0]-a[0])*s_[1]-(c[1]-a[1])*s_[0])/den; u=((c[0]-a[0])*r[1]-(c[1]-a[1])*r[0])/den
+    if 0<=t<=1 and 0<=u<=1: return (a[0]+t*r[0],a[1]+t*r[1])
+    return None
 def _bump(d,r):
     """1 at d=0 falling smoothly to 0 at d=r."""
     if d>=r: return 0.0
@@ -183,7 +190,20 @@ class Relief:
                 rd["pts"]=pts; rd["linear"]=True; rd["_profile"]=list(pts)
                 continue
             if kind=="wall" or kind=="nobuild":
-                rd["pts"]=[(x,y,self.zat(x,y)) for (x,y) in samples]; rd["linear"]=True; rd["_profile"]=list(rd["pts"]); continue
+                rd["pts"]=[(x,y,self.zat(x,y)) for (x,y) in samples]; rd["linear"]=True; rd["_profile"]=list(rd["pts"])
+                if kind=="wall":
+                    # the wall itself is occupied ground, and every gate (a road crossing it) is kept clear
+                    wsc=gv(rd,"tile_scale",(1,1,1)); whalf=max(half,50.0*wsc[1])+40
+                    for (x,y) in samples: self.occupy(x,y,whalf,"wall")
+                    for other in spec["roads"]:
+                        if gv(other,"kind","road")!="road": continue
+                        opts=[(p[0],p[1]) for p in other["pts"]]; ohalf=gv(other,"width",7)*gv(other,"row_pitch",100)/2.0
+                        for a_ in range(len(samples)-(0 if closed else 1)):
+                            p1=samples[a_]; p2=samples[(a_+1)%len(samples)]
+                            for b_ in range(len(opts)-1):
+                                hit=_seg_cross(p1,p2,opts[b_],opts[b_+1])
+                                if hit: self.keepout(hit[0],hit[1],ohalf+220)
+                continue
             rmat=gv(rd,"mat",gv(spec,"road_mat"))
             zs=[self.zat(x,y) for (x,y) in samples]; n=len(samples); fixed=[False]*n
             out=[]; k=0; last_stair=-10
