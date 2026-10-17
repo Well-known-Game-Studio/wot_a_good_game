@@ -7,6 +7,7 @@ Usage:
   python3 run_town.py <Town> [<Town> ...]   Town = EmondsField | Caemlyn | Cairhien | Tear | TarValon | FalDara | Tanchico | Illian | ShadarLogoth | Whitebridge | Baerlon
   python3 run_town.py --all                 every town, sequentially
   python3 run_town.py --dry <Town>          build the spec and relief locally (no editor) and print terrain/road statistics
+  python3 run_town.py --subgraphs           (re)build the shared PCGS_* subgraphs every town graph uses (pcg_subgraphs.py); rebuild towns afterwards
   python3 run_town.py --kit                 rebuild the merged kit meshes (SM_*) from kit_builder.py
   python3 run_town.py --overworld           (re)place Overworld portals/player starts/landmarks from ow_sites.json (see ow_fit.py)
 """
@@ -38,11 +39,14 @@ def dry(towns):
     exec(base(),g)
     for town in towns:
         s=g["CITY_SPECS"][town](); R=s["_relief"]; stairs=[p for p in s["props"] if "Stairs_" in p[2]]
-        print(f"{town:13s} cells {R.n*R.n:6d} boxes {len(s['terrain']['boxes']):5d} lattice {len(s['lattice']):5d} stairs {len(stairs):3d} roads {len(s['roads']):3d} props {len(s['props'])}")
+        furn=", ".join(f"{f['name']}={len(f['pts'])}" for f in (s.get("furniture_sets") or []))
+        lines_=sum(len(l["pts"]) for l in (s.get("line_sets") or []))
+        print(f"{town:13s} cells {R.n*R.n:6d} boxes {len(s['terrain']['boxes']):5d} lattice {len(s['lattice']):5d} stairs {len(stairs):3d} roads {len(s['roads']):3d} props {len(s['props'])} lines {lines_} furniture [{furn}]")
 def main():
     args=sys.argv[1:]
     if not args: print(__doc__); return
     if args[0]=="--kit": call_script(base()+"\n"+rd("run_kit.py"),"kit"); return
+    if args[0]=="--subgraphs": call_script(base()+"\n"+rd("pcg_subgraphs.py")+"\ndef run(): return build_subgraphs()\n","subgraphs"); return
     if args[0]=="--overworld":
         sites=json.load(open(os.path.join(HERE,"ow_sites.json")))
         call_script(base()+"\n"+rd("ow_portals.py").replace("__SITES__",json.dumps(sites)),"overworld"); return

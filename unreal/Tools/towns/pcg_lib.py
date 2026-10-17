@@ -83,3 +83,39 @@ def point(x,y,z=0,yaw=0,scale=1.0,ext=50,density=1.0,seed=0):
     return {"transform":{"location":{"x":x,"y":y,"z":z},"rotation":{"pitch":0,"yaw":yaw,"roll":0},"scale":{"x":s[0],"y":s[1],"z":s[2]}},
             "density":density,"boundsMin":{"x":-ext,"y":-ext,"z":-ext},"boundsMax":{"x":ext,"y":ext,"z":ext},"color":{"x":1,"y":1,"z":1,"w":1},"steepness":1,"seed":seed,"metadataEntry":-1}
 def save(paths): return T(AS+"save_assets",{"asset_paths":paths})
+
+# ---------------- shared subgraphs ----------------
+SUB_FOLDER="/Game/Wot/Towns/Common/PCG"
+def sub_path(name): return f"{SUB_FOLDER}/{name}.{name}"
+class SubG(G):
+    """Builds one shared subgraph: extra input/output pins, graph parameters bound to node overrides.
+    Parameters are named after the node property they override (Ratio, LowerBound, BoundsMin...) because a
+    'Get Graph Parameter' node feeds the target node's Overrides pin with an attribute of that name."""
+    def __init__(self,name,description):
+        super().__init__(create_graph(name,SUB_FOLDER)); self.name=name
+        st=T(PC+"GetGraphStructure",{"graph":ref(self.g)})
+        for n in st["nodes"]:
+            if n["nodeType"]=="Input Node": self.inp=n["path"]; self.inpins=n["paramOverrides"]["pins"]
+            if n["nodeType"]=="Output Node": self.outp=n["path"]; self.outpins=n["paramOverrides"]["pins"]
+        self.nodes["Input"]=self.inp; self.nodes["Output"]=self.outp; self.params=[]
+        T(PC+"SetGraphDescription",{"graph":ref(self.g),"description":description})
+    def _pin(self,template,label,tooltip=""):
+        p=json.loads(json.dumps(template)); p["label"]=label; p["tooltip"]=tooltip; return p
+    def inputs(self,*labels):
+        """Replaces the input pins (the default 'In' stays first when listed)."""
+        pins=[self._pin(self.inpins[0],l) for l in labels]; self.inpins=pins
+        T(PC+"UpdateNode",{"node":ref(self.inp),"jsonParams":json.dumps({"pins":pins}),"nodeTitle":""})
+    def outputs(self,*labels):
+        pins=[self._pin(self.outpins[0],l) for l in labels]; self.outpins=pins
+        T(PC+"UpdateNode",{"node":ref(self.outp),"jsonParams":json.dumps({"pins":pins}),"nodeTitle":""})
+    def param(self,name,ptype,default,attr=None,x=0,y=0):
+        """Declares a graph parameter and a Get Graph Parameter node (named P_<name>) that emits it as attribute attr (default: name)."""
+        self.params.append({"name":name,"type":ptype,"defaultValue":json.dumps(default) if isinstance(default,(dict,list)) else str(default)})
+        T(PC+"SetGraphParams",{"graph":ref(self.g),"params":[self.params[-1]]})
+        return self.node("Get Graph Parameter",f"P_{name}",{"propertyPath":name,"outputAttributeName":attr or name},title=f"param {name}",x=x,y=y)
+    def bind(self,param,node): return self.link(f"P_{param}","Out",node,"Overrides")
+    def done(self):
+        save([self.g.split(".")[0]]); return self.g
+def comment_box(B,names,text,color=(0.25,0.35,0.55)):
+    nodes=[ref(B.nodes[n]) for n in names if n in B.nodes]
+    if nodes: return T(PC+"AddCommentBox",{"graph":ref(B.g),"nodes":nodes,"comment":text,"color":{"r":color[0],"g":color[1],"b":color[2],"a":1}})

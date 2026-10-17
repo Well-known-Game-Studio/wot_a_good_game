@@ -82,6 +82,27 @@ write commands → poll the log for `[PT] SUMMARY`).
   rider plays the Blender `ride_idle` / `ride_walk` poses). Animals without an AnimBP graph use
   `UWotAnimalAnimationComponent` with idle/walk/run sequences imported from `scratch anims/`.
 
+## Shared PCG subgraphs (pcg_subgraphs.py)
+
+Every town graph is **data + spawners only**: `Create Points` nodes carry the town's outlines, paths, slots, lines,
+furniture, terrain boxes and lattice, and `Static Mesh Spawner` nodes carry its mesh/material entries. All point
+processing lives in five shared subgraphs under `/Game/Wot/Towns/Common/PCG`, built once with
+`run_town.py --subgraphs` and referenced by every town, so fixing one subgraph fixes every level on its next rebuild:
+
+| subgraph | in | out | parameters (overridden per subgraph node) |
+|---|---|---|---|
+| `PCGS_Plaza` | Outline | Surface (exclusion shape), Tiles | bLinear |
+| `PCGS_Road` | Path, Row | Tiles, Spline, Samples | bClosedLoop, bLinear, DistanceIncrement, KeepRatio |
+| `PCGS_Houses` | Slots, Exclusions | Houses (with footprint bounds) | OffsetMin/Max, RotationMin/Max, ScaleMin/Max, Ratio, CoreMin/Max, FootMin/Max |
+| `PCGS_Lattice` | Lattice, Center, Exclusions | Ground (density = distance) | OffsetMin/Max, MaximumDistance |
+| `PCGS_Scatter` | Ground | Points | LowerBound, UpperBound, Ratio, RotationMax, ScaleMin/Max, BoundsMin/Max (prune) |
+
+Inside a subgraph a parameter is a `Get Graph Parameter` node wired to the target node's **Overrides** pin, emitting an
+attribute named after the property it overrides (so a parameter that overrides `BoundsMin` on two different nodes is
+declared twice with `attr="BoundsMin"`). `pcg_lib.SubG` wraps that (`inputs`, `outputs`, `param`, `bind`). Town graphs
+are laid out in boxed, commented sections (exclusions & plazas, roads/water/walls, street lines & furniture & towers,
+houses, terrain, lattice & foliage) and carry a description naming the spec and command that generated them.
+
 ## Placement rules (relief.py)
 
 Roads, plazas and water are painted into `Relief.cellmat`, and `road_props` / `lattice` use it as the single source of
@@ -90,6 +111,26 @@ house slots whose footprint touches a crossing road are dropped and thinned agai
 skips paved cells and their neighbours, doorways, lamp spots and stairs. Tunables per spec: `slot_clear`, `slot_spacing`,
 `slot_stair_clear`, `line_clear`, `line_house_clear`. Never patch PCG `MeshEntries` in place from `get_properties`
 (unloaded soft material references read back as None and wipe the overrides) — change `pcg_lib` and rebuild.
+
+Everything that takes up ground goes through one **occupancy registry** (`Relief.occupy` / `_occupied`), in this order:
+
+1. hand-placed props claim their footprint first (`register_props`: radius by label/asset via `FOOT_RADIUS`, buildings an
+   oriented rectangle, landmarks that already have pads/exclusions none, NPCs only their spawn capsule);
+2. roads, plazas, stairs (keep-outs) and Waygate pads are carved;
+3. house slots and street lines (lamp posts, tree rows, fences) are thinned against pavement, stairs, doorways and the
+   registry; lines start half a step along the road so nothing sits on a junction corner;
+4. **plaza furniture** (`plaza_furniture`) replaces the old random `scatter`: lamp posts at the inset corners / along the
+   edges (or around the rim of a round plaza) and around a central feature; market stalls (`SM_MarketStall`, 250 deep,
+   400 wide, open front on -X) in rows along the edges facing the middle, back-to-back rows down the middle of wide
+   plazas, and a ring around a well / monument in the middle, alternating the colour variants listed in `scatter`; an
+   obelisk in the middle; anything else (ruin walls, boulders, birches) on a jittered grid. A seat is taken only when its
+   footprint is free: not on a road running through the plaza, not within reach of a street mouth (where a road crosses
+   the plaza outline), not on another footprint. The stall `ratio` in `scatter` only sets how tightly rows are packed;
+5. the foliage lattice skips every registered footprint.
+
+The rules are shared by every town; a plaza with a street through it or a prop cluster in it simply seats fewer stalls.
+`plaza_debug.py <Town> [plaza index]` renders a plaza (roads, mouths, footprints, slots, line props, keep-outs and the
+furniture placed) to `<Town>_plaza<i>.png` for tuning without the editor; `run_town.py --dry` prints the counts.
 
 ## Save / load and menus (C++)
 

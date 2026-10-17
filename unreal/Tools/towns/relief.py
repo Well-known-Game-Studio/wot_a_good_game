@@ -1,5 +1,6 @@
 import re
 # ---------- relief: deterministic stepped (voxel) heightfield terrain for the town levels ----------
+FURN_DEBUG=False
 Q=40            # height quantum (cm); MaxStepHeight is 45 so one step is always walkable
 CELL=250        # terrain cell size (cm)
 STAIR_RISES=(200,240,280,320,360,400,480,600)
@@ -376,7 +377,7 @@ class Relief:
             for ln in gv(rd,"lines") or []:
                 off=ln["offset"]; sd=gv(ln,"sides","both"); sgs=[1] if sd=="left" else ([-1] if sd=="right" else [1,-1])
                 pts=[]
-                for (x,y,z,yaw) in self._walk(prof,ln["step"]):
+                for (x,y,z,yaw) in self._walk(prof,ln["step"],start=ln["step"]*0.5):   # half a step in: nothing right at a junction corner
                     tx,ty=math.cos(math.radians(yaw)),math.sin(math.radians(yaw))
                     for sg in sgs: pts.append((x+sg*off*(-ty),y+sg*off*tx,z+gv(ln,"z",0),yaw+gv(ln,"yaw",0)+90*sg))
                 lines.append({"mesh":ln["mesh"],"mats":[gv(ln,"mat")] if gv(ln,"mat") else None,"scale":gv(ln,"scale",(1,1,1)),"pts":pts,"name":gv(rd,"name","")})
@@ -389,14 +390,14 @@ class Relief:
         foot=gv(spec,"slot_clear",260); minslot=gv(spec,"slot_spacing",780)
         allkept=[]
         for k in list(slots.keys()):
-            cand=[sl for sl in slots[k] if not self.near_paved(sl[0],sl[1],foot) and not self._kept_out(sl[0],sl[1],400) and not self._near_any(getattr(self,"_stair_pts",()),sl[0],sl[1],gv(spec,"slot_stair_clear",560))]
+            cand=[sl for sl in slots[k] if not self.near_paved(sl[0],sl[1],foot) and not self._kept_out(sl[0],sl[1],400) and not self._occ_hit(sl[0],sl[1],420) and not self._near_any(getattr(self,"_stair_pts",()),sl[0],sl[1],gv(spec,"slot_stair_clear",560))]
             kept=self._thin(allkept+cand,minslot)[len(allkept):]
             slots[k]=kept; allkept+=kept
         self._slot_pts=[(sl[0],sl[1]) for sl in allkept]
         # street furniture: never on pavement, never in a doorway, never doubled up where roads meet
         self._line_pts=[]
         for ln in lines:
-            pts=[p for p in ln["pts"] if not self.near_paved(p[0],p[1],gv(spec,"line_clear",110)) and not self._kept_out(p[0],p[1]) and not self._near_any(self._slot_pts,p[0],p[1],gv(spec,"line_house_clear",330)) and not self._near_any(getattr(self,"_stair_pts",()),p[0],p[1],280)]
+            pts=[p for p in ln["pts"] if not self.near_paved(p[0],p[1],gv(spec,"line_clear",110)) and not self._kept_out(p[0],p[1]) and not self._occ_hit(p[0],p[1],120) and not self._near_any(self._slot_pts,p[0],p[1],gv(spec,"line_house_clear",330)) and not self._near_any(getattr(self,"_stair_pts",()),p[0],p[1],280)]
             step=min((l["step"] for rd in spec["roads"] for l in (gv(rd,"lines") or []) if l["mesh"]==ln["mesh"]),default=1000)
             pts=self._thin(self._line_pts_all(lines,ln)+pts,0.55*step)[len(self._line_pts_all(lines,ln)):]
             ln["pts"]=pts; self._line_pts+=[(p[0],p[1]) for p in pts]
@@ -456,6 +457,10 @@ class Relief:
                 if not ok: break
             if ok: kept.append(p); grid.setdefault((gi,gj),[]).append((x,y))
         return kept
+    def _occ_hit(self,x,y,r):
+        for (ox,oy,orad,k) in getattr(self,"_occ",()):
+            if abs(ox-x)<=orad+r and abs(oy-y)<=orad+r and (ox-x)**2+(oy-y)**2<(orad+r)**2: return True
+        return False
     def keepout(self,x,y,r):
         """Registers a circle no prop, house slot, street-line item or lattice point may enter (e.g. in front of a Waygate)."""
         if not hasattr(self,"_keep"): self._keep=[]
@@ -468,6 +473,224 @@ class Relief:
         for (px,py) in pts:
             if abs(px-x)<=r and abs(py-y)<=r and (px-x)**2+(py-y)**2<=r*r: return True
         return False
+
+    # ---- occupancy: every placed thing registers a footprint circle; later placements and the foliage lattice avoid it ----
+    FOOT_RADIUS=[(re.compile(r"Waygate",re.I),None),(re.compile(r"Fireflies|Waterfall|WF_|Ground$|WaterPlane",re.I),0),
+                 (re.compile(r"Chest|Potion|Crate|Ladder|Campfire|Stone|Lamp|Obelisk|Sign",re.I),140),(re.compile(r"Campfire",re.I),240),
+                 (re.compile(r"Horse|Sheep|Deer|Fox|Goat|NPC|_BP$",re.I),200),(re.compile(r"AnimalPen|Pen$",re.I),900),
+                 (re.compile(r"Well",re.I),300),(re.compile(r"Stall",re.I),320),(re.compile(r"GateHouse|Gate",re.I),520),(re.compile(r"House|Inn|Keep|Longhouse|Tower|Mill|Stable|Barracks|Temple|Church",re.I),760),
+                 (re.compile(r"tree|Tree|Palm|Pine|Birch",re.I),320),(re.compile(r"Ruin|Arch|Bridge",re.I),520),
+                 (re.compile(r"mountain|dragonmount|stone_of_tear|white_tower|Waterfall|Plane",re.I),0)]   # landmarks have their own pads/exclusions
+    @classmethod
+    def foot_radius(cls,path,label,scale=1.0):
+        """Footprint radius (cm) of a hand-placed prop, from its label/asset name; None = handled elsewhere, 0 = no footprint."""
+        key=f"{label} {str(path).split('/')[-1]}"; r=180
+        for (rx,rr) in cls.FOOT_RADIUS:
+            if rx.search(key):
+                if rr is None: return None
+                r=rr
+        sc=scale if isinstance(scale,(int,float)) else max(scale[0],scale[1])
+        return min(1400.0,r*sc)
+    HOUSE_RX=re.compile(r"House|Inn|Keep|Longhouse|Mill|Stable|Barracks|Temple|Church|rand_house",re.I)
+    def occupy(self,x,y,r,kind=""):
+        if not hasattr(self,"_occ"): self._occ=[]
+        if r>0: self._occ.append((x,y,r,kind))
+    def occupy_rect(self,x,y,yaw,fp,kind="prop"):
+        """An oriented rectangle footprint: fp=(x0,y0,x1,y1) in the prop's local frame (x forward)."""
+        if not hasattr(self,"_occ_rect"): self._occ_rect=[]
+        self._occ_rect.append((x,y,math.radians(yaw),fp,kind))
+        self.occupy(x,y,max(abs(fp[0]),abs(fp[1]),abs(fp[2]),abs(fp[3]))*0.55,kind)   # a coarse circle for the lattice / quick tests
+    def _rect_hit(self,x,y,r):
+        for (ox,oy,th,fp,k) in getattr(self,"_occ_rect",()):
+            dx,dy=x-ox,y-oy; c,s_=math.cos(th),math.sin(th); lx=dx*c+dy*s_; ly=-dx*s_+dy*c
+            if fp[0]-r<lx<fp[2]+r and fp[1]-r<ly<fp[3]+r: return True
+        return False
+    def _occupied(self,x,y,r=0,ignore=None):
+        """True when a circle of radius r at (x,y) overlaps a registered footprint, a keepout, a stair, a house slot or a street-line item."""
+        for (ox,oy,orad,k) in getattr(self,"_occ",()):
+            if k!=ignore and k!="building" and (ox-x)**2+(oy-y)**2<(orad+r)**2: return True
+        if self._rect_hit(x,y,r): return True
+        if self._kept_out(x,y,r): return True
+        if self._near_any(getattr(self,"_stair_pts",()),x,y,r+200): return True
+        if self._near_any(getattr(self,"_slot_pts",()),x,y,r+200): return True
+        if self._near_any(getattr(self,"_line_pts",()),x,y,r+100): return True
+        return False
+    def _why(self,x,y,r):
+        """Which occupancy rule blocks (x,y,r); '' when free."""
+        for (ox,oy,orad,k) in getattr(self,"_occ",()):
+            if k!="building" and (ox-x)**2+(oy-y)**2<(orad+r)**2: return f"occ:{k}@({ox:.0f},{oy:.0f},{orad:.0f})"
+        if self._rect_hit(x,y,r): return "building"
+        if self._kept_out(x,y,r): return "keepout"
+        if self._near_any(getattr(self,"_stair_pts",()),x,y,r+200): return "stairs"
+        if self._near_any(getattr(self,"_slot_pts",()),x,y,r+200): return "slot"
+        if self._near_any(getattr(self,"_line_pts",()),x,y,r+100): return "line"
+        return ""
+    def register_props(self,spec):
+        """Hand-placed props (chests, fires, animals, NPCs, wells, inns...) claim their footprints before anything else is placed."""
+        for p in gv(spec,"props") or []:
+            if p[0] not in ("mesh","actor","class","npc"): continue
+            if p[0]=="npc": loc=p[2]; r=120.0   # just the spawn capsule; they wander anyway
+            else: path=p[1]; label=p[2]; loc=p[3]; scale=p[5] if len(p)>5 else 1.0; r=self.foot_radius(path,label,scale)
+            if p[0]=="mesh" and self.HOUSE_RX.search(f"{label} {str(path).split('/')[-1]}") and not re.search(r"Waygate|Stall|Lamp",label):
+                sc=scale if isinstance(scale,(int,float)) else max(scale[0],scale[1]); fp=(-560*sc-60,-560*sc-60,740*sc+60,420*sc+60)
+                yaw=p[4] if not isinstance(p[4],(list,tuple)) else p[4][1]
+                self.occupy_rect(loc[0],loc[1],yaw,fp,"building"); continue
+            if r: self.occupy(loc[0],loc[1],r,"prop")
+    @staticmethod
+    def _edges(poly):
+        n=len(poly)
+        for i in range(n):
+            ax,ay=poly[i][0],poly[i][1]; bx,by=poly[(i+1)%n][0],poly[(i+1)%n][1]
+            L=math.hypot(bx-ax,by-ay)
+            if L>1: yield ax,ay,bx,by,L
+    def _plaza_roads(self,spec,poly):
+        """Road segments (2D) and the points where roads cross the plaza outline (street mouths), with their half widths."""
+        segs=[]; mouths=[]
+        for rd in spec["roads"]:
+            if gv(rd,"kind","road")!="road": continue
+            prof=gv(rd,"_profile") or rd["pts"]; halfw=gv(rd,"width",7)*gv(rd,"row_pitch",100)/2.0
+            for i in range(len(prof)-1):
+                a_=(prof[i][0],prof[i][1]); b_=(prof[i+1][0],prof[i+1][1])
+                if a_==b_: continue
+                segs.append((a_,b_,halfw))
+                ia,ib=_poly_inside(a_[0],a_[1],poly),_poly_inside(b_[0],b_[1],poly)
+                if ia!=ib:   # the crossing point, by bisection
+                    lo,hi=a_,b_
+                    for _ in range(12):
+                        m=((lo[0]+hi[0])/2,(lo[1]+hi[1])/2)
+                        if _poly_inside(m[0],m[1],poly)==ia: lo=m
+                        else: hi=m
+                    mouths.append((lo[0],lo[1],halfw))
+        return segs,mouths
+    @staticmethod
+    def _near_road(segs,x,y,extra):
+        for (a_,b_,hw) in segs:
+            if _seg_dist(x,y,a_,b_)<hw+extra: return True
+        return False
+    @staticmethod
+    def _near_mouth(mouths,x,y,extra):
+        for (mx,my,hw) in mouths:
+            if (mx-x)**2+(my-y)**2<(hw+extra)**2: return True
+        return False
+    def plaza_furniture(self,spec):
+        """Orderly plaza furniture from each plaza's `scatter` list (replaces random scatter). Rules, in order:
+        lamp posts at the inset corners and evenly along the edges; market stalls in rows (along the edges facing the
+        middle, plus back-to-back rows down the middle of wide plazas, alternating colour variants); an obelisk in the
+        middle; anything else on a jittered grid. Nothing sits on a road running through the plaza, within reach of a
+        street mouth, or on another footprint: every item checks the occupancy registry and registers its own."""
+        sets=[]
+        for pi,pz in enumerate(gv(spec,"plazas") or []):
+            sc=gv(pz,"scatter")
+            if not sc: continue
+            poly=[(p[0],p[1]) for p in pz["pts"]]; z=gv(pz,"z",0) or 0
+            xs=[p[0] for p in poly]; ys=[p[1] for p in poly]; cx=sum(xs)/len(xs); cy=sum(ys)/len(ys)
+            segs,mouths=self._plaza_roads(spec,poly)
+            area=sum(poly[i][0]*poly[(i+1)%len(poly)][1]-poly[(i+1)%len(poly)][0]*poly[i][1] for i in range(len(poly)))
+            inward=1 if area>0 else -1
+            def normal(ax,ay,bx,by,L): return (-(by-ay)/L*inward,(bx-ax)/L*inward)   # unit normal pointing into the plaza
+            lamps=[e for e in sc if "LampPost" in e[0]]; stalls=[e for e in sc if "MarketStall" in e[0]]
+            obels=[e for e in sc if "Obelisk" in e[0]]; others=[e for e in sc if e not in lamps+stalls+obels]
+            rectish=len(poly)<=8
+            def free(x,y,r,mouth=350,road_r=None):
+                return _poly_inside(x,y,poly) and _poly_dist(x,y,poly)>=r*0.8 and not self._near_road(segs,x,y,r if road_r is None else road_r) and not self._near_mouth(mouths,x,y,mouth) and not self._occupied(x,y,r)
+            def emit(entry,pts,name):
+                if not pts: return
+                mesh,ratio,smin,smax,mats=entry; s_=(smin+smax)/2.0
+                sets.append({"mesh":mesh,"mats":mats,"scale":(s_,s_,s_),"pts":pts,"name":f"plaza {pi} {name}"})
+            # oriented frame of a rectangle-ish plaza: u along its longest edge, v across (inward from that edge)
+            if rectish:
+                ax,ay,bx,by,L=max(self._edges(poly),key=lambda e:e[4]); u=((bx-ax)/L,(by-ay)/L); v=normal(ax,ay,bx,by,L)
+                us=[(p[0]-ax)*u[0]+(p[1]-ay)*u[1] for p in poly]; vs=[(p[0]-ax)*v[0]+(p[1]-ay)*v[1] for p in poly]
+                u0,u1,v0,v1=min(us),max(us),min(vs),max(vs)
+                def P(uu,vv): return (ax+u[0]*uu+v[0]*vv, ay+u[1]*uu+v[1]*vv)
+            # a feature (well, monument, old tree...) near the middle of the plaza: stalls and lamps ring it
+            size=max(max(xs)-min(xs),max(ys)-min(ys)); feature=None
+            for (ox,oy,orad,k) in getattr(self,"_occ",()):
+                if k=="prop" and math.hypot(ox-cx,oy-cy)<size*0.25 and _poly_inside(ox,oy,poly): feature=(ox,oy,orad); break
+            # --- lamps: the inset corners, evenly along the edges (rect) or around the rim (circle), plus a ring around the feature
+            for e in lamps[:1]:
+                pts=[]; inset=240; cand=[]
+                if rectish:
+                    for vv in (v0+inset,v1-inset):
+                        n_=max(1,int((u1-u0-2*inset)/1800))
+                        cand+=[P(u0+inset+(u1-u0-2*inset)*k/n_,vv) for k in range(n_+1)]
+                    for uu in (u0+inset,u1-inset):
+                        n_=max(1,int((v1-v0-2*inset)/1800))
+                        cand+=[P(uu,v0+inset+(v1-v0-2*inset)*k/n_) for k in range(1,n_)]
+                else:
+                    rr=sum(math.hypot(p[0]-cx,p[1]-cy) for p in poly)/len(poly)-inset; n_=max(6,int(2*math.pi*rr/1500))
+                    cand+=[(cx+rr*math.cos(2*math.pi*k/n_),cy+rr*math.sin(2*math.pi*k/n_)) for k in range(n_)]
+                if feature:
+                    fr=feature[2]+260
+                    cand+=[(feature[0]+fr*math.cos(math.pi/4+k*math.pi/2),feature[1]+fr*math.sin(math.pi/4+k*math.pi/2)) for k in range(4)]
+                for (x,y) in cand:
+                    if free(x,y,120,300): pts.append((x,y,z,0.0)); self.occupy(x,y,140,"lamp")
+                    elif FURN_DEBUG: print("  lamp rejected",(round(x),round(y)),"inside",_poly_inside(x,y,poly),"edge",round(_poly_dist(x,y,poly)),"road",self._near_road(segs,x,y,120),"mouth",self._near_mouth(mouths,x,y,300),"occ",self._occupied(x,y,120))
+                emit(e,self._thin(pts,700),"lamps")
+            # --- stalls: SM_MarketStall is 250 deep (x) by 400 wide (y), open front on its -X side. Candidates, in order:
+            #     a ring around the central feature (fronts to it), rows along the edges (fronts to the middle), then
+            #     back-to-back rows down the middle of wide plazas; a candidate is taken only when its footprint is free.
+            if stalls:
+                fill=max(0.4,min(1.0,sum(e[1] for e in stalls)*20.0)); pitch=620/fill; inset=330; var=[[] for _ in stalls]; k=[0]
+                def put(x,y,fx,fy):   # a stall at (x,y) whose front faces unit vector (fx,fy)
+                    if not free(x,y,250,420,200):
+                        if FURN_DEBUG: print("  stall rejected",(round(x),round(y)),"inside",_poly_inside(x,y,poly),"edge",round(_poly_dist(x,y,poly)),"road",self._near_road(segs,x,y,200),"mouth",self._near_mouth(mouths,x,y,420),"occ",self._why(x,y,250))
+                        return
+                    var[k[0]%len(stalls)].append((x,y,z,math.degrees(math.atan2(-fy,-fx)))); self.occupy(x,y,300,"stall"); k[0]+=1
+                if feature:
+                    fr=feature[2]+400; best=None
+                    for n_ in range(4,max(5,int(2*math.pi*fr/pitch))+1):   # the count and phase that fit the most stalls around it
+                        for ph in (0.0,0.5):
+                            cand=[(2*math.pi*(i+ph)/n_) for i in range(n_)]
+                            got=[th for th in cand if free(feature[0]+fr*math.cos(th),feature[1]+fr*math.sin(th),250,420,200)]
+                            if best is None or len(got)>len(best): best=got
+                    for th in best or []:
+                        x,y=feature[0]+fr*math.cos(th),feature[1]+fr*math.sin(th); put(x,y,-math.cos(th),-math.sin(th))
+                if rectish:
+                    def layout(U0,U1,V0,V1,PP,VV):
+                        """Stall seats for rows along the U axis at the V edges (and back to back down the middle of wide plazas)."""
+                        usable=U1-U0-2*inset; n_=int((usable+(pitch-460))/pitch)   # 440-wide stalls with gaps between
+                        rows=[(V0+inset,1),(V1-inset,-1)]                           # edge rows face inward
+                        m=max(0,int((V1-V0-2*inset)/1300))                         # back-to-back rows down the middle (aisles >= 550)
+                        for j in range(m):
+                            vc=V0+inset+(V1-V0-2*inset)*(j+1)/(m+1); rows+=[(vc-165,-1),(vc+165,1)]
+                        seats=[]
+                        for (vv,sg) in rows:
+                            best=None   # column phase per row: a street through the plaza should fall in a gap, not under a stall
+                            for ph in (0.0,0.5):
+                                cols=[U0+inset+(usable-n_*pitch)/2+(i+ph)*pitch for i in range(n_+1)]
+                                cols=[c for c in cols if U0+inset-10<=c<=U1-inset+10]
+                                got=[c for c in cols if free(*PP(c,vv),250,420,200)]
+                                if best is None or len(got)>len(best): best=got
+                            for uu in best or []:
+                                x,y=PP(uu,vv); seats.append((x,y,VV[0]*sg,VV[1]*sg))
+                        return seats
+                    A=layout(u0,u1,v0,v1,P,v)
+                    Bv=(u[0],u[1]); B=layout(v0,v1,u0,u1,lambda vv,uu:P(uu,vv),Bv)   # rows along the other axis
+                    for (x,y,fx,fy) in (A if len(A)>=len(B) else B): put(x,y,fx,fy)
+                else:
+                    rr=sum(math.hypot(p[0]-cx,p[1]-cy) for p in poly)/len(poly)-inset; n_=max(4,int(2*math.pi*rr/pitch))
+                    for i in range(n_):
+                        th=2*math.pi*(i+0.5)/n_; x,y=cx+rr*math.cos(th),cy+rr*math.sin(th); put(x,y,-math.cos(th),-math.sin(th))
+                for e,pts in zip(stalls,var): emit(e,pts,"stalls")
+            # --- a monument in the middle when the middle is free
+            for e in obels[:1]:
+                if free(cx,cy,220,300): emit(e,[(cx,cy,z,0.0)],"monument"); self.occupy(cx,cy,260,"monument")
+            # --- everything else: a jittered grid, density from the ratio
+            for oi,e in enumerate(others):
+                mesh,ratio,smin,smax,mats=e; pitch=max(300.0,100.0/math.sqrt(max(ratio,1e-4))); pts=[]; r_=160; gi=0
+                for x in self._frange(min(xs)+pitch/2,max(xs),pitch):
+                    for y in self._frange(min(ys)+pitch/2,max(ys),pitch):
+                        gi+=1; px=x+(_hash(gi,oi,11)-0.5)*pitch*0.5; py=y+(_hash(gi,oi+7,13)-0.5)*pitch*0.5
+                        if not free(px,py,r_,250): continue
+                        pts.append((px,py,z,_hash(gi,oi+3,17)*360.0)); self.occupy(px,py,r_+40,"other")
+                emit(e,pts,mesh.split("/")[-1].split(".")[0])
+        spec["furniture_sets"]=sets
+        return sets
+    @staticmethod
+    def _frange(a,b,step):
+        x=a
+        while x<b: yield x; x+=step
     def boxes(self):
         """Run-merged terrain boxes: list of (matkey, x, y, zcenter, sx, sy, sz) in cm."""
         n=self.n; zmin=min(min(r) for r in self.z); floor=zmin-400
@@ -495,6 +718,7 @@ class Relief:
                 x,y=self.cx(i),self.cx(j)
                 if (i,j) in self.cellmat or self.near_paved(x,y,self.cell*0.75) or self._kept_out(x,y): continue
                 if self._near_any(getattr(self,"_slot_pts",()),x,y,330) or self._near_any(getattr(self,"_line_pts",()),x,y,170) or self._near_any(getattr(self,"_stair_pts",()),x,y,220): continue
+                if self._occ_hit(x,y,120): continue
                 pts.append((x,y,z))
         return pts
 def W_is_rel(pz): return False
@@ -524,6 +748,7 @@ def relief_apply(spec,R,palette,water_mat=None):
             cx,cy=x+fx*250,y+fy*250
             R.flatten(("circle",cx,cy,850),None,True); R.keepout(cx,cy,950)
             spec["exclusions"]=list(gv(spec,"exclusions") or [])+[(cx,cy,950,950)]
+    R.register_props(spec)   # chests, fires, animals, NPCs, wells and inns claim their ground first
     stairs=R.carve_roads(spec)
     for rd in spec["roads"]:
         if gv(rd,"nocarve",False) and gv(rd,"rel",False):
@@ -537,6 +762,7 @@ def relief_apply(spec,R,palette,water_mat=None):
         hx_=L_/2+60 if ax_ else st["halfw"]+40; hy_=st["halfw"]+40 if ax_ else L_/2+60
         spec["exclusions"]=list(gv(spec,"exclusions") or [])+[(cx_,cy_,hx_,hy_)]
     R.road_props(spec)
+    R.plaza_furniture(spec)
     spec["props"]=[p for p in spec["props"] if p[2]!="Ground"]+stairs
     spec["terrain"]={"boxes":R.boxes(),"palette":palette}
     spec["lattice"]=R.lattice(); spec["lattice_density"]=(R.cell/100.0)**2
