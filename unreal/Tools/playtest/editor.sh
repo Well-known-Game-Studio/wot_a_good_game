@@ -36,6 +36,11 @@ case "${1:-status}" in
     echo "mcp did not answer within 200s"; exit 1;;
   stop)
     pid="$(ours)"; [ -z "$pid" ] && { echo "no editor of ours running"; exit 0; }
+    # clean shutdown first: the play-test harness polls this file in the editor world and runs QUIT_EDITOR (no crash
+    # report, no "re-open asset editors?" dialog on the next start); fall back to SIGTERM if it does not exit
+    echo "QUIT_EDITOR" >> "$PROJ/Saved/PlayTest/commands_editor.txt"
+    for i in $(seq 1 20); do ps -p "$pid" >/dev/null 2>&1 || { echo "stopped pid $pid (clean)"; rm -f "$PIDFILE"; exit 0; }; sleep 3; done
+    rm -f "$PROJ/Saved/PlayTest/commands_editor.txt"
     kill -TERM "$pid"; for i in $(seq 1 60); do ps -p "$pid" >/dev/null 2>&1 || { echo "stopped pid $pid"; rm -f "$PIDFILE"; reaper "$pid"; exit 0; }; sleep 3; done
     echo "pid $pid did not exit after 180s (hung shutdown); sending SIGKILL to that PID only"; kill -9 "$pid" || true; rm -f "$PIDFILE";;
   restart) "$0" stop; "$0" start;;

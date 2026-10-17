@@ -14,9 +14,28 @@ def T(name,args):
     return v
 def ref(p): return {"refPath":p}
 def create_graph(name,folder):
-    if T(AS+"exists",{"path":f"{folder}/{name}"}):
-        T(AS+"delete",{"path":f"{folder}/{name}"})
-    return T(PC+"CreateGraph",{"name":name,"path":folder})["refPath"]
+    """Returns an empty graph at folder/name. An existing graph is cleared IN PLACE (every node but Input/Output, the comment
+    boxes it recorded in its description, its graph parameters): deleting a graph that a level still references and
+    creating a new one under the same name leaves the new asset unsaved (the file vanished when the editor closed)."""
+    path=f"{folder}/{name}"
+    if not T(AS+"exists",{"path":path}):
+        return T(PC+"CreateGraph",{"name":name,"path":folder})["refPath"]
+    g=f"{path}.{name}"
+    st=T(PC+"GetGraphStructure",{"graph":ref(g)})
+    for n in st["nodes"]:
+        if n["nodeType"] not in ("Input Node","Output Node"): T(PC+"RemoveNode",{"graph":ref(g),"node":ref(n["path"])})
+    desc=gv(st,"description") or ""
+    m=re.search(r"\[boxes:([0-9A-Fa-f,]+)\]",desc)
+    if m:
+        for cid in m.group(1).split(","):
+            try: T(PC+"RemoveCommentBox",{"graph":ref(g),"commentId":cid})
+            except Exception: pass
+    sch=T(PC+"GetGraphSchema",{"graph":ref(g)}); old=gv(sch,"graphParamsSchema")
+    if isinstance(old,str):
+        try: old=json.loads(old)
+        except Exception: old={}
+    if old: T(PC+"RemoveGraphParams",{"graph":ref(g),"paramNames":list(old.keys())})
+    return g
 NOCOLLISION_MESH=re.compile(r"grass|flower|shrub|reed|mush|snowpatch|fern|weed|moss|pebble|ivy|vine",re.I)
 def mesh_blocks(mesh_path):
     """True when instances of this mesh should block the player."""
@@ -35,17 +54,18 @@ def collision_descriptor(mesh_path):
     return {"bUseDefaultCollision":False,"bCanEverAffectNavigation":True,"bForceNavigationObstacle":False,
             "bodyInstance":{"collisionProfileName":"BlockAll","collisionEnabled":"QueryAndPhysics","objectType":"ECC_WorldStatic"}}
 
+GRID_X,GRID_Y=420,260   # node grid in editor units (~0.75 px each at 1:1): (column, row) -> readable, non-overlapping layouts
 class G:
     def __init__(self,graph): self.g=graph; self.nodes={}; self.col=0
     def node(self,ntype,name,params=None,title="",x=None,y=0,comment=""):
         a={"graph":ref(self.g),"nativeNodeType":ntype,"nodeName":name,"jsonParams":json.dumps(params or {}),"nodeTitle":title or name,"nodeComment":comment}
         if x is None: x=self.col; self.col+=1
-        a["xPositionIdx"]=x; a["yPositionIdx"]=y
+        a["xPositionIdx"]=x*GRID_X; a["yPositionIdx"]=y*GRID_Y
         r=T(PC+"AddNode",a); self.nodes[name]=r["refPath"]; return r["refPath"]
     def sub(self,subgraph,name,params=None,title="",x=None,y=0):
         a={"graph":ref(self.g),"subGraphForNode":ref(subgraph),"nodeName":name,"jsonParams":json.dumps(params or {}),"nodeTitle":title or name,"nodeComment":""}
         if x is None: x=self.col; self.col+=1
-        a["xPositionIdx"]=x; a["yPositionIdx"]=y
+        a["xPositionIdx"]=x*GRID_X; a["yPositionIdx"]=y*GRID_Y
         r=T(PC+"AddSubgraphNode",a); self.nodes[name]=r["refPath"]; return r["refPath"]
     def link(self,a,ap,b,bp):
         return T(PC+"ConnectNodePins",{"fromNode":ref(self.nodes[a]),"fromPinLabel":ap,"toNode":ref(self.nodes[b]),"toPinLabel":bp})
@@ -91,13 +111,18 @@ class SubG(G):
     """Builds one shared subgraph: extra input/output pins, graph parameters bound to node overrides.
     Parameters are named after the node property they override (Ratio, LowerBound, BoundsMin...) because a
     'Get Graph Parameter' node feeds the target node's Overrides pin with an attribute of that name."""
-    def __init__(self,name,description):
-        super().__init__(create_graph(name,SUB_FOLDER)); self.name=name
+    def __init__(self,name,description,columns=6):
+        """Rebuilds the subgraph IN PLACE when it exists (town graphs keep their reference; an open editor keeps working):
+        every node but Input/Output is removed, the graph parameters are cleared and the pins reset."""
+        G.__init__(self,create_graph(name,SUB_FOLDER)); self.name=name
         st=T(PC+"GetGraphStructure",{"graph":ref(self.g)})
         for n in st["nodes"]:
             if n["nodeType"]=="Input Node": self.inp=n["path"]; self.inpins=n["paramOverrides"]["pins"]
-            if n["nodeType"]=="Output Node": self.outp=n["path"]; self.outpins=n["paramOverrides"]["pins"]
+            elif n["nodeType"]=="Output Node": self.outp=n["path"]; self.outpins=n["paramOverrides"]["pins"]
+        self.inpins=self.inpins[:1]; self.outpins=self.outpins[:1]
         self.nodes["Input"]=self.inp; self.nodes["Output"]=self.outp; self.params=[]
+        T(PC+"RepositionNode",{"node":ref(self.inp),"xPositionIdx":0,"yPositionIdx":0})
+        T(PC+"RepositionNode",{"node":ref(self.outp),"xPositionIdx":columns*GRID_X,"yPositionIdx":0})
         T(PC+"SetGraphDescription",{"graph":ref(self.g),"description":description})
     def _pin(self,template,label,tooltip=""):
         p=json.loads(json.dumps(template)); p["label"]=label; p["tooltip"]=tooltip; return p
@@ -115,7 +140,21 @@ class SubG(G):
         return self.node("Get Graph Parameter",f"P_{name}",{"propertyPath":name,"outputAttributeName":attr or name},title=f"param {name}",x=x,y=y)
     def bind(self,param,node): return self.link(f"P_{param}","Out",node,"Overrides")
     def done(self):
-        save([self.g.split(".")[0]]); return self.g
+        self.tidy(); save([self.g.split(".")[0]]); return self.g
+    def tidy(self):
+        """Conversion nodes the toolset inserts on connect (To Point...) appear at the origin: park each beside its target."""
+        st=T(PC+"GetGraphStructure",{"graph":ref(self.g)}); pos={n["name"]:n for n in st["nodes"]}
+        for n in st["nodes"]:
+            if n["name"] in self.nodes.values() or n["nodeType"] in ("Input Node","Output Node") or n["path"] in self.nodes.values(): continue
+            dst=[e for e in st["edges"] if e["srcNode"]==n["name"]]
+            if not dst or dst[0]["destNode"] not in pos: continue
+            dx,dy=[float(v) for v in pos[dst[0]["destNode"]]["position"].strip("()").split(",")]
+            T(PC+"RepositionNode",{"node":ref(n["path"]),"xPositionIdx":int(dx-GRID_X*0.55),"yPositionIdx":int(dy-GRID_Y*0.55)})
 def comment_box(B,names,text,color=(0.25,0.35,0.55)):
+    """Adds a comment box around the named nodes and remembers its id on the builder (B.boxes) so a rebuild can remove it."""
     nodes=[ref(B.nodes[n]) for n in names if n in B.nodes]
-    if nodes: return T(PC+"AddCommentBox",{"graph":ref(B.g),"nodes":nodes,"comment":text,"color":{"r":color[0],"g":color[1],"b":color[2],"a":1}})
+    if not nodes: return None
+    cid=T(PC+"AddCommentBox",{"graph":ref(B.g),"nodes":nodes,"comment":text,"color":{"r":color[0],"g":color[1],"b":color[2],"a":1}})
+    if not hasattr(B,"boxes"): B.boxes=[]
+    if isinstance(cid,str): B.boxes.append(cid)
+    return cid

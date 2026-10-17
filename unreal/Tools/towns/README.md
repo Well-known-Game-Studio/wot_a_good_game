@@ -84,6 +84,9 @@ write commands → poll the log for `[PT] SUMMARY`).
 
 ## Shared PCG subgraphs (pcg_subgraphs.py)
 
+The full picture (pipeline, specs, relief, town graphs, subgraphs, recipes, diagrams) is in
+[`docs/world_gen.md`](../../../docs/world_gen.md).
+
 Every town graph is **data + spawners only**: `Create Points` nodes carry the town's outlines, paths, slots, lines,
 furniture, terrain boxes and lattice, and `Static Mesh Spawner` nodes carry its mesh/material entries. All point
 processing lives in five shared subgraphs under `/Game/Wot/Towns/Common/PCG`, built once with
@@ -96,6 +99,11 @@ processing lives in five shared subgraphs under `/Game/Wot/Towns/Common/PCG`, bu
 | `PCGS_Houses` | Slots, Exclusions | Houses (with footprint bounds) | OffsetMin/Max, RotationMin/Max, ScaleMin/Max, Ratio, CoreMin/Max, FootMin/Max |
 | `PCGS_Lattice` | Lattice, Center, Exclusions | Ground (density = distance) | OffsetMin/Max, MaximumDistance |
 | `PCGS_Scatter` | Ground | Points | LowerBound, UpperBound, Ratio, RotationMax, ScaleMin/Max, BoundsMin/Max (prune) |
+
+Graphs are rebuilt **in place** (`pcg_lib.create_graph` clears nodes, recorded comment boxes and parameters): deleting a
+graph a loaded level references and recreating it under the same name leaves the new asset unsaved. After any rebuild
+check that `Content/Wot/Towns/<Town>/PCG_<Town>.uasset` exists. `pcg_graph_render.py <graph> <out.png> [scale]` draws a
+graph from its live structure (used for `docs/world_gen.md`).
 
 Inside a subgraph a parameter is a `Get Graph Parameter` node wired to the target node's **Overrides** pin, emitting an
 attribute named after the property it overrides (so a parameter that overrides `BoundsMin` on two different nodes is
