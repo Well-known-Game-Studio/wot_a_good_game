@@ -180,6 +180,17 @@ them. `build_level` places `WotForagePickup` actors (`Source/.../Items/WotForage
 builds its item from `ItemClass`) on forest-band lattice points at `mush_ratio`, tagged `Forage`, seeded by the town
 name. Interacting picks the mushroom up like the Diorama's.
 
+## 6b. The Overworld portals
+
+The Overworld terrain is a landscape whose PCG graph (`PCG_Landscape`) samples `blender/overworld-full.png` through a
+Get Texture Data node: the texture is mapped onto a surface centred on the `BP_LandscapeLayers` actor with half-size =
+its spline bounds and advanced tiling (0.29, 0.30) / centre offset (0.27, -0.16), which places texel (0,0) at
+(-13271, -17662) and the far corner at (17653, 13911). `Tools/towns/ow_fit.py` encodes that transform, reads the
+hand-placed settlement meshes exported by `ow_houses.py` (`ow_houses.json`), fits the reference map's city icons through
+the anchor towns' clusters, snaps each town to its cluster (or to plain land) and writes `ow_sites.json`;
+`run_town.py --overworld` then moves the portals, player starts and landmarks. Check a fit by drawing `ow_sites.json`
+and `ow_houses.json` over the texture with the same transform.
+
 ## 7. Building with it: recipes
 
 * **Change a rule for every town** (stall spacing, lamp clearance, house jitter): edit `relief.py` (placement) or the

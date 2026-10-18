@@ -44,6 +44,8 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
 * `build_level` also fences the level (a `BP_LevelBounds` box sized to the terrain, as in the Diorama) and places the
   forageable mushrooms as `WotForagePickup` actors (interactable item actors built from the `BP_Food_Mushroom_*` item
   classes) on forest-band lattice points at `mush_ratio`; both are `TownProp`-tagged and rebuilt with the town.
+* `ow_houses.py` / `ow_fit.py` / `ow_portals.py` – Overworld portals: export the hand-placed settlement meshes, fit the
+  towns to the PCG map texture and those settlements (`ow_sites.json`), place/move portals, starts and landmarks.
 * `run_town.py <Town>...|--all|--dry|--kit [SM_Name ...]|--overworld` – regenerate towns, dry-run the relief locally, rebuild the kit,
   or re-place the Overworld portals.
 

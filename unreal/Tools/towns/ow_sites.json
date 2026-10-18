@@ -1,1 +1,106 @@
-{"TarValon": {"x": 14525, "y": -7992, "yaw": -138, "snap_px": 8.6}, "Caemlyn": {"x": 12552, "y": -430, "yaw": 76, "snap_px": 16.2}, "Cairhien": {"x": 15347, "y": -4663, "yaw": 174, "snap_px": 38.1}, "Tear": {"x": 14895, "y": 6804, "yaw": 168, "snap_px": 12.2}, "Illian": {"x": 8976, "y": 7338, "yaw": -98, "snap_px": 49.8}, "Tanchico": {"x": -6518, "y": 1214, "yaw": -17, "snap_px": 8.0}, "FalDara": {"x": 15840, "y": -11979, "yaw": 137, "snap_px": 37.5}, "ShadarLogoth": {"x": 1414, "y": -4334, "yaw": 0, "snap_px": 0.0}, "Baerlon": {"x": 1249, "y": -3841, "yaw": -44, "snap_px": 0.0}, "EmondsField": {"x": 592, "y": -2361, "yaw": 81, "snap_px": 0.0}, "Whitebridge": {"x": 5935, "y": -1087, "yaw": -87, "snap_px": 0.0}}
+{
+ "TarValon": {
+  "x": 10220,
+  "y": -5439,
+  "yaw": 0,
+  "source": "houses(21)",
+  "cluster": [
+   9770,
+   -5439
+  ]
+ },
+ "Caemlyn": {
+  "x": 8309,
+  "y": 878,
+  "yaw": 0,
+  "source": "houses(10)",
+  "cluster": [
+   7859,
+   878
+  ]
+ },
+ "Tear": {
+  "x": 15692,
+  "y": 10811,
+  "yaw": -87,
+  "source": "houses(2)",
+  "cluster": [
+   15666,
+   11260
+  ]
+ },
+ "Illian": {
+  "x": 7872,
+  "y": 8686,
+  "yaw": -125,
+  "source": "houses(6)",
+  "cluster": [
+   8132,
+   9053
+  ]
+ },
+ "Tanchico": {
+  "x": -6108,
+  "y": 3186,
+  "yaw": -18,
+  "source": "houses(6)",
+  "cluster": [
+   -6536,
+   3326
+  ]
+ },
+ "FalDara": {
+  "x": 13942,
+  "y": -10651,
+  "yaw": 0,
+  "source": "houses(2)",
+  "cluster": [
+   13492,
+   -10651
+  ]
+ },
+ "Baerlon": {
+  "x": -420,
+  "y": -882,
+  "yaw": 29,
+  "source": "houses(10)",
+  "cluster": [
+   -815,
+   -1096
+  ]
+ },
+ "EmondsField": {
+  "x": -491,
+  "y": 277,
+  "yaw": 0,
+  "source": "houses(3)",
+  "cluster": [
+   -941,
+   277
+  ]
+ },
+ "Whitebridge": {
+  "x": 3653,
+  "y": 702,
+  "yaw": 0,
+  "source": "houses(2)",
+  "cluster": [
+   3203,
+   702
+  ]
+ },
+ "Cairhien": {
+  "x": 12615,
+  "y": -2207,
+  "yaw": 0,
+  "source": "land(snap 0px)",
+  "cluster": null
+ },
+ "ShadarLogoth": {
+  "x": -984,
+  "y": -3625,
+  "yaw": 0,
+  "source": "land(snap 11px)+spaced",
+  "cluster": null
+ }
+}
