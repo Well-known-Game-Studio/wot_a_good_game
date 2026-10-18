@@ -185,11 +185,15 @@ name. Interacting picks the mushroom up like the Diorama's.
 The Overworld terrain is a landscape whose PCG graph (`PCG_Landscape`) samples `blender/overworld-full.png` through a
 Get Texture Data node: the texture is mapped onto a surface centred on the `BP_LandscapeLayers` actor with half-size =
 its spline bounds and advanced tiling (0.29, 0.30) / centre offset (0.27, -0.16), which places texel (0,0) at
-(-13271, -17662) and the far corner at (17653, 13911). `Tools/towns/ow_fit.py` encodes that transform, reads the
-hand-placed settlement meshes exported by `ow_houses.py` (`ow_houses.json`), fits the reference map's city icons through
-the anchor towns' clusters, snaps each town to its cluster (or to plain land) and writes `ow_sites.json`;
-`run_town.py --overworld` then moves the portals, player starts and landmarks. Check a fit by drawing `ow_sites.json`
-and `ow_houses.json` over the texture with the same transform.
+(-13271, -17662) and the far corner at (17653, 13911). The texture itself is a cut of the reference map
+`maps/newwotbase-1.png` (texel = base pixel (620 + 9.2 c, -120 + 9.2 r), found by matching the sea masks), and
+`ow_cities.json` holds the city icon centres read off that map (a black star in a white ring for cities, a black dot for
+towns). `Tools/towns/ow_fit.py` chains the two transforms, moves a town onto a hand-placed settlement when one is within
+1500 cm (`ow_houses.json`, exported by `ow_houses.py`), and writes `ow_sites.json`; `run_town.py --overworld` then
+places or moves the portals, player starts and landmarks. Cities without a level yet (Falme, Ebou Dar, Far Madding,
+Amador, Bandar Eban, Jehannah, Lugard, Chachin, Maradon) get a disabled marker portal; Mayene and Fal Moran lie east of
+the cut and are skipped, Fal Dara is held at the landscape edge. Check a fit by drawing `ow_sites.json` and
+`ow_houses.json` over the texture with the same transform.
 
 ## 7. Building with it: recipes
 

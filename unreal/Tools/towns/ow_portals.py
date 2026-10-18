@@ -7,17 +7,21 @@ def run():
     cur=T(SC+"get_current_level",{}); ow="/Game/Wot/Maps/Overworld/Overworld"
     if cur!=ow: save([cur]); T(SC+"load_level",{"level_path":ow})
     for town,s in SITES.items():
-        x,y,yaw=s["x"],s["y"],s["yaw"]; dx=math.cos(math.radians(yaw)); dy=math.sin(math.radians(yaw))
+        x,y,yaw=s["x"],s["y"],s["yaw"]; dx=math.cos(math.radians(yaw)); dy=math.sin(math.radians(yaw)); has_level=s.get("level",True)
         ps=find_by_label(f"{town}Portal")
-        if ps: move_actor(ps[0],(x,y,100),yaw); out[town]="moved"
+        if ps: p=ps[0]; move_actor(p,(x,y,100),yaw); out[town]="moved"
         else:
-            p=place_mesh("/Game/Wot/Actors/Portal",f"{town}Portal",(x,y,100),yaw,0.5,None,tag="OverworldPortal")
-            T(OB+"set_properties",{"instance":ref(p),"values":json.dumps({"ToLevel":town,"PortalName":f"Overworld{town}","Enabled":True})}); out[town]="placed"
+            p=place_mesh("/Game/Wot/Actors/Portal",f"{town}Portal",(x,y,100),yaw,0.5,None,tag="OverworldPortal"); out[town]="placed"
+        # a city without a level yet keeps a disabled portal as its marker (ToLevel empty) until its level exists
+        T(OB+"set_properties",{"instance":ref(p),"values":json.dumps({"ToLevel":town if has_level else "","PortalName":f"Overworld{town}","Enabled":bool(has_level)})})
         st=find_by_label(f"{town}PlayerStart")
-        if st: move_actor(st[0],(x+dx*80,y+dy*80,100),yaw)
+        if has_level:
+            if st: move_actor(st[0],(x+dx*80,y+dy*80,100),yaw)
+            else:
+                a=place_class("/Script/Engine.PlayerStart",f"{town}PlayerStart",(x+dx*80,y+dy*80,100),yaw,1.0,tag="OverworldPortal")
+                T(OB+"set_properties",{"instance":ref(a),"values":json.dumps({"PlayerStartTag":f"{town}Overworld"})})
         else:
-            a=place_class("/Script/Engine.PlayerStart",f"{town}PlayerStart",(x+dx*80,y+dy*80,100),yaw,1.0,tag="OverworldPortal")
-            T(OB+"set_properties",{"instance":ref(a),"values":json.dumps({"PlayerStartTag":f"{town}Overworld"})})
+            for a in st: remove(a)
         lm=find_by_label(f"{town}Landmark")
         if s.get("cluster"):
             # the hand-placed settlement stands here: the generic landmark building is not wanted

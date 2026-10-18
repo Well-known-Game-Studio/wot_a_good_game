@@ -3,104 +3,221 @@
   "x": 10220,
   "y": -5439,
   "yaw": 0,
-  "source": "houses(21)",
+  "level": true,
+  "source": "map, houses 133 cm away",
   "cluster": [
    9770,
    -5439
+  ]
+ },
+ "Mayene": {
+  "x": 15673,
+  "y": 10810,
+  "yaw": -89,
+  "level": false,
+  "source": "map, houses 202 cm away",
+  "cluster": [
+   15666,
+   11260
+  ]
+ },
+ "Tanchico": {
+  "x": -6105,
+  "y": 3198,
+  "yaw": -17,
+  "level": true,
+  "source": "map, houses 202 cm away",
+  "cluster": [
+   -6536,
+   3326
+  ]
+ },
+ "Chachin": {
+  "x": 7529,
+  "y": -10808,
+  "yaw": 0,
+  "level": false,
+  "source": "map, houses 207 cm away",
+  "cluster": [
+   7079,
+   -10808
   ]
  },
  "Caemlyn": {
   "x": 8309,
   "y": 878,
   "yaw": 0,
-  "source": "houses(10)",
+  "level": true,
+  "source": "map, houses 264 cm away",
   "cluster": [
    7859,
    878
   ]
  },
- "Tear": {
-  "x": 15692,
-  "y": 10811,
-  "yaw": -87,
-  "source": "houses(2)",
-  "cluster": [
-   15666,
-   11260
-  ]
- },
  "Illian": {
-  "x": 7872,
-  "y": 8686,
-  "yaw": -125,
-  "source": "houses(6)",
+  "x": 5693,
+  "y": 10928,
+  "yaw": -118,
+  "level": true,
+  "source": "map, houses 280 cm away",
   "cluster": [
-   8132,
-   9053
+   5902,
+   11327
   ]
  },
- "Tanchico": {
-  "x": -6108,
-  "y": 3186,
-  "yaw": -18,
-  "source": "houses(6)",
+ "Falme": {
+  "x": -6900,
+  "y": -780,
+  "yaw": -21,
+  "level": false,
+  "source": "map, houses 332 cm away",
   "cluster": [
-   -6536,
-   3326
+   -7319,
+   -616
   ]
  },
- "FalDara": {
-  "x": 13942,
-  "y": -10651,
+ "Maradon": {
+  "x": 3500,
+  "y": -11171,
   "yaw": 0,
-  "source": "houses(2)",
+  "level": false,
+  "source": "map, houses 340 cm away",
   "cluster": [
-   13492,
-   -10651
-  ]
- },
- "Baerlon": {
-  "x": -420,
-  "y": -882,
-  "yaw": 29,
-  "source": "houses(10)",
-  "cluster": [
-   -815,
-   -1096
-  ]
- },
- "EmondsField": {
-  "x": -491,
-  "y": 277,
-  "yaw": 0,
-  "source": "houses(3)",
-  "cluster": [
-   -941,
-   277
+   3050,
+   -11171
   ]
  },
  "Whitebridge": {
   "x": 3653,
   "y": 702,
   "yaw": 0,
-  "source": "houses(2)",
+  "level": true,
+  "source": "map, houses 349 cm away",
   "cluster": [
    3203,
    702
   ]
  },
- "Cairhien": {
-  "x": 12615,
-  "y": -2207,
+ "BandarEban": {
+  "x": -5634,
+  "y": -5658,
+  "yaw": -37,
+  "level": false,
+  "source": "map, houses 418 cm away",
+  "cluster": [
+   -5994,
+   -5388
+  ]
+ },
+ "FalMoran": {
+  "x": 13942,
+  "y": -10651,
   "yaw": 0,
-  "source": "land(snap 0px)",
-  "cluster": null
+  "level": false,
+  "source": "map, houses 444 cm away",
+  "cluster": [
+   13492,
+   -10651
+  ]
+ },
+ "EbouDar": {
+  "x": 845,
+  "y": 9561,
+  "yaw": -44,
+  "level": false,
+  "source": "map, houses 459 cm away",
+  "cluster": [
+   524,
+   9876
+  ]
+ },
+ "Amador": {
+  "x": -899,
+  "y": 6481,
+  "yaw": 0,
+  "level": false,
+  "source": "map, houses 478 cm away",
+  "cluster": [
+   -1349,
+   6481
+  ]
+ },
+ "EmondsField": {
+  "x": -652,
+  "y": 622,
+  "yaw": 50,
+  "level": true,
+  "source": "map, houses 594 cm away",
+  "cluster": [
+   -941,
+   277
+  ]
+ },
+ "Baerlon": {
+  "x": -365,
+  "y": -1096,
+  "yaw": 0,
+  "level": true,
+  "source": "map, houses 631 cm away",
+  "cluster": [
+   -815,
+   -1096
+  ]
  },
  "ShadarLogoth": {
-  "x": -984,
-  "y": -3625,
+  "x": -102,
+  "y": -1944,
   "yaw": 0,
-  "source": "land(snap 11px)+spaced",
+  "level": true,
+  "source": "map (nearest houses 1108 cm)",
+  "cluster": null
+ },
+ "FalDara": {
+  "x": 14267,
+  "y": -11696,
+  "yaw": 0,
+  "level": true,
+  "source": "map (nearest houses 1302 cm)",
+  "cluster": null
+ },
+ "Tear": {
+  "x": 10071,
+  "y": 8586,
+  "yaw": 0,
+  "level": true,
+  "source": "map (nearest houses 1788 cm)",
+  "cluster": null
+ },
+ "Jehannah": {
+  "x": -512,
+  "y": 2561,
+  "yaw": 0,
+  "level": false,
+  "source": "map (nearest houses 2032 cm)",
+  "cluster": null
+ },
+ "Cairhien": {
+  "x": 11486,
+  "y": -2773,
+  "yaw": 0,
+  "level": true,
+  "source": "map (nearest houses 3170 cm)",
+  "cluster": null
+ },
+ "Lugard": {
+  "x": 4651,
+  "y": 3930,
+  "yaw": 0,
+  "level": false,
+  "source": "map (nearest houses 3537 cm)",
+  "cluster": null
+ },
+ "FarMadding": {
+  "x": 8263,
+  "y": 4983,
+  "yaw": 0,
+  "level": false,
+  "source": "map (nearest houses 4038 cm)",
   "cluster": null
  }
 }
