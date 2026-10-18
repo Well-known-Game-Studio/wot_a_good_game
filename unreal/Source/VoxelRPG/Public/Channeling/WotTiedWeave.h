@@ -76,8 +76,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weave|Effects")
 	int32 KnotThreads = 9;
 
+	/** Tied with tainted saidin: the knot flickers black and bleeds shadow. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weave")
+	bool bTainted = false;
+
+	/** Shadow seeping from a tainted knot (looping). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weave|Effects")
+	TSoftObjectPtr<UNiagaraSystem> TaintSystem;
+
 	/** Call right after spawning (before BeginPlay runs) to configure the knot. */
-	void Configure(EWotWeave InWeave, EWotPowerHalf InHalf, float InPower, const FLinearColor& InColor, float InDuration);
+	void Configure(EWotWeave InWeave, EWotPowerHalf InHalf, float InPower, const FLinearColor& InColor, float InDuration, bool bInTainted = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Weave")
 	float TimeLeft() const { return FMath::Max(0.0f, Duration - Age); }
@@ -93,9 +101,13 @@ protected:
 
 	void BuildKnot();
 	UNiagaraComponent* SpawnThread(const FVector& From, const FVector& To, float Phase, float Amplitude, float Width);
+	void UpdateSaidinLook();
 
 	UPROPERTY()
 	TArray<TObjectPtr<UNiagaraComponent>> Threads;
+
+	/** Each thread's wave at rest (saidin knots thrash around it). */
+	TArray<float> ThreadAmplitudes;
 
 	float Age = 0.0f;
 	float PulseAccumulator = 0.0f;

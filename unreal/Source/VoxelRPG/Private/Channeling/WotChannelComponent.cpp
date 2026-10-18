@@ -1,5 +1,9 @@
 #include "Channeling/WotChannelComponent.h"
 #include "Channeling/WotTiedWeave.h"
+#include "Channeling/WotChannelCameraShake.h"
+#include "Save/WotSaveSubsystem.h"
+#include "Camera/PlayerCameraManager.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Components/LocalLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
@@ -42,6 +46,26 @@ UWotChannelComponent::UWotChannelComponent()
 	ReleaseSystems.Add(EWotWeave::Earth, TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Ultimate_Magic_Bundle/MagicProjectiles_Optimal/Niagara/Nature/NS_Nature_Impact.NS_Nature_Impact"))));
 	FireProjectileClass = TSoftClassPtr<AActor>(FSoftObjectPath(TEXT("/Game/Wot/Actors/Weapons/Projectiles/MagicProjectile.MagicProjectile_C")));
 	EarthShieldTag = FGameplayTag::RequestGameplayTag(FName("Status.Parrying"), false);
+	// saidin: shadow for the taint, lightning for the clean torrent, engine primitives for the ooze
+	TaintTrailSystem = TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Ultimate_Magic_Bundle/MagicProjectiles_Optimal/Niagara/Shadow/NS_Shadow_Trail_Purple.NS_Shadow_Trail_Purple")));
+	TaintBurstSystem = TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Ultimate_Magic_Bundle/MagicProjectiles_Optimal/Niagara/Shadow/NS_Shadow_Impact_Purple.NS_Shadow_Impact_Purple")));
+	SurgeTrailSystem = TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Ultimate_Magic_Bundle/MagicProjectiles_Optimal/Niagara/Lightning/NS_Lightning_Trail_Blue_Fix.NS_Lightning_Trail_Blue_Fix")));
+	SurgeBurstSystem = TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Ultimate_Magic_Bundle/MagicProjectiles_Optimal/Niagara/Lightning/NS_Lightning_Muzzle_Blue_Fix.NS_Lightning_Muzzle_Blue_Fix")));
+	SaidinShakeClass = UWotChannelCameraShake::StaticClass();
+	OozeMesh = TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Sphere.Sphere")));
+	OozeMaterial = TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")));
+}
+
+bool UWotChannelComponent::IsTainted() const
+{
+	return Half == EWotPowerHalf::Saidin && !UWotSaveSubsystem::IsSaidinCleansedIn(this);
+}
+
+APlayerController* UWotChannelComponent::LocalPlayerController() const
+{
+	const APawn* Pawn = Cast<APawn>(GetOwner());
+	APlayerController* PC = Pawn ? Cast<APlayerController>(Pawn->GetController()) : nullptr;
+	return PC && PC->IsLocalController() ? PC : nullptr;
 }
 
 AWotCharacter* UWotChannelComponent::GetCharacter() const
@@ -122,11 +146,13 @@ void UWotChannelComponent::BeginChannel()
 		SetComponentTickEnabled(true);
 	}
 	AttachEffect(Half == EWotPowerHalf::Saidar ? EmbraceSystemSaidar : EmbraceSystemSaidin, RightHandSocket, false);
+	FText Seize = NSLOCTEXT("Wot", "Embrace", "Embracing saidar");
 	if (Half == EWotPowerHalf::Saidin) {
-		AttachEffect(TaintSystem, LeftHandSocket, true);
+		BeginSaidin();
+		Seize = bChanneledTainted ? NSLOCTEXT("Wot", "SeizeTainted", "Seizing saidin, the taint oozing over it") : NSLOCTEXT("Wot", "SeizeClean", "Seizing saidin, a torrent of fire and ice");
 	}
-	Char->ShowPopupWidget(FText::Format(NSLOCTEXT("Wot", "Channeling", "{0} ... {1}"), Half == EWotPowerHalf::Saidar ? NSLOCTEXT("Wot", "Embrace", "Embracing saidar") : NSLOCTEXT("Wot", "Seize", "Seizing saidin"), WeaveName(SelectedWeave)), 1.2f, false);
-	UE_LOG(LogWotChannel, Log, TEXT("%s begins channeling (%s, weave %s)"), *GetNameSafe(Char), Half == EWotPowerHalf::Saidar ? TEXT("saidar") : TEXT("saidin"), *WeaveName(SelectedWeave).ToString());
+	Char->ShowPopupWidget(FText::Format(NSLOCTEXT("Wot", "Channeling", "{0} ... {1}"), Seize, WeaveName(SelectedWeave)), 1.2f, false);
+	UE_LOG(LogWotChannel, Log, TEXT("%s begins channeling (%s%s, weave %s)"), *GetNameSafe(Char), Half == EWotPowerHalf::Saidar ? TEXT("saidar") : TEXT("saidin"), Half == EWotPowerHalf::Saidin ? (bChanneledTainted ? TEXT(", tainted") : TEXT(", cleansed")) : TEXT(""), *WeaveName(SelectedWeave).ToString());
 }
 
 void UWotChannelComponent::CancelChannel()
@@ -137,7 +163,7 @@ void UWotChannelComponent::CancelChannel()
 	bChanneling = false;
 	StopEffects();
 	DestroyThreads();
-	SetComponentTickEnabled(false);
+	StopSaidin(false, FVector::ZeroVector);
 }
 
 void UWotChannelComponent::ReleaseWeave()
@@ -151,9 +177,10 @@ void UWotChannelComponent::ReleaseWeave()
 	if (AActor* Owner = GetOwner()) {
 		// the threads leap to the point the weave is loosed at, then fade
 		const bool bOutward = SelectedWeave == EWotWeave::Fire || SelectedWeave == EWotWeave::Air;
-		ReleaseThreads(bOutward ? Owner->GetActorLocation() + Owner->GetActorForwardVector() * 260.0f + FVector(0, 0, 70.0f) : Owner->GetActorLocation() + FVector(0, 0, 30.0f));
+		const FVector At = bOutward ? Owner->GetActorLocation() + Owner->GetActorForwardVector() * 260.0f + FVector(0, 0, 70.0f) : Owner->GetActorLocation() + FVector(0, 0, 30.0f);
+		ReleaseThreads(At);
+		StopSaidin(true, At);
 	}
-	SetComponentTickEnabled(false);
 	switch (SelectedWeave) {
 	case EWotWeave::Fire: WeaveFire(Charge); break;
 	case EWotWeave::Air: WeaveAir(Charge); break;
@@ -276,6 +303,15 @@ void UWotChannelComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	CancelChannel();
 	DestroyThreads();
+	DestroyOoze();
+	if (UWotChannelCameraShake* S = Shake.Get()) {
+		if (APlayerController* PC = LocalPlayerController()) {
+			if (PC->PlayerCameraManager) {
+				PC->PlayerCameraManager->StopCameraShake(S, true);
+			}
+		}
+		Shake = nullptr;
+	}
 	if (GetWorld()) {
 		GetWorld()->GetTimerManager().ClearTimer(ShieldTimer);
 		GetWorld()->GetTimerManager().ClearTimer(ThreadFadeTimer);
@@ -287,6 +323,11 @@ void UWotChannelComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 FLinearColor UWotChannelComponent::ElementColor(EWotWeave Weave, EWotPowerHalf InHalf)
 {
+	return ElementColorFor(Weave, InHalf, false);
+}
+
+FLinearColor UWotChannelComponent::ElementColorFor(EWotWeave Weave, EWotPowerHalf InHalf, bool bSaidinCleansed)
+{
 	FLinearColor C;
 	switch (Weave) {
 	case EWotWeave::Fire: C = FLinearColor(1.0f, 0.42f, 0.08f); break;
@@ -295,11 +336,16 @@ FLinearColor UWotChannelComponent::ElementColor(EWotWeave Weave, EWotPowerHalf I
 	case EWotWeave::Earth: C = FLinearColor(0.85f, 0.58f, 0.2f); break;
 	default: C = FLinearColor::White; break;
 	}
-	// saidar: the clean white light of the show; saidin: a colder, slightly bruised light under the taint
 	if (InHalf == EWotPowerHalf::Saidar) {
+		// the clean white light of the show
 		C = FMath::Lerp(C, FLinearColor::White, 0.3f);
+	} else if (InHalf == EWotPowerHalf::Saidin && !bSaidinCleansed) {
+		// the taint: the element drowned in violet (the ribbons are additive, so the black itself comes from the ooze,
+		// the shadow on the hands and the darkened screen; the threads flicker down toward black instead)
+		C = FMath::Lerp(C, FLinearColor(0.5f, 0.05f, 0.85f), 0.75f) * 1.15f;
 	} else if (InHalf == EWotPowerHalf::Saidin) {
-		C = FMath::Lerp(C, FLinearColor(0.55f, 0.45f, 0.75f), 0.25f);
+		// cleansed: fire and ice, a cold white-blue blaze brighter than saidar
+		C = FMath::Lerp(C, FLinearColor(0.85f, 0.95f, 1.0f), 0.45f) * 1.35f;
 	}
 	return C;
 }
@@ -517,7 +563,7 @@ void UWotChannelComponent::SpawnThreads()
 		Threads.Add(Spirit);
 	}
 	const FVector Target = HandsPoint();
-	const FLinearColor Color = ElementColor(SelectedWeave, Half);
+	const FLinearColor Color = ElementColorFor(SelectedWeave, Half, !IsTainted());
 	FRandomStream Rand(Owner->GetUniqueID() + int32(World->GetTimeSeconds() * 37.0));
 	for (int32 i = 0; i < Threads.Num(); ++i) {
 		FWotThread& T = Threads[i];
@@ -531,7 +577,8 @@ void UWotChannelComponent::SpawnThreads()
 		Comp->SetVariableLinearColor(FName("User.Color"), bSpirit ? FLinearColor::White : Color);
 		Comp->SetVariableFloat(FName("User.Width"), ThreadWidth * 0.5f);
 		Comp->SetVariableFloat(FName("User.Phase"), Rand.FRandRange(0.0f, 6.28f));
-		Comp->SetVariableFloat(FName("User.Amplitude"), bSpirit ? 12.0f : Rand.FRandRange(26.0f, 44.0f));
+		T.Amplitude = bSpirit ? 12.0f : Rand.FRandRange(26.0f, 44.0f);
+		Comp->SetVariableFloat(FName("User.Amplitude"), T.Amplitude);
 		Comp->SetVariableFloat(FName("User.Gather"), 0.0f);
 		T.Comp = Comp;
 		ThreadComps.Add(Comp);
@@ -548,9 +595,16 @@ void UWotChannelComponent::UpdateThreads(float DeltaTime)
 	const float Charge = GetCharge();
 	const float Width = ThreadWidth * (0.45f + 0.75f * Charge) * FMath::Sqrt(FMath::Max(0.2f, Strength));
 	const double Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0;
+	const bool bSaidin = IsSaidin();
+	const bool bTaint = bSaidin && bChanneledTainted;
+	const bool bSurge = bSaidin && (float)Now < SurgeUntil;
+	const FLinearColor Base = ElementColorFor(SelectedWeave, Half, !bTaint);
+	const FLinearColor Dark(0.02f, 0.0f, 0.04f), Bruise(0.2f, 0.0f, 0.28f);
+	int32 Index = 0;
 	for (FWotThread& T : Threads) {
 		UNiagaraComponent* Comp = T.Comp.Get();
 		if (!Comp) {
+			++Index;
 			continue;
 		}
 		if (T.SourceActor.IsValid()) {
@@ -559,18 +613,323 @@ void UWotChannelComponent::UpdateThreads(float DeltaTime)
 			T.Source += T.Drift * DeltaTime;
 			T.Source.Z += FMath::Sin(Now * 1.7 + T.Bob) * 6.0f * DeltaTime;
 		}
+		FVector ThreadTarget = Target;
+		float ThreadWidthNow = Width;
+		if (bSaidin) {
+			// saidin fights the channeler: the threads thrash (the hands point jitters per thread), the ribbons wave wider,
+			// their width stutters; the taint also drowns them in flickering black, the clean torrent flares white on a surge
+			const float N1 = FMath::PerlinNoise1D(Now * (bTaint ? 5.0 : 9.0) + Index * 17.3), N2 = FMath::PerlinNoise1D(Now * (bTaint ? 4.0 : 8.0) + Index * 29.1 + 50.0), N3 = FMath::PerlinNoise1D(Now * 7.0 + Index * 13.7 + 120.0);
+			const float Jitter = (bTaint ? 10.0f : 16.0f) * Chaos;
+			ThreadTarget += FVector(N1, N2, N3) * Jitter;
+			ThreadWidthNow *= 1.5f * (0.65f + 0.7f * FMath::Abs(N3) + (bSurge ? 0.6f : 0.0f));   // saidin's ribbons run thicker: the game camera sits far above
+			Comp->SetVariableFloat(FName("User.Amplitude"), T.Amplitude * (1.0f + (bTaint ? 0.8f : 1.3f) * Chaos));
+			FLinearColor C = Base;
+			if (bTaint) {
+				// violet most of the time, guttering down to bruise-dark, and a black dropout on each surge
+				const float Drown = FMath::Clamp(0.5f + 0.5f * N1, 0.0f, 1.0f);
+				C = bSurge ? FMath::Lerp(Base, Dark, 0.85f) : FMath::Lerp(Base, Bruise, Drown * 0.6f);
+			} else if (bSurge) {
+				C = FMath::Lerp(Base, FLinearColor(1.0f, 1.0f, 1.0f) * 2.2f, 0.7f);
+			}
+			Comp->SetVariableLinearColor(FName("User.Color"), C);
+		}
 		Comp->SetVariableVec3(FName("User.Source"), T.Source);
-		Comp->SetVariableVec3(FName("User.Target"), Target);
-		Comp->SetVariableFloat(FName("User.Width"), Width);
+		Comp->SetVariableVec3(FName("User.Target"), ThreadTarget);
+		Comp->SetVariableFloat(FName("User.Width"), ThreadWidthNow);
 		Comp->SetVariableFloat(FName("User.Gather"), Charge);
+		++Index;
 	}
 }
 
 void UWotChannelComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	const bool bHoldingSaidin = bChanneling && IsSaidin();
+	if (bHoldingSaidin) {
+		UpdateSaidin(DeltaTime);
+	}
 	if (bChanneling) {
 		UpdateThreads(DeltaTime);
+	}
+	UpdateOoze(DeltaTime);
+	UpdateCamera(DeltaTime, bHoldingSaidin);
+	const float Now = GetWorld() ? (float)GetWorld()->GetTimeSeconds() : 0.0f;
+	if (!bChanneling && Ooze.Num() == 0 && !Shake.IsValid() && Now >= ReleaseKickUntil) {
+		SetComponentTickEnabled(false);
+	}
+}
+
+// ---------------------------------------------------------------- saidin: the taint, the torrent
+
+void UWotChannelComponent::BeginSaidin()
+{
+	bChanneledTainted = IsTainted();
+	Chaos = 0.5f;
+	const float Now = GetWorld() ? (float)GetWorld()->GetTimeSeconds() : 0.0f;
+	SurgeUntil = 0.0f;
+	NextSurgeTime = Now + FMath::FRandRange(0.5f, 1.2f);
+	OozeAccumulator = 0.0f;
+	if (bChanneledTainted) {
+		AttachEffect(TaintSystem, LeftHandSocket, true);
+		AttachEffect(TaintTrailSystem, LeftHandSocket, true);
+		AttachEffect(TaintTrailSystem, RightHandSocket, true);
+		// the shadow pools around the feet too: large enough to read from the game's high camera
+		AttachEffectScaled(TaintTrailSystem, FVector(0, 0, 14.0f), 2.8f);
+	} else {
+		AttachEffect(SurgeTrailSystem, LeftHandSocket, true);
+		AttachEffect(SurgeTrailSystem, RightHandSocket, true);
+		AttachEffectScaled(SurgeTrailSystem, FVector(0, 0, 60.0f), 2.2f);
+	}
+	SetComponentTickEnabled(true);
+}
+
+UNiagaraComponent* UWotChannelComponent::AttachEffectScaled(const TSoftObjectPtr<UNiagaraSystem>& SoftSystem, const FVector& Offset, float Scale)
+{
+	ACharacter* Char = Cast<ACharacter>(GetOwner());
+	USkeletalMeshComponent* Mesh = Char ? Char->GetMesh() : nullptr;
+	UNiagaraSystem* System = SoftSystem.LoadSynchronous();
+	if (!Mesh || !System) {
+		return nullptr;
+	}
+	UNiagaraComponent* Comp = UNiagaraFunctionLibrary::SpawnSystemAttached(System, Mesh, NAME_None, Offset, FRotator::ZeroRotator, FVector(Scale), EAttachLocation::KeepRelativeOffset, false, ENCPoolMethod::None, true, true);
+	if (Comp) {
+		ActiveEffects.Add(Comp);
+	}
+	return Comp;
+}
+
+void UWotChannelComponent::UpdateSaidin(float DeltaTime)
+{
+	UWorld* World = GetWorld();
+	if (!World) {
+		return;
+	}
+	const float Now = (float)World->GetTimeSeconds();
+	const float Charge = GetCharge();
+	// a restless baseline that never settles, plus surges: the Power trying to burn the channeler out
+	const float Floor = bChanneledTainted ? 0.3f : 0.4f;
+	Chaos = Floor + (1.0f - Floor) * FMath::Abs(FMath::PerlinNoise1D(Now * (bChanneledTainted ? 1.3f : 2.4f) + GetUniqueID() * 0.01f)) * (0.6f + 0.4f * Charge);
+	if (Now >= NextSurgeTime) {
+		SurgeUntil = Now + (bChanneledTainted ? 0.45f : 0.25f);
+		NextSurgeTime = Now + FMath::FRandRange(0.8f, 2.2f) * (bChanneledTainted ? 1.3f : 1.0f) / (0.6f + 0.6f * Charge);
+		const FVector Hands = HandsPoint();
+		UNiagaraSystem* Burst = (bChanneledTainted ? TaintBurstSystem : SurgeBurstSystem).LoadSynchronous();
+		if (Burst) {
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(World, Burst, Hands, GetOwner()->GetActorRotation(), FVector(bChanneledTainted ? 1.1f : 1.3f), true, true);
+		}
+		if (bChanneledTainted) {
+			for (int32 i = 0; i < 3; ++i) {
+				SpawnOozeDrop(Hands + FVector(FMath::FRandRange(-12.0f, 12.0f), FMath::FRandRange(-12.0f, 12.0f), FMath::FRandRange(-6.0f, 6.0f)));
+			}
+		}
+	}
+	if (Now < SurgeUntil) {
+		Chaos = FMath::Max(Chaos, 1.4f);
+	}
+	if (bChanneledTainted && OozeRate > 0.0f) {
+		OozeAccumulator += DeltaTime * OozeRate * (0.35f + 0.65f * Charge);
+		ACharacter* Char = Cast<ACharacter>(GetOwner());
+		USkeletalMeshComponent* Mesh = Char ? Char->GetMesh() : nullptr;
+		while (OozeAccumulator >= 1.0f) {
+			OozeAccumulator -= 1.0f;
+			const FName Socket = FMath::RandBool() ? LeftHandSocket : RightHandSocket;
+			const FVector From = Mesh && Mesh->DoesSocketExist(Socket) ? Mesh->GetSocketLocation(Socket) : HandsPoint();
+			SpawnOozeDrop(From + FVector(FMath::FRandRange(-8.0f, 8.0f), FMath::FRandRange(-8.0f, 8.0f), -4.0f));
+		}
+	}
+}
+
+void UWotChannelComponent::StopSaidin(bool bLoosed, const FVector& LoosedAt)
+{
+	if (!IsSaidin() && !Shake.IsValid()) {
+		return;
+	}
+	UWorld* World = GetWorld();
+	if (World && bLoosed && IsSaidin()) {
+		// the release: a burst of the half's nature at the point the weave leaves, and a kick of the camera
+		UNiagaraSystem* Burst = (bChanneledTainted ? TaintBurstSystem : SurgeBurstSystem).LoadSynchronous();
+		if (Burst) {
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(World, Burst, LoosedAt, GetOwner()->GetActorRotation(), FVector(1.6f + 0.8f * GetCharge()), true, true);
+		}
+		if (bChanneledTainted) {
+			for (int32 i = 0; i < 6; ++i) {
+				SpawnOozeDrop(HandsPoint() + FVector(FMath::FRandRange(-20.0f, 20.0f), FMath::FRandRange(-20.0f, 20.0f), 0.0f));
+			}
+		}
+		ReleaseKickUntil = (float)World->GetTimeSeconds() + 0.35f;
+	}
+	Chaos = 0.0f;
+	SurgeUntil = 0.0f;
+	// the shake fades out and the ooze sinks away on their own: the tick keeps running until both are gone
+	SetComponentTickEnabled(true);
+}
+
+void UWotChannelComponent::SpawnOozeDrop(const FVector& From)
+{
+	UWorld* World = GetWorld();
+	AActor* Owner = GetOwner();
+	UStaticMesh* Mesh = OozeMesh.LoadSynchronous();
+	if (!World || !Owner || !Mesh) {
+		return;
+	}
+	if (Ooze.Num() >= MaxOozeDrops) {
+		// recycle the oldest drop that has already landed
+		int32 Oldest = INDEX_NONE;
+		for (int32 i = 0; i < Ooze.Num(); ++i) {
+			if (Ooze[i].bLanded && (Oldest == INDEX_NONE || Ooze[i].Age > Ooze[Oldest].Age)) {
+				Oldest = i;
+			}
+		}
+		if (Oldest == INDEX_NONE) {
+			return;
+		}
+		if (UStaticMeshComponent* C = Ooze[Oldest].Comp.Get()) {
+			C->DestroyComponent();
+		}
+		Ooze.RemoveAt(Oldest);
+	}
+	if (!OozeMID) {
+		if (UMaterialInterface* Mat = OozeMaterial.LoadSynchronous()) {
+			OozeMID = UMaterialInstanceDynamic::Create(Mat, this);
+			OozeMID->SetVectorParameterValue(FName("Color"), OozeColor);
+		}
+	}
+	UStaticMeshComponent* Comp = NewObject<UStaticMeshComponent>(Owner, NAME_None, RF_Transient);
+	Comp->SetStaticMesh(Mesh);
+	if (OozeMID) {
+		Comp->SetMaterial(0, OozeMID);
+	}
+	Comp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Comp->SetCastShadow(false);
+	Comp->SetCanEverAffectNavigation(false);
+	Comp->RegisterComponent();
+	FWotOozeDrop Drop;
+	Drop.Comp = Comp;
+	Drop.Size = FMath::FRandRange(18.0f, 32.0f);
+	Drop.Velocity = FVector(FMath::FRandRange(-30.0f, 30.0f), FMath::FRandRange(-30.0f, 30.0f), FMath::FRandRange(-10.0f, 20.0f));
+	FHitResult Hit;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(WotOoze), false, Owner);
+	Drop.GroundZ = World->LineTraceSingleByChannel(Hit, From, From - FVector(0, 0, 700.0f), ECC_Visibility, Params) ? Hit.ImpactPoint.Z : From.Z - 120.0f;
+	Drop.Age = -1.0f;
+	Comp->SetWorldLocation(From);
+	Comp->SetWorldScale3D(FVector(Drop.Size, Drop.Size, Drop.Size * 1.5f) / 100.0f);   // the sphere is 100 cm across
+	Ooze.Add(Drop);
+}
+
+void UWotChannelComponent::UpdateOoze(float DeltaTime)
+{
+	for (int32 i = Ooze.Num() - 1; i >= 0; --i) {
+		FWotOozeDrop& D = Ooze[i];
+		UStaticMeshComponent* Comp = D.Comp.Get();
+		if (!Comp) {
+			Ooze.RemoveAt(i);
+			continue;
+		}
+		if (!D.bLanded) {
+			// thick: it falls slowly, stretching as it goes
+			D.Velocity.Z -= 560.0f * DeltaTime;
+			D.Velocity.X *= 1.0f - 2.0f * DeltaTime;
+			D.Velocity.Y *= 1.0f - 2.0f * DeltaTime;
+			FVector Loc = Comp->GetComponentLocation() + D.Velocity * DeltaTime;
+			const float Stretch = FMath::Clamp(1.2f + FMath::Abs(D.Velocity.Z) / 400.0f, 1.2f, 2.6f);
+			if (Loc.Z - D.Size * 0.5f <= D.GroundZ) {
+				// the splat: a flat dark puddle
+				D.bLanded = true;
+				D.Age = 0.0f;
+				Loc.Z = D.GroundZ + D.Size * 0.06f;
+				Comp->SetWorldLocation(Loc);
+				Comp->SetWorldScale3D(FVector(D.Size * 3.0f, D.Size * 3.0f, D.Size * 0.24f) / 100.0f);
+			} else {
+				Comp->SetWorldLocation(Loc);
+				Comp->SetWorldScale3D(FVector(D.Size, D.Size, D.Size * Stretch) / 100.0f);
+			}
+			continue;
+		}
+		D.Age += DeltaTime;
+		// the puddle spreads a little, then sinks into the ground over a few seconds
+		const float Spread = 1.0f + 0.4f * FMath::Min(D.Age, 1.0f);
+		const float Hold = 2.6f, Sink = 2.0f;
+		const float Fade = D.Age <= Hold ? 1.0f : 1.0f - (D.Age - Hold) / Sink;
+		if (Fade <= 0.0f) {
+			Comp->DestroyComponent();
+			Ooze.RemoveAt(i);
+			continue;
+		}
+		Comp->SetWorldScale3D(FVector(D.Size * 3.0f * Spread * (0.4f + 0.6f * Fade), D.Size * 3.0f * Spread * (0.4f + 0.6f * Fade), D.Size * 0.24f * Fade) / 100.0f);
+	}
+}
+
+void UWotChannelComponent::DestroyOoze()
+{
+	for (FWotOozeDrop& D : Ooze) {
+		if (UStaticMeshComponent* C = D.Comp.Get()) {
+			C->DestroyComponent();
+		}
+	}
+	Ooze.Reset();
+}
+
+void UWotChannelComponent::UpdateCamera(float DeltaTime, bool bHolding)
+{
+	APlayerController* PC = LocalPlayerController();
+	APlayerCameraManager* Cam = PC ? PC->PlayerCameraManager : nullptr;
+	if (!Cam || !GetWorld()) {
+		return;
+	}
+	const float Now = (float)GetWorld()->GetTimeSeconds();
+	const float Kick = Now < ReleaseKickUntil ? (ReleaseKickUntil - Now) / 0.35f : 0.0f;   // 1 -> 0 after a release
+	const float Charge = GetCharge();
+	// the shake (a tremor while saidin is held, a lurch when it is loosed, nothing for saidar) also carries the
+	// post-process: the camera manager clears plain cached blends before the view is built, a shake's land every frame
+	if (!SaidinShakeClass) {
+		return;
+	}
+	if (bHolding && !Shake.IsValid()) {
+		Shake = Cast<UWotChannelCameraShake>(Cam->StartCameraShake(SaidinShakeClass, 1.0f));
+	}
+	UWotChannelCameraShake* S = Shake.Get();
+	UWotChannelShakePattern* Pattern = S ? Cast<UWotChannelShakePattern>(S->GetRootShakePattern()) : nullptr;   // the live (instanced) pattern
+	if (!Pattern) {
+		return;
+	}
+	// clean saidin is the harder to hold: a fast, strong tremor that spikes on every surge; the taint is a slower lurch
+	const float Level = bHolding ? Chaos * (0.35f + 0.65f * Charge) : 0.0f;
+	Pattern->Chaos = FMath::Max(Level, Kick * 1.7f) * SaidinShakeScale;
+	Pattern->Frequency = bChanneledTainted ? 4.5f : 12.0f;
+	Pattern->RotationDegrees = bChanneledTainted ? 1.3f : 1.9f;
+	Pattern->FOVDegrees = bChanneledTainted ? 0.9f : 1.2f;
+	Pattern->PostProcessWeight = 0.0f;
+	// the screen: the taint drains colour and closes in at the edges, the clean torrent blooms and fringes
+	if (SaidinScreenEffect > 0.0f && (bHolding || Kick > 0.0f)) {
+		FPostProcessSettings PP;
+		float Weight;
+		if (bChanneledTainted) {
+			PP.bOverride_ColorSaturation = true; PP.ColorSaturation = FVector4(0.45f, 0.45f, 0.45f, 1.0f);
+			PP.bOverride_SceneColorTint = true; PP.SceneColorTint = FLinearColor(0.78f, 0.7f, 0.95f);
+			PP.bOverride_VignetteIntensity = true; PP.VignetteIntensity = 1.1f;
+			PP.bOverride_FilmGrainIntensity = true; PP.FilmGrainIntensity = 0.75f;
+			PP.bOverride_SceneFringeIntensity = true; PP.SceneFringeIntensity = 2.5f * Chaos;
+			PP.bOverride_ColorGamma = true; PP.ColorGamma = FVector4(0.9f, 0.86f, 0.98f, 1.0f);
+			Weight = 0.35f + 0.6f * Charge;
+		} else {
+			// a cold, over-bright glare that pulses with the chaos
+			const float Glare = 1.0f + 0.25f * Chaos;
+			PP.bOverride_BloomIntensity = true; PP.BloomIntensity = 2.4f;
+			PP.bOverride_SceneFringeIntensity = true; PP.SceneFringeIntensity = 3.0f * Chaos;
+			PP.bOverride_ColorSaturation = true; PP.ColorSaturation = FVector4(1.2f, 1.2f, 1.2f, 1.0f);
+			PP.bOverride_ColorContrast = true; PP.ColorContrast = FVector4(1.12f, 1.12f, 1.12f, 1.0f);
+			PP.bOverride_ColorGain = true; PP.ColorGain = FVector4(1.0f * Glare, 1.06f * Glare, 1.22f * Glare, 1.0f);
+			PP.bOverride_SceneColorTint = true; PP.SceneColorTint = FLinearColor(0.9f, 0.96f, 1.12f);
+			PP.bOverride_VignetteIntensity = true; PP.VignetteIntensity = 0.55f;
+			Weight = 0.3f + 0.6f * Charge;
+		}
+		Weight *= SaidinScreenEffect * (bHolding ? 1.0f : Kick);
+		Pattern->PostProcess = PP;
+		Pattern->PostProcessWeight = Weight;
+	}
+	if (!bHolding && Kick <= 0.0f) {
+		Cam->StopCameraShake(S, false);
+		Shake = nullptr;
 	}
 }
 
@@ -636,7 +995,7 @@ bool UWotChannelComponent::TieOffWeave()
 		return false;
 	}
 	const float Power = (0.35f + 0.65f * Charge) * FMath::Max(0.2f, Strength);
-	Knot->Configure(SelectedWeave, Half, Power, ElementColor(SelectedWeave, Half), TiedWeaveSeconds * (0.6f + 0.8f * Charge));
+	Knot->Configure(SelectedWeave, Half, Power, ElementColorFor(SelectedWeave, Half, !IsTainted()), TiedWeaveSeconds * (0.6f + 0.8f * Charge), IsTainted());
 	Knot->FinishSpawning(FTransform(FRotator(0, Owner->GetActorRotation().Yaw, 0), At));
 	TiedWeaves.RemoveAll([](const TWeakObjectPtr<AWotTiedWeave>& W) { return !W.IsValid(); });
 	TiedWeaves.Add(Knot);
@@ -650,7 +1009,7 @@ bool UWotChannelComponent::TieOffWeave()
 	bChanneling = false;
 	StopEffects();
 	ReleaseThreads(At + FVector(0, 0, 100.0f));
-	SetComponentTickEnabled(false);
+	StopSaidin(true, At + FVector(0, 0, 100.0f));
 	if (AWotCharacter* Char = GetCharacter()) {
 		Char->ShowPopupWidget(FText::Format(NSLOCTEXT("Wot", "TiedOff", "Tied off: {0}"), WeaveName(SelectedWeave)), 1.5f, true);
 	}
@@ -711,4 +1070,34 @@ static FAutoConsoleCommandWithWorldAndArgs GWotChannelTie(
 		if (UWotChannelComponent* C = WotLocalChannel(World)) {
 			C->TieOffWeave();
 		}
+	}));
+
+static FAutoConsoleCommandWithWorldAndArgs GWotChannelCleanse(
+	TEXT("wot.Channel.Cleanse"), TEXT("Set whether saidin has been cleansed (saved with the game): wot.Channel.Cleanse 1|0"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		UWotSaveSubsystem* Save = UWotSaveSubsystem::Get(World);
+		if (!Save) {
+			return;
+		}
+		const bool bCleansed = Args.Num() < 1 || FCString::Atoi(*Args[0]) != 0 || Args[0].ToLower() == TEXT("true");
+		Save->SetSaidinCleansed(bCleansed);
+		UE_LOG(LogWotChannel, Display, TEXT("[PT] CHANNEL saidin cleansed=%d"), bCleansed ? 1 : 0);
+		if (UWotChannelComponent* C = WotLocalChannel(World)) {
+			if (AWotCharacter* Char = C->GetCharacter()) {
+				Char->ShowPopupWidget(bCleansed ? NSLOCTEXT("Wot", "Cleansed", "saidin is clean") : NSLOCTEXT("Wot", "Tainted", "the taint lies on saidin"), 1.5f, true);
+			}
+		}
+	}));
+
+static FAutoConsoleCommandWithWorldAndArgs GWotChannelState(
+	TEXT("wot.Channel.State"), TEXT("Log the local channeler's state: half, cleansed, channeling, charge, chaos, ooze drops"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		UWotChannelComponent* C = WotLocalChannel(World);
+		if (!C) {
+			UE_LOG(LogWotChannel, Display, TEXT("[PT] CHANNEL no local channeler"));
+			return;
+		}
+		UE_LOG(LogWotChannel, Display, TEXT("[PT] CHANNEL half=%s cleansed=%d tainted=%d channeling=%d charge=%.2f chaos=%.2f weave=%s"),
+			C->Half == EWotPowerHalf::Saidar ? TEXT("saidar") : C->Half == EWotPowerHalf::Saidin ? TEXT("saidin") : TEXT("none"), UWotSaveSubsystem::IsSaidinCleansedIn(World) ? 1 : 0, C->IsTainted() ? 1 : 0,
+			C->IsChanneling() ? 1 : 0, C->GetCharge(), C->GetChaos(), *UWotChannelComponent::WeaveName(C->SelectedWeave).ToString());
 	}));

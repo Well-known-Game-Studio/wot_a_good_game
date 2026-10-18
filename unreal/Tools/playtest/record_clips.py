@@ -2,7 +2,7 @@
 """Record PIE clips for the PR with the harness frame recorder (wot.PlayTest.Record), then cut them with ffmpeg
 (make_clips.sh). usage: record_clips.py [walk|ride|climb|channel ...]  (default: all)"""
 import os, re, sys, time
-which = [a for a in sys.argv[1:]] or ["walk", "ride", "climb", "channel", "anim"]
+which = [a for a in sys.argv[1:]] or ["walk", "ride", "climb", "channel", "anim", "saidin"]
 sys.argv = ['x', 'EmondsField']
 exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pietest.py')).read().split("def main():")[0])
 SHOTS = os.path.join(PROJ, "Saved", "Screenshots", "MacEditor")
@@ -47,6 +47,19 @@ if "channel" in which:
         send("wot.Channel.Weave Earth", "wot.Channel.Begin"); time.sleep(3)
         send("wot.Channel.Tie"); time.sleep(5)
     session("Caemlyn", "channel", 30, False, body)
+if "saidin" in which:
+    # Emond's Field: saidin under the taint (black / purple, oozing), then cleansed (white-blue torrent, surging)
+    def body():
+        send("wot.Channel.Half saidin", "wot.Channel.Cleanse 0", "wot.Channel.Weave Fire", "wot.Channel.Begin"); time.sleep(4.0)
+        send("wot.Channel.State", "wot.Channel.Release"); time.sleep(2.5)
+        send("wot.Channel.Weave Air", "wot.Channel.Begin"); time.sleep(3.0)
+        send("wot.Channel.Tie"); time.sleep(4.0)
+        send("wot.Channel.Cleanse 1", "wot.Channel.Weave Fire", "wot.Channel.Begin"); time.sleep(4.0)
+        send("wot.Channel.State", "wot.Channel.Release"); time.sleep(2.5)
+        send("wot.Channel.Weave Earth", "wot.Channel.Begin"); time.sleep(3.0)
+        send("wot.Channel.Tie"); time.sleep(4.0)
+        send("wot.Channel.Cleanse 0")
+    session("EmondsField", "saidin", 34, False, body)
 
 if "anim" in which:
     # Emond's Field: the shared humanoid animations: run to two villagers, cast three times, channel, then ride

@@ -9,6 +9,7 @@
 class AWotCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWotOnSaveEvent, const FString&, SlotName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FWotOnSaidinCleansed, bool, bCleansed);
 
 /**
  * Whole-game save / load. Captures the local player's level, transform,
@@ -87,6 +88,22 @@ public:
 	// --- story flags
 	UFUNCTION(BlueprintCallable, Category = "Save")
 	void SetStoryFlag(FName Flag, bool bValue = true);
+
+	/** Story flag that records the cleansing of saidin (Shadar Logoth). Until it is set every male channeler draws the
+	 *  tainted Power: black and purple, oozing. Saved with the game; toggled by quests or wot.Channel.Cleanse. */
+	static const FName SaidinCleansedFlag;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Save|World")
+	bool IsSaidinCleansed() const { return HasStoryFlag(SaidinCleansedFlag); }
+
+	UFUNCTION(BlueprintCallable, Category = "Save|World")
+	void SetSaidinCleansed(bool bCleansed);
+
+	/** Convenience for code without a subsystem pointer; false when there is no game instance. */
+	static bool IsSaidinCleansedIn(const UObject* WorldContextObject);
+
+	UPROPERTY(BlueprintAssignable, Category = "Save|World")
+	FWotOnSaidinCleansed OnSaidinCleansedChanged;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Save")
 	bool HasStoryFlag(FName Flag) const { return StoryFlags.Contains(Flag); }

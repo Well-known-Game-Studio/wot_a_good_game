@@ -40,12 +40,14 @@ AWotTiedWeave::AWotTiedWeave()
 	Light->SetCastShadows(false);
 	Light->SetIntensity(2500.0f);
 	ThreadSystem = TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Wot/Effects/NS_WeaveThread.NS_WeaveThread")));
+	TaintSystem = TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Ultimate_Magic_Bundle/MagicProjectiles_Optimal/Niagara/Shadow/NS_Shadow_Trail_Purple.NS_Shadow_Trail_Purple")));
 }
 
-void AWotTiedWeave::Configure(EWotWeave InWeave, EWotPowerHalf InHalf, float InPower, const FLinearColor& InColor, float InDuration)
+void AWotTiedWeave::Configure(EWotWeave InWeave, EWotPowerHalf InHalf, float InPower, const FLinearColor& InColor, float InDuration, bool bInTainted)
 {
 	Weave = InWeave;
 	Half = InHalf;
+	bTainted = bInTainted && InHalf == EWotPowerHalf::Saidin;
 	Power = FMath::Max(0.1f, InPower);
 	Color = InColor;
 	Duration = InDuration;
@@ -68,6 +70,15 @@ void AWotTiedWeave::BeginPlay()
 		Wall->SetBoxExtent(FVector(22.0f, 150.0f + 40.0f * Power, 115.0f));
 	}
 	BuildKnot();
+	if (bTainted) {
+		// shadow seeps from the heart of the knot
+		if (UNiagaraSystem* Taint = TaintSystem.LoadSynchronous()) {
+			if (UNiagaraComponent* T = UNiagaraFunctionLibrary::SpawnSystemAttached(Taint, Root, NAME_None, FVector(0, 0, Weave == EWotWeave::Earth ? 120.0f : 100.0f + 30.0f * Power), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, false, true)) {
+				Threads.Add(T);
+				ThreadAmplitudes.Add(-1.0f);   // not a ribbon
+			}
+		}
+	}
 }
 
 UNiagaraComponent* AWotTiedWeave::SpawnThread(const FVector& From, const FVector& To, float Phase, float Amplitude, float Width)
@@ -89,6 +100,7 @@ UNiagaraComponent* AWotTiedWeave::SpawnThread(const FVector& From, const FVector
 	Comp->SetVariableFloat(FName("User.Amplitude"), Amplitude);
 	Comp->SetVariableFloat(FName("User.Gather"), 1.0f);
 	Threads.Add(Comp);
+	ThreadAmplitudes.Add(Amplitude);
 	return Comp;
 }
 
@@ -156,6 +168,9 @@ void AWotTiedWeave::Tick(float DeltaTime)
 	// breathing light, brighter as the knot nears its end
 	const float Pulse = 0.85f + 0.15f * FMath::Sin(Age * 5.0f);
 	Light->SetIntensity(2200.0f * FMath::Sqrt(Power) * Pulse);
+	if (Half == EWotPowerHalf::Saidin) {
+		UpdateSaidinLook();
+	}
 
 	const FVector C = GetActorLocation();
 	APawn* Channeler = GetInstigator();
@@ -209,5 +224,36 @@ void AWotTiedWeave::Tick(float DeltaTime)
 		break;
 	case EWotWeave::Earth:
 		break;
+	}
+}
+
+void AWotTiedWeave::UpdateSaidinLook()
+{
+	// a saidin knot never rests: the ribbons thrash; the taint drowns them in flickering black and the light gutters,
+	// clean saidin flares cold white now and then
+	const float N = FMath::PerlinNoise1D(Age * (bTainted ? 3.0f : 6.0f) + GetUniqueID() * 0.37f);
+	const float Surge = FMath::PerlinNoise1D(Age * 1.1f + 400.0f) > 0.62f ? 1.0f : 0.0f;
+	const FLinearColor Dark(0.03f, 0.0f, 0.05f);
+	for (int32 i = 0; i < Threads.Num(); ++i) {
+		UNiagaraComponent* T = Threads[i];
+		const float Rest = ThreadAmplitudes.IsValidIndex(i) ? ThreadAmplitudes[i] : -1.0f;
+		if (!T || Rest < 0.0f) {
+			continue;
+		}
+		const float Ni = FMath::PerlinNoise1D(Age * 5.0f + i * 19.0f);
+		T->SetVariableFloat(FName("User.Amplitude"), Rest * (1.0f + (bTainted ? 0.7f : 1.1f) * FMath::Abs(Ni) + Surge * 0.8f));
+		if (bTainted) {
+			T->SetVariableLinearColor(FName("User.Color"), FMath::Lerp(Color, Dark, 0.3f + 0.5f * FMath::Clamp(0.5f + 0.5f * Ni, 0.0f, 1.0f) + Surge * 0.2f));
+		} else if (Surge > 0.0f) {
+			T->SetVariableLinearColor(FName("User.Color"), FMath::Lerp(Color, FLinearColor(1.0f, 1.0f, 1.0f) * 2.0f, 0.6f));
+		} else {
+			T->SetVariableLinearColor(FName("User.Color"), Color);
+		}
+	}
+	if (bTainted) {
+		Light->SetLightColor(FMath::Lerp(Color, FLinearColor(0.35f, 0.05f, 0.5f), 0.5f));
+		Light->SetIntensity(Light->Intensity * (0.4f + 0.6f * FMath::Abs(N)));
+	} else {
+		Light->SetIntensity(Light->Intensity * (0.8f + 0.5f * FMath::Abs(N) + Surge * 0.8f));
 	}
 }

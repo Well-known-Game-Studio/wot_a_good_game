@@ -414,11 +414,18 @@ void UWotPlayTestSubsystem::PollCommandFile()
 	if (!PF.FileExists(*Path)) {
 		return;
 	}
-	TArray<FString> Lines;
-	if (!FFileHelper::LoadFileToStringArray(Lines, *Path)) {
+	// move the file aside first: a script appending between our read and delete would otherwise lose its lines
+	const FString Taken = Path + TEXT(".taken");
+	PF.DeleteFile(*Taken);
+	if (!PF.MoveFile(*Taken, *Path)) {
 		return;
 	}
-	PF.DeleteFile(*Path);
+	TArray<FString> Lines;
+	if (!FFileHelper::LoadFileToStringArray(Lines, *Taken)) {
+		PF.DeleteFile(*Taken);
+		return;
+	}
+	PF.DeleteFile(*Taken);
 	for (FString& Line : Lines) {
 		Line.TrimStartAndEndInline();
 		if (Line.IsEmpty() || Line.StartsWith(TEXT("#"))) {

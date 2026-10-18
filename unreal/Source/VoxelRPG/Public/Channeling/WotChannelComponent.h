@@ -9,6 +9,11 @@ class UNiagaraSystem;
 class UNiagaraComponent;
 class AWotCharacter;
 class AWotTiedWeave;
+class UWotChannelCameraShake;
+class UStaticMesh;
+class UMaterialInterface;
+class UStaticMeshComponent;
+class UMaterialInstanceDynamic;
 
 /** Which half of the One Power the channeler touches. */
 UENUM(BlueprintType)
@@ -32,8 +37,18 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWotOnWeave, EWotWeave, Weave, floa
 
 /**
  * Channeling the One Power. Hold the channel input to embrace saidar / seize
- * saidin (threads of light gather on the hands; saidin adds the taint's dark
- * flicker), release to loose the selected weave. Charge builds while holding.
+ * saidin (threads of light gather on the hands), release to loose the selected
+ * weave. Charge builds while holding.
+ *
+ * saidar is the clean, steady light of the show. saidin depends on the world:
+ * until the SaidinCleansed story flag is set (UWotSaveSubsystem, saved with the
+ * game) it carries the Dark One's taint: the threads turn black and bruised
+ * purple and flicker, shadow clings to the hands, black ooze drips from them and
+ * pools on the ground, and the screen desaturates and darkens at the edges.
+ * Cleansed saidin is the raging torrent of fire and ice: white-blue threads that
+ * thrash and surge with lightning, and a camera that trembles with the effort of
+ * holding it. Both halves of saidin shake the camera; the taint lurches, clean
+ * saidin trembles.
  */
 UCLASS(ClassGroup = (Wot), meta = (BlueprintSpawnableComponent))
 class VOXELRPG_API UWotChannelComponent : public UActorComponent
@@ -104,9 +119,54 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects")
 	TSoftObjectPtr<UNiagaraSystem> EmbraceSystemSaidin;
 
-	/** The taint: a dark flicker that only saidin shows. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects")
+	/** The taint: a dark flicker on the hands (tainted saidin). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
 	TSoftObjectPtr<UNiagaraSystem> TaintSystem;
+
+	/** Shadow clinging to both hands while tainted saidin is held (looping). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
+	TSoftObjectPtr<UNiagaraSystem> TaintTrailSystem;
+
+	/** Burst of shadow when a tainted weave is loosed or surges. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
+	TSoftObjectPtr<UNiagaraSystem> TaintBurstSystem;
+
+	/** Lightning crackling on the hands while clean saidin is held (looping). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
+	TSoftObjectPtr<UNiagaraSystem> SurgeTrailSystem;
+
+	/** Lightning burst at the hands when clean saidin surges or is loosed. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
+	TSoftObjectPtr<UNiagaraSystem> SurgeBurstSystem;
+
+	/** Camera shake while saidin is held (the local player only). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
+	TSubclassOf<UWotChannelCameraShake> SaidinShakeClass;
+
+	/** Overall camera shake strength; 0 turns it off. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin", meta = (ClampMin = 0.0, ClampMax = 3.0))
+	float SaidinShakeScale = 1.0f;
+
+	/** Post-process while saidin is held (desaturation and dark vignette when tainted, bloom and fringe when clean); 0 turns it off. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin", meta = (ClampMin = 0.0, ClampMax = 1.0))
+	float SaidinScreenEffect = 1.0f;
+
+	/** The ooze: dark blobs dripping from the hands while tainted saidin is held. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
+	TSoftObjectPtr<UStaticMesh> OozeMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
+	TSoftObjectPtr<UMaterialInterface> OozeMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
+	FLinearColor OozeColor = FLinearColor(0.012f, 0.0f, 0.02f);
+
+	/** Drops per second at full charge; 0 turns the ooze off. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin", meta = (ClampMin = 0.0, ClampMax = 30.0))
+	float OozeRate = 8.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects|Saidin")
+	int32 MaxOozeDrops = 36;
 
 	/** Released-weave burst at the hands / on the ground, per weave. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Channeling|Effects")
@@ -168,8 +228,24 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Channeling")
 	bool TieOffWeave();
 
+	/** Element colour for a half of the Power; saidin is read as tainted (see ElementColorFor). */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Channeling")
 	static FLinearColor ElementColor(EWotWeave Weave, EWotPowerHalf InHalf);
+
+	/** Element colour: saidar is the clean white light, tainted saidin black and bruised purple, cleansed saidin white-blue fire and ice. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Channeling")
+	static FLinearColor ElementColorFor(EWotWeave Weave, EWotPowerHalf InHalf, bool bSaidinCleansed);
+
+	/** True while this channeler holds saidin and saidin has not been cleansed (UWotSaveSubsystem::IsSaidinCleansed). */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Channeling")
+	bool IsTainted() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Channeling")
+	bool IsSaidin() const { return Half == EWotPowerHalf::Saidin; }
+
+	/** 0..~1.5: how wildly saidin thrashes right now (noise plus surges); 0 for saidar. */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Channeling")
+	float GetChaos() const { return Chaos; }
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -177,6 +253,8 @@ public:
 	static FText WeaveName(EWotWeave Weave);
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	AWotCharacter* GetCharacter() const;
 
 protected:
 	bool bChanneling = false;
@@ -195,9 +273,43 @@ protected:
 		FVector Source = FVector::ZeroVector;
 		FVector Drift = FVector::ZeroVector;  // free sources (air, mist, embers) wander
 		float Bob = 0.0f;
+		float Amplitude = 30.0f;               // the ribbon's wave at rest; saidin multiplies it by its chaos
 		bool bFromEnvironment = false;
 	};
 	TArray<FWotThread> Threads;
+
+	// --- saidin: chaos, surges, ooze, camera
+	/** A drop of the taint: falls from a hand, splats on the ground, sinks away. */
+	struct FWotOozeDrop
+	{
+		TWeakObjectPtr<UStaticMeshComponent> Comp;
+		FVector Velocity = FVector::ZeroVector;
+		float GroundZ = 0.0f;
+		float Size = 8.0f;
+		float Age = 0.0f;       // since the splat (< 0 while falling)
+		bool bLanded = false;
+	};
+	TArray<FWotOozeDrop> Ooze;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UMaterialInstanceDynamic> OozeMID;
+
+	TWeakObjectPtr<UWotChannelCameraShake> Shake;
+	float Chaos = 0.0f;
+	float SurgeUntil = 0.0f;
+	float NextSurgeTime = 0.0f;
+	float OozeAccumulator = 0.0f;
+	float ReleaseKickUntil = 0.0f;
+	bool bChanneledTainted = false;   // the taint state when channeling began (so the release burst matches)
+
+	void BeginSaidin();
+	void UpdateSaidin(float DeltaTime);
+	void StopSaidin(bool bLoosed, const FVector& LoosedAt);
+	void SpawnOozeDrop(const FVector& From);
+	void UpdateOoze(float DeltaTime);
+	void DestroyOoze();
+	void UpdateCamera(float DeltaTime, bool bHolding);
+	class APlayerController* LocalPlayerController() const;
 
 	UPROPERTY()
 	TArray<TObjectPtr<UNiagaraComponent>> ThreadComps;
@@ -214,8 +326,8 @@ protected:
 	void DestroyThreads();
 	FVector HandsPoint() const;
 
-	AWotCharacter* GetCharacter() const;
 	UNiagaraComponent* AttachEffect(const TSoftObjectPtr<UNiagaraSystem>& System, FName Socket, bool bLoop);
+	UNiagaraComponent* AttachEffectScaled(const TSoftObjectPtr<UNiagaraSystem>& System, const FVector& Offset, float Scale);
 	void StopEffects();
 	void SpawnReleaseEffect(EWotWeave Weave, const FVector& Location);
 

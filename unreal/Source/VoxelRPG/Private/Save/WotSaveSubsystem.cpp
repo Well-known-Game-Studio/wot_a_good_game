@@ -176,7 +176,13 @@ void UWotSaveSubsystem::ApplyState(const UWotGameSave* Save, AWotCharacter* Play
 	if (UWotQuestSubsystem* Quests = GetGameInstance()->GetSubsystem<UWotQuestSubsystem>()) {
 		Quests->SetProgressSnapshot(Save->Quests, Save->bQuestAutoStartDone);
 	}
-	StoryFlags = Save->StoryFlags;
+	{
+		const bool bWasCleansed = IsSaidinCleansed();
+		StoryFlags = Save->StoryFlags;
+		if (bWasCleansed != IsSaidinCleansed()) {
+			OnSaidinCleansedChanged.Broadcast(IsSaidinCleansed());
+		}
+	}
 	PlaytimeSeconds = Save->Header.PlaytimeSeconds;
 }
 
@@ -266,7 +272,13 @@ void UWotSaveSubsystem::NewGame()
 {
 	PendingLoad = nullptr;
 	CarryOver = nullptr;
-	StoryFlags.Reset();
+	{
+		const bool bWasCleansed = IsSaidinCleansed();
+		StoryFlags.Reset();
+		if (bWasCleansed) {
+			OnSaidinCleansedChanged.Broadcast(false);
+		}
+	}
 	PlaytimeSeconds = 0.0f;
 	if (UWotQuestSubsystem* Quests = GetGameInstance()->GetSubsystem<UWotQuestSubsystem>()) {
 		Quests->ResetAllQuests();
@@ -294,11 +306,28 @@ void UWotSaveSubsystem::QuitToMainMenu()
 
 void UWotSaveSubsystem::SetStoryFlag(FName Flag, bool bValue)
 {
+	const bool bWasCleansed = IsSaidinCleansed();
 	if (bValue) {
 		StoryFlags.AddUnique(Flag);
 	} else {
 		StoryFlags.Remove(Flag);
 	}
+	if (Flag == SaidinCleansedFlag && bWasCleansed != bValue) {
+		OnSaidinCleansedChanged.Broadcast(bValue);
+	}
+}
+
+const FName UWotSaveSubsystem::SaidinCleansedFlag(TEXT("SaidinCleansed"));
+
+void UWotSaveSubsystem::SetSaidinCleansed(bool bCleansed)
+{
+	SetStoryFlag(SaidinCleansedFlag, bCleansed);
+}
+
+bool UWotSaveSubsystem::IsSaidinCleansedIn(const UObject* WorldContextObject)
+{
+	const UWotSaveSubsystem* Save = Get(WorldContextObject);
+	return Save && Save->IsSaidinCleansed();
 }
 
 // ---------------------------------------------------------------- hooks
