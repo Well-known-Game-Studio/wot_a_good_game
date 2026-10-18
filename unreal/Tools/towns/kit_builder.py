@@ -12,6 +12,13 @@ def cyl(x,y,z,d,h,mat):
     return (CYL,(x,y,z),0,(d/100.0,d/100.0,h/100.0),mat)
 
 # Every generator returns a list of parts; pivot is the floor centre, door faces -X, min z = 0.
+# A part whose material is None is an existing mesh asset placed as-is (no palette material): see rand_house.
+RAND_HOUSE_SRC="/Game/Wot/Meshes/Buildings/rand_house/rand_house.rand_house"
+def rand_house():
+    """The imported Two Rivers house (rand_house) re-merged with a half turn so its door, awning and windows face -X like
+    every other kit house. House slots point +X away from the street, so the original mesh stood with its back to the
+    road. Keeps the source's five material slots (roof, wood, wall, window, awning) in order."""
+    return [(RAND_HOUSE_SRC,(0,0,0),180,(1,1,1),None)]
 def gable_house(w=600,d=800,h=300,steps=5,wall="P_Plaster",roof="P_Terracotta",trim="P_DarkWood",door="P_DarkWood",win="P_Glass"):
     p=[box(0,0,h/2,d,w,h,wall)]
     rh=h+ (steps*60)/2
@@ -203,7 +210,7 @@ def way_rubble(seed=7,dark="P_WayStoneDark",stone="P_WayStone"):
     return p
 
 KIT={
- "SM_GableHouse":gable_house,"SM_TowerHouse":tower_house,"SM_DomeHouse":dome_house,"SM_CourtyardHouse":courtyard_house,
+ "SM_GableHouse":gable_house,"SM_TowerHouse":tower_house,"SM_DomeHouse":dome_house,"SM_CourtyardHouse":courtyard_house,"SM_RandHouse":rand_house,
  "SM_Keep":keep,"SM_Longhouse":longhouse,"SM_MarketStall":market_stall,"SM_StoneWell":well_stone,"SM_LampPost":lamp_post,
  "SM_Obelisk":obelisk,"SM_GateHouse":gate_house,"SM_RuinWall":ruin_wall,"SM_BridgeArch":bridge_arch,
  "SM_WayIsland":way_island,"SM_WayIsland2":lambda:way_island(1100,300,2),"SM_WayIsland3":lambda:way_island(1700,380,3),
@@ -245,8 +252,9 @@ def build_kit_mesh(name,parts,folder=KIT_FOLDER):
     """Places parts as StaticMeshActors in the scratch area, merges them into one StaticMesh asset, destroys sources."""
     actors=[]
     ox,oy,oz=SCRATCH
-    # tiny pivot part first so the merged mesh pivot sits at the floor centre
-    parts=[box(0,0,1,20,20,2,parts[0][4])]+list(parts)
+    # tiny pivot part first so the merged mesh pivot sits at the floor centre (a wrapped asset keeps its own pivot and materials)
+    wrapped=parts[0][4] is None
+    if not wrapped: parts=[box(0,0,1,20,20,2,parts[0][4])]+list(parts)
     for i,(mesh,(x,y,z),yaw,scale,mat) in enumerate(parts):
         a=place_mesh(mesh,f"{name}_part{i}",(ox+x,oy+y,oz+z),yaw,scale,[PM(mat)] if mat else None,tag=None)
         actors.append(a)
@@ -259,8 +267,9 @@ def build_kit_mesh(name,parts,folder=KIT_FOLDER):
         if ap: remove(ap)
     except Exception: pass
     # assign slot materials in first-appearance order of distinct part materials
-    order=kit_slot_mats(parts)
     mp=f"{folder}/{name}.{name}"
+    if wrapped: return f"{folder}/{name}"
+    order=kit_slot_mats(parts)
     try:
         slots=T("editor_toolset.toolsets.static_mesh.StaticMeshTools.get_material_slots",{"mesh":ref(mp)})
         for sl,m in zip(slots,order):

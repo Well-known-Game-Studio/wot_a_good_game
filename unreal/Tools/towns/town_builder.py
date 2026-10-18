@@ -129,7 +129,7 @@ def build_town_graph(spec):
         pts=hsl.get(tag) if tag in hsl else None
         if not pts or not cfg: return
         nm,cnt,used=chunked_points(f"Slots{tag}",[point(x,yy,z,yaw,1.0,50) for (x,yy,z,yaw) in pts],0,y,title=f"house slots {tag or 'default'}")
-        smin,smax=cfg["scale"]; fp=gv(cfg,"footprint",(-560,-560,740,420)); jit=gv(cfg,"jitter",120); sh=gv(cfg,"excl_shrink",0.55)
+        smin,smax=cfg["scale"]; fp=gv(cfg,"footprint",(-740,-420,560,560)); jit=gv(cfg,"jitter",120); sh=gv(cfg,"excl_shrink",0.55)
         params={"OffsetMin":{"x":-jit,"y":-40,"z":0},"OffsetMax":{"x":jit,"y":40,"z":0},"ScaleMin":{"x":smin,"y":smin,"z":smin},"ScaleMax":{"x":smax,"y":smax,"z":smax},"Ratio":float(gv(cfg,"keep",0.9)),
                 "CoreMin":{"x":fp[0]*sh,"y":fp[1]*sh,"z":0},"CoreMax":{"x":fp[2]*sh,"y":fp[3]*sh,"z":700},"FootMin":{"x":fp[0],"y":fp[1],"z":0},"FootMax":{"x":fp[2],"y":fp[3],"z":700}}
         B.sub(SUBS["Houses"],f"Houses{tag}",params,title=f"Houses {tag or 'default'}",x=2,y=y)

@@ -32,7 +32,7 @@ def caemlyn_spec():
                {"pts":circle(5000,5000,1300,16),"mat":GRASS,"scatter":[(MESH["tree3"],0.03,0.9,1.2,None),(kit_mesh("SM_FlowerShrub"),0.05,0.9,1.3,None)]},
                {"pts":circle(-5000,-5000,1300,16),"mat":GRASS,"scatter":[(MESH["tree4"],0.03,0.9,1.2,None),(kit_mesh("SM_FlowerShrub"),0.05,0.9,1.3,None)]}]
     s["exclusions"]=[(0,0,1500,1500),(12500,0,600,800)]
-    s["houses"]={"spacing":1300,"setback":900,"scale":(0.8,1.0),"keep":0.94,"footprint":(-520,-480,660,380),"entries":houses}
+    s["houses"]={"spacing":1300,"setback":900,"scale":(0.8,1.0),"keep":0.94,"footprint":(-660,-380,520,480),"entries":houses}
     s["house_sets"]={"inner":{"spacing":1700,"setback":950,"scale":(0.9,1.15),"keep":0.95,"entries":inner},"alley":dense_set(houses,850,600,(0.55,0.7),0.97),"low":dense_set(poor,1000,700,(0.6,0.8),0.95)}
     s["foliage"]=base_foliage(TREES_TEMPERATE,forest_ratio=0.1,edge_ratio=0.02,town_ratio=0.004,bush=0.012,grass=0.22,extent=E,town_trees=TREES_FORMAL,bands={"forest":(0.95,1.0),"edge":(0.9,0.95),"town":(0.3,0.9)})
     s["pads"]=[(("circle",0,0,2300),None),(("rect",8600,-2400,10000,-700),None),(("rect",-9600,-3000,-8100,-1400),None)]
@@ -88,7 +88,7 @@ def cairhien_spec():
     s["plazas"]=[{"pts":rect(-2600,-2600,2600,2600),"mat":WS,"linear":True,"scatter":[(kit_mesh("SM_LampPost"),0.008,1,1,None)]},
                {"pts":rect(5200,5200,8000,8000),"mat":MAT("MI_Tile_PlazaDark"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,None)]}]
     s["exclusions"]=[(0,0,1900,1900)]+[(math.cos(math.radians(45+90*k))*3400,math.sin(math.radians(45+90*k))*3400,700,700) for k in range(4)]+[(10400,0,500,800)]
-    s["houses"]={"spacing":1150,"setback":800,"scale":(0.9,1.2),"keep":0.96,"footprint":(-380,-380,460,380),"jitter":40,"entries":houses}
+    s["houses"]={"spacing":1150,"setback":800,"scale":(0.9,1.2),"keep":0.96,"footprint":(-460,-380,380,380),"jitter":40,"entries":houses}
     s["house_sets"]={"foregate":dense_set(foregate,800,560,(0.5,0.68),0.97)}
     s["foliage"]=base_foliage(TREES_FORMAL+TREES_PINE()[:1],forest_ratio=0.12,edge_ratio=0.03,town_ratio=0.003,bush=0.008,grass=0.18,extent=E,bands={"forest":(0.93,1.0),"edge":(0.88,0.93),"town":(0.3,0.88)},
                               extra=[boulders_extra((0.9,1.0),0.02)])
@@ -143,7 +143,7 @@ def tear_spec():
     s["plazas"]=[{"pts":rect(-200,-1200,1700,1200),"mat":MAT("MI_Tile_PlazaDark"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.04,0.9,1.1,None)]},
                {"pts":rect(2200,-9000,4800,-6800),"mat":MAT("MI_Tile_PlazaDark"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.06,0.9,1.1,kit_mats("SM_MarketStall",{"P_Terracotta":"P_Olive"}))]}]
     s["exclusions"]=[(-2750,0,2600,2600),(8000,0,2600,12000),(5300,-11000,500,700)]
-    s["houses"]={"spacing":1400,"setback":950,"scale":(0.85,1.05),"keep":0.94,"footprint":(-520,-480,660,380),"entries":rich}
+    s["houses"]={"spacing":1400,"setback":950,"scale":(0.85,1.05),"keep":0.94,"footprint":(-660,-380,520,480),"entries":rich}
     s["house_sets"]={"docks":dense_set(poor,900,620,(0.55,0.72),0.95)}
     s["foliage"]=base_foliage(TREES_TEMPERATE,forest_ratio=0.08,edge_ratio=0.02,town_ratio=0.004,bush=0.012,grass=0.22,extent=E,bands={"forest":(0.95,1.0),"edge":(0.88,0.95),"town":(0.3,0.88)},
                               extra=[{"name":"Reeds","band":(0.0,1.0),"ratio":0.0,"entries":[],"scale":(1,1)}])
@@ -197,7 +197,7 @@ def tarvalon_spec():
               {"name":"West bank road","pts":[(-11400,0),(-12400,0)],"width":5,"houses":False}]+radials+bridges+q1+q2
     s["plazas"]=[{"pts":circle(0,0,2400,32),"mat":WS,"scatter":[(kit_mesh("SM_LampPost"),0.01,1,1,None),(kit_mesh("SM_Obelisk"),0.004,0.6,0.8,None)]}]+parks
     s["exclusions"]=[(0,0,1500,1500)]+[(math.cos(th)*9400,math.sin(th)*9400,500,700) for th in [0,math.pi/2,math.pi,3*math.pi/2]]+[(12700,0,500,700)]
-    s["houses"]={"spacing":1400,"setback":900,"scale":(0.8,1.0),"keep":0.93,"footprint":(-520,-480,660,380),"entries":white}
+    s["houses"]={"spacing":1400,"setback":900,"scale":(0.8,1.0),"keep":0.93,"footprint":(-660,-380,520,480),"entries":white}
     s["house_sets"]={"tight":dense_set(tight,850,600,(0.55,0.72),0.97)}
     s["foliage"]=base_foliage(TREES_FORMAL+TREES_PINE()[:1],forest_ratio=0.1,edge_ratio=0.03,town_ratio=0.008,bush=0.018,grass=0.28,extent=E,fr=12000,clip=1.0,bands={"forest":(0.9,1.0),"edge":(0.78,0.9),"town":(0.3,0.78)},
                               extra=[boulders_extra((0.85,1.0),0.03,{"P_Grey":"P_DarkGrey"})])
@@ -309,7 +309,7 @@ def illian_spec():
     s["plazas"]=[{"pts":rect(-1500,-1500,1500,-150),"mat":WS,"linear":True,"scatter":[(kit_mesh("SM_LampPost"),0.01,1,1,None)]},
                {"pts":rect(-1500,150,1500,1500),"mat":WS,"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,kit_mats("SM_MarketStall",{"P_Terracotta":"P_Green"}))]}]
     s["exclusions"]=[(0,-800,1000,600),(10400,0,500,800)]
-    s["houses"]={"spacing":1250,"setback":850,"scale":(0.8,1.0),"keep":0.94,"footprint":(-500,-460,640,370),"entries":houses}
+    s["houses"]={"spacing":1250,"setback":850,"scale":(0.8,1.0),"keep":0.94,"footprint":(-640,-370,500,460),"entries":houses}
     s["house_sets"]={"quarter":dense_set(bridge_,850,600,(0.55,0.72),0.97)}
     s["foliage"]=base_foliage(TREES_TEMPERATE,forest_ratio=0.1,edge_ratio=0.02,town_ratio=0.006,bush=0.015,grass=0.26,extent=E,bands={"forest":(0.95,1.0),"edge":(0.88,0.95),"town":(0.3,0.88)},
                               town_trees=[(MESH["tree3"],2,None),(kit_mesh("SM_Palm"),1,None),(MESH["tree4"],1,None)],

@@ -350,7 +350,7 @@ class Relief:
             if not gv(rd,"houses",False): continue
             cfg=sets[rd["set"]] if gv(rd,"set") in sets else hs
             sp=gv(rd,"spacing",gv(hs,"spacing",1400)); sb=gv(rd,"setback",gv(hs,"setback",900)); sides=gv(rd,"sides","both")
-            fp=gv(cfg,"footprint",(-560,-560,740,420)); r=max(abs(fp[0]),abs(fp[1]),abs(fp[2]),abs(fp[3]))+60
+            fp=gv(cfg,"footprint",(-740,-420,560,560)); r=max(abs(fp[0]),abs(fp[1]),abs(fp[2]),abs(fp[3]))+60
             pts=rd["pts"]; dist=0.0; nxt=0.0
             for i in range(len(pts)-1):
                 ax,ay,az=pts[i][0],pts[i][1],pts[i][2]; bx,by,bz=pts[i+1][0],pts[i+1][1],pts[i+1][2]
@@ -552,7 +552,7 @@ class Relief:
             if p[0]=="npc": loc=p[2]; r=120.0   # just the spawn capsule; they wander anyway
             else: path=p[1]; label=p[2]; loc=p[3]; scale=p[5] if len(p)>5 else 1.0; r=self.foot_radius(path,label,scale)
             if p[0]=="mesh" and self.HOUSE_RX.search(f"{label} {str(path).split('/')[-1]}") and not re.search(r"Waygate|Stall|Lamp",label):
-                sc=scale if isinstance(scale,(int,float)) else max(scale[0],scale[1]); fp=(-560*sc-60,-560*sc-60,740*sc+60,420*sc+60)
+                sc=scale if isinstance(scale,(int,float)) else max(scale[0],scale[1]); fp=(-740*sc-60,-420*sc-60,560*sc+60,560*sc+60)   # the kit house frame: door on -X, the long awning behind (+X)
                 yaw=p[4] if not isinstance(p[4],(list,tuple)) else p[4][1]
                 self.occupy_rect(loc[0],loc[1],yaw,fp,"building"); continue
             if r: self.occupy(loc[0],loc[1],r,"prop")

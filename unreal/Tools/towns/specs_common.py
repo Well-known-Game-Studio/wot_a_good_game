@@ -1,5 +1,6 @@
 # ---------------- shared helpers for the town specs (v3: relief terrain) ----------------
-H=MESH["house"]
+H=MESH["house"]                       # the imported Two Rivers house: door on +X (hand-placed inns with an authored yaw)
+HK=kit_mesh("SM_RandHouse")           # the same house turned to the kit convention (door -X): every street-house entry
 PORTAL_BP="/Game/Wot/Actors/Portal"; CHEST="/Game/Wot/Actors/Props/Chest"; CRATE="/Game/Wot/Actors/Props/BP_BreakableCrate"; CAMP="/Game/Wot/Actors/Props/Campfire"; FIRE="/Game/Wot/Actors/Fireflies"
 HORSE="/Game/Wot/NPCs/animals/horse/HorseBP"; SHEEP="/Game/Wot/NPCs/animals/sheep/Sheep_BP"; PEN="/Game/Wot/GeometryScripting/BP_AnimalPen"
 GRASS=MAT("MI_Ground_Lush"); ROCK=MAT("MI_Ground_Rock"); DARKROCK=MAT("MI_Ground_DarkRock"); CLIFF=MAT("MI_Ground_Cliff"); REDROCK=MAT("MI_Ground_RedRock"); SAND=MAT("MI_Ground_Sand"); SNOW=PM("P_Snow"); TUNDRA=MAT("MI_Ground_Tundra"); ASH=MAT("MI_Ground_Ash"); DIRT=MAT("MI_Ground_Dirt")
@@ -62,9 +63,9 @@ def rand_house_entries(walls,roofs,woods=("MI_Wood_Dark","MI_Wood_Grey"),w=1):
     e=[]
     for i,wl in enumerate(walls):
         for j,rf in enumerate(roofs):
-            e.append((H,w,[MAT(rf),MAT(woods[(i+j)%len(woods)]),MAT(wl),None,None]))
+            e.append((HK,w,[MAT(rf),MAT(woods[(i+j)%len(woods)]),MAT(wl),None,None]))
     return e
-def dense_set(entries,spacing=850,setback=600,scale=(0.55,0.72),keep=0.97,footprint=(-400,-380,480,330)):
+def dense_set(entries,spacing=850,setback=600,scale=(0.55,0.72),keep=0.97,footprint=(-480,-330,400,380)):
     return {"spacing":spacing,"setback":setback,"scale":scale,"keep":keep,"footprint":footprint,"jitter":40,"entries":entries}
 def pier_roads(prefix,x0,ys,length,water,width=3,along_x=True):
     out=[]

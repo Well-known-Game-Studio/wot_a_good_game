@@ -16,8 +16,11 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   into static meshes under `/Game/Wot/Towns/Common/Buildings` (SM_GableHouse, SM_TowerHouse,
   SM_DomeHouse, SM_CourtyardHouse, SM_Keep, SM_Longhouse, SM_MarketStall, SM_StoneWell, SM_LampPost,
   SM_Obelisk, SM_GateHouse, SM_RuinWall, SM_BridgeArch, SM_Pine, SM_Palm, SM_DeadTree, SM_Boulder,
-  SM_Cactus, SM_Reeds, SM_FlowerShrub, SM_SnowPatch, SM_Birch, SM_Stairs200…600, SM_Ladder600/900, SM_WhiteBridge). Material slots follow the first-appearance
-  order of the part colours; `kit_entry(name, {"P_Plaster":"P_White"})` recolours per town.
+  SM_Cactus, SM_Reeds, SM_FlowerShrub, SM_SnowPatch, SM_Birch, SM_Stairs200…600, SM_Ladder600/900, SM_WhiteBridge,
+  SM_RandHouse = the imported `rand_house` re-merged with a half turn). Material slots follow the first-appearance
+  order of the part colours; `kit_entry(name, {"P_Plaster":"P_White"})` recolours per town. Every building's door is
+  on -X and house slots point +X away from the street, so doors face the road; `wot.Mesh.Dump <Mesh>` (editor console)
+  prints per-section vertex centroids to check a mesh's door side.
 * `relief.py` – deterministic voxel heightfield per town. A `Relief` is a sum of continuous features (hills, ridges,
   valleys/rivers, slopes, value noise) plus plateaus (flat terraces with optional rim blending; rim 0 = cliff),
   quantised to 40 cm steps (the character's MaxStepHeight is 45) on a 250 cm cell grid. Roads are then *carved*: each
@@ -37,7 +40,7 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   `ow_portals.py` places or moves a portal and a tagged PlayerStart for every town in that file, plus a generic landmark
   mesh for each town except Tar Valon and Tear, whose hand-placed landmarks (the White Tower, Dragonmount, the Stone)
   are moved to the fitted sites instead. Overworld axes: +X east, +Y south.
-* `run_town.py <Town>...|--all|--dry|--kit|--overworld` – regenerate towns, dry-run the relief locally, rebuild the kit,
+* `run_town.py <Town>...|--all|--dry|--kit [SM_Name ...]|--overworld` – regenerate towns, dry-run the relief locally, rebuild the kit,
   or re-place the Overworld portals.
 
 Portals: the Portal blueprint now has a `ToLevel` string (used when set, otherwise the old

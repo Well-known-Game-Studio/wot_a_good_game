@@ -8,7 +8,7 @@ Usage:
   python3 run_town.py --all                 every town, sequentially
   python3 run_town.py --dry <Town>          build the spec and relief locally (no editor) and print terrain/road statistics
   python3 run_town.py --subgraphs           (re)build the shared PCGS_* subgraphs every town graph uses (pcg_subgraphs.py); rebuild towns afterwards
-  python3 run_town.py --kit                 rebuild the merged kit meshes (SM_*) from kit_builder.py
+  python3 run_town.py --kit [SM_Name ...]   rebuild the merged kit meshes (SM_*) from kit_builder.py (default: the stairs and the White Bridge)
   python3 run_town.py --overworld           (re)place Overworld portals/player starts/landmarks from ow_sites.json (see ow_fit.py)
 """
 import json, subprocess, sys, os, math, time
@@ -45,7 +45,7 @@ def dry(towns):
 def main():
     args=sys.argv[1:]
     if not args: print(__doc__); return
-    if args[0]=="--kit": call_script(base()+"\n"+rd("run_kit.py"),"kit"); return
+    if args[0]=="--kit": call_script(base()+"\nKIT_ONLY="+json.dumps(args[1:])+"\n"+rd("run_kit.py"),"kit"); return
     if args[0]=="--subgraphs": call_script(base()+"\n"+rd("pcg_subgraphs.py")+"\ndef run(): return build_subgraphs()\n","subgraphs"); return
     if args[0]=="--overworld":
         sites=json.load(open(os.path.join(HERE,"ow_sites.json")))

@@ -2,7 +2,8 @@ def run():
     out={}
     cur=T(SC+"get_current_level",{}); dst="/Game/Wot/Maps/EmondsField/EmondsField"
     if cur!=dst: save([cur]); T(SC+"load_level",{"level_path":dst})
-    for name in [f"SM_Stairs{r}" for r in (200,240,280,320,360,400,480,600)]+["SM_WhiteBridge"]:
+    names=KIT_ONLY if KIT_ONLY else [f"SM_Stairs{r}" for r in (200,240,280,320,360,400,480,600)]+["SM_WhiteBridge"]
+    for name in names:
         try: out[name]=build_kit_mesh(name,KIT[name]())
         except Exception as e: out[name]="ERR "+str(e)[:160]
     for old in ("SM_Stairs300",):

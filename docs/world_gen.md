@@ -158,6 +158,15 @@ kit (`kit_builder.py`, `run_town.py --kit`) assembles houses, stalls, wells, lam
 foliage from voxel primitives into merged static meshes under `/Game/Wot/Towns/Common/Buildings` with palette material
 instances under `.../Materials`.
 
+**Facing convention.** Every kit building has its pivot at the floor centre and its door on **-X**. House slots along a
+street are rotated so +X points away from the road, which puts the door on the street side; hand-placed buildings in
+the specs use the same rule (yaw = the direction *away* from what the door should face). The imported Two Rivers house
+(`rand_house`) has its door on +X, so the kit wraps it as `SM_RandHouse`: the source mesh re-merged with a half turn,
+keeping its five material slots. Street-house entries and the inns use `SM_RandHouse` (`HK` in `specs_common.py`);
+footprints in the specs are in this turned frame (`(-740,-420,560,560)` for a full-size house). If a building ever
+spawns with its back to the road, check the mesh's door side with `wot.Mesh.Dump <Mesh>` (per-section vertex centroids)
+rather than flipping the slot rule.
+
 ## 7. Building with it: recipes
 
 * **Change a rule for every town** (stall spacing, lamp clearance, house jitter): edit `relief.py` (placement) or the
@@ -166,7 +175,9 @@ instances under `.../Materials`.
 * **Change one town**: edit its spec, `run_town.py <Town>`, `nav_rebuild_all.py <Town>`, `pietest.py <Town>`.
 * **Add a town**: write `<town>_spec()` next to the others, add it to `CITY_SPECS` and `TOWNS`, create the level from
   the template (see `run_cities.py`), then build as above.
-* **Add a kit piece**: a function in `kit_builder.py` returning voxel boxes, registered in its table; `run_town.py --kit`.
+* **Add a kit piece**: a function in `kit_builder.py` returning voxel boxes (door on -X, pivot at the floor centre),
+  registered in its table; `run_town.py --kit SM_Name` builds just that mesh. A part whose material is `None` wraps an
+  existing mesh asset as-is (see `rand_house`).
 * **Add a plaza furniture kind**: `plaza_furniture` keys on the mesh name (`MarketStall`, `LampPost`, `Obelisk`, other);
   add a layout branch there and the footprint radius in `FOOT_RADIUS`.
 * **Debug placement**: `plaza_debug.py <Town> <plaza>` and `audit_stairs.py <Town> -v`; **debug a graph**: open it in the

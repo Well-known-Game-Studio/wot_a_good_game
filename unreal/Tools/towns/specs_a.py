@@ -20,13 +20,13 @@ def emondsfield_spec():
        {"name":"Quarry track","pts":[(-2600,-350),(-3300,-1500),(-3900,-3000),(-3900,-4100)],"width":3,"houses":False},
        {"name":"Winespring brook","kind":"water","pts":[(3100,1400),(2950,700),(2650,-300),(2900,-1300),(3300,-2400),(3200,-3500),(3600,-5000),(3700,-7000)],"width":3,"houses":False,"mat":WATER,"tile_z":-3,"depth":100},
     ]
-    s["houses"]={"spacing":1500,"setback":960,"scale":(0.72,0.9),"keep":0.9,"entries":[(H,3,[R,WD,W,None,None]),(H,2,[R,WD,W2,None,None]),(H,2,[R2,WD,W3,None,None]),(H,1,[R2,WG,W4,None,None]),(H,1,[R,WG,W2,None,None])]}
+    s["houses"]={"spacing":1500,"setback":960,"scale":(0.72,0.9),"keep":0.9,"entries":[(HK,3,[R,WD,W,None,None]),(HK,2,[R,WD,W2,None,None]),(HK,2,[R2,WD,W3,None,None]),(HK,1,[R2,WG,W4,None,None]),(HK,1,[R,WG,W2,None,None])]}
     s["foliage"]=base_foliage(TREES_TEMPERATE+TREES_PINE()[:1],forest_ratio=0.2,edge_ratio=0.05,town_ratio=0.008,bush=0.02,grass=0.3,mush=0.01,extent=E,
                               extra=[boulders_extra((0.6,1.0),0.01)])
     s["pads"]=[(("rect",1050,500,2500,2000),None),(("circle",-3000,2400,900),None)]
     s["props"]=[
        ("mesh",MESH["oldtree"],"TheGreen_OldTree",(0,0,0),20,2.2,None),("mesh",MESH["well"],"VillageWell",(650,-450,0),15,1.5,None),
-       ("mesh",H,"WinespringInn",(1750,1250,0),inn_yaw,1.45,[MAT("MI_Roof_RedTile"),MAT("MI_Wood_Dark"),MAT("MI_Wall_Plaster"),None,None]),
+       ("mesh",HK,"WinespringInn",(1750,1250,0),inn_yaw,1.45,[MAT("MI_Roof_RedTile"),MAT("MI_Wood_Dark"),MAT("MI_Wall_Plaster"),None,None]),
        ("mesh",CAMP,"Campfire",(-480,380,0),0,1.0,None),("mesh",CHEST,"Chest_Inn",(2650,1900,0),inn_yaw+180,1.0,None),("mesh",CHEST,"Chest_West",(-3300,1450,0),90,1.0,None),
        ("mesh",CRATE,"Crate1",(2350,1750,0),10,1.0,None),("mesh",CRATE,"Crate2",(2480,1800,0),35,1.0,None),
        ("mesh",PEN,"SheepPen",(-3000,2400,0),0,1.0,None),("mesh",SHEEP,"Sheep0",(-3250,2200,80),0,1.0,None),("mesh",SHEEP,"Sheep1",(-2850,2500,80),70,1.0,None),("mesh",SHEEP,"Sheep2",(-3050,2650,80),140,1.0,None),
@@ -80,7 +80,7 @@ def baerlon_spec():
     s["foliage"]=base_foliage(TREES_PINE()+TREES_TEMPERATE[:2],forest_ratio=0.26,edge_ratio=0.06,town_ratio=0.006,bush=0.02,grass=0.3,mush=0.012,extent=E,bands={"forest":(0.86,1.0),"edge":(0.78,0.86),"town":(0.25,0.78)},
                               extra=[boulders_extra((0.5,1.0),0.025)])
     s["pads"]=[(("rect",-1800,-3000,0,-1500),None),(("circle",-4000,4000,900),None)]
-    s["props"]=[("mesh",H,"StagAndLion",(-900,-2200,0),90,1.35,[MAT("MI_Roof_Slate"),MAT("MI_Wood_Dark"),MAT("MI_Wall_Plaster"),None,None]),
+    s["props"]=[("mesh",HK,"StagAndLion",(-900,-2200,0),90,1.35,[MAT("MI_Roof_Slate"),MAT("MI_Wood_Dark"),MAT("MI_Wall_Plaster"),None,None]),
        ("mesh",kit_mesh("SM_StoneWell"),"Well",(0,0,0),0,1.3,None),("mesh",kit_mesh("SM_GateHouse"),"SouthGate",(0,4800,0),90,1.1,kit_mats("SM_GateHouse",{"P_Grey":"P_DarkWood","P_LightGrey":"P_Brown"})),
        ("mesh",kit_mesh("SM_GateHouse"),"NorthGate",(0,-4800,0),90,1.1,kit_mats("SM_GateHouse",{"P_Grey":"P_DarkWood","P_LightGrey":"P_Brown"})),
        ("mesh",kit_mesh("SM_GateHouse"),"MineMouth",(-6700,-7000,0),45,0.9,kit_mats("SM_GateHouse",{"P_Grey":"P_DarkGrey","P_LightGrey":"P_DarkWood"})),
@@ -132,7 +132,7 @@ def whitebridge_spec():
                               extra=[{"name":"Reeds","band":(0.0,1.0),"ratio":0.0,"entries":[],"scale":(1,1)}])
     s["pads"]=[(("rect",-3000,900,-1600,2200),None),(("rect",-900,-700,-300,700),0),(("rect",5000,-700,5800,700),0),(("rect",-200,-6000,800,-900),-40)]
     s["props"]=[("mesh",kit_mesh("SM_WhiteBridge"),"TheWhiteBridge",(2600,0,0),0,(1.3,1.0,1.0),None,"abs"),
-       ("mesh",H,"WayfarersRest",(-2300,1500,0),-90,1.3,[MAT("MI_Roof_RedTile"),MAT("MI_Wood_Dark"),MAT("MI_Wall_Plaster"),None,None]),
+       ("mesh",HK,"WayfarersRest",(-2300,1500,0),-90,1.3,[MAT("MI_Roof_RedTile"),MAT("MI_Wood_Dark"),MAT("MI_Wall_Plaster"),None,None]),
        ("mesh",kit_mesh("SM_StoneWell"),"Well",(-2300,-500,0),0,1.2,None),("mesh",CHEST,"Chest_Inn",(-1600,2100,0),0,1.0,None),
        ("mesh",HORSE,"InnHorse",(-1500,2600,80),-60,1.0,None),("mesh",FIRE,"Fireflies0",(-2300,0,150),0,1.0,None),("mesh",FIRE,"Fireflies1",(300,-3000,150),0,1.0,None),
        ("mesh",CRATE,"Crate1",(400,-3200,0),10,1.0,None),("mesh",CRATE,"Crate2",(500,-3350,0),40,1.0,None),("mesh",CAMP,"QuayFire",(600,-4300,0),0,1.0,None),
@@ -170,7 +170,7 @@ def shadarlogoth_spec():
            {"name":"Terrace ring","pts":circle(0,0,4600,36),"closed":True,"width":5,"houses":True,"sides":"right","spacing":1100,"setback":760}]+radial_streets(0,0,1900,7600,8,width=5,houses=False,prefix="avenue")+alleys
     s["plazas"]=[{"pts":rect(-1500,-1500,1500,1500),"mat":ASH,"linear":True,"scatter":[(kit_mesh("SM_RuinWall"),0.04,0.8,1.3,None),(kit_mesh("SM_Boulder"),0.03,0.6,1.2,kit_mats("SM_Boulder",{"P_Grey":"P_DarkGrey","P_DarkGrey":"P_Black"}))]}]
     s["exclusions"]=[(0,0,800,800),(9000,0,500,700)]
-    s["houses"]={"spacing":900,"setback":620,"scale":(0.65,0.95),"keep":0.75,"footprint":(-420,-380,520,330),"jitter":120,"entries":ruins}
+    s["houses"]={"spacing":900,"setback":620,"scale":(0.65,0.95),"keep":0.75,"footprint":(-520,-330,420,380),"jitter":120,"entries":ruins}
     s["foliage"]=base_foliage(TREES_DEAD,forest_ratio=0.12,edge_ratio=0.05,town_ratio=0.012,bush=0.0,grass=0.0,extent=E,bands={"forest":(0.88,1.0),"edge":(0.6,0.88),"town":(0.2,0.6)},
                               extra=[{"name":"Rubble","band":(0.0,1.0),"ratio":0.03,"entries":[kit_entry("SM_Boulder",{"P_Grey":"P_DarkGrey","P_DarkGrey":"P_Black"},3),kit_entry("SM_RuinWall",None,1)],"scale":(0.5,1.2),"prune":120}])
     s["pads"]=[(("rect",-1600,-1600,1600,1600),None)]
@@ -214,7 +214,7 @@ def faldara_spec():
            {"name":"South bridge","pts":[(0,6700,20),(0,7300,20),(0,7900,20)],"width":7,"houses":False,"mat":WOODMAT,"tile_z":0,"nocarve":True,"rel":True,"linear":True}]+streets+camp
     s["plazas"]=[{"pts":rect(-1900,-1900,1900,1900),"mat":MAT("MI_Tile_PlazaDark"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.03,0.9,1.1,kit_mats("SM_MarketStall",{"P_Terracotta":"P_DarkGrey"}))]}]
     s["exclusions"]=[(-400,0,1700,1500),(8700,0,500,700)]
-    s["houses"]={"spacing":1100,"setback":760,"scale":(0.7,0.9),"keep":0.95,"footprint":(-520,-420,560,380),"jitter":60,"entries":houses}
+    s["houses"]={"spacing":1100,"setback":760,"scale":(0.7,0.9),"keep":0.95,"footprint":(-560,-380,520,420),"jitter":60,"entries":houses}
     s["house_sets"]={"camp":dense_set(houses[:4],900,620,(0.55,0.7),0.95)}
     s["foliage"]=base_foliage(TREES_PINE(snow=True),forest_ratio=0.28,edge_ratio=0.06,town_ratio=0.004,bush=0.008,grass=0.12,extent=E,bands={"forest":(0.9,1.0),"edge":(0.84,0.9),"town":(0.3,0.84)},
                               extra=[boulders_extra((0.6,1.0),0.02,{"P_Grey":"P_Ice"}),{"name":"Snow","band":(0.0,1.0),"ratio":0.05,"entries":[kit_entry("SM_SnowPatch")],"scale":(0.8,1.8)}])

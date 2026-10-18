@@ -38,6 +38,8 @@
 #include "TimerManager.h"
 #include "WotCharacterAnimInstance.h"
 #include "WotActionComponent.h"
+#include "Engine/StaticMesh.h"
+#include "StaticMeshResources.h"
 #if WITH_EDITOR
 #include "Animation/AnimData/IAnimationDataModel.h"
 #endif
@@ -1063,6 +1065,36 @@ static FAutoConsoleCommand GWotAnimDump(
 			FVector TMin = Keys[0].GetLocation(), TMax = TMin, SMin = Keys[0].GetScale3D(), SMax = SMin;
 			for (const FTransform& K : Keys) { TMin = TMin.ComponentMin(K.GetLocation()); TMax = TMax.ComponentMax(K.GetLocation()); SMin = SMin.ComponentMin(K.GetScale3D()); SMax = SMax.ComponentMax(K.GetScale3D()); }
 			PT_LOG("ANIMDUMP   %s keys=%d t=[(%.1f %.1f %.1f)..(%.1f %.1f %.1f)] s=[(%.3f %.3f %.3f)..(%.3f %.3f %.3f)]", *Name.ToString(), Keys.Num(), TMin.X, TMin.Y, TMin.Z, TMax.X, TMax.Y, TMax.Z, SMin.X, SMin.Y, SMin.Z, SMax.X, SMax.Y, SMax.Z);
+		}
+	}));
+#endif
+
+#if WITH_EDITOR
+// wot.Mesh.Dump <StaticMeshPath> : bounds and, per section, the material and the centroid of its vertices (relative to
+// the bounds centre) - tells which side of a building the door / awning sits on.
+static FAutoConsoleCommand GWotMeshDump(
+	TEXT("wot.Mesh.Dump"), TEXT("Log a static mesh's bounds and per-section material / vertex centroid: wot.Mesh.Dump /Game/Path/Mesh"),
+	FConsoleCommandWithArgsDelegate::CreateStatic([](const TArray<FString>& Args) {
+		if (Args.Num() < 1) { PT_LOG("MESHDUMP usage: wot.Mesh.Dump /Game/Path/Mesh"); return; }
+		const FString Path = Args[0].Contains(TEXT(".")) ? Args[0] : Args[0] + TEXT(".") + FPackageName::GetShortName(Args[0]);
+		UStaticMesh* Mesh = Cast<UStaticMesh>(FSoftObjectPath(Path).TryLoad());
+		if (!Mesh || !Mesh->GetRenderData() || Mesh->GetRenderData()->LODResources.Num() == 0) { PT_LOG("MESHDUMP not found / no render data: %s", *Path); return; }
+		const FStaticMeshLODResources& LOD = Mesh->GetRenderData()->LODResources[0];
+		const FBox Box = Mesh->GetBoundingBox(); const FVector C = Box.GetCenter();
+		PT_LOG("MESHDUMP %s bounds min=(%.0f %.0f %.0f) max=(%.0f %.0f %.0f) sections=%d verts=%d", *Mesh->GetName(), Box.Min.X, Box.Min.Y, Box.Min.Z, Box.Max.X, Box.Max.Y, Box.Max.Z, LOD.Sections.Num(), LOD.GetNumVertices());
+		const FPositionVertexBuffer& Pos = LOD.VertexBuffers.PositionVertexBuffer;
+		FIndexArrayView Indices = LOD.IndexBuffer.GetArrayView();
+		for (int32 s = 0; s < LOD.Sections.Num(); ++s) {
+			const FStaticMeshSection& Sec = LOD.Sections[s];
+			FVector Sum = FVector::ZeroVector; FBox SB(ForceInit); int32 N = 0;
+			for (uint32 t = 0; t < Sec.NumTriangles * 3; ++t) {
+				const uint32 Idx = Indices[Sec.FirstIndex + t];
+				if (Idx < Pos.GetNumVertices()) { const FVector P(Pos.VertexPosition(Idx)); Sum += P; SB += P; ++N; }
+			}
+			const FVector Cen = N > 0 ? Sum / N - C : FVector::ZeroVector;
+			const FName MatName = Mesh->GetStaticMaterials().IsValidIndex(Sec.MaterialIndex) ? Mesh->GetStaticMaterials()[Sec.MaterialIndex].MaterialSlotName : NAME_None;
+			PT_LOG("MESHDUMP   section %d slot=%s material=%s tris=%d centroid-rel=(%.0f %.0f %.0f) min=(%.0f %.0f %.0f) max=(%.0f %.0f %.0f)", s, *MatName.ToString(),
+				*GetNameSafe(Mesh->GetMaterial(Sec.MaterialIndex)), Sec.NumTriangles, Cen.X, Cen.Y, Cen.Z, SB.Min.X - C.X, SB.Min.Y - C.Y, SB.Min.Z - C.Z, SB.Max.X - C.X, SB.Max.Y - C.Y, SB.Max.Z - C.Z);
 		}
 	}));
 #endif
