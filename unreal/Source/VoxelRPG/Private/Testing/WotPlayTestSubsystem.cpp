@@ -38,6 +38,9 @@
 #include "TimerManager.h"
 #include "WotCharacterAnimInstance.h"
 #include "WotActionComponent.h"
+#if WITH_EDITOR
+#include "Animation/AnimData/IAnimationDataModel.h"
+#endif
 
 DEFINE_LOG_CATEGORY_STATIC(LogWotTest, Log, All);
 
@@ -959,7 +962,7 @@ static void WotLogAnimStatus(UWorld* World, const FString& Who)
 			for (int32 i = 0; i < RS.GetRawBoneNum(); ++i) {
 				const FTransform& T = RS.GetRefBonePose()[i];
 				const FRotator R = T.GetRotation().Rotator();
-				PT_LOG("ANIM   refpose %s parent=%s t=(%.1f %.1f %.1f) r=(p%.1f y%.1f r%.1f)", *RS.GetBoneName(i).ToString(), RS.GetParentIndex(i) >= 0 ? *RS.GetBoneName(RS.GetParentIndex(i)).ToString() : TEXT("-"), T.GetLocation().X, T.GetLocation().Y, T.GetLocation().Z, R.Pitch, R.Yaw, R.Roll);
+				PT_LOG("ANIM   refpose %s parent=%s t=(%.1f %.1f %.1f) r=(p%.1f y%.1f r%.1f) s=(%.3f %.3f %.3f)", *RS.GetBoneName(i).ToString(), RS.GetParentIndex(i) >= 0 ? *RS.GetBoneName(RS.GetParentIndex(i)).ToString() : TEXT("-"), T.GetLocation().X, T.GetLocation().Y, T.GetLocation().Z, R.Pitch, R.Yaw, R.Roll, T.GetScale3D().X, T.GetScale3D().Y, T.GetScale3D().Z);
 			}
 		}
 		PT_LOG("ANIM   skelBones=[%s]", *FString::Join(SkelBones, TEXT(",")));
@@ -983,12 +986,30 @@ static void WotLogAnimStatus(UWorld* World, const FString& Who)
 				(Asset && Skel) ? (Skel->IsCompatibleForEditor(Asset->GetSkeleton()) ? 1 : 0) : -1, *Extra);
 		}
 	}
+	// live pose: component scale, root height, bone-space scale range, height of the bone cloud
+	auto PoseSummary = [](USkeletalMeshComponent* Mesh) {
+		const TArray<FTransform>& CS = Mesh->GetComponentSpaceTransforms();
+		const TArray<FTransform>& BS = Mesh->GetBoneSpaceTransforms();
+		float MinZ = FLT_MAX, MaxZ = -FLT_MAX, MinS = FLT_MAX, MaxS = -FLT_MAX; FString Scales;
+		for (int32 i = 0; i < CS.Num(); ++i) { MinZ = FMath::Min(MinZ, (float)CS[i].GetLocation().Z); MaxZ = FMath::Max(MaxZ, (float)CS[i].GetLocation().Z); }
+		for (int32 i = 0; i < BS.Num(); ++i) {
+			const FVector Sc = BS[i].GetScale3D(); MinS = FMath::Min(MinS, (float)Sc.GetMin()); MaxS = FMath::Max(MaxS, (float)Sc.GetMax());
+			if (!Sc.Equals(FVector::OneVector, 0.01f)) Scales += FString::Printf(TEXT(" %s=(%.2f %.2f %.2f)"), *Mesh->GetBoneName(i).ToString(), Sc.X, Sc.Y, Sc.Z);
+		}
+		const FVector RootCS = CS.Num() > 0 ? CS[0].GetLocation() : FVector::ZeroVector;
+		const FVector RootBS = BS.Num() > 0 ? BS[0].GetLocation() : FVector::ZeroVector;
+		return FString::Printf(TEXT("compScale=(%.2f %.2f %.2f) relLoc=(%.0f %.0f %.0f) rootCS=(%.1f %.1f %.1f) rootBS=(%.1f %.1f %.1f) boneZ=[%.1f..%.1f] boneScale=[%.3f..%.3f] nonUnit=%s"),
+			Mesh->GetComponentScale().X, Mesh->GetComponentScale().Y, Mesh->GetComponentScale().Z, Mesh->GetRelativeLocation().X, Mesh->GetRelativeLocation().Y, Mesh->GetRelativeLocation().Z,
+			RootCS.X, RootCS.Y, RootCS.Z, RootBS.X, RootBS.Y, RootBS.Z, MinZ, MaxZ, MinS, MaxS, Scales.IsEmpty() ? TEXT("none") : *Scales);
+	};
+	PT_LOG("ANIM   pose %s", *PoseSummary(M));
 	// bone motion: compare component-space transforms now and 0.35 s later
 	TArray<FTransform> Before = M->GetComponentSpaceTransforms();
 	TWeakObjectPtr<USkeletalMeshComponent> WeakM = M;
 	FTimerHandle H;
-	World->GetTimerManager().SetTimer(H, FTimerDelegate::CreateLambda([WeakM, Before]() {
+	World->GetTimerManager().SetTimer(H, FTimerDelegate::CreateLambda([WeakM, Before, PoseSummary]() {
 		if (!WeakM.IsValid()) return;
+		PT_LOG("ANIM   pose+0.35s %s", *PoseSummary(WeakM.Get()));
 		const TArray<FTransform>& After = WeakM->GetComponentSpaceTransforms();
 		float Moved = 0.0f; int32 N = FMath::Min(Before.Num(), After.Num()); int32 Movers = 0;
 		for (int32 i = 0; i < N; ++i) {
@@ -999,6 +1020,45 @@ static void WotLogAnimStatus(UWorld* World, const FString& Who)
 		PT_LOG("ANIM   motion bones=%d moved=%d total=%.1f speed=%.0f attacking=%d", N, Movers, Moved, W ? W->Speed : -1.0f, W ? (W->bIsAttacking ? 1 : 0) : -1);
 	}), 0.35f, false);
 }
+
+#if WITH_EDITOR
+// wot.Anim.Dump <AnimSequencePath> : per-bone translation / scale ranges of the sequence's source keys
+static FAutoConsoleCommand GWotAnimDump(
+	TEXT("wot.Anim.Dump"), TEXT("Log per-bone translation / scale ranges of a sequence, or the bone hierarchy of a skeleton / skeletal mesh: wot.Anim.Dump /Game/Path/Asset"),
+	FConsoleCommandWithArgsDelegate::CreateStatic([](const TArray<FString>& Args) {
+		if (Args.Num() < 1) { PT_LOG("ANIMDUMP usage: wot.Anim.Dump /Game/Path/Anim"); return; }
+		const FString Path = Args[0].Contains(TEXT(".")) ? Args[0] : Args[0] + TEXT(".") + FPackageName::GetShortName(Args[0]);
+		UObject* Obj = FSoftObjectPath(Path).TryLoad();
+		if (!Obj) { PT_LOG("ANIMDUMP not found: %s", *Path); return; }
+		// a skeleton or skeletal mesh: the bone hierarchy with reference pose (and the skeleton's translation retargeting modes)
+		const FReferenceSkeleton* RefSkel = nullptr; USkeleton* Skeleton = Cast<USkeleton>(Obj);
+		if (Skeleton) RefSkel = &Skeleton->GetReferenceSkeleton();
+		else if (USkeletalMesh* Mesh = Cast<USkeletalMesh>(Obj)) RefSkel = &Mesh->GetRefSkeleton();
+		if (RefSkel) {
+			PT_LOG("ANIMDUMP %s bones=%d", *Obj->GetName(), RefSkel->GetRawBoneNum());
+			for (int32 i = 0; i < RefSkel->GetRawBoneNum(); ++i) {
+				const FTransform& T = RefSkel->GetRefBonePose()[i]; const FRotator R = T.GetRotation().Rotator();
+				PT_LOG("ANIMDUMP   %d %s parent=%s t=(%.2f %.2f %.2f) r=(p%.1f y%.1f r%.1f) s=(%.2f %.2f %.2f) retarget=%d", i, *RefSkel->GetBoneName(i).ToString(),
+					RefSkel->GetParentIndex(i) >= 0 ? *RefSkel->GetBoneName(RefSkel->GetParentIndex(i)).ToString() : TEXT("-"), T.GetLocation().X, T.GetLocation().Y, T.GetLocation().Z,
+					R.Pitch, R.Yaw, R.Roll, T.GetScale3D().X, T.GetScale3D().Y, T.GetScale3D().Z, Skeleton ? (int32)Skeleton->GetBoneTranslationRetargetingMode(i) : -1);
+			}
+			return;
+		}
+		UAnimSequence* Seq = Cast<UAnimSequence>(Obj);
+		if (!Seq) { PT_LOG("ANIMDUMP %s is a %s, not a sequence / skeleton / mesh", *Path, *Obj->GetClass()->GetName()); return; }
+		const IAnimationDataModel* Model = Seq->GetDataModel();
+		if (!Model) { PT_LOG("ANIMDUMP %s has no data model", *Path); return; }
+		PT_LOG("ANIMDUMP %s skeleton=%s len=%.2f keys=%d tracks=%d", *Seq->GetName(), *GetNameSafe(Seq->GetSkeleton()), Seq->GetPlayLength(), Model->GetNumberOfKeys(), Model->GetNumBoneTracks());
+		TArray<FName> Names; Model->GetBoneTrackNames(Names);
+		for (const FName& Name : Names) {
+			TArray<FTransform> Keys; Model->GetBoneTrackTransforms(Name, Keys);
+			if (Keys.Num() == 0) continue;
+			FVector TMin = Keys[0].GetLocation(), TMax = TMin, SMin = Keys[0].GetScale3D(), SMax = SMin;
+			for (const FTransform& K : Keys) { TMin = TMin.ComponentMin(K.GetLocation()); TMax = TMax.ComponentMax(K.GetLocation()); SMin = SMin.ComponentMin(K.GetScale3D()); SMax = SMax.ComponentMax(K.GetScale3D()); }
+			PT_LOG("ANIMDUMP   %s keys=%d t=[(%.1f %.1f %.1f)..(%.1f %.1f %.1f)] s=[(%.3f %.3f %.3f)..(%.3f %.3f %.3f)]", *Name.ToString(), Keys.Num(), TMin.X, TMin.Y, TMin.Z, TMax.X, TMax.Y, TMax.Z, SMin.X, SMin.Y, SMin.Z, SMax.X, SMax.Y, SMax.Z);
+		}
+	}));
+#endif
 
 static FAutoConsoleCommandWithWorldAndArgs GWotPlayTestAttack(
 	TEXT("wot.PlayTest.Attack"), TEXT("Start the player's primary attack (released 0.4 s later): wot.PlayTest.Attack"),

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Share one animation set across every humanoid (player, main cast, Tam, Lan, Fade, Trolloc), through the editor MCP server.
 
+0. the shared Anim Blueprint is a template (no target skeleton), so meshes whose top bone has another name still get an anim instance
 1. the humanoid skeletons list each other as compatible (same bone names: root/head/arm_r/arm_l/leg_l/leg_r + _end)
 2. every humanoid Blueprint's mesh uses the shared Anim Blueprint (ABP) and AnimationBlueprint mode
 3. the shared ABP's locomotion blend space is BS_Humanoid_Locomotion (idle / walk / run on Speed)
-4. bone translation retargeting = Skeleton on every humanoid skeleton (each mesh keeps its own proportions)
-Run wot.Anim.Build (editor console / commands_editor.txt) first so the clips and DA_HumanoidAnims exist.
+4. bone translation retargeting = Skeleton on every humanoid skeleton (harmless: clips never cross rigs any more)
+5. villagers get a random humanoid body (RandomLooks)
+Run wot.Anim.Build (editor console / commands_editor.txt) first so the clip sets exist: the Rand set at /Game/Wot/Characters/Anims
+and one per other skeleton under /Game/Wot/Characters/Anims/<SkeletonName>/ (the anim instance picks the set by the mesh's skeleton).
 usage: setup_humanoids.py [--dry]"""
 import json, os, subprocess, sys, time
 S=os.path.dirname(os.path.abspath(__file__)); PROJ=os.path.abspath(os.path.join(S,"..",".."))
@@ -38,6 +41,11 @@ def setp(p,values):
 def save(paths):
     if DRY: return
     for p in paths: call(AS+"save_assets",{"asset_paths":[p]})
+# 0. the shared ABP is a template (editor console command through the harness; compiles and saves the ABP)
+ECMD=os.path.join(PROJ,"Saved","PlayTest","commands_editor.txt")
+if not DRY:
+    with open(ECMD,"a") as f: f.write(f"wot.Anim.MakeTemplateABP {SHARED_ABP} 1\n")
+    time.sleep(8)
 # 1. compatible skeletons
 for sk in SKELETONS:
     cur=props(sk,["CompatibleSkeletons"]).get("CompatibleSkeletons") or []
@@ -79,7 +87,6 @@ setp(cdo,{"RandomLooks":[{"Mesh":obj(m),"Materials":[obj(x) for x in mats]} for 
 if not DRY: call(BP+"compile_blueprint",{"blueprint":obj(VILLAGER)}); save([VILLAGER])
 print("villager looks:",len(LOOKS))
 # 4. translation retargeting (editor console command through the harness)
-ECMD=os.path.join(PROJ,"Saved","PlayTest","commands_editor.txt")
 if not DRY:
     with open(ECMD,"a") as f:
         for sk in SKELETONS: f.write(f"wot.Skeleton.SetTranslationRetargeting {sk} Skeleton\n")

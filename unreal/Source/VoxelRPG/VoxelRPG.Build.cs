@@ -11,6 +11,11 @@ public class VoxelRPG : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Niagara", "CinematicCamera", "AIModule", "GameplayTasks", "GameplayTags", "UMG", "NavigationSystem", "EnhancedInput" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "AssetRegistry" });
+		if (Target.bBuildEditor)
+		{
+			// editor-only tooling (Testing/WotAnimBuilder.cpp): Blueprint compilation and asset creation
+			PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
+		}
 
 		// Uncomment if you are using Slate UI
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

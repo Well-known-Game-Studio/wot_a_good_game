@@ -5,6 +5,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "WotCharacter.h"
 #include "Channeling/WotChannelComponent.h"
+#include "Animation/BlendSpace.h"
+#include "Animation/Skeleton.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "UObject/UnrealType.h"
+
+static const TCHAR* GWotAnimSetFolder = TEXT("/Game/Wot/Characters/Anims");
 
 UWotCharacterAnimInstance::UWotCharacterAnimInstance()
 {
@@ -14,11 +21,56 @@ UWotCharacterAnimInstance::UWotCharacterAnimInstance()
 void UWotCharacterAnimInstance::NativeInitializeAnimation()
 {
   Super::NativeInitializeAnimation();
-  if (!AnimSet) {
-    AnimSet = LoadObject<UWotAnimSet>(nullptr, TEXT("/Game/Wot/Characters/Anims/DA_HumanoidAnims.DA_HumanoidAnims"));
-  }
+  ResolveAnimSet();
   OnMontageEnded.RemoveDynamic(this, &UWotCharacterAnimInstance::HandleMontageEnded);
   OnMontageEnded.AddDynamic(this, &UWotCharacterAnimInstance::HandleMontageEnded);
+}
+
+void UWotCharacterAnimInstance::ResolveAnimSet()
+{
+  UWotAnimSet* Default = LoadObject<UWotAnimSet>(nullptr, *FString::Printf(TEXT("%s/DA_HumanoidAnims.DA_HumanoidAnims"), GWotAnimSetFolder));
+  if (!AnimSet) {
+    AnimSet = Default;
+  }
+  bUsesRigSet = false;
+  if (!bPickAnimSetByRig || !Default) {
+    return;
+  }
+  USkeletalMeshComponent* Mesh = GetSkelMeshComponent();
+  USkeletalMesh* SkM = Mesh ? Mesh->GetSkeletalMeshAsset() : nullptr;
+  USkeleton* Skel = SkM ? SkM->GetSkeleton() : nullptr;
+  USkeleton* DefaultSkel = Default->Locomotion ? Default->Locomotion->GetSkeleton() : nullptr;
+  if (!Skel || Skel == DefaultSkel) {
+    return;
+  }
+  // this mesh is on another rig: use the set wot.Anim.Build made for that skeleton
+  const FString Path = FString::Printf(TEXT("%s/%s/DA_HumanoidAnims.DA_HumanoidAnims"), GWotAnimSetFolder, *Skel->GetName());
+  UWotAnimSet* RigSet = LoadObject<UWotAnimSet>(nullptr, *Path);
+  if (!RigSet) {
+    UE_LOG(LogAnimation, Warning, TEXT("%s: no clip set for skeleton %s (%s); run wot.Anim.Build. Clips of the default rig will distort this mesh."), *GetNameSafe(GetOwningActor()), *Skel->GetName(), *Path);
+    return;
+  }
+  AnimSet = RigSet;
+  bUsesRigSet = true;
+  // the Anim Blueprint's own clip variables (locomotion blend space, jump, light attack, bow) hold the default set's
+  // assets: swap each one for this rig's copy
+  TMap<UObject*, UObject*> Swap;
+  for (TFieldIterator<FObjectProperty> It(UWotAnimSet::StaticClass()); It; ++It) {
+    UObject* From = It->GetObjectPropertyValue_InContainer(Default);
+    UObject* To = It->GetObjectPropertyValue_InContainer(RigSet);
+    if (From && To && From != To) {
+      Swap.Add(From, To);
+    }
+  }
+  for (TFieldIterator<FObjectProperty> It(GetClass()); It; ++It) {
+    if (!It->PropertyClass || !It->PropertyClass->IsChildOf(UAnimationAsset::StaticClass())) {
+      continue;
+    }
+    UObject* Current = It->GetObjectPropertyValue_InContainer(this);
+    if (UObject* const* To = Current ? Swap.Find(Current) : nullptr) {
+      It->SetObjectPropertyValue_InContainer(this, *To);
+    }
+  }
 }
 
 void UWotCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)

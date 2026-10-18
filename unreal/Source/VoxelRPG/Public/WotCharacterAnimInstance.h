@@ -57,6 +57,16 @@ public:
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
   TObjectPtr<UWotAnimSet> AnimSet;
 
+  /** Use the clip set built for the mesh's own skeleton (/Game/Wot/Characters/Anims/<SkeletonName>/DA_HumanoidAnims)
+   *  when the mesh is not on the default set's skeleton, and point the Anim Blueprint's clip variables (locomotion blend
+   *  space, jump, light attack, bow) at that set too. Clips must not cross rigs: see UWotAnimSet. */
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+  bool bPickAnimSetByRig = true;
+
+  /** True when the set in use was picked for the mesh's rig rather than the Anim Blueprint's default. */
+  UPROPERTY(BlueprintReadOnly, Category = "Animation")
+  bool bUsesRigSet = false;
+
   /** Slot node in the Anim Blueprint the override clips play in. */
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
   FName OverrideSlot = TEXT("DefaultSlot");
@@ -92,6 +102,7 @@ protected:
 
   UAnimMontage* PlayOverride(UAnimSequenceBase* Clip, bool bLoop, float BlendIn = 0.15f, float BlendOut = 0.2f, float Rate = 1.0f);
   void UpdateLoopingOverride();
+  void ResolveAnimSet();
 
   /** The looping clip currently playing (channel / ride / climb), if any. */
   UPROPERTY(Transient)
