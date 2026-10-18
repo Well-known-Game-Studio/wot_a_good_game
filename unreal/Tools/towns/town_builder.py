@@ -27,6 +27,12 @@ def rect(x0,y0,x1,y1):
     return [(x0,y0),(x1,y0),(x1,y1),(x0,y1)]
 
 GROUND_TAG="TownGround"
+LEVEL_BOUNDS_BP="/Game/Wot/Actors/BP_LevelBounds.BP_LevelBounds_C"   # the Diorama's fence: a box that puts the player back inside when they leave it
+# forageable mushrooms: the pickup Blueprints (WotItemFood) the Diorama uses, spawned as actors so they can be picked
+# the mushroom items are UWotItem Blueprints (data, not actors): a WotForagePickup actor carries one and hands it over on interact
+FORAGE_PICKUP="/Script/VoxelRPG.WotForagePickup"
+FORAGE_MUSHROOMS=[f"/Game/Wot/Items/BP_Food_Mushroom_{i}.BP_Food_Mushroom_{i}_C" for i in (1,2,3)]
+FORAGE_MAX=150
 SUBS={k:sub_path(f"PCGS_{k}") for k in ("Plaza","Road","Houses","Lattice","Scatter")}
 def build_town_graph(spec):
     """Creates the per-town PCG graph from a relief spec: data nodes (Create Points) per town, all processing in the shared
@@ -183,7 +189,7 @@ def build_town_graph(spec):
     scatter("TownTrees",fo["town_band"][0],fo["town_band"][1],fo["town_ratio"],gv(fo,"town_trees",trees),ts[0]*0.9,ts[1]*0.85,prune=300)
     scatter("Bushes",0.0,1.0,fo["bush_ratio"],[(MESH["bush1"],1,None),(MESH["bush2"],1,None)],0.7,1.2)
     scatter("Grass",0.0,1.0,fo["grass_ratio"],[(MESH["grass"],1,None)],0.9,1.6)
-    scatter("Mushrooms",fo["forest_band"][0],1.0,gv(fo,"mush_ratio",0),[(MESH["mush1"],1,None),(MESH["mush2"],1,None),(MESH["mush3"],1,None)],0.8,1.3)
+    # mushrooms are forageable pickup actors, placed by build_level (forage_points), not meshes from this graph
     for ex in gv(fo,"extra") or []:
         scatter(ex["name"],ex["band"][0],ex["band"][1],ex["ratio"],ex["entries"],ex["scale"][0],ex["scale"][1],prune=gv(ex,"prune"))
     box(sect,"GROUND LATTICE AND FOLIAGE\nThe relief's lattice (every unpaved cell, already clear of slots, stairs, lines and furniture) -> PCGS_Lattice (jitter, density = distance from the centre, minus exclusions) -> one PCGS_Scatter per band (forest / edge / town trees, bushes, grass, mushrooms, extras) -> spawners.",(0.2,0.4,0.2))
@@ -246,6 +252,26 @@ def spawn_and_run(graph,label,extent):
     vol=gv(gv(inst,"actor") or {},"refPath")
     msgs=T(PC+"ExecuteGraphInstance",{"pCGVolume":ref(vol)}) if vol else "no volume"
     return vol,msgs
+def forage_points(spec):
+    """Where the forageable mushrooms go: ground-lattice points in the forest band (density = distance from the centre
+    over the forest radius, exactly as PCGS_Lattice computes it), mush_ratio of them (scaled by the lattice cell area like
+    the PCG scatters), jittered inside their cell, seeded by the town name so a rebuild places them the same way.
+    They are real pickup Blueprints (WotItemFood), so they are placed as actors rather than spawned by the graph."""
+    fo=gv(spec,"foliage") or {}; R=gv(spec,"_relief")
+    ratio=gv(fo,"mush_ratio",0)*gv(spec,"lattice_density",1.0)
+    if ratio<=0 or R is None: return []
+    lo=fo["forest_band"][0]; hi=min(1.0,gv(fo,"clip_density",1.0)); fr=float(fo["forest_radius"]); cx,cy=gv(spec,"center",(0,0))
+    seed=sum(ord(c) for c in gv(spec,"town",""))   # the script sandbox has no random module: relief's _hash is a stable 0..1 hash
+    pts=[]
+    for k,(x,y,z) in enumerate(gv(spec,"lattice") or []):
+        d=min(1.0,math.hypot(x-cx,y-cy)/max(1.0,fr))
+        if d<lo or d>hi or _hash(k,0,seed)>=ratio: continue
+        jx,jy=x+(_hash(k,1,seed)-0.5)*200,y+(_hash(k,2,seed)-0.5)*200
+        if R._occ_hit(jx,jy,60): continue
+        pts.append((jx,jy,R.zat(jx,jy),_hash(k,3,seed)*360,0.8+0.5*_hash(k,4,seed)))
+        if len(pts)>=FORAGE_MAX: break
+    return pts
+
 def build_level(spec,extra_clean=()):
     out={"cleaned":clean_town(extra_clean)}
     g,info=build_town_graph(spec); out["info"]=info
@@ -269,7 +295,22 @@ def build_level(spec,extra_clean=()):
             label,loc,yaw,props=item[1:5]; cls=item[5] if len(item)>5 and item[5] else "/Game/Wot/NPCs/NPC_Villager_BP"
             z=(R.zat(loc[0],loc[1]) if R is not None else ground_z(loc[0],loc[1]))+96
             place_mesh(cls,label,(loc[0],loc[1],z),yaw,1.0,None,props=props); placed+=1
+    for k,(x,y,z,yaw,sc) in enumerate(forage_points(spec)):
+        ap=place_class(FORAGE_PICKUP,f"Mushroom{k}",(x,y,z),yaw,sc)
+        if ap:
+            T(OB+"set_properties",{"instance":ref(ap),"values":json.dumps({"ItemClass":ref(FORAGE_MUSHROOMS[k%len(FORAGE_MUSHROOMS)])})})
+            T(AC+"add_tag",{"actor":ref(ap),"tag":"Forage"})
+        placed+=1
+    out["mushrooms"]=len(forage_points(spec))
     out["placed"]=placed
+    # the fence: a BP_LevelBounds box over the whole terrain (the Diorama's way of keeping the player on the level);
+    # leaving it teleports the character back inside. Tagged TownProp so a rebuild replaces it.
+    if R is not None:
+        for p in find_by_label("LevelBounds"): remove(p)   # any older / hand-placed fence (the Emond's Field one was 5000 wide on a 6880 terrain)
+        half=R.E-120; zc=R.base+1500
+        bp=place_class(LEVEL_BOUNDS_BP,"LevelBounds",(0,0,zc),0,1.0)
+        # vectors go to set_properties as UE text, "(X=..,Y=..,Z=..)": a JSON object only lands its first component
+        if bp: T(OB+"set_properties",{"instance":ref(bp+".Bounds"),"values":json.dumps({"BoxExtent":f"(X={half},Y={half},Z=5000)"})}); out["bounds"]=half
     vol,msgs=spawn_and_run(g,spec["graph_name"],spec["foliage"]["extent"]*2); out["vol"]=vol; out["msgs"]=msgs
     dl=gv(spec,"dialogue")
     if dl:

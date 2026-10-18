@@ -11,6 +11,11 @@ def run():
     # stairs collide with their real steps: no convex hull (it would be a wedge with a wall at the foot, and a merged mesh's
     # nav collision only ever exports that hull), complex-as-simple so both physics and the navmesh use the step triangles
     SMT="editor_toolset.toolsets.static_mesh.StaticMeshTools."
+    # buildings and props get convex hulls so PCG instances with BlockAll actually block (a merged mesh has none)
+    for name in out:
+        if not name.startswith("SM_Stairs") and "ERR" not in str(out[name]) and out[name]!="deleted":
+            try: T(SMT+"generate_convex_collisions",{"mesh":ref(f"{KIT_FOLDER}/{name}.{name}"),"hull_count":10,"max_hull_verts":24,"hull_precision":100000})
+            except Exception as e: out[name]=str(out[name])+" (collision err "+str(e)[:60]+")"
     for name in out:
         if name.startswith("SM_Stairs") and "ERR" not in str(out[name]):
             T(SMT+"remove_collisions",{"mesh":ref(f"{KIT_FOLDER}/{name}.{name}")})

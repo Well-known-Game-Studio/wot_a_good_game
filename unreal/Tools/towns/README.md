@@ -20,7 +20,8 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   SM_RandHouse = the imported `rand_house` re-merged with a half turn). Material slots follow the first-appearance
   order of the part colours; `kit_entry(name, {"P_Plaster":"P_White"})` recolours per town. Every building's door is
   on -X and house slots point +X away from the street, so doors face the road; `wot.Mesh.Dump <Mesh>` (editor console)
-  prints per-section vertex centroids to check a mesh's door side.
+  prints per-section vertex centroids to check a mesh's door side. `--kit` also gives every non-stairs piece convex
+  collision hulls (a merged mesh has none; without them PCG instances cannot block).
 * `relief.py` – deterministic voxel heightfield per town. A `Relief` is a sum of continuous features (hills, ridges,
   valleys/rivers, slopes, value noise) plus plateaus (flat terraces with optional rim blending; rim 0 = cliff),
   quantised to 40 cm steps (the character's MaxStepHeight is 45) on a 250 cm cell grid. Roads are then *carved*: each
@@ -40,6 +41,9 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   `ow_portals.py` places or moves a portal and a tagged PlayerStart for every town in that file, plus a generic landmark
   mesh for each town except Tar Valon and Tear, whose hand-placed landmarks (the White Tower, Dragonmount, the Stone)
   are moved to the fitted sites instead. Overworld axes: +X east, +Y south.
+* `build_level` also fences the level (a `BP_LevelBounds` box sized to the terrain, as in the Diorama) and places the
+  forageable mushrooms as `WotForagePickup` actors (interactable item actors built from the `BP_Food_Mushroom_*` item
+  classes) on forest-band lattice points at `mush_ratio`; both are `TownProp`-tagged and rebuilt with the town.
 * `run_town.py <Town>...|--all|--dry|--kit [SM_Name ...]|--overworld` – regenerate towns, dry-run the relief locally, rebuild the kit,
   or re-place the Overworld portals.
 

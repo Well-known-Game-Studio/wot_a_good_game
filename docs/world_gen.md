@@ -167,6 +167,19 @@ footprints in the specs are in this turned frame (`(-740,-420,560,560)` for a fu
 spawns with its back to the road, check the mesh's door side with `wot.Mesh.Dump <Mesh>` (per-section vertex centroids)
 rather than flipping the slot rule.
 
+**Collision.** A merged kit mesh has no collision of its own, so `run_town.py --kit` gives every non-stairs piece convex
+hulls (`generate_convex_collisions`, 10 hulls); the PCG descriptors then make the instances `BlockAll`. A house that the
+player walks through is a kit mesh without hulls: rebuild it with `--kit SM_Name`.
+
+**Level bounds.** Every town gets a `BP_LevelBounds` actor (the Diorama's fence) sized to the terrain: a box that puts
+the player back inside when they leave it. It is placed by `build_level` after the props, tagged `TownProp`, and
+replaces any hand-placed one.
+
+**Forageable mushrooms.** The mushroom Blueprints are items (`UWotItem` data), not actors, so the graph does not spawn
+them. `build_level` places `WotForagePickup` actors (`Source/.../Items/WotForagePickup`, an interactable item actor that
+builds its item from `ItemClass`) on forest-band lattice points at `mush_ratio`, tagged `Forage`, seeded by the town
+name. Interacting picks the mushroom up like the Diorama's.
+
 ## 7. Building with it: recipes
 
 * **Change a rule for every town** (stall spacing, lamp clearance, house jitter): edit `relief.py` (placement) or the
