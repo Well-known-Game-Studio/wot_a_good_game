@@ -1,0 +1,156 @@
+{
+ "TarValon": {
+  "px": [
+   6602,
+   2581
+  ],
+  "level": true
+ },
+ "Caemlyn": {
+  "px": [
+   6037,
+   4046
+  ],
+  "level": true
+ },
+ "Cairhien": {
+  "px": [
+   7087,
+   3192
+  ],
+  "level": true
+ },
+ "Tear": {
+  "px": [
+   6683,
+   5673
+  ],
+  "level": true
+ },
+ "Illian": {
+  "px": [
+   5434,
+   6313
+  ],
+  "level": true
+ },
+ "Tanchico": {
+  "px": [
+   1892,
+   4503
+  ],
+  "level": true
+ },
+ "FalDara": {
+  "px": [
+   7881,
+   1243
+  ],
+  "level": true
+ },
+ "ShadarLogoth": {
+  "px": [
+   3779,
+   3373
+  ],
+  "level": true
+ },
+ "Baerlon": {
+  "px": [
+   3648,
+   3432
+  ],
+  "level": true
+ },
+ "Whitebridge": {
+  "px": [
+   4689,
+   4023
+  ],
+  "level": true
+ },
+ "EmondsField": {
+  "px": [
+   3515,
+   3730
+  ],
+  "level": true
+ },
+ "Falme": {
+  "px": [
+   1625,
+   3654
+  ],
+  "level": false
+ },
+ "EbouDar": {
+  "px": [
+   3871,
+   6030
+  ],
+  "level": false
+ },
+ "FarMadding": {
+  "px": [
+   6167,
+   4886
+  ],
+  "level": false
+ },
+ "Amador": {
+  "px": [
+   3321,
+   5144
+  ],
+  "level": false
+ },
+ "BandarEban": {
+  "px": [
+   1985,
+   2652
+  ],
+  "level": false
+ },
+ "Jehannah": {
+  "px": [
+   3662,
+   4357
+  ],
+  "level": false
+ },
+ "Mayene": {
+  "px": [
+   8259,
+   6298
+  ],
+  "level": false
+ },
+ "Lugard": {
+  "px": [
+   5136,
+   4656
+  ],
+  "level": false
+ },
+ "Chachin": {
+  "px": [
+   5784,
+   1408
+  ],
+  "level": false
+ },
+ "Maradon": {
+  "px": [
+   4589,
+   1330
+  ],
+  "level": false
+ },
+ "FalMoran": {
+  "px": [
+   7760,
+   1412
+  ],
+  "level": false
+ }
+}

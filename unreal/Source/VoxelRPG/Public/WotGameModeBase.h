@@ -26,6 +26,9 @@ public:
 
   virtual AActor* FindPlayerStart_Implementation(AController* Player, const FString& IncomingName) override;
 
+  /** Spawns the pawn even when the PlayerStart is slightly encroached (terrain terraces), nudging it upward. */
+  virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
+
   UFUNCTION(Exec)
   void KillAll();
 

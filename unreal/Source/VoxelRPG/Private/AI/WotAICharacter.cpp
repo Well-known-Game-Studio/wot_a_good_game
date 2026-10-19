@@ -10,6 +10,8 @@
 #include "WotInventoryComponent.h"
 #include "WotDeathEffectComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "Materials/MaterialInterface.h"
 #include "Engine/EngineTypes.h"
 #include "UI/WotUWHealthBar.h"
 #include "UI/WotUWPopupNumber.h"
@@ -33,9 +35,40 @@ AWotAICharacter::AWotAICharacter()
 	DeathEffectComp = CreateDefaultSubobject<UWotDeathEffectComponent>("DeathEffectComp");
 }
 
+int32 AWotAICharacter::ApplyRandomLook()
+{
+  USkeletalMeshComponent* M = GetMesh();
+  if (!M || M->GetSkeletalMeshAsset() || RandomLooks.Num() == 0) {
+    return -1;
+  }
+  // stable per actor name: a villager keeps the same body between plays
+  const int32 Index = (int32)(GetTypeHash(GetFName()) % (uint32)RandomLooks.Num());
+  const FWotLook& Look = RandomLooks[Index];
+  USkeletalMesh* Mesh = Look.Mesh.LoadSynchronous();
+  if (!Mesh) {
+    return -1;
+  }
+  M->SetSkeletalMeshAsset(Mesh);
+  for (int32 i = 0; i < Look.Materials.Num(); ++i) {
+    if (UMaterialInterface* Mat = Look.Materials[i].LoadSynchronous()) {
+      M->SetMaterial(i, Mat);
+    }
+  }
+  // the voxel humanoids are authored facing +Y with their feet at the origin
+  if (UCapsuleComponent* Cap = GetCapsuleComponent()) {
+    M->SetRelativeLocationAndRotation(FVector(0, 0, -Cap->GetScaledCapsuleHalfHeight()), FRotator(0, -90.0f, 0));
+  }
+  if (RandomLookAnimClass) {
+    M->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+    M->SetAnimInstanceClass(RandomLookAnimClass);
+  }
+  return Index;
+}
+
 void AWotAICharacter::PostInitializeComponents()
 {
   Super::PostInitializeComponents();
+  ApplyRandomLook();
   AIPerceptionComp->OnPerceptionUpdated.AddDynamic(this, &AWotAICharacter::OnPerceptionUpdated);
 	AttributeComp->OnHealthChanged.AddDynamic(this, &AWotAICharacter::OnHealthChanged);
 	AttributeComp->OnKilled.AddDynamic(this, &AWotAICharacter::OnKilled);

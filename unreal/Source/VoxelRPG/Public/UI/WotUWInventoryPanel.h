@@ -41,7 +41,7 @@ public:
     void SetInventory(UWotInventoryComponent* NewInventoryComp, FText NewLabelText);
 
     UFUNCTION(BlueprintCallable, Category = "Inventory Panel")
-    void UpdateInventory();
+    virtual void UpdateInventory();
 
     UFUNCTION(BlueprintCallable, Category = "Inventory Panel")
     bool IsOwningPlayersInventory() const;
