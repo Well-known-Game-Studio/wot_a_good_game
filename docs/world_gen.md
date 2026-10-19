@@ -180,6 +180,37 @@ them. `build_level` places `WotForagePickup` actors (`Source/.../Items/WotForage
 builds its item from `ItemClass`) on forest-band lattice points at `mush_ratio`, tagged `Forage`, seeded by the town
 name. Interacting picks the mushroom up like the Diorama's.
 
+### The building families (art pass, issues #34 #35 #51)
+
+The kit now has regional families, all built from the same box/cylinder DSL and recoloured per town with
+`kit_entry(name, {palette: palette})`:
+
+| family | pieces | where |
+|---|---|---|
+| Two Rivers / Andor timber | `SM_TimberHouse` (thatch), `SM_TimberHouse2` (two storeys, jettied, tile), `SM_TimberHouseSlate`, `SM_TimberHouseShingle`, `SM_ThatchedCottage`, `SM_Barn`, `SM_Smithy` | Emond's Field, Whitebridge, Baerlon, Caemlyn, Fal Dara |
+| inns and shops | `SM_Inn` (two storeys, cross wing, dormers, porch, sign, barrels; red tile), `SM_InnThatch`, `SM_Shop` (striped awning, counter of goods, sign board) | the hand-placed inns; markets |
+| dressed stone | `SM_StoneHouse`, `SM_StoneHouse3` (quoins, slate, chimney) | Baerlon, Caemlyn, Cairhien, Tear, Tar Valon (white / blue / gold), Illian, Shadar Logoth (blackened) |
+| adobe | `SM_AdobeHouse`, `SM_AdobeHouse2`, `SM_AdobeTower` (flat roof, parapet, pergola, outside stair, canvas awning) | Tanchico, Tear's lowlands, the Waste |
+| street props | `SM_Cart`, `SM_HayBale`, `SM_Barrel`, `SM_CrateStack`, `SM_FestivalPole`, `SM_Woodpile`, `SM_Signpost`, `SM_Bench`, `SM_FenceSegment`, `SM_FlowerBox` | `market_extras()` in plaza scatter lists; hand-placed on the Green |
+
+`specs_common.py` groups them: `two_rivers_entries()`, `andor_entries()`, `stone_town_entries(wall, roof, quoin)`,
+`adobe_entries(wall, trim)`, `market_extras(ratio)`. New palette colours: `P_Straw`, `P_ThatchDark`, `P_Shingle`,
+`P_Stone`, `P_Adobe`, `P_Clay` (instances of `MI_VoxelStone`, "Color" parameter).
+
+## 6c. Weather
+
+Every level carries an `Ultra_Dynamic_Weather` actor (`Tools/playtest/weather.py`, preset per town: rain in Tear and
+Illian, snow in Fal Dara, blowing sand in Tanchico, ash in Shadar Logoth as the dust preset with near-black particles,
+clear skies over Tar Valon and Caemlyn, random variation on the Overworld). Rain, snow and dust spawn around the camera
+with collision, cloud cover and fog follow the preset, wind debris (leaves) rides the wind. The voxel base material
+(`/Game/Wot/Materials/voxel_subsurface_material_base`, parent of every kit, ground and prop colour) routes Base Color,
+Roughness and Normal through UDW's "Snow And Dust Weather Effects" and "Wet Weather Effects" (`wot.Mat.AddWeather`),
+with "Material Effects Take Time to Change" on, so snow and dust build up on roofs and ground while it falls and
+surfaces darken and gloss in rain, instead of being baked into the meshes (`P_Snow`, `SM_SnowPatch` remain for
+permanent drifts). `wot.Mat.Dump <Material>` prints a material's graph. Not done yet: the Overworld landscape material
+(Dynamic Landscape Weather Effects, which also gives footprints in snow) and the foliage wind function on the voxel
+trees and grass.
+
 ## 6b. The Overworld portals
 
 The Overworld terrain is a landscape whose PCG graph (`PCG_Landscape`) samples `blender/overworld-full.png` through a

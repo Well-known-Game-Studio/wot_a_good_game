@@ -78,3 +78,27 @@ def boulders_extra(band=(0.75,1.0),ratio=0.02,recolor=None,scale=(0.8,1.6)):
 def town_base(name,E,center=(0,0),road_mat=None):
     return {"town":name,"level_scale":level_scale(2*E),"graph_name":f"PCG_{name}","folder":f"/Game/Wot/Towns/{name}","center":center,"road_mat":road_mat or MAT("MI_Tile_CobbleMid"),
             "plazas":[],"exclusions":[],"roads":[],"props":[],"moves":[],"pads":[],"house_sets":{}}
+
+# ---- the art pass: regional house families from the kit (kit_builder timber_house / stone_house / adobe_house ...).
+# kit_entry recolours by palette name; keys the mesh does not use are ignored. Weights are relative within a town.
+def two_rivers_entries():
+    return [kit_entry("SM_TimberHouse",None,3),kit_entry("SM_TimberHouse",{"P_Plaster":"P_Cream","P_DarkGreen":"P_Brown"},2),
+            kit_entry("SM_ThatchedCottage",None,3),kit_entry("SM_ThatchedCottage",{"P_ThatchDark":"P_Straw","P_Stone":"P_Grey"},1),
+            kit_entry("SM_TimberHouseShingle",None,2),kit_entry("SM_TimberHouse2",{"P_Terracotta":"P_Straw","P_DarkGreen":"P_Olive"},1),
+            kit_entry("SM_Barn",None,1)]
+def andor_entries(white=False):
+    w={"P_Plaster":"P_White"} if white else {}
+    return [kit_entry("SM_TimberHouse2",w,3),kit_entry("SM_TimberHouseSlate",w,2),kit_entry("SM_StoneHouse",None,3),kit_entry("SM_StoneHouse3",{"P_Slate":"P_Terracotta"},1),
+            kit_entry("SM_Shop",{"P_Terracotta":"P_RedBrick"},2),kit_entry("SM_Shop",{"P_Terracotta":"P_Blue","P_Cream":"P_White"},1)]
+def stone_town_entries(wall="P_Stone",roof="P_Slate",quoin="P_LightGrey",shops=True):
+    e=[kit_entry("SM_StoneHouse",{"P_Stone":wall,"P_Slate":roof,"P_LightGrey":quoin},3),kit_entry("SM_StoneHouse3",{"P_Stone":wall,"P_Slate":roof,"P_LightGrey":quoin},2),
+       kit_entry("SM_TimberHouseSlate",{"P_Slate":roof},1)]
+    if shops: e.append(kit_entry("SM_Shop",{"P_Slate":roof},1))
+    return e
+def adobe_entries(wall="P_Adobe",trim="P_Clay"):
+    return [kit_entry("SM_AdobeHouse",{"P_Adobe":wall,"P_Clay":trim},3),kit_entry("SM_AdobeHouse2",{"P_Adobe":wall,"P_Clay":trim},2),kit_entry("SM_AdobeTower",{"P_Adobe":wall,"P_Clay":trim},2)]
+# plaza furniture extras: carts, hay, barrels, crates, benches, festival poles (plaza_furniture spreads unknown kinds on a grid)
+def market_extras(ratio=0.02,poles=False):
+    e=[(kit_mesh("SM_Cart"),ratio,0.9,1.1,None),(kit_mesh("SM_Barrel"),ratio*1.5,0.9,1.1,None),(kit_mesh("SM_CrateStack"),ratio,0.9,1.1,None),(kit_mesh("SM_HayBale"),ratio*0.7,0.9,1.1,None),(kit_mesh("SM_Bench"),ratio,1.0,1.0,None)]
+    if poles: e.append((kit_mesh("SM_FestivalPole"),ratio*0.5,1.0,1.0,None))
+    return e

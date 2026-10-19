@@ -17,7 +17,10 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   SM_DomeHouse, SM_CourtyardHouse, SM_Keep, SM_Longhouse, SM_MarketStall, SM_StoneWell, SM_LampPost,
   SM_Obelisk, SM_GateHouse, SM_RuinWall, SM_BridgeArch, SM_Pine, SM_Palm, SM_DeadTree, SM_Boulder,
   SM_Cactus, SM_Reeds, SM_FlowerShrub, SM_SnowPatch, SM_Birch, SM_Stairs200…600, SM_Ladder600/900, SM_WhiteBridge,
-  SM_RandHouse = the imported `rand_house` re-merged with a half turn). Material slots follow the first-appearance
+  SM_RandHouse = the imported `rand_house` re-merged with a half turn; the art-pass families SM_TimberHouse*,
+  SM_ThatchedCottage, SM_Inn*, SM_Shop, SM_StoneHouse*, SM_AdobeHouse*, SM_AdobeTower, SM_Barn, SM_Smithy and the
+  street props SM_Cart, SM_HayBale, SM_Barrel, SM_CrateStack, SM_FestivalPole, SM_Woodpile, SM_Signpost, SM_Bench,
+  SM_FenceSegment, SM_FlowerBox; see docs/world_gen.md 6 for which town uses which). Material slots follow the first-appearance
   order of the part colours; `kit_entry(name, {"P_Plaster":"P_White"})` recolours per town. Every building's door is
   on -X and house slots point +X away from the street, so doors face the road; `wot.Mesh.Dump <Mesh>` (editor console)
   prints per-section vertex centroids to check a mesh's door side. `--kit` also gives every non-stairs piece convex

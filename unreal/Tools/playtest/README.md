@@ -24,6 +24,7 @@ console command; results are `[PT]` lines in the `LogWotTest` category, read bac
     python3 nav_probe_test.py [--rebuild] <Town> x0 y0 x1 y1 [steps]  # navmesh presence along a line in PIE
     python3 goto_test.py <Town> x y [z] [seconds]                     # route to a point in PIE, harness summary
     python3 rig_probe.py [Town] [NPC] [samples] [RigSkeleton]         # skeleton / clip dumps, then an NPC's live pose while it wanders
+    python3 weather.py [Map ...]                                    # Ultra Dynamic Weather actor + per-town preset in every level, saved
     python3 sky_mode.py ["2D Dynamic Clouds"|"Volumetric Clouds"|"Static Clouds"] [Map ...]   # Ultra Dynamic Sky mode on every level (+ 2D cloud-shadow settings), saved
 
 Useful console commands: `wot.PlayTest.Spawn|Walk|Goto x y z|Stop|Status|Mount|Screenshot <name> [ui]|Record <name> [fps] [seconds] [ui]|RecordStop`,

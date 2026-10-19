@@ -55,6 +55,195 @@ def courtyard_house(w=900,d=900,wall="P_Sand",roof="P_Terracotta",door="P_DarkWo
     p.append(cyl(0,0,20,160,40,"P_LightGrey"))   # courtyard fountain base
     p.append(cyl(0,0,70,60,100,"P_Glass"))
     return p
+# ---- the art pass (issues #34 #35 #51): regional building families and street props. Same rules: pivot floor centre,
+# door on -X, min z 0; every part a box/cyl in the palette so towns recolour them with kit_entry(name, {old: new}).
+def _roof_gable(p,d,w,z,mat,steps=5,step_h=55,eave=60,ridge="X",trim=None,thatch=False):
+    """A stepped voxel gable roof over a d x w footprint starting at height z. ridge "X": the roof steps shrink along Y
+    (gable ends face +-X, the street); "Y": they shrink along X. Thatch gets a fatter, rounder stack and deeper eaves."""
+    if thatch: steps,step_h,eave=steps+1,step_h+10,eave+40
+    for i in range(steps):
+        f=1-(i/steps); hh=step_h
+        if ridge=="X": p.append(box(0,0,z+hh/2+i*hh,d+eave,w*f+90,hh,mat))
+        else: p.append(box(0,0,z+hh/2+i*hh,d*f+90,w+eave,hh,mat))
+    if trim: p.append(box(-d/2-5,0,z+step_h/2,d*0.05,w*0.92,step_h,trim))   # bargeboard on the street gable
+    return z+steps*step_h
+def _timber_frame(p,d,w,z0,h,beam,bay=190,proud=6):
+    """Dark posts, sills and diagonal braces standing proud of a plaster wall block (d x w x h from z0)."""
+    t=14; zc=z0+h/2
+    for sx in (-1,1):   # corner posts
+        for sy in (-1,1): p.append(box(sx*d/2,sy*w/2,zc,t+proud,t+proud,h,beam))
+    for sy in (-1,1):   # posts along the long (+-Y) faces and braces between them
+        n=max(1,int(d//bay)); step=d/(n+1)
+        for i in range(1,n+1):
+            x=-d/2+i*step; p.append(box(x,sy*(w/2+proud/2),zc,t,t,h,beam))
+            if i<n: p.append(box(x+step/2,sy*(w/2+proud/2),zc,t,t,h*0.9,beam,roll=38))
+    for sx in (-1,1):   # the gable faces
+        n=max(1,int(w//bay)); step=w/(n+1)
+        for i in range(1,n+1):
+            y=-w/2+i*step; p.append(box(sx*(d/2+proud/2),y,zc,t,t,h,beam))
+    for zz in (z0+h,):  # top plate
+        p.append(box(0,0,zz,d+proud,t,t,beam,)); 
+        for sy in (-1,1): p.append(box(0,sy*(w/2+proud/2),zz,d+proud,t,t,beam))
+        for sx in (-1,1): p.append(box(sx*(d/2+proud/2),0,zz,t,w+proud,t,beam))
+def _windows(p,d,w,z,n=2,size=(80,90),shutters=None,sill="P_LightGrey",glass="P_Glass",faces=("x","y")):
+    """Windows with sills (and shutters) on the street gable (-X) and the long faces."""
+    if "x" in faces:
+        for y in (-w*0.28,w*0.28):
+            p.append(box(-d/2-3,y,z,10,size[0],size[1],glass)); p.append(box(-d/2-8,y,z-size[1]/2-6,18,size[0]+24,12,sill))
+            if shutters:
+                for sy in (-1,1): p.append(box(-d/2-5,y+sy*(size[0]/2+22),z,8,36,size[1],shutters))
+    if "y" in faces:
+        for sy in (-1,1):
+            for x in [(-d/2+(i+1)*d/(n+1)) for i in range(n)]:
+                p.append(box(x,sy*(w/2+3),z,size[0],10,size[1],glass)); p.append(box(x,sy*(w/2+8),z-size[1]/2-6,size[0]+24,18,12,sill))
+def _door(p,d,z=0,wd=120,ht=220,mat="P_DarkWood",lintel="P_DarkWood",step="P_LightGrey"):
+    p.append(box(-d/2-3,0,z+ht/2,20,wd,ht,mat)); p.append(box(-d/2-6,0,z+ht+8,26,wd+40,16,lintel)); p.append(box(-d/2-30,0,z+6,60,wd+60,12,step))
+def _chimney(p,x,y,z,h=180,mat="P_Grey",cap="P_DarkGrey"):
+    p.append(box(x,y,z+h/2,70,70,h,mat)); p.append(box(x,y,z+h+8,90,90,16,cap))
+def timber_house(w=620,d=820,storeys=1,roof="thatch",wall="P_Plaster",beam="P_DarkWood",base="P_Grey",roofmat=None,shutters="P_DarkGreen",chimney=True,jetty=False):
+    """A Two Rivers / Andor house: stone base course, plaster walls in a dark timber frame, a stepped gable roof of
+    thatch, tile, slate or wood shingle, a chimney, shuttered windows. storeys 1-2; jetty overhangs the upper floor."""
+    rm=roofmat or {"thatch":"P_Straw","tile":"P_Terracotta","slate":"P_Slate","shingle":"P_Shingle"}[roof]
+    fh=250; p=[box(0,0,30,d+16,w+16,60,base)]
+    z=60
+    for i in range(storeys):
+        dd,ww=(d+40,w+40) if (jetty and i>0) else (d,w)
+        p.append(box(0,0,z+fh/2,dd,ww,fh,wall)); _timber_frame(p,dd,ww,z,fh,beam)
+        _windows(p,dd,ww,z+150,n=2 if i>0 else 1,shutters=shutters if i==0 else None)
+        z+=fh
+    _door(p,(d+40) if False else d)
+    top=_roof_gable(p,d,w,z,rm,steps=5,thatch=(roof=="thatch"),trim=beam if roof!="thatch" else None)
+    if chimney: _chimney(p,d*0.28,w*0.18,top-60)
+    return p
+def thatched_cottage(w=520,d=640,wall="P_Stone",thatch="P_ThatchDark",wood="P_DarkWood"):
+    """The poorer Two Rivers house: low rough stone walls under a fat thatch roof that nearly reaches the ground."""
+    h=210; p=[box(0,0,h/2,d,w,h,wall)]
+    for y in (-w*0.3,w*0.3): p.append(box(-d/2-3,y,135,10,60,70,"P_Glass"))
+    _door(p,d,ht=190,wd=100,mat=wood)
+    top=_roof_gable(p,d,w,h,thatch,steps=6,step_h=60,eave=110,thatch=True)
+    _chimney(p,d*0.3,0,top-80,h=150,mat="P_Grey")
+    p.append(box(d/2+20,0,40,30,120,80,"P_Straw"))   # woodpile / straw heap at the back
+    return p
+def inn(w=900,d=1300,roof="tile",wall="P_Plaster",beam="P_DarkWood",base="P_Grey",roofmat=None,sign="P_Rose"):
+    """The village inn: two timber-framed storeys with a jettied upper floor, a cross wing, dormers, two chimneys, a
+    porch on posts over the door, a hanging sign and barrels by the wall. The Winespring Inn wears a red tile roof."""
+    rm=roofmat or {"thatch":"P_Straw","tile":"P_RedBrick","slate":"P_Slate","shingle":"P_Shingle"}[roof]
+    fh=260; p=[box(0,0,30,d+16,w+16,60,base)]
+    p.append(box(0,0,60+fh/2,d,w,fh,wall)); _timber_frame(p,d,w,60,fh,beam); _windows(p,d,w,210,n=3,shutters="P_DarkGreen")
+    z=60+fh; p.append(box(0,0,z+fh/2,d+40,w+40,fh,wall)); _timber_frame(p,d+40,w+40,z,fh,beam); _windows(p,d+40,w+40,z+150,n=3)
+    z+=fh; top=_roof_gable(p,d,w,z,rm,steps=6,step_h=55,trim=beam)
+    # cross wing to the back-right, its own gable across the main ridge
+    wx,wy,wd,ww=d*0.15,w*0.55,d*0.5,w*0.7
+    p.append(box(wx,wy,60+fh,wd,ww,2*fh,wall)); _timber_frame(p,wd,ww,60,2*fh,beam)
+    for i in range(5): f=1-i/5; p.append(box(wx,wy,z+27+i*55,wd*f+90,ww+60,55,rm))
+    for x in (-d*0.25,d*0.1): p.append(box(x,-w/2+70,z+95,120,110,120,wall)); p.append(box(x,-w/2+70,z+170,160,150,40,rm))   # dormers
+    _chimney(p,-d*0.3,0,top-40,h=220); _chimney(p,wx+wd*0.3,wy,top-40,h=200)
+    _door(p,d,wd=150,ht=240); 
+    for sy in (-1,1): p.append(box(-d/2-120,sy*130,100,24,24,200,beam))   # porch posts
+    p.append(box(-d/2-70,0,215,170,340,30,rm))
+    p.append(box(-d/2-150,-w/2+60,300,20,20,320,beam)); p.append(box(-d/2-150,-w/2+60,470,24,140,90,sign))   # the sign
+    for y in (w/2-90,w/2-200): p.append(cyl(-d/2-70,y,40,70,80,beam)); p.append(cyl(-d/2-70,y,45,74,10,"P_DarkGrey"))   # barrels
+    return p
+def shop(w=640,d=700,wall="P_Cream",beam="P_DarkWood",roof="P_Slate",cloth="P_Terracotta",cloth2="P_Cream",goods="P_Ochre"):
+    """A shop: a timber house whose street front carries a striped awning over a counter of goods and a hanging board."""
+    p=timber_house(w,d,storeys=2,roof="slate",wall=wall,beam=beam,roofmat=roof,shutters=None,chimney=True)
+    for i in range(6): p.append(box(-d/2-110,-w/2+60+i*(w-120)/5,235,200,(w-120)/5+4,14,cloth if i%2==0 else cloth2,pitch=-12))
+    for sy in (-1,1): p.append(box(-d/2-200,sy*(w/2-50),120,16,16,240,beam))
+    p.append(box(-d/2-150,0,45,110,w-160,90,beam))   # counter
+    for i,m in enumerate((goods,"P_Green","P_Rose","P_Olive")): p.append(box(-d/2-150,-w*0.3+i*w*0.2,110,60,70,40+10*(i%2),m))
+    p.append(box(-d/2-20,w/2+40,330,20,110,70,"P_Gold"))   # sign board
+    return p
+def stone_house(w=620,d=820,storeys=2,wall="P_Stone",quoin="P_LightGrey",roof="P_Slate",wood="P_DarkWood"):
+    """A town house of dressed stone (Baerlon, Caemlyn, Tear): quoined corners, slate roof, tall windows, a chimney."""
+    fh=270; H=storeys*fh; p=[box(0,0,H/2,d,w,H,wall)]
+    for sx in (-1,1):
+        for sy in (-1,1):
+            for i in range(int(H//70)): p.append(box(sx*d/2,sy*w/2,35+i*70,40,40,36,quoin))
+    for i in range(1,storeys): p.append(box(0,0,i*fh,d+20,w+20,18,quoin))
+    for i in range(storeys): _windows(p,d,w,i*fh+165,n=2,size=(70,110),sill=quoin,shutters=None if i else wood)
+    _door(p,d,wd=120,ht=230,mat=wood,lintel=quoin,step=quoin)
+    top=_roof_gable(p,d,w,H,roof,steps=5,step_h=50,trim=wood)
+    _chimney(p,d*0.3,-w*0.2,top-40,h=200,mat=wall,cap=quoin)
+    return p
+def adobe_house(w=640,d=720,floors=1,wall="P_Adobe",trim="P_Clay",wood="P_DarkWood",canvas="P_Cream"):
+    """A house of the dry south and the Waste (Tear's lowlands, Tanchico, Rhuidean): thick clay walls, a flat roof
+    behind a parapet, pergola beams casting stripes, an outside stair to the roof and a canvas awning over the door."""
+    fh=260; H=floors*fh; p=[box(0,0,H/2,d,w,H,wall), box(0,0,H+15,d+20,w+20,30,trim)]
+    p.append(box(0,0,H+40,d-60,w-60,20,wall))
+    for sx in (-1,1):
+        for sy in (-1,1): p.append(box(sx*(d/2-30),sy*(w/2-30),H+40,40,40,60,trim))   # parapet corners
+    for i in range(int(w//110)): p.append(box(d*0.1,-w/2+70+i*110,H+70,d*0.55,16,16,wood))   # pergola beams
+    for sy in (-1,1): p.append(box(d*0.1,sy*(w/2-60),H+40,d*0.55,16,70,wood))
+    for i in range(floors):
+        for y in (-w*0.28,w*0.28): p.append(box(-d/2-3,y,i*fh+160,10,50,60,"P_DarkGrey"))
+        for x in (-d*0.25,d*0.25): p.append(box(x,w/2+3,i*fh+160,50,10,60,"P_DarkGrey"))
+    _door(p,d,wd=110,ht=210,mat=wood,lintel=wood,step=trim)
+    for sy in (-1,1): p.append(box(-d/2-110,sy*90,230,16,16,10,wood)); p.append(box(-d/2-110,sy*90,110,14,14,230,wood))
+    p.append(box(-d/2-60,0,240,150,220,12,canvas,pitch=-8))
+    for i in range(6): p.append(box(d/2+40,-w/2+40+i*40,20+i*40,60,36,40,wall))   # the outside stair up the side
+    return p
+def adobe_tower(floors=3,w=460,**kw):
+    """A tall adobe house with a roof terrace (Tanchico's streets, Rhuidean)."""
+    p=adobe_house(w,w+80,floors=floors,**kw)
+    for i in range(1,floors): p.append(box(0,0,i*260,w+100,w+20,16,kw.get("trim","P_Clay")))
+    return p
+def barn(w=700,d=1100,wall="P_Brown",roof="P_Shingle",wood="P_DarkWood",hay="P_Straw"):
+    """A barn: plank walls, a wide double door, a shingle roof with a hay loft hatch, hay stacked beside it."""
+    h=330; p=[box(0,0,h/2,d,w,h,wall)]
+    for i in range(int(d//60)): p.append(box(-d/2+30+i*60,0,h/2,4,w+6,h,wood))   # plank lines
+    p.append(box(-d/2-3,0,130,20,260,260,wood)); p.append(box(-d/2-6,0,130,22,8,260,"P_Black"))
+    top=_roof_gable(p,d,w,h,roof,steps=5,step_h=60,ridge="X",trim=wood)
+    p.append(box(-d/2-3,0,h+60,16,120,100,wood))   # loft hatch
+    for i in range(3): p.append(box(d/2+120,-180+i*180,50,140,120,100,hay)); p.append(box(d/2+120,-180+i*180,130,120,100,60,hay))
+    return p
+def smithy(w=620,d=700,wall="P_Stone",roof="P_Shingle",wood="P_DarkWood",forge="P_DarkGrey",glow="P_Gold"):
+    """Master Luhhan's forge: a stone back half, an open front on posts under one roof, the forge chimney and anvil."""
+    h=260; p=[box(d*0.2,0,h/2,d*0.6,w,h,wall)]
+    for sy in (-1,1): p.append(box(-d/2+30,sy*(w/2-30),h/2,30,30,h,wood))
+    top=_roof_gable(p,d,w,h,roof,steps=4,step_h=60,ridge="X",trim=wood)
+    _chimney(p,d*0.3,-w*0.25,top-60,h=260,mat=forge,cap="P_Black")
+    p.append(box(d*0.05,-w*0.25,60,160,120,120,forge)); p.append(box(d*0.05,-w*0.25,125,100,70,12,glow))   # the forge and its coals
+    p.append(box(-d*0.2,w*0.15,70,60,120,20,forge)); p.append(box(-d*0.2,w*0.15,40,30,30,60,forge))       # the anvil
+    p.append(cyl(-d*0.25,-w*0.3,40,90,80,wood)); p.append(cyl(-d*0.25,-w*0.3,82,80,8,"P_Blue"))           # the quench barrel
+    return p
+# ---- street props (plaza_furniture puts anything it does not know on a jittered grid; lines use them along streets)
+def cart(wood="P_DarkWood",bed="P_Brown",load="P_Straw"):
+    p=[box(0,0,80,220,140,16,bed), box(0,0,70,180,120,30,load)]
+    for sy in (-1,1): p.append(box(0,sy*80,60,110,16,110,wood)); p.append(box(0,sy*80,60,30,20,30,wood))
+    for sy in (-1,1): p.append(box(-150,sy*50,90,120,14,14,wood,pitch=14))
+    for sy in (-1,1): p.append(box(0,sy*66,110,220,8,40,wood))
+    return p
+def hay_bale(hay="P_Straw"):
+    return [box(0,0,45,120,110,90,hay), box(0,0,95,100,90,20,hay), box(60,-30,30,60,60,60,hay)]
+def barrel(wood="P_DarkWood",ring="P_DarkGrey"):
+    return [cyl(0,0,45,80,90,wood), cyl(0,0,20,84,10,ring), cyl(0,0,70,84,10,ring)]
+def crate_stack(wood="P_Brown",dark="P_DarkWood"):
+    return [box(0,0,35,70,70,70,wood), box(10,80,35,70,70,70,wood), box(-5,40,105,70,70,70,dark)]
+def festival_pole(h=620,pole="P_DarkWood",ribbons=("P_Rose","P_Blue","P_Gold","P_Green","P_White","P_Purple")):
+    """A Bel Tine pole: ribbons from the top out to the ground around it."""
+    p=[box(0,0,h/2,24,24,h,pole), box(0,0,h+16,60,60,32,"P_Rose")]
+    n=len(ribbons); L=h*0.95
+    for i,m in enumerate(ribbons):
+        a=i*360/n; r=190; x=math.cos(math.radians(a))*r/2; y=math.sin(math.radians(a))*r/2
+        p.append(box(x,y,h/2,10,L*0.0+10,10,m)); p.append(box(x,y,h/2+10,10,10,L,m,pitch=0,roll=0))
+    return p
+def woodpile(wood="P_Brown",dark="P_DarkWood"):
+    p=[]
+    for i in range(3):
+        for j in range(4-i): p.append(cyl(0,-60+j*40+i*20,20+i*36,38,120,wood if (i+j)%2 else dark))
+    return p
+def signpost(pole="P_DarkWood",board="P_Plaster"):
+    return [box(0,0,160,18,18,320,pole), box(40,0,290,110,12,36,board), box(-30,0,230,90,12,36,board)]
+def bench(wood="P_DarkWood"):
+    return [box(0,0,46,40,160,10,wood), box(0,0,24,8,140,40,wood), box(-22,0,70,8,160,40,wood,roll=0)]
+def fence_segment(length=300,wood="P_Brown",post="P_DarkWood"):
+    p=[]
+    for y in (-length/2,length/2): p.append(box(0,y,55,16,16,110,post))
+    for z in (45,90): p.append(box(0,0,z,10,length,12,wood))
+    return p
+def flower_box(wood="P_DarkWood",flower="P_Rose",leaf="P_Green"):
+    return [box(0,0,16,60,150,32,wood), box(0,0,42,50,140,20,leaf), box(0,-40,60,30,30,20,flower), box(0,30,62,30,30,20,flower)]
+
 def keep(w=1400,d=1400,h=700,wall="P_DarkGrey",cren="P_Grey",roof="P_Slate",tower_h=950):
     p=[box(0,0,h/2,d,w,h,wall), box(0,0,h+15,d+20,w+20,30,cren)]
     n=int(w//150)
@@ -211,6 +400,11 @@ def way_rubble(seed=7,dark="P_WayStoneDark",stone="P_WayStone"):
 
 KIT={
  "SM_GableHouse":gable_house,"SM_TowerHouse":tower_house,"SM_DomeHouse":dome_house,"SM_CourtyardHouse":courtyard_house,"SM_RandHouse":rand_house,
+ "SM_TimberHouse":timber_house,"SM_TimberHouse2":lambda:timber_house(storeys=2,roof="tile",jetty=True),"SM_TimberHouseSlate":lambda:timber_house(roof="slate",wall="P_Cream"),
+ "SM_TimberHouseShingle":lambda:timber_house(w=560,d=760,roof="shingle",wall="P_Plaster",shutters="P_Brown"),"SM_ThatchedCottage":thatched_cottage,
+ "SM_Inn":inn,"SM_InnThatch":lambda:inn(roof="thatch"),"SM_Shop":shop,"SM_StoneHouse":stone_house,"SM_StoneHouse3":lambda:stone_house(storeys=3,w=560,d=700),
+ "SM_AdobeHouse":adobe_house,"SM_AdobeHouse2":lambda:adobe_house(floors=2,w=600,d=660),"SM_AdobeTower":adobe_tower,"SM_Barn":barn,"SM_Smithy":smithy,
+ "SM_Cart":cart,"SM_HayBale":hay_bale,"SM_Barrel":barrel,"SM_CrateStack":crate_stack,"SM_FestivalPole":festival_pole,"SM_Woodpile":woodpile,"SM_Signpost":signpost,"SM_Bench":bench,"SM_FenceSegment":fence_segment,"SM_FlowerBox":flower_box,
  "SM_Keep":keep,"SM_Longhouse":longhouse,"SM_MarketStall":market_stall,"SM_StoneWell":well_stone,"SM_LampPost":lamp_post,
  "SM_Obelisk":obelisk,"SM_GateHouse":gate_house,"SM_RuinWall":ruin_wall,"SM_BridgeArch":bridge_arch,
  "SM_WayIsland":way_island,"SM_WayIsland2":lambda:way_island(1100,300,2),"SM_WayIsland3":lambda:way_island(1700,380,3),

@@ -2,11 +2,11 @@
 def caemlyn_spec():
     E=13000
     COB=MAT("MI_Tile_CobbleMid"); WS=MAT("MI_Tile_WhiteStone"); PL=MAT("MI_Tile_Plaza")
-    houses=rand_house_entries(["MI_Wall_White","MI_Wall_Plaster","MI_Wall_Stone"],["MI_Roof_RedTile","MI_Roof_Slate"])+[
+    houses=rand_house_entries(["MI_Wall_White","MI_Wall_Plaster"],["MI_Roof_RedTile","MI_Roof_Slate"])+andor_entries()+[
         kit_entry("SM_TowerHouse",{"P_Plaster":"P_White","P_Slate":"P_RedBrick"},2),kit_entry("SM_TowerHouse",{"P_Plaster":"P_Plaster","P_Slate":"P_Slate"},2),
         kit_entry("SM_GableHouse",{"P_Plaster":"P_White","P_Terracotta":"P_RedBrick"},2),kit_entry("SM_GableHouse",{"P_Plaster":"P_LightGrey","P_Terracotta":"P_Slate"},1)]
-    inner=rand_house_entries(["MI_Wall_White"],["MI_Roof_RedTile","MI_Roof_Gold"],w=2)+[kit_entry("SM_TowerHouse",{"P_Plaster":"P_White","P_Slate":"P_Blue","P_DarkWood":"P_Gold"},3),kit_entry("SM_CourtyardHouse",{"P_Sand":"P_White","P_Terracotta":"P_RedBrick"},2)]
-    poor=[kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_DarkGrey"},3),kit_entry("SM_GableHouse",{"P_Plaster":"P_Ochre","P_Terracotta":"P_Slate"},2),kit_entry("SM_TowerHouse",{"P_Plaster":"P_Plaster","P_Slate":"P_DarkGrey"},2),kit_entry("SM_Longhouse",{"P_Brown":"P_DarkWood","P_Olive":"P_DarkGrey"},1)]
+    inner=rand_house_entries(["MI_Wall_White"],["MI_Roof_RedTile","MI_Roof_Gold"],w=2)+stone_town_entries(wall="P_White",roof="P_RedBrick",quoin="P_Gold")+[kit_entry("SM_TowerHouse",{"P_Plaster":"P_White","P_Slate":"P_Blue","P_DarkWood":"P_Gold"},3),kit_entry("SM_CourtyardHouse",{"P_Sand":"P_White","P_Terracotta":"P_RedBrick"},2)]
+    poor=adobe_entries(wall="P_Brown",trim="P_DarkGrey")+[kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_DarkGrey"},3),kit_entry("SM_GableHouse",{"P_Plaster":"P_Ochre","P_Terracotta":"P_Slate"},2),kit_entry("SM_TowerHouse",{"P_Plaster":"P_Plaster","P_Slate":"P_DarkGrey"},2),kit_entry("SM_Longhouse",{"P_Brown":"P_DarkWood","P_Olive":"P_DarkGrey"},1)]
     stalls=[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,None),(kit_mesh("SM_MarketStall"),0.03,0.9,1.1,kit_mats("SM_MarketStall",{"P_Terracotta":"P_Blue"}))]
     s=town_base("Caemlyn",E,road_mat=COB)
     roads=[
@@ -70,7 +70,7 @@ def cairhien_spec():
     E=12000; WL=-150
     COB=MAT("MI_Tile_CobbleMid"); WS=MAT("MI_Tile_WhiteStone")
     tall=lambda rc,w: kit_entry("SM_TowerHouse",rc,w)
-    houses=[tall({"P_Plaster":"P_LightGrey","P_Slate":"P_Slate","P_DarkWood":"P_DarkGrey"},3),tall({"P_Plaster":"P_White","P_Slate":"P_Blue","P_DarkWood":"P_DarkGrey"},3),
+    houses=stone_town_entries(wall="P_LightGrey",roof="P_Slate",quoin="P_White")+[tall({"P_Plaster":"P_LightGrey","P_Slate":"P_Slate","P_DarkWood":"P_DarkGrey"},3),tall({"P_Plaster":"P_White","P_Slate":"P_Blue","P_DarkWood":"P_DarkGrey"},3),
             tall({"P_Plaster":"P_Plaster","P_Slate":"P_DarkGrey","P_DarkWood":"P_DarkGrey"},2),kit_entry("SM_GableHouse",{"P_Plaster":"P_LightGrey","P_Terracotta":"P_Slate"},2),
             kit_entry("SM_CourtyardHouse",{"P_Sand":"P_LightGrey","P_Terracotta":"P_Slate"},1)]+rand_house_entries(["MI_Wall_Stone","MI_Wall_White"],["MI_Roof_Slate"],w=1)
     foregate=[kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_Ochre"},3),kit_entry("SM_GableHouse",{"P_Plaster":"P_Ochre","P_Terracotta":"P_DarkGrey"},2),kit_entry("SM_MarketStall",None,2),kit_entry("SM_Longhouse",{"P_Brown":"P_DarkWood","P_Olive":"P_Terracotta"},1)]
@@ -127,7 +127,7 @@ def cairhien_spec():
 def tear_spec():
     E=12000; WL=-120
     COB=MAT("MI_Tile_CobbleMid")
-    rich=rand_house_entries(["MI_Wall_Stone","MI_Wall_Plaster"],["MI_Roof_Slate","MI_Roof_RedTile"])+[kit_entry("SM_TowerHouse",{"P_Plaster":"P_Plaster","P_Slate":"P_Slate"},2),kit_entry("SM_CourtyardHouse",{"P_Sand":"P_Plaster","P_Terracotta":"P_Slate"},2)]
+    rich=rand_house_entries(["MI_Wall_Stone","MI_Wall_Plaster"],["MI_Roof_Slate","MI_Roof_RedTile"])+stone_town_entries(roof="P_Slate")+[kit_entry("SM_TowerHouse",{"P_Plaster":"P_Plaster","P_Slate":"P_Slate"},2),kit_entry("SM_CourtyardHouse",{"P_Sand":"P_Plaster","P_Terracotta":"P_Slate"},2)]
     poor=[kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_DarkGrey"},3),kit_entry("SM_GableHouse",{"P_Plaster":"P_Ochre","P_Terracotta":"P_Slate"},2),kit_entry("SM_Longhouse",{"P_Brown":"P_DarkWood","P_Olive":"P_DarkGrey"},1)]
     s=town_base("Tear",E,center=(-1500,0),road_mat=COB)
     alleys=grid_streets(1800,5000,-9000,9000,3,11,width=3,spacing=900,setback=620,set_="docks",prefix="alley",wig=70,seed=9)
@@ -140,7 +140,7 @@ def tear_spec():
     roads+=pier_roads("Pier",5400,(-6500,-3300,-900,1800,4400,7200),1800,WL)
     roads+=alleys+hi
     s["roads"]=roads
-    s["plazas"]=[{"pts":rect(-200,-1200,1700,1200),"mat":MAT("MI_Tile_PlazaDark"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.04,0.9,1.1,None)]},
+    s["plazas"]=[{"pts":rect(-200,-1200,1700,1200),"mat":MAT("MI_Tile_PlazaDark"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.04,0.9,1.1,None)]+market_extras(0.015)},
                {"pts":rect(2200,-9000,4800,-6800),"mat":MAT("MI_Tile_PlazaDark"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.06,0.9,1.1,kit_mats("SM_MarketStall",{"P_Terracotta":"P_Olive"}))]}]
     s["exclusions"]=[(-2750,0,2600,2600),(8000,0,2600,12000),(5300,-11000,500,700)]
     s["houses"]={"spacing":1400,"setback":950,"scale":(0.85,1.05),"keep":0.94,"footprint":(-660,-380,520,480),"entries":rich}
@@ -177,7 +177,7 @@ def tear_spec():
 def tarvalon_spec():
     E=13500; WL=-200
     WS=MAT("MI_Tile_WhiteStone")
-    white=[kit_entry("SM_TowerHouse",{"P_Plaster":"P_White","P_Slate":"P_Blue","P_DarkWood":"P_Gold"},3),kit_entry("SM_DomeHouse",{"P_Cream":"P_White","P_Teal":"P_Blue","P_Ochre":"P_Gold"},3),
+    white=stone_town_entries(wall="P_White",roof="P_Blue",quoin="P_Gold")+[kit_entry("SM_TowerHouse",{"P_Plaster":"P_White","P_Slate":"P_Blue","P_DarkWood":"P_Gold"},3),kit_entry("SM_DomeHouse",{"P_Cream":"P_White","P_Teal":"P_Blue","P_Ochre":"P_Gold"},3),
            kit_entry("SM_DomeHouse",{"P_Cream":"P_White","P_Teal":"P_Gold","P_Ochre":"P_LightGrey"},1),kit_entry("SM_GableHouse",{"P_Plaster":"P_White","P_Terracotta":"P_Slate","P_DarkWood":"P_Gold"},2),
            kit_entry("SM_CourtyardHouse",{"P_Sand":"P_White","P_Terracotta":"P_Blue"},2)]+rand_house_entries(["MI_Wall_TarValon"],["MI_Roof_Blue","MI_Roof_Gold"],woods=("MI_Trim_Gold",))
     tight=[kit_entry("SM_TowerHouse",{"P_Plaster":"P_White","P_Slate":"P_Blue","P_DarkWood":"P_Gold"},3),kit_entry("SM_TowerHouse",{"P_Plaster":"P_Cream","P_Slate":"P_Slate","P_DarkWood":"P_Gold"},2),kit_entry("SM_DomeHouse",{"P_Cream":"P_White","P_Teal":"P_Blue","P_Ochre":"P_Gold"},2)]
@@ -234,7 +234,7 @@ def tarvalon_spec():
 def tanchico_spec():
     E=12000; WL=-150
     SANDT=MAT("MI_Tile_Plaza"); WS=MAT("MI_Tile_WhiteStone")
-    houses=[kit_entry("SM_DomeHouse",{"P_Cream":"P_Cream","P_Teal":"P_Teal","P_Ochre":"P_Ochre"},3),kit_entry("SM_DomeHouse",{"P_Cream":"P_White","P_Teal":"P_Copper","P_Ochre":"P_Terracotta"},2),
+    houses=adobe_entries()+[kit_entry("SM_DomeHouse",{"P_Cream":"P_Cream","P_Teal":"P_Teal","P_Ochre":"P_Ochre"},3),kit_entry("SM_DomeHouse",{"P_Cream":"P_White","P_Teal":"P_Copper","P_Ochre":"P_Terracotta"},2),
             kit_entry("SM_DomeHouse",{"P_Cream":"P_Sand","P_Teal":"P_Blue","P_Ochre":"P_White"},2),kit_entry("SM_CourtyardHouse",{"P_Sand":"P_Sand","P_Terracotta":"P_Terracotta"},2),
             kit_entry("SM_TowerHouse",{"P_Plaster":"P_Cream","P_Slate":"P_Copper","P_DarkWood":"P_Teal"},2),kit_entry("SM_CourtyardHouse",{"P_Sand":"P_White","P_Terracotta":"P_Teal"},1)]
     s=town_base("Tanchico",E,center=(-3500,0),road_mat=SANDT)
@@ -247,7 +247,7 @@ def tanchico_spec():
     roads+=pier_roads("Pier",3100,(-7000,-3500,500,4500,8000),2500,WL)
     roads+=medina+grand+hillside
     s["roads"]=roads
-    s["plazas"]=[{"pts":rect(-2400,-1000,1400,1000),"mat":WS,"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.07,0.9,1.1,None),(kit_mesh("SM_MarketStall"),0.04,0.9,1.1,kit_mats("SM_MarketStall",{"P_Terracotta":"P_Teal"}))]},
+    s["plazas"]=[{"pts":rect(-2400,-1000,1400,1000),"mat":WS,"linear":True,"scatter":market_extras(0.015)+[(kit_mesh("SM_MarketStall"),0.07,0.9,1.1,None),(kit_mesh("SM_MarketStall"),0.04,0.9,1.1,kit_mats("SM_MarketStall",{"P_Terracotta":"P_Teal"}))]},
                {"pts":rect(-8800,4600,-5600,7600),"mat":WS,"linear":True,"scatter":[(kit_mesh("SM_Palm"),0.012,0.5,0.7,None)]}]
     s["exclusions"]=[(-7200,6100,1700,1600),(2600,-11000,500,700)]
     s["houses"]={"spacing":1300,"setback":850,"scale":(0.85,1.05),"keep":0.92,"entries":houses}
@@ -284,7 +284,7 @@ def tanchico_spec():
 def illian_spec():
     E=11000; WL=-120
     COB=MAT("MI_Tile_CobbleMid"); WS=MAT("MI_Tile_WhiteStone")
-    houses=rand_house_entries(["MI_Wall_White","MI_Wall_Plaster","MI_Wall_Cream"],["MI_Roof_Green","MI_Roof_Gold","MI_Roof_Slate"])+[
+    houses=rand_house_entries(["MI_Wall_White","MI_Wall_Plaster","MI_Wall_Cream"],["MI_Roof_Green","MI_Roof_Gold","MI_Roof_Slate"])+stone_town_entries(wall="P_White",roof="P_Green",quoin="P_Gold")+[kit_entry("SM_Shop",{"P_Terracotta":"P_Green","P_Cream":"P_Gold","P_Slate":"P_Green"},1)]+[
         kit_entry("SM_TowerHouse",{"P_Plaster":"P_White","P_Slate":"P_Green","P_DarkWood":"P_Gold"},3),kit_entry("SM_GableHouse",{"P_Plaster":"P_Cream","P_Terracotta":"P_Green"},2),
         kit_entry("SM_CourtyardHouse",{"P_Sand":"P_White","P_Terracotta":"P_Gold"},1)]
     bridge_=[kit_entry("SM_TowerHouse",{"P_Plaster":"P_Plaster","P_Slate":"P_DarkGrey","P_DarkWood":"P_DarkWood"},3),kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_Green"},2)]

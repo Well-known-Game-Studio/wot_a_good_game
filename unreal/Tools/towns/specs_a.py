@@ -5,7 +5,7 @@ def emondsfield_spec():
     R=MAT("MI_Roof_Thatch"); R2=MAT("MI_Roof_ThatchPale"); WD=MAT("MI_Wood_Dark"); WG=MAT("MI_Wood_Grey")
     s=town_base("EmondsField",E,road_mat=MAT("MI_Tile_DirtRoad")); s["graph_name"]="PCG_EmondsField"
     inn_yaw=math.degrees(math.atan2(-1250,-1750))+180
-    s["plazas"]=[{"pts":circle(650,-450,330,12),"mat":MAT("MI_Tile_Plaza")},{"pts":circle(3100,2500,520,14),"mat":WATER,"z":560}]
+    s["plazas"]=[{"pts":circle(650,-450,330,12),"mat":MAT("MI_Tile_Plaza"),"scatter":market_extras(0.05)},{"pts":circle(3100,2500,520,14),"mat":WATER,"z":560}]
     s["exclusions"]=[(0,0,380,380),(1750,1250,1150,950),(650,-450,380,380),(-3000,2400,750,750),(3100,2500,760,760),(-5000,-200,650,700),(-3900,-4100,500,500)]
     s["roads"]=[
        {"name":"Green ring","pts":circle(0,0,1250,20),"closed":True,"width":5,"houses":True,"sides":"right","spacing":1700,"setback":820},
@@ -20,13 +20,18 @@ def emondsfield_spec():
        {"name":"Quarry track","pts":[(-2600,-350),(-3300,-1500),(-3900,-3000),(-3900,-4100)],"width":3,"houses":False},
        {"name":"Winespring brook","kind":"water","pts":[(3100,1400),(2950,700),(2650,-300),(2900,-1300),(3300,-2400),(3200,-3500),(3600,-5000),(3700,-7000)],"width":3,"houses":False,"mat":WATER,"tile_z":-3,"depth":100},
     ]
-    s["houses"]={"spacing":1500,"setback":960,"scale":(0.72,0.9),"keep":0.9,"entries":[(HK,3,[R,WD,W,None,None]),(HK,2,[R,WD,W2,None,None]),(HK,2,[R2,WD,W3,None,None]),(HK,1,[R2,WG,W4,None,None]),(HK,1,[R,WG,W2,None,None])]}
+    s["houses"]={"spacing":1500,"setback":960,"scale":(0.72,0.9),"keep":0.9,"entries":[(HK,2,[R,WD,W,None,None]),(HK,1,[R2,WD,W3,None,None])]+two_rivers_entries()}
     s["foliage"]=base_foliage(TREES_TEMPERATE+TREES_PINE()[:1],forest_ratio=0.2,edge_ratio=0.05,town_ratio=0.008,bush=0.02,grass=0.3,mush=0.01,extent=E,
                               extra=[boulders_extra((0.6,1.0),0.01)])
     s["pads"]=[(("rect",1050,500,2500,2000),None),(("circle",-3000,2400,900),None)]
     s["props"]=[
        ("mesh",MESH["oldtree"],"TheGreen_OldTree",(0,0,0),20,2.2,None),("mesh",MESH["well"],"VillageWell",(650,-450,0),15,1.5,None),
-       ("mesh",HK,"WinespringInn",(1750,1250,0),inn_yaw,1.45,[MAT("MI_Roof_RedTile"),MAT("MI_Wood_Dark"),MAT("MI_Wall_Plaster"),None,None]),
+       ("mesh",kit_mesh("SM_Inn"),"WinespringInn",(1750,1250,0),inn_yaw,1.15,kit_mats("SM_Inn",{"P_Rose":"P_Gold"})),
+       ("mesh",kit_mesh("SM_Smithy"),"LuhhansForge",(3650,-2950,0),-150,1.0,None),("mesh",kit_mesh("SM_Barn"),"AlVereBarn",(-2200,3050,0),20,0.95,None),
+       ("mesh",kit_mesh("SM_FestivalPole"),"BelTinePole",(-250,-250,0),0,1.0,None),("mesh",kit_mesh("SM_Signpost"),"GreenSignpost",(-1000,-1400,0),30,1.0,None),
+       ("mesh",kit_mesh("SM_Bench"),"GreenBench1",(350,-900,0),80,1.0,None),("mesh",kit_mesh("SM_Bench"),"GreenBench2",(-700,600,0),-40,1.0,None),
+       ("mesh",kit_mesh("SM_Cart"),"InnCart",(2250,2050,0),140,1.0,None),("mesh",kit_mesh("SM_HayBale"),"InnHay",(2600,2150,0),20,1.0,None),("mesh",kit_mesh("SM_Barrel"),"InnBarrel",(1300,1700,0),0,1.0,None),
+       ("mesh",kit_mesh("SM_Woodpile"),"ForgeWood",(3950,-3250,0),60,1.0,None),("mesh",kit_mesh("SM_FlowerBox"),"GreenFlowers",(-200,-1100,0),10,1.0,None),
        ("mesh",CAMP,"Campfire",(-480,380,0),0,1.0,None),("mesh",CHEST,"Chest_Inn",(2650,1900,0),inn_yaw+180,1.0,None),("mesh",CHEST,"Chest_West",(-3300,1450,0),90,1.0,None),
        ("mesh",CRATE,"Crate1",(2350,1750,0),10,1.0,None),("mesh",CRATE,"Crate2",(2480,1800,0),35,1.0,None),
        ("mesh",PEN,"SheepPen",(-3000,2400,0),0,1.0,None),("mesh",SHEEP,"Sheep0",(-3250,2200,80),0,1.0,None),("mesh",SHEEP,"Sheep1",(-2850,2500,80),70,1.0,None),("mesh",SHEEP,"Sheep2",(-3050,2650,80),140,1.0,None),
@@ -62,7 +67,7 @@ def emondsfield_spec():
 
 def baerlon_spec():
     E=8000
-    houses=rand_house_entries(["MI_Wall_Cream","MI_Wall_Tan","MI_Wall_White"],["MI_Roof_Thatch","MI_Roof_Slate"])+[kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_Slate"},2),kit_entry("SM_GableHouse",{"P_Plaster":"P_Cream","P_Terracotta":"P_Ochre"},2),kit_entry("SM_Longhouse",None,1)]
+    houses=rand_house_entries(["MI_Wall_Cream","MI_Wall_Tan"],["MI_Roof_Thatch","MI_Roof_Slate"])+stone_town_entries()+[kit_entry("SM_TimberHouse",{"P_Straw":"P_Shingle"},2),kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_Slate"},1),kit_entry("SM_GableHouse",{"P_Plaster":"P_Cream","P_Terracotta":"P_Ochre"},2),kit_entry("SM_Longhouse",None,1)]
     miners=[kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_DarkGrey"},3),kit_entry("SM_Longhouse",{"P_Brown":"P_DarkWood","P_Olive":"P_DarkGrey"},2)]
     s=town_base("Baerlon",E,road_mat=MAT("MI_Tile_DirtRoad"))
     streets=grid_streets(-3600,3600,-3600,3600,4,4,width=5,spacing=1200,setback=820,prefix="st",wig=160,seed=11)
@@ -73,14 +78,14 @@ def baerlon_spec():
            {"name":"Mine path","pts":[(-6300,-6400),(-6600,-6900)],"width":3,"houses":False},
            {"name":"Hill lane","pts":wiggle([(3600,3600),(4800,4800),(6200,5400)],200,5,2),"width":5,"houses":True,"spacing":1300,"setback":860},
            {"name":"Stream","kind":"water","pts":[(7800,-7800),(5200,-5200),(4700,-2400),(5600,500),(5000,3200),(5800,6000),(6200,7800)],"width":3,"houses":False,"mat":WATER,"tile_z":-3,"depth":100}]+streets+camp
-    s["plazas"]=[{"pts":rect(-1300,-1300,1300,1300),"mat":MAT("MI_Tile_Plaza"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,None)]}]
+    s["plazas"]=[{"pts":rect(-1300,-1300,1300,1300),"mat":MAT("MI_Tile_Plaza"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,None)]+market_extras(0.02)}]
     s["exclusions"]=[(0,6900,500,700),(-4000,4000,800,800),(-6700,-7000,600,600)]
     s["houses"]={"spacing":1200,"setback":820,"scale":(0.7,0.92),"keep":0.92,"entries":houses}
     s["house_sets"]={"miners":dense_set(miners,900,620,(0.6,0.78),0.95)}
     s["foliage"]=base_foliage(TREES_PINE()+TREES_TEMPERATE[:2],forest_ratio=0.26,edge_ratio=0.06,town_ratio=0.006,bush=0.02,grass=0.3,mush=0.012,extent=E,bands={"forest":(0.86,1.0),"edge":(0.78,0.86),"town":(0.25,0.78)},
                               extra=[boulders_extra((0.5,1.0),0.025)])
     s["pads"]=[(("rect",-1800,-3000,0,-1500),None),(("circle",-4000,4000,900),None)]
-    s["props"]=[("mesh",HK,"StagAndLion",(-900,-2200,0),90,1.35,[MAT("MI_Roof_Slate"),MAT("MI_Wood_Dark"),MAT("MI_Wall_Plaster"),None,None]),
+    s["props"]=[("mesh",kit_mesh("SM_Inn"),"StagAndLion",(-900,-2200,0),90,1.1,kit_mats("SM_Inn",{"P_RedBrick":"P_Slate","P_Rose":"P_Gold"})),
        ("mesh",kit_mesh("SM_StoneWell"),"Well",(0,0,0),0,1.3,None),("mesh",kit_mesh("SM_GateHouse"),"SouthGate",(0,4800,0),90,1.1,kit_mats("SM_GateHouse",{"P_Grey":"P_DarkWood","P_LightGrey":"P_Brown"})),
        ("mesh",kit_mesh("SM_GateHouse"),"NorthGate",(0,-4800,0),90,1.1,kit_mats("SM_GateHouse",{"P_Grey":"P_DarkWood","P_LightGrey":"P_Brown"})),
        ("mesh",kit_mesh("SM_GateHouse"),"MineMouth",(-6700,-7000,0),45,0.9,kit_mats("SM_GateHouse",{"P_Grey":"P_DarkGrey","P_LightGrey":"P_DarkWood"})),
@@ -112,9 +117,9 @@ def baerlon_spec():
 
 def whitebridge_spec():
     E=8000; WL=-150
-    houses=rand_house_entries(["MI_Wall_Cream","MI_Wall_Tan","MI_Wall_Plaster"],["MI_Roof_Thatch","MI_Roof_ThatchPale"])+[kit_entry("SM_GableHouse",{"P_Plaster":"P_Cream","P_Terracotta":"P_Ochre"},2),kit_entry("SM_Longhouse",None,1)]
+    houses=rand_house_entries(["MI_Wall_Cream","MI_Wall_Plaster"],["MI_Roof_Thatch","MI_Roof_ThatchPale"])+two_rivers_entries()+[kit_entry("SM_Shop",{"P_Slate":"P_Shingle","P_Terracotta":"P_Blue"},1),kit_entry("SM_GableHouse",{"P_Plaster":"P_Cream","P_Terracotta":"P_Ochre"},2),kit_entry("SM_Longhouse",None,1)]
     s=town_base("Whitebridge",E,center=(-2500,0),road_mat=MAT("MI_Tile_DirtRoad"))
-    s["plazas"]=[{"pts":rect(-3300,-1100,-1300,1100),"mat":MAT("MI_Tile_Plaza"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,None)]}]
+    s["plazas"]=[{"pts":rect(-3300,-1100,-1300,1100),"mat":MAT("MI_Tile_Plaza"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,None)]+market_extras(0.02)}]
     s["exclusions"]=[(-2300,0,1100,1200),(-7200,0,500,700),(2600,0,2400,8000),(-300,0,500,800),(5400,0,500,800)]
     s["roads"]=[{"name":"Main street","pts":[(-7700,0),(-5400,0),(-3400,0),(-1200,0),(-500,0)],"width":7,"houses":True,"spacing":1300,"setback":900,"lines":[lamp_line(1600,480,"P_Copper")]},
               {"name":"East road","pts":wiggle([(5600,0),(6800,100),(7800,0)],150,2,2),"width":7,"houses":True,"spacing":1300,"setback":900},
@@ -132,7 +137,7 @@ def whitebridge_spec():
                               extra=[{"name":"Reeds","band":(0.0,1.0),"ratio":0.0,"entries":[],"scale":(1,1)}])
     s["pads"]=[(("rect",-3000,900,-1600,2200),None),(("rect",-900,-700,-300,700),0),(("rect",5000,-700,5800,700),0),(("rect",-200,-6000,800,-900),-40)]
     s["props"]=[("mesh",kit_mesh("SM_WhiteBridge"),"TheWhiteBridge",(2600,0,0),0,(1.3,1.0,1.0),None,"abs"),
-       ("mesh",HK,"WayfarersRest",(-2300,1500,0),-90,1.3,[MAT("MI_Roof_RedTile"),MAT("MI_Wood_Dark"),MAT("MI_Wall_Plaster"),None,None]),
+       ("mesh",kit_mesh("SM_InnThatch"),"WayfarersRest",(-2300,1500,0),-90,1.1,None),
        ("mesh",kit_mesh("SM_StoneWell"),"Well",(-2300,-500,0),0,1.2,None),("mesh",CHEST,"Chest_Inn",(-1600,2100,0),0,1.0,None),
        ("mesh",HORSE,"InnHorse",(-1500,2600,80),-60,1.0,None),("mesh",FIRE,"Fireflies0",(-2300,0,150),0,1.0,None),("mesh",FIRE,"Fireflies1",(300,-3000,150),0,1.0,None),
        ("mesh",CRATE,"Crate1",(400,-3200,0),10,1.0,None),("mesh",CRATE,"Crate2",(500,-3350,0),40,1.0,None),("mesh",CAMP,"QuayFire",(600,-4300,0),0,1.0,None),
@@ -159,7 +164,8 @@ def whitebridge_spec():
 
 def shadarlogoth_spec():
     E=10000
-    ruins=[kit_entry("SM_TowerHouse",{"P_Plaster":"P_DarkGrey","P_Slate":"P_Black","P_DarkWood":"P_Black","P_Glass":"P_Black"},3),
+    ruins=[kit_entry("SM_StoneHouse",{"P_Stone":"P_DarkGrey","P_LightGrey":"P_Grey","P_Slate":"P_Black","P_DarkWood":"P_Black","P_Glass":"P_Black"},3),kit_entry("SM_StoneHouse3",{"P_Stone":"P_DarkGrey","P_LightGrey":"P_Grey","P_Slate":"P_Black","P_DarkWood":"P_Black","P_Glass":"P_Black"},2),
+           kit_entry("SM_TowerHouse",{"P_Plaster":"P_DarkGrey","P_Slate":"P_Black","P_DarkWood":"P_Black","P_Glass":"P_Black"},2),
            kit_entry("SM_GableHouse",{"P_Plaster":"P_Grey","P_Terracotta":"P_DarkGrey","P_DarkWood":"P_Black","P_Glass":"P_Black"},2),
            kit_entry("SM_RuinWall",None,4),kit_entry("SM_RuinWall",{"P_DarkGrey":"P_Black"},2),kit_entry("SM_GateHouse",{"P_Grey":"P_DarkGrey","P_LightGrey":"P_Black"},1)]
     s=town_base("ShadarLogoth",E,road_mat=MAT("MI_Tile_CobbleDark"))
@@ -198,7 +204,7 @@ def shadarlogoth_spec():
 
 def faldara_spec():
     E=10000
-    houses=[kit_entry("SM_Longhouse",{"P_Brown":"P_DarkWood","P_Olive":"P_Slate"},3),kit_entry("SM_Longhouse",{"P_Brown":"P_Brown","P_Olive":"P_DarkGrey"},2),
+    houses=stone_town_entries(wall="P_DarkGrey",roof="P_Slate",quoin="P_Grey",shops=False)+[kit_entry("SM_TimberHouseSlate",{"P_Cream":"P_Plaster","P_DarkGreen":"P_Black"},2),kit_entry("SM_Barn",{"P_Shingle":"P_Slate"},1),kit_entry("SM_Longhouse",{"P_Brown":"P_DarkWood","P_Olive":"P_Slate"},3),kit_entry("SM_Longhouse",{"P_Brown":"P_Brown","P_Olive":"P_DarkGrey"},2),
             kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_Slate","P_DarkWood":"P_Black"},3),kit_entry("SM_GableHouse",{"P_Plaster":"P_DarkGrey","P_Terracotta":"P_Snow","P_DarkWood":"P_DarkWood"},2),
             kit_entry("SM_TowerHouse",{"P_Plaster":"P_DarkGrey","P_Slate":"P_Slate","P_DarkWood":"P_Black"},1)]
     s=town_base("FalDara",E)
