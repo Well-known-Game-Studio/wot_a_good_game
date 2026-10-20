@@ -13,6 +13,8 @@
 #include "CollisionQueryParams.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "UObject/ObjectKey.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
@@ -126,4 +128,29 @@ static FAutoConsoleCommandWithWorldAndArgs GWotWeatherMPC(
 		for (const FCollectionScalarParameter& P : MPC->ScalarParameters) { float V = 0; Inst->GetScalarParameterValue(P.ParameterName, V); Out.Add(FString::Printf(TEXT("%s=%.2f"), *P.ParameterName.ToString(), V)); }
 		for (const FCollectionVectorParameter& P : MPC->VectorParameters) { FLinearColor V; Inst->GetVectorParameterValue(P.ParameterName, V); Out.Add(FString::Printf(TEXT("%s=(%.3g %.3g %.3g %.3g)"), *P.ParameterName.ToString(), V.R, V.G, V.B, V.A)); }
 		UE_LOG(LogTemp, Display, TEXT("[MPC] %s"), *FString::Join(Out, TEXT(" ")));
+	}));
+
+// wot.Perf.Primitives [N=25] : the heaviest primitive components in this world (instanced meshes by instance count and
+// triangles, then static mesh components), to see where a level's draw and triangle budget goes
+static FAutoConsoleCommandWithWorldAndArgs GWotPerfPrimitives(
+	TEXT("wot.Perf.Primitives"), TEXT("List the heaviest instanced / static mesh components in the world: wot.Perf.Primitives [N]"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		if (!World) { return; }
+		const int32 N = Args.Num() > 0 ? FCString::Atoi(*Args[0]) : 25;
+		struct FRow { FString Name; int32 Instances; int64 Tris; bool bCollision; bool bNanite; };
+		TArray<FRow> Rows; int64 TotalTris = 0; int32 TotalInst = 0, NumComps = 0;
+		for (TObjectIterator<UStaticMeshComponent> It; It; ++It) {
+			UStaticMeshComponent* C = *It;
+			if (C->GetWorld() != World || !C->IsRegistered() || !C->GetStaticMesh()) { continue; }
+			const UInstancedStaticMeshComponent* ISM = Cast<UInstancedStaticMeshComponent>(C);
+			const int32 Inst = ISM ? ISM->GetInstanceCount() : 1;
+			if (Inst == 0) { continue; }
+			const int64 MeshTris = C->GetStaticMesh()->GetNumTriangles(0);
+			FRow R; R.Name = FString::Printf(TEXT("%s.%s [%s]"), *GetNameSafe(C->GetOwner()), *C->GetName(), *C->GetStaticMesh()->GetName());
+			R.Instances = Inst; R.Tris = MeshTris * Inst; R.bCollision = C->IsCollisionEnabled(); R.bNanite = C->GetStaticMesh()->IsNaniteEnabled();
+			Rows.Add(R); TotalTris += R.Tris; TotalInst += Inst; ++NumComps;
+		}
+		Rows.Sort([](const FRow& A, const FRow& B) { return A.Tris > B.Tris; });
+		UE_LOG(LogTemp, Display, TEXT("[PERF] %d mesh components, %d instances, %lld triangles (LOD0 x instances)"), NumComps, TotalInst, TotalTris);
+		for (int32 i = 0; i < FMath::Min(N, Rows.Num()); ++i) { const FRow& R = Rows[i]; UE_LOG(LogTemp, Display, TEXT("[PERF]   %10lld tris %6d inst coll=%d nanite=%d  %s"), R.Tris, R.Instances, R.bCollision ? 1 : 0, R.bNanite ? 1 : 0, *R.Name); }
 	}));

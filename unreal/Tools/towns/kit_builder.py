@@ -82,34 +82,36 @@ def _roof_gable(p,d,w,z,mat,steps=5,step_h=55,eave=60,ridge="X",trim=None,thatch
         if trim:
             for sx in (-1,1): p.append(box(sx*(d/2+eave/2-6),0,z+step_h/2,16,w*0.92,step_h,trim))   # bargeboards
     if moss:
-        for (fx,fy) in ((0.28,-0.42),(-0.2,0.4)): p.append(box(d*fx,w*fy,z+step_h+6,120,70,10,moss))
+        for (fx,fy) in ((0.28,-0.42),(-0.2,0.4)): p.append(box(d*fx,w*fy,z+step_h+2,120,70,10,moss))
     if patch:
-        p.append(box(d*0.15,w*0.3*(1 if ridge=="X" else -1),z+step_h*2+4,90,120,10,patch))
+        p.append(box(d*0.15,w*0.3*(1 if ridge=="X" else -1),z+step_h*2+2,90,120,10,patch))
     return top
 def _timber_frame(p,d,w,z0,h,beam,bay=190,proud=8,rail=True):
     """Dark posts, sills, a mid rail and braces standing proud of a plaster wall block (d x w x h from z0): a brace
     leans the other way in every second bay and every third bay gets a full X, so the frames read as real carpentry."""
     t=14; zc=z0+h/2
+    # every member stands a different distance proud of the wall (posts 11, braces 12 / 14, rails 13, corners 14 cm)
+    # so no two of them share a face plane where they cross: coplanar faces z-fight
     for sx in (-1,1):   # corner posts
-        for sy in (-1,1): p.append(box(sx*d/2,sy*w/2,zc,t+proud+4,t+proud+4,h,beam))
+        for sy in (-1,1): p.append(box(sx*d/2,sy*w/2,zc,t+proud+6,t+proud+6,h,beam))
     for sy in (-1,1):   # posts along the long (+-Y) faces and braces between them (tilting in the wall's own plane)
         n=max(1,int(d//bay)); step=d/(n+1); yy=sy*(w/2+proud/2)
         for i in range(1,n+1):
             x=-d/2+i*step; p.append(box(x,yy,zc,t,t,h,beam))
         for i in range(0,n+1):
             x=-d/2+(i+0.5)*step; k=(i+(1 if sy>0 else 0))%3
-            if k==2: p.append(box(x,yy,zc,t,t,h*0.78,beam,pitch=36)); p.append(box(x,yy,zc,t,t,h*0.78,beam,pitch=-36))
-            else: p.append(box(x,yy,zc,t,t,h*0.8,beam,pitch=36 if k==0 else -36))
+            if k==2: p.append(box(x,yy+sy*2,zc,12,12,h*0.78,beam,pitch=36)); p.append(box(x,yy+sy*4,zc,12,12,h*0.78,beam,pitch=-36))
+            else: p.append(box(x,yy+sy*2,zc,12,12,h*0.8,beam,pitch=36 if k==0 else -36))
     for sx in (-1,1):   # the gable faces: posts and one pair of braces
         n=max(1,int(w//bay)); step=w/(n+1); xx=sx*(d/2+proud/2)
         for i in range(1,n+1):
             y=-w/2+i*step; p.append(box(xx,y,zc,t,t,h,beam))
         if sx>0 or w>400:
-            for sy in (-1,1): p.append(box(xx,sy*w*0.3,zc,t,t,h*0.75,beam,roll=sy*34))
+            for sy in (-1,1): p.append(box(xx+sx*2,sy*w*0.3,zc,12,12,h*0.75,beam,roll=sy*34))
     for zz in ((z0+t/2,),(z0+h,))+(((z0+h*0.52,),) if rail else ()):   # sill, top plate, mid rail
         z_=zz[0]
-        for sy in (-1,1): p.append(box(0,sy*(w/2+proud/2),z_,d+proud,t,t,beam))
-        for sx in (-1,1): p.append(box(sx*(d/2+proud/2),0,z_,t,w+proud,t,beam))
+        for sy in (-1,1): p.append(box(0,sy*(w/2+proud/2+1),z_,d+proud,16,t,beam))
+        for sx in (-1,1): p.append(box(sx*(d/2+proud/2+1),0,z_,16,w+proud,t,beam))
 def _jetty_brackets(p,d,w,z,beam,n=3):
     """Diagonal brackets under a jettied upper floor, along both long faces."""
     for sy in (-1,1):
@@ -121,7 +123,7 @@ def _window(p,x,y,z,size,face,glass="P_Glass",sill="P_LightGrey",bar="P_DarkWood
         p.append(box(x,y,z,10,sw,sh,glass)); p.append(box(x-2,y,z,12,6,sh,bar)); p.append(box(x-2,y,z,12,sw,6,bar))
         p.append(box(x-4,y,z+sh/2+8,16,sw+30,14,bar)); p.append(box(x-5,y,z-sh/2-6,18,sw+24,12,sill))
         if shutters:
-            for sy in (-1,1): p.append(box(x-2,y+sy*(sw/2+22),z,8,36,sh,shutters)); p.append(box(x-5,y+sy*(sw/2+22),z,4,22,sh*0.7,bar))
+            for sy in (-1,1): p.append(box(x-2,y+sy*(sw/2+22),z,8,36,sh,shutters)); p.append(box(x-8,y+sy*(sw/2+22),z,4,22,sh*0.7,bar))
         if flowers: p.append(box(x-18,y,z-sh/2-20,26,sw+10,24,"P_DarkWood")); p.append(box(x-20,y-sw*0.25,z-sh/2-2,22,24,16,flowers)); p.append(box(x-20,y+sw*0.2,z-sh/2-2,22,24,16,"P_Gold"))
     else:   # on a +-Y face at y
         p.append(box(x,y,z,sw,10,sh,glass)); p.append(box(x,y-2,z,6,12,sh,bar)); p.append(box(x,y-2,z,sw,12,6,bar))
@@ -140,7 +142,7 @@ def _windows(p,d,w,z,n=2,size=(80,90),shutters=None,sill="P_LightGrey",glass="P_
                 p.append(box(x,yy,z,sw,10,sh,glass)); p.append(box(x,yy+sy*2,z,6,12,sh,bar)); p.append(box(x,yy+sy*2,z,sw,12,6,bar))
                 p.append(box(x,yy+sy*4,z+sh/2+8,sw+30,16,14,bar)); p.append(box(x,yy+sy*5,z-sh/2-6,sw+24,18,12,sill))
                 if shutters:
-                    for sx in (-1,1): p.append(box(x+sx*(sw/2+22),yy+sy*2,z,36,8,sh,shutters)); p.append(box(x+sx*(sw/2+22),yy+sy*5,z,22,4,sh*0.7,bar))
+                    for sx in (-1,1): p.append(box(x+sx*(sw/2+22),yy+sy*2,z,36,8,sh,shutters)); p.append(box(x+sx*(sw/2+22),yy+sy*8,z,22,4,sh*0.7,bar))
 def _door(p,d,z=0,wd=120,ht=220,mat="P_DarkWood",lintel="P_DarkWood",step="P_LightGrey",lantern="P_Gold",planks="P_Brown"):
     """A plank door with a handle, lintel and doorstep, and a lantern on a bracket beside it."""
     x=-d/2-3
@@ -162,7 +164,7 @@ def timber_house(w=620,d=820,storeys=1,roof="thatch",wall="P_Plaster",beam="P_Da
     the upper floor on brackets; dormers on the front slope; wing adds a cross wing at the back."""
     rm=roofmat or {"thatch":"P_Straw","tile":"P_Terracotta","slate":"P_Slate","shingle":"P_Shingle"}[roof]
     fh=250; p=[box(0,0,30,d+16,w+16,60,base)]
-    for i in range(int((d+16)//90)): p.append(box(-d/2-8+45+i*90,0,30,4,w+20,60,"P_DarkGrey"))   # stone courses in the base
+    for i in range(int((d+16)//90)): p.append(box(-d/2-8+45+i*90,0,28,4,w+20,52,"P_DarkGrey"))   # stone courses in the base
     z=60
     for i in range(storeys):
         dd,ww=(d+40,w+40) if (jetty and i>0) else (d,w)
@@ -320,7 +322,8 @@ def laundry_line(length=360,post="P_DarkWood",cloths=("P_White","P_Blue","P_Rose
     for i,m in enumerate(cloths): p.append(box(-length/2+(i+0.5)*length/n,0,150,60,8,70-10*(i%2),m))
     return p
 def water_trough(wood="P_DarkWood",water="P_Blue"):
-    return [box(0,0,30,70,170,60,wood),box(0,0,52,56,156,8,water),box(-28,-70,20,10,10,40,wood),box(28,70,20,10,10,40,wood)]
+    p=[box(0,0,8,70,170,16,wood),box(-28,0,30,14,170,60,wood),box(28,0,30,14,170,60,wood),box(0,-78,30,70,14,60,wood),box(0,78,30,70,14,60,wood)]
+    return p+[box(0,0,52,42,142,8,water)]
 def wheelbarrow(wood="P_Brown",dark="P_DarkWood",load="P_Straw"):
     return [box(0,0,50,100,70,30,wood),box(0,0,70,80,54,16,load),box(60,0,30,34,10,34,dark),box(-80,0,52,70,10,10,dark,yaw=12),box(-80,0,52,70,10,10,dark,yaw=-12),box(-40,0,18,10,10,36,dark)]
 def lantern_post(h=220,post="P_DarkWood",lamp="P_Gold"):
@@ -336,7 +339,7 @@ def stone_wall(length=300,stone="P_Grey",dark="P_DarkGrey",cap="P_LightGrey"):
     for z,m in enumerate((stone,dark,stone)):
         n=int(length//80)
         for i in range(n): p.append(box(0,-length/2+40+i*80+(20 if z%2 else -20),z*38+19,60,76,38,m if (i+z)%3 else dark))
-    p.append(box(0,0,124,70,length,12,cap))
+    p.append(box(0,0,118,70,length,12,cap))
     return p
 def gate(width=240,wood="P_Brown",post="P_DarkWood"):
     p=[box(-width/2,0,70,20,20,140,post),box(width/2,0,70,20,20,140,post)]
@@ -355,7 +358,7 @@ def crop_rows(w=600,d=420,soil="P_Brown",leaf="P_LeafGreen",leaf2="P_Olive",rows
 def beehive(straw="P_Straw",band="P_ThatchDark",wood="P_DarkWood"):
     return [box(0,0,16,90,90,32,wood),cyl(0,0,60,70,60,straw),cyl(0,0,96,56,24,straw),cyl(0,0,112,36,12,band),cyl(0,0,60,74,8,band)]
 def chicken_coop(wall="P_Brown",roof="P_Shingle",wood="P_DarkWood"):
-    p=[box(0,0,60,120,100,100,wall),box(0,0,114,150,130,16,roof),box(0,0,130,110,96,16,ALT.get(roof,roof)),box(-62,0,40,8,40,50,"P_Black"),box(-66,0,10,60,30,8,wood)]
+    p=[box(0,0,60,120,100,100,wall),box(0,0,114,150,130,16,roof),box(0,0,128,110,96,16,ALT.get(roof,roof)),box(-62,0,40,8,40,50,"P_Black"),box(-66,0,10,60,30,8,wood)]
     for i in range(3): p.append(box(-110+i*20,-70+i*35,8,26,22,16,"P_White")); p.append(box(-100+i*20,-70+i*35,22,10,10,10,"P_Rose"))   # hens
     return p
 def log_bench(wood="P_Trunk",dark="P_DarkWood"):
@@ -394,7 +397,7 @@ def picket_fence(length=300,wood="P_Brown",post="P_DarkWood"):
     p=[]
     for y in (-length/2,length/2): p.append(box(0,y,50,16,16,100,post))
     for z in (40,78): p.append(box(0,0,z,8,length,10,wood))
-    for i in range(int(length//46)): p.append(box(2,-length/2+23+i*46,52,10,22,96,wood))
+    for i in range(int(length//46)): p.append(box(6,-length/2+23+i*46,52,8,22,96,wood))
     return p
 def _place(parts,ox,oy,oz=0,oyaw=0):
     """Parts of a sub-generator moved to (ox,oy,oz) and turned by oyaw."""

@@ -275,6 +275,26 @@ Tanchico dusty) because "Material Effects Take Time to Change" otherwise ramps f
 `wot.Weather.Feet` (what the feet stand on) and `wot.Weather.MPC` (UDW's material parameter collection, settable) are
 the diagnostics. The Overworld landscape material is emissive-driven (the map texture) and keeps no surface effects.
 
+**Water: flow lines, ripples, falls.** `AWotVoxelWater` (`Source/.../Weather/WotVoxelWater`), one per level from
+`weather.py` (`WATER_FLOW` gives each town a downstream hint), is the water's own voxel particle system. At BeginPlay
+it finds every water voxel (instanced meshes whose material is `MI_VoxelWater`, big tiles split into 200 cm cells),
+works out the local run of the water per cell (principal axis of the neighbouring cells, signed by the hint) and
+notes fall edges (a neighbour more than 150 cm lower). Then pale flat streaks drift downstream over every surface
+and fade in and out, flecks pour over the fall edges, and anyone whose feet are under a surface gets rings of
+flecks spreading out from them (fast rings and a few kicked-up drops when they move, slow ones when they stand).
+`wot.Water.Status` logs what it found. Waterfalls themselves come from `waterfall(label, x, y, yaw, z_top, z_bottom)`
+in `relief.py`: the top emitter on the lip, a sheet of voxel water the whole drop, foam where it lands and a smaller
+foam at the lip (the Winespring: lip at relief 480, brook at -160).
+
+**NPCs and rebuilt towns.** Villagers and heroes are hand-placed by coordinate while the houses are generated, so a
+rebuild can drop a house on top of one. `AWotAICharacter::BeginPlay` projects the start point to the navmesh with a
+tight extent and, if that fails, steps the NPC out to the nearest navigable spot within 14 m (logged as `[NPC]`).
+
+**Coplanar faces.** Two kit parts that share a face plane z-fight (frame rails crossing posts, pickets on rails, a
+slab resting exactly on another). The rule in `kit_builder.py`: every member stands a different distance proud of
+its wall (posts 11, braces 12 / 14, rails 13, corners 14 cm), trims sink a few centimetres into what they sit on
+rather than touching it, and nothing is built as a slab hidden inside a solid.
+
 ## 6b. The Overworld portals
 
 The Overworld terrain is a landscape whose PCG graph (`PCG_Landscape`) samples `blender/overworld-full.png` through a

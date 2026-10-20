@@ -21,6 +21,9 @@ TABLE={"EmondsField":("Partly_Cloudy",{},200),"Baerlon":("Cloudy",{},210),"White
 VOXEL={"EmondsField":("Leaves",0.6),"Baerlon":("Leaves",0.5),"Whitebridge":("Rain",0.5),"ShadarLogoth":("Ash",1.0),"FalDara":("Snow",1.0),
        "Caemlyn":None,"Cairhien":("Leaves",0.4),"Tear":("Rain",1.0),"TarValon":None,"Tanchico":("Sand",1.0),"Illian":("Rain",0.5),"Overworld":None,"Diorama":("Leaves",0.4)}
 VOXEL_ACTOR="/Script/VoxelRPG.WotVoxelWeather"
+WATER_ACTOR="/Script/VoxelRPG.WotVoxelWater"
+# downstream hint (unit-ish vector) for the flow lines: the brook / river / canal direction in each town; towns without water skip it
+WATER_FLOW={"EmondsField":(0.1,-1.0),"Baerlon":(1.0,0.0),"Whitebridge":(0.0,-1.0),"Caemlyn":(1.0,0.0),"Cairhien":(0.0,-1.0),"Tear":(1.0,0.2),"TarValon":(0.0,-1.0),"Illian":(1.0,0.0),"Tanchico":(1.0,0.0),"Diorama":(1.0,0.0)}
 UDW_PARTICLES_OFF={"Enable Rain Particles":False,"Enable Snow Particles":False,"Enable Dust Particles":False,"Enable Wind Debris":False}   # the voxel weather draws these
 # ground materials (voxel_ground_base: MI_VoxelGrass, MI_GroundStone, G_Snow) run UDW's Dynamic Landscape Weather Effects: snow / dust
 # depth with footprints, puddles with ripples. PM_Ground on those materials tells the DLWE Interaction components (character feet) to react.
@@ -75,5 +78,17 @@ def main():
             print(f"{'':13s} voxel {kind} x{inten} {'' if r is True else str(r)[-120:]}")
         else:
             for p in vox: call(SC,"remove_from_scene",{"actor":{"refPath":p}})
+        # the voxel water actor: flow lines on every water voxel and ripples round anyone wading (it finds the water itself)
+        wat=[a["refPath"] for a in (call(SC,"find_actors",{"name":"","tag":"","collision_channels":[]}) or []) if "WotVoxelWater" in a["refPath"]]
+        flow=WATER_FLOW.get(n)
+        if flow:
+            if not wat:
+                a=call(SC,"add_to_scene_from_class",{"actor_type":{"refPath":WATER_ACTOR},"name":"VoxelWater","xform":{"location":{"x":0,"y":0,"z":0},"rotation":{"pitch":0,"yaw":0,"roll":0},"scale":{"x":1,"y":1,"z":1}}})
+                wat=[a["refPath"] if isinstance(a,dict) else a]
+            for dup in wat[1:]: call(SC,"remove_from_scene",{"actor":{"refPath":dup}})
+            r=call(OB,"set_properties",{"instance":{"refPath":wat[0]},"values":json.dumps({"Flow":f"(X={flow[0]:.2f},Y={flow[1]:.2f},Z=0)"})})
+            print(f"{'':13s} water flow {flow} {'' if r is True else str(r)[-120:]}")
+        else:
+            for p in wat: call(SC,"remove_from_scene",{"actor":{"refPath":p}})
         call(AS,"save_assets",{"asset_paths":[lvl]})
 if __name__=="__main__": main()

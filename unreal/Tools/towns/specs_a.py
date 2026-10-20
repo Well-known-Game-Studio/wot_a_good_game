@@ -48,7 +48,7 @@ def emondsfield_spec():
        npc("Villager_Cenn","Cenn Buie","EF_Cenn",-1600,900,0,1000),npc("Villager_Bran","Bran al'Vere","EF_Bran",1300,1000,-120,700),
        hero("Egwene","Egwene al'Vere","EF_Egwene",400,-1700,90,500),hero("Mat","Mat Cauthon","EF_Mat",-2200,-2200,30,600),hero("Perrin","Perrin Aybara","EF_Perrin",3300,-3400,120,400),
        hero("Moiraine","Moiraine","EF_Moiraine",-350,-650,60,0,tags=("QuestName=Moiraine",)),hero("Nynaeve","Nynaeve al'Meara","EF_Nynaeve",-900,1500,-60,400),hero("Thom","Thom Merrilin","EF_Thom",2300,1550,-150,250)]
-    s["props"]+=waterfall("Winespring",3100,1370,-90,0,0)[:1]+[("mesh",WF_FOAM,"Winespring_foam",(3100,1150,20),-90,1.0,None)]
+    s["props"]+=waterfall("Winespring",3100,1250,-90,480,-160,width=320)   # the lip of the spring pool (relief 480) down to the brook (-160)
     s["dialogue"]={**lines("EF_Cenn",["Thatching, thatching, always thatching. The Winespring Inn wants a tile roof, can you believe it?","Mark my words, lad, those Coplin boys will be trouble before Bel Tine."]),
                    **lines("EF_Bran",["Welcome to the Winespring Inn! Finest ale this side of the Mountains of Mist.","The spring up on the knoll never runs dry. Sweetest water in the Two Rivers."]),
                    **lines("EF_Egwene",["Rand! There is a lady at the inn in a blue dress, and a man with a sword who never smiles. Who are they?","Nynaeve says I am to be her apprentice. Wisdom of Emond's Field one day... unless I see the world first.","If you are leaving, I am coming with you. Don't argue."]),

@@ -1,5 +1,7 @@
 #include "AI/WotAICharacter.h"
 #include "Weather/WotWeatherFeet.h"
+#include "NavigationSystem.h"
+#include "Components/CapsuleComponent.h"
 #include "AI/WotAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -70,6 +72,16 @@ void AWotAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	WotWeatherFeet::Attach(this);   // footprints in snow, ripples in puddles
+	// a hand-placed NPC can end up inside a generated building (the houses move when a town is rebuilt): if there is no
+	// navmesh right under it, step it out to the nearest navigable spot
+	if (UNavigationSystemV1* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld())) {
+		const FVector Here = GetActorLocation(); FNavLocation Near;
+		if (!Nav->ProjectPointToNavigation(Here, Near, FVector(60, 60, 200)) && Nav->ProjectPointToNavigation(Here, Near, FVector(1400, 1400, 400))) {
+			const float Half = GetCapsuleComponent() ? GetCapsuleComponent()->GetScaledCapsuleHalfHeight() : 90.0f;
+			UE_LOG(LogTemp, Display, TEXT("[NPC] %s started off the navmesh at (%.0f %.0f %.0f); moved to (%.0f %.0f %.0f)"), *GetName(), Here.X, Here.Y, Here.Z, Near.Location.X, Near.Location.Y, Near.Location.Z + Half);
+			SetActorLocation(Near.Location + FVector(0, 0, Half + 2.0f), false, nullptr, ETeleportType::TeleportPhysics);
+		}
+	}
 }
 
 void AWotAICharacter::PostInitializeComponents()
