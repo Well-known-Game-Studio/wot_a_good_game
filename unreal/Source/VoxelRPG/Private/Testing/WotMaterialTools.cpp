@@ -12,6 +12,7 @@
 #include "Materials/MaterialExpressionMaterialFunctionCall.h"
 #include "Materials/MaterialExpressionConstant.h"
 #include "Materials/MaterialExpressionConstant4Vector.h"
+#include "Materials/MaterialExpressionStaticBool.h"
 #include "Materials/MaterialExpressionFunctionInput.h"
 #include "Materials/MaterialExpressionFunctionOutput.h"
 #include "Materials/MaterialExpressionStaticSwitchParameter.h"
@@ -450,7 +451,7 @@ static FAutoConsoleCommand GWotMatSetSwitch(
 // wot.Mat.WireConst <Material> <FunctionName> <"Input Name"> <v> [v2 v3 v4] : feed a constant into one input of the first call
 // of that function in the material (a scalar, or a vector / colour with 3 or 4 numbers), recompile and save
 static FAutoConsoleCommand GWotMatWireConst(
-	TEXT("wot.Mat.WireConst"), TEXT("Wire a constant into a function call input: wot.Mat.WireConst /Game/Path/Material Snow_And_Dust_Weather_Effects \"Z Mask Offset\" -1"),
+	TEXT("wot.Mat.WireConst"), TEXT("Wire a constant (number, 3-4 numbers, or true/false for a static bool) into a function call input: wot.Mat.WireConst /Game/Path/Material Snow_And_Dust_Weather_Effects \"Z Mask Offset\" -1"),
 	FConsoleCommandWithArgsDelegate::CreateStatic([](const TArray<FString>& Args) {
 		using namespace WotMat;
 		if (Args.Num() < 4) { MT_LOG("usage: wot.Mat.WireConst /Game/Path/Material FunctionName \"Input\" v [v2 v3 v4]"); return; }
@@ -462,7 +463,11 @@ static FAutoConsoleCommand GWotMatWireConst(
 		const FString InName = Args[2].TrimQuotes();
 		M->Modify();
 		UMaterialExpression* Src = nullptr;
-		if (Args.Num() >= 6) {
+		if (Args[3] == TEXT("true") || Args[3] == TEXT("false")) {   // a static bool input
+			UMaterialExpressionStaticBool* B = Cast<UMaterialExpressionStaticBool>(UMaterialEditingLibrary::CreateMaterialExpression(M, UMaterialExpressionStaticBool::StaticClass(), -400, 600));
+			if (B) { B->Value = Args[3] == TEXT("true"); Src = B; }
+		}
+		else if (Args.Num() >= 6) {
 			UMaterialExpressionConstant4Vector* V = Cast<UMaterialExpressionConstant4Vector>(UMaterialEditingLibrary::CreateMaterialExpression(M, UMaterialExpressionConstant4Vector::StaticClass(), -400, 600));
 			if (V) { V->Constant = FLinearColor(FCString::Atof(*Args[3]), FCString::Atof(*Args[4]), FCString::Atof(*Args[5]), Args.Num() >= 7 ? FCString::Atof(*Args[6]) : 1.f); Src = V; }
 		}

@@ -219,7 +219,9 @@ in a play session. Sizes are tuned for the game's high camera (12 to 25 cm cubes
 
 **Foliage wind.** Leafy kit parts use the leaf palette (`P_LeafDark`, `P_LeafGreen`, `P_LeafOlive`, `P_LeafPale`),
 instances of `voxel_foliage_base`: the base material with UDW's "Foliage Wind Movement" on World Position Offset
-(`wot.Mat.MakeFoliage`). The imported trees and bushes under `Meshes/Foliage/trees|small` were re-parented to
+(`wot.Mat.MakeFoliage`). Only its medium (branch clusters) and large (whole tree sway) layers are on: the small layer
+moves each vertex along its own normal, and voxel meshes have split vertices on every edge, so it tears the faces
+apart (`wot.Mat.WireConst ... "Apply Small Movement (Grass / Leaves)" false`). The imported trees and bushes under `Meshes/Foliage/trees|small` were re-parented to
 `textured_voxel_foliage_material` the same way (`wot.Mat.SetParent`), so canopies sway with the weather's wind while
 houses stay still. Shutters and other green building parts keep the ordinary palette.
 
