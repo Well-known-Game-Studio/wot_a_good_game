@@ -8,7 +8,7 @@ import json, os, subprocess, sys, time
 HERE=os.path.dirname(os.path.abspath(__file__)); MCP=os.path.join(HERE,"..","towns","mcp.py")
 UDW="/Game/UltraDynamicSky/Blueprints/Ultra_Dynamic_Weather"; PRE="/Game/UltraDynamicSky/Blueprints/Weather_Effects/Weather_Presets"
 OURS="/Game/Wot/Weather"; CUSTOM={"Ash_Fall","Sand_Breeze"}   # our own presets (the UDS folder is a submodule): copies of Sand_Dust_Calm, lighter, ash without surface dust
-MAPS={"Overworld":"/Game/Wot/Maps/Overworld/Overworld","Diorama":"/Game/Wot/Maps/Diorama/Diorama"}
+MAPS={"Overworld":"/Game/Wot/Maps/Overworld/Overworld","Overworld2":"/Game/Wot/Maps/Overworld2/Overworld2","Diorama":"/Game/Wot/Maps/Diorama/Diorama"}
 for t in ("EmondsField","Baerlon","Whitebridge","ShadarLogoth","FalDara","Caemlyn","Cairhien","Tear","TarValon","Tanchico","Illian"): MAPS[t]=f"/Game/Wot/Maps/{t}/{t}"
 ASH={"Dust Particle Color":{"r":0.06,"g":0.05,"b":0.05,"a":1.0}}
 SAND={"Dust Particle Color":{"r":0.85,"g":0.72,"b":0.5,"a":1.0}}
@@ -16,14 +16,14 @@ SAND={"Dust Particle Color":{"r":0.85,"g":0.72,"b":0.5,"a":1.0}}
 TABLE={"EmondsField":("Partly_Cloudy",{},200),"Baerlon":("Cloudy",{},210),"Whitebridge":("Rain_Light",{},190),
        "ShadarLogoth":("Ash_Fall",ASH,160),"FalDara":("Snow",{},330),"Caemlyn":("Clear_Skies",{},180),"Cairhien":("Overcast",{},120),
        "Tear":("Rain",{},150),"TarValon":("Clear_Skies",{},200),"Tanchico":("Sand_Breeze",SAND,250),"Illian":("Rain_Light",{},170),
-       "Overworld":("Partly_Cloudy",{"Use Random Weather Variation":True},200),"Diorama":("Partly_Cloudy",{},200)}
+       "Overworld":("Partly_Cloudy",{"Use Random Weather Variation":True},200),"Overworld2":("Partly_Cloudy",{"Use Random Weather Variation":True},200),"Diorama":("Partly_Cloudy",{},200)}
 # the voxel particles (AWotVoxelWeather): kind and intensity per town; UDW's own sprite particles are switched off
 VOXEL={"EmondsField":("Leaves",0.6),"Baerlon":("Leaves",0.5),"Whitebridge":("Rain",0.5),"ShadarLogoth":("Ash",1.0),"FalDara":("Snow",1.0),
-       "Caemlyn":None,"Cairhien":("Leaves",0.4),"Tear":("Rain",1.0),"TarValon":None,"Tanchico":("Sand",1.0),"Illian":("Rain",0.5),"Overworld":None,"Diorama":("Leaves",0.4)}
+       "Caemlyn":None,"Cairhien":("Leaves",0.4),"Tear":("Rain",1.0),"TarValon":None,"Tanchico":("Sand",1.0),"Illian":("Rain",0.5),"Overworld":None,"Overworld2":None,"Diorama":("Leaves",0.4)}
 VOXEL_ACTOR="/Script/VoxelRPG.WotVoxelWeather"
 WATER_ACTOR="/Script/VoxelRPG.WotVoxelWater"
 # downstream hint (unit-ish vector) for the flow lines: the brook / river / canal direction in each town; towns without water skip it
-WATER_FLOW={"EmondsField":(0.1,-1.0),"Baerlon":(1.0,0.0),"Whitebridge":(0.0,-1.0),"Caemlyn":(1.0,0.0),"Cairhien":(0.0,-1.0),"Tear":(1.0,0.2),"TarValon":(0.0,-1.0),"Illian":(1.0,0.0),"Tanchico":(1.0,0.0),"Diorama":(1.0,0.0)}
+WATER_FLOW={"EmondsField":(0.1,-1.0),"Baerlon":(1.0,0.0),"Whitebridge":(0.0,-1.0),"Caemlyn":(1.0,0.0),"Cairhien":(0.0,-1.0),"Tear":(1.0,0.2),"TarValon":(0.0,-1.0),"Illian":(1.0,0.0),"Tanchico":(1.0,0.0),"Diorama":(1.0,0.0),"Overworld2":(0.0,1.0)}
 UDW_PARTICLES_OFF={"Enable Rain Particles":False,"Enable Snow Particles":False,"Enable Dust Particles":False,"Enable Wind Debris":False}   # the voxel weather draws these
 # ground materials (voxel_ground_base: MI_VoxelGrass, MI_GroundStone, G_Snow) run UDW's Dynamic Landscape Weather Effects: snow / dust
 # depth with footprints, puddles with ripples. PM_Ground on those materials tells the DLWE Interaction components (character feet) to react.
