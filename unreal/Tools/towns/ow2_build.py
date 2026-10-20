@@ -26,11 +26,11 @@ def run():
     if T(SC+"get_current_level",{})!=OW2: T(SC+"load_level",{"level_path":OW2})
     # strip the old terrain and anything a previous run of this script placed
     n=0; keep=[]
+    for p in find_by_tag("OwHouse"): remove(p); n+=1   # houses and the fence a previous run placed, before listing what stays
     for a in (T(SC+"find_actors",{"name":"","tag":"","collision_channels":[]}) or []):
         p=a["refPath"]; cls=p.split(".")[-1]
         if cls.startswith(("Landscape","BP_LandscapeLayers","PCGWorldActor","InstancedFoliageActor","BP_LevelBounds","PCG_Overworld2","PCGVolume")): remove(p); n+=1
         else: keep.append(p)
-    for p in find_by_tag("OwHouse"): remove(p); n+=1
     out["removed"]=n
     # ---- the terrain graph: one spawner per material, run-merged slabs as world-space points scaled to their boxes
     g=create_graph("PCG_Overworld2",OW2_DIR); B=G(g); y=0

@@ -43,9 +43,12 @@ def blur(a,rad):
     k=2*rad+1; c=np.cumsum(np.cumsum(np.pad(a,rad+1),0),1)
     out=(c[k:,k:]-c[:-k,k:]-c[k:,:-k]+c[:-k,:-k])/(k*k)
     return out[:a.shape[0],:a.shape[1]]
-SEA,SAND,GRASS,FOREST,HILL,MOUNT,DRY=range(7)
-PALETTE={SAND:"MI_Ground_Sand",GRASS:"MI_Ground_Lush",FOREST:"MI_Ground_Lush",HILL:"MI_Ground_Dirt",MOUNT:"MI_Ground_Rock",DRY:"MI_Ground_Tundra"}
-STRATA={MOUNT:"MI_Ground_DarkRock",HILL:"MI_Ground_Dirt",GRASS:"MI_Ground_Dirt",FOREST:"MI_Ground_Dirt",DRY:"MI_Ground_Dirt",SAND:"MI_Ground_Sand"}   # the exposed face below a terrace
+SEA,SAND,GRASS,FOREST,HILL,MOUNT,DRY,MEADOW,SNOW,RIVER=range(10)
+PALETTE={SAND:"MI_Ground_Sand",GRASS:"MI_Ground_Lush",FOREST:"MI_Ground_Lush",HILL:"MI_Ground_Dirt",MOUNT:"MI_Ground_Rock",DRY:"MI_Ground_Tundra",MEADOW:"MI_Ground_Tundra",SNOW:"G_Snow",RIVER:"MI_VoxelWater"}
+STRATA={MOUNT:"MI_Ground_DarkRock",HILL:"MI_Ground_Dirt",GRASS:"MI_Ground_Dirt",FOREST:"MI_Ground_Dirt",DRY:"MI_Ground_Dirt",SAND:"MI_Ground_Sand",MEADOW:"MI_Ground_Dirt",SNOW:"MI_Ground_Rock",RIVER:"MI_Ground_Dirt"}   # the exposed face below a terrace
+BASE=os.path.join(ROOT,"maps","newwotbase-1.png"); BX,BY,SX,SY=20.0,-60.0,11.6,9.05   # texture texel -> base map pixel (ow_fit.py)
+MIN_RIVER_CELLS=12   # a connected run of river cells shorter than this is a blue place name, not a river
+SNOW_H=7            # mountain terraces at or above this wear snow
 def classify():
     im=np.asarray(Image.open(TEX).convert("RGB")).astype(int); H,W,_=im.shape
     r,g,b=im[...,0],im[...,1],im[...,2]
@@ -62,10 +65,45 @@ def classify():
     dist=dist_in(mount)
     h=np.zeros((H,W),int); h[mount]=np.clip((dist[mount]/2.0).astype(int)+2,2,9)
     skirt=dilate(mount,2)&~mount&land; cls[skirt]=HILL; h[skirt]=1
-    rng=np.random.default_rng(3); noise=blur(rng.random((H,W)),9)
-    roll=(cls==GRASS)|(cls==DRY)|(cls==FOREST); h[roll&(noise>0.56)]=1
+    rng=np.random.default_rng(3); noise=blur(rng.random((H,W)),9); noise2=blur(rng.random((H,W)),5)
+    roll=(cls==GRASS)|(cls==DRY)|(cls==FOREST)
+    h[roll&(noise>0.55)]=1; h[roll&(noise>0.585)]=2            # two gentle terraces across the plains
+    cls[(cls==GRASS)&(noise2>0.535)]=MEADOW                       # paler meadow patches break up the green
+    cls[mount&(h>=SNOW_H)]=SNOW                                  # snow on the high terraces
     h[~land]=-2
     return cls,h
+def rivers(nx,ny,x0,y0):
+    """River cells from the base map: its rivers are thin saturated blue lines (the sea is a paler blue). For every
+    1 m cell the matching block of base pixels is tested for river blue; runs of connected river cells shorter than
+    MIN_RIVER_CELLS are dropped (the map's blue lettering)."""
+    im=np.asarray(Image.open(BASE).convert("RGB")); r=im[...,0].astype(int); g=im[...,1].astype(int); b=im[...,2].astype(int)
+    riv=(b>r+60)&(b>g+40)&(b<220)&(r<120)   # saturated river blue; the sea is (170,200,235)-ish and fails r<120 / b<220
+    BH,BW=riv.shape
+    mask=np.zeros((ny,nx),bool)
+    for j in range(ny):
+        for i in range(nx):
+            c0,r0=world_to_px(x0+i*CELL,y0+j*CELL); c1,r1=world_to_px(x0+(i+1)*CELL,y0+(j+1)*CELL)
+            bx0,by0=int(BX+SX*c0),int(BY+SY*r0); bx1,by1=int(BX+SX*c1),int(BY+SY*r1)
+            bx0,bx1=max(0,bx0),min(BW,bx1); by0,by1=max(0,by0),min(BH,by1)
+            if bx1<=bx0 or by1<=by0: continue
+            if riv[by0:by1,bx0:bx1].sum()>=6: mask[j,i]=True
+    # connected runs (8-neighbour) at cell resolution; keep the long ones
+    seen=np.zeros_like(mask); keep=np.zeros_like(mask)
+    for j in range(ny):
+        for i in range(nx):
+            if not mask[j,i] or seen[j,i]: continue
+            comp=[(j,i)]; seen[j,i]=True; k=0
+            while k<len(comp):
+                cj,ci=comp[k]; k+=1
+                for dj in (-1,0,1):
+                    for di in (-1,0,1):
+                        jj,ii=cj+dj,ci+di
+                        if 0<=jj<ny and 0<=ii<nx and mask[jj,ii] and not seen[jj,ii]: seen[jj,ii]=True; comp.append((jj,ii))
+            js=[q[0] for q in comp]; is_=[q[1] for q in comp]; bw=max(is_)-min(is_)+1; bh=max(js)-min(js)+1
+            blob=len(comp)>0.45*bw*bh and max(bw,bh)<16      # a filled square is a sigil or flag on the map, not a river
+            if len(comp)>=MIN_RIVER_CELLS and not blob:
+                for (jj,ii) in comp: keep[jj,ii]=True
+    return keep
 def main():
     cls,h=classify(); H,W=cls.shape
     # world grid of CELL cm cells covering the texture; each cell takes the majority class / mean height of its texels
@@ -77,8 +115,14 @@ def main():
             c0,r0=world_to_px(x0+i*CELL,y0+j*CELL); c1,r1=world_to_px(x0+(i+1)*CELL,y0+(j+1)*CELL)
             cs,ce=max(0,int(c0)),min(W,int(math.ceil(c1))); rs,re=max(0,int(r0)),min(H,int(math.ceil(r1)))
             if ce<=cs or re<=rs: cc[j,i]=SEA; ch[j,i]=-2; continue
-            blk=cls[rs:re,cs:ce]; counts=np.bincount(blk.ravel(),minlength=7); k=int(counts.argmax())
+            blk=cls[rs:re,cs:ce]; counts=np.bincount(blk.ravel(),minlength=10); k=int(counts.argmax())
             cc[j,i]=k; ch[j,i]=int(round(h[rs:re,cs:ce].mean())) if k!=SEA else -2
+    # rivers: carved one terrace into whatever they cross (never below the coast), water on top
+    rv=rivers(nx,ny,x0,y0)
+    for j in range(ny):
+        for i in range(nx):
+            if rv[j,i] and cc[j,i]!=SEA: cc[j,i]=RIVER; ch[j,i]=max(-1,ch[j,i]-1)
+    print("river cells",int(rv.sum()))
     # boxes: for each row, runs of equal (class, height) -> one top slab (STEP thick, the terrace's material) plus, where
     # a neighbour is lower, the exposed strata face as a darker slab below (down to the lowest neighbour)
     boxes=[]
@@ -108,12 +152,17 @@ def main():
     for j in range(ny):
         for i in range(nx):
             k=int(cc[j,i])
-            p=0.55 if k==FOREST else (0.03 if k==GRASS else (0.06 if k==HILL else 0.0))
+            p=0.55 if k==FOREST else (0.03 if k in (GRASS,MEADOW) else (0.06 if k==HILL else 0.0))
             n=int(p)+ (1 if rng.random()<(p-int(p)) else 0)
             for _ in range(n):
                 x,y=world(i,j); x+=rng.uniform(-45,45); y+=rng.uniform(-45,45)
                 kind="SM_Pine" if (k==HILL or rng.random()<0.25) else ("SM_Oak" if rng.random()<0.6 else "SM_BushRound")
                 trees.append((round(x),round(y),int(ch[j,i])*STEP,kind,round(float(rng.uniform(0.35,0.55)),2)))
+    pal={SEA:(70,120,200),SAND:(222,205,150),GRASS:(120,180,90),FOREST:(60,120,60),HILL:(170,150,110),MOUNT:(190,175,150),DRY:(175,165,95),MEADOW:(160,200,120),SNOW:(240,240,245),RIVER:(60,110,220)}
+    pv=np.zeros((ny,nx,3),np.uint8)
+    for k,c in pal.items(): pv[cc==k]=c
+    pv=np.clip(pv.astype(int)+(ch[...,None]*7),0,255).astype(np.uint8)
+    Image.fromarray(pv).resize((nx*3,ny*3),Image.NEAREST).save(os.path.join(HERE,"ow_voxel_preview.png"))
     data={"cell":CELL,"step":STEP,"x0":x0,"y0":y0,"nx":nx,"ny":ny,"heights":ch.tolist(),"classes":cc.tolist(),"boxes":boxes,"trees":trees}
     json.dump(data,open(OUT,"w"))
     # the editor's read_file tool takes at most 80 KB a call: stage the same data as numbered parts under Saved/PlayTest
@@ -123,5 +172,5 @@ def main():
     for i in range(0,len(text),70000):
         open(os.path.join(parts,f"{n:04d}.txt"),"w").write(text[i:i+70000]); n+=1
     open(os.path.join(parts,"count.txt"),"w").write(str(n))
-    print(f"cells {nx}x{ny}, boxes {len(boxes)}, trees {len(trees)}, classes {np.bincount(cc.ravel(),minlength=7).tolist()} -> {OUT} ({n} parts staged)")
+    print(f"cells {nx}x{ny}, boxes {len(boxes)}, trees {len(trees)}, classes {np.bincount(cc.ravel(),minlength=10).tolist()} -> {OUT} ({n} parts staged)")
 if __name__=="__main__": main()

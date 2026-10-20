@@ -310,6 +310,25 @@ Amador, Bandar Eban, Jehannah, Lugard, Chachin, Maradon) get a disabled marker p
 the cut and are skipped, Fal Dara is held at the landscape edge. Check a fit by drawing `ow_sites.json` and
 `ow_houses.json` over the texture with the same transform.
 
+## 6d. Overworld2: the voxel diorama
+
+The second Overworld (`/Game/Wot/Maps/Overworld2`) is the issue #35 / #51 "diorama" reading of the map, built beside
+the old landscape level so the two can be compared. `Tools/towns/ow_voxel.py` (Pillow + numpy, `python/env`) classifies
+every texel of `blender/overworld-full.png` into sea, coast sand, grass, meadow, dry plain, forest, hill skirt,
+mountain and snow, resamples that to 1 m cells on the same texture-to-world mapping the old level used (`ow_fit.py`),
+and gives each cell a terrace: mountains rise one voxel per two texels into their mass (2 to 9), snow from terrace 7,
+hill skirts 1, two gentle terraces roll across the plains, the sea sits two below. Rows of equal material and height
+run-merge into slabs, with a darker strata slab wherever a neighbour is lower, so coasts and mountains read as stepped
+cliffs; the sea is one slab of voxel water. Trees are the kit's oaks, round bushes and pines, dense on the forest mask
+and sparse elsewhere, scaled to the table. `ow2_build.py` (`run_town.py --overworld2`) copies the Overworld level, strips
+its landscape, mountain / tree props and foliage houses, spawns the slabs and trees through `PCG_Overworld2`, sets the
+portals, player starts, landmarks, enemies and the hand-placed settlement houses (`ow_houses.json`) on the new ground,
+and fences the table with a level-bounds box. The editor's `read_file` tool takes 80 KB a call, so `ow_voxel.py` stages
+its JSON as numbered parts under `Saved/PlayTest/ow_voxel_parts` (regenerate: run `ow_voxel.py`, then the build).
+Cost: about 24,000 slab instances and 2,300 trees, 2 M LOD0 triangles, against the old level's 12,000 Nanite props and
+19 M. Still to do: rivers, lakes and roads (the map texture has none; they would be carved from the base map), and the
+towns' hand-placed clusters as real kit houses.
+
 ## 7. Building with it: recipes
 
 * **Change a rule for every town** (stall spacing, lamp clearance, house jitter): edit `relief.py` (placement) or the
