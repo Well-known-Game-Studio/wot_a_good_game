@@ -197,6 +197,39 @@ The kit now has regional families, all built from the same box/cylinder DSL and 
 `adobe_entries(wall, trim)`, `market_extras(ratio)`. New palette colours: `P_Straw`, `P_ThatchDark`, `P_Shingle`,
 `P_Stone`, `P_Adobe`, `P_Clay` (instances of `MI_VoxelStone`, "Color" parameter).
 
+### The lived-in pass (second round on #34 / #35)
+
+The references are crowded: yards full of things, real carpentry on the frames, roofs in courses, ground cover
+everywhere. What changed:
+
+- **Detail on every building.** `_timber_frame` has a sill, mid rail and top plate on all faces, a brace that leans
+  the other way in every second bay and a full X every third (braces now tilt in the wall's own plane; they used to
+  stick out of it). Windows get a mullion cross, lintel and sill, shutters with an inset panel, flower boxes under the
+  top-floor windows. Doors are planked with a handle, a doorstep and a lantern on a bracket. Roof courses alternate
+  two shades (`ALT`: `P_Terracotta2`, `P_Slate2`, `P_Straw2` ... darker or lighter twins of the roof colours), with a
+  ridge cap, bargeboards on both gables, moss on thatch, a repaired patch on tile, smoke above chimneys, brackets
+  under jetties, stone courses in the base. `kit_entry` recolours a roof's twin shade along with it.
+- **Yards.** `yard(parts, d, w, seed, fence)` wraps a house in a picket fence, hedge or dry-stone wall with a gate
+  gap, a lantern post by the path and a seeded pick of woodpile, barrels, laundry line, trough, vegetable patch, bee
+  skep, hen coop, wheelbarrow, bushes, crates and hay: `SM_TimberHouseYard`, `SM_TimberHouse2Yard`, `SM_CottageYard`,
+  `SM_CottageDormerYard`, `SM_LHouseYard`, `SM_StoneTimberHouseYard`, `SM_FarmhouseYard`. A house set using them
+  needs `"footprint": YARD_FOOTPRINT` (Emond's Field, Baerlon, Whitebridge do).
+- **New buildings.** `SM_CottageDormer` (thatch with two dormers), `SM_LHouse` (cross wing), `SM_StoneTimberHouse`
+  (stone ground floor, jettied timber upper, dormer), `SM_Farmhouse` (house end and plank byre under one thatch roof),
+  `SM_Watermill` (Jon Thane's mill: paddle wheel, race, sluice, flour sacks; on the Winespring brook), `SM_Stable`
+  (open stalls by the inn).
+- **Yard, field and ground props.** `SM_LaundryLine`, `SM_WaterTrough`, `SM_Wheelbarrow`, `SM_LanternPost`,
+  `SM_Hedge`, `SM_StoneWall`, `SM_PicketFence`, `SM_Gate`, `SM_Scarecrow`, `SM_CropRows` (tabac rows in the foliage
+  material, so they stir), `SM_Beehive`, `SM_ChickenCoop`, `SM_LogBench`, `SM_Stump`, `SM_FallenLog`,
+  `SM_RockSmall`, `SM_FlowerPatch`, `SM_GrassTuft`, `SM_BushRound`, `SM_MushroomCluster`, and two new trees,
+  `SM_Oak` (broad lumpy canopy) and `SM_AppleTree` (red fruit), now in `TREES_TEMPERATE`.
+- **Density.** `base_foliage` doubles bush and town-tree ratios and raises grass by 1.6, and every town gets
+  `ground_extras(biome)` (tufts, flowers, rocks, round bushes, deadfall in the forest band; sparser snow and desert
+  mixes). Two Rivers villages add `field_extras()` (crop plots, scarecrows, skeps in the farmland ring). Streets
+  take `fence_line(step, offset, sides, mesh)` and `lantern_line()`: hedges and lanterns round the Green, fences
+  along the roads out of Emond's Field, dry-stone walls on the lanes; `line_house_clear` keeps them off house
+  fronts. Market scatters gained troughs, barrows and log benches.
+
 ## 6c. Weather
 
 Every level carries an `Ultra_Dynamic_Weather` actor (`Tools/playtest/weather.py`, preset per town: rain in Tear and

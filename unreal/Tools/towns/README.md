@@ -13,6 +13,8 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   scatter bands (boulders, snow, cacti, rubble). Then places landmark props, wires the level's
   portal/player-start tags and scales the level/nav bounds.
 * `kit_builder.py` – procedural voxel-style building and foliage kit assembled from primitives and merged
+  (helpers `_timber_frame`, `_roof_gable` with two-shade courses, `_window`, `_door`, `_dormer`; `yard()` wraps a house in a fence and
+  yard props; `oak`, `apple_tree`, `crop_rows`, `watermill`, `stable`, `farmhouse` ... see docs/world_gen.md "The lived-in pass")
   into static meshes under `/Game/Wot/Towns/Common/Buildings` (SM_GableHouse, SM_TowerHouse,
   SM_DomeHouse, SM_CourtyardHouse, SM_Keep, SM_Longhouse, SM_MarketStall, SM_StoneWell, SM_LampPost,
   SM_Obelisk, SM_GateHouse, SM_RuinWall, SM_BridgeArch, SM_Pine, SM_Palm, SM_DeadTree, SM_Boulder,

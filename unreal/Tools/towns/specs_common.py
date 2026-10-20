@@ -34,14 +34,14 @@ def lamp_line(step=1400,offset=None,mat="P_Gold"):
     return {"mesh":kit_mesh("SM_LampPost"),"step":step,"offset":offset or 380,"mat":None,"scale":(1,1,1)}
 def tree_line(step=1200,offset=420,mesh=None):
     return {"mesh":mesh or MESH["tree3"],"step":step,"offset":offset,"mat":None,"scale":(0.9,0.9,0.9)}
-def base_foliage(trees,forest_ratio=0.2,edge_ratio=0.05,town_ratio=0.008,bush=0.02,grass=0.3,mush=0.0,extent=5000,fr=None,clip=1.0,town_trees=None,extra=None,bands=None):
-    fr=fr or extent-400
+def base_foliage(trees,forest_ratio=0.2,edge_ratio=0.05,town_ratio=0.008,bush=0.02,grass=0.3,mush=0.0,extent=5000,fr=None,clip=1.0,town_trees=None,extra=None,bands=None,ground="temperate"):
+    fr=fr or extent-400; bush=bush*2.0; grass=min(1.0,grass*1.6); town_ratio=town_ratio*2.0; extra=(extra or [])+ground_extras(ground)
     b=bands or {"forest":(0.84,1.0),"edge":(0.6,0.84),"town":(0.2,0.6)}
     return {"extent":extent,"forest_radius":fr,"clip_density":clip,"trees":trees,
             "forest_band":b["forest"],"forest_ratio":forest_ratio,"edge_band":b["edge"],"edge_ratio":edge_ratio,"town_band":b["town"],"town_ratio":town_ratio,
             "town_trees":town_trees or trees,"bush_ratio":bush,"grass_ratio":grass,"mush_ratio":mush,"extra":extra or []}
-TREES_TEMPERATE=[(MESH["tree1"],3,None),(MESH["tree2"],3,None),(MESH["tree3"],2,None),(MESH["tree4"],2,None),(MESH["oldtree"],1,None)]
-TREES_FORMAL=[(MESH["tree3"],3,None),(MESH["tree4"],3,None),(kit_mesh("SM_Birch"),2,None)]
+TREES_TEMPERATE=[(MESH["tree1"],3,None),(MESH["tree2"],3,None),(MESH["tree3"],2,None),(MESH["tree4"],2,None),(MESH["oldtree"],1,None),kit_entry("SM_Oak",None,2),kit_entry("SM_Oak",{"P_LeafGreen":"P_LeafDark","P_LeafPale":"P_LeafGreen"},1),kit_entry("SM_AppleTree",None,1)]
+TREES_FORMAL=[(MESH["tree3"],3,None),(MESH["tree4"],3,None),(kit_mesh("SM_Birch"),2,None),kit_entry("SM_Oak",None,1)]
 def TREES_PINE(snow=False):
     if snow: return [kit_entry("SM_Pine",{"P_LeafDark":"P_DarkGreen"},3),kit_entry("SM_Pine",{"P_LeafDark":"P_Ice"},1),(MESH["tree4"],1,None)]
     return [kit_entry("SM_Pine",{"P_LeafDark":"P_DarkGreen"},3),kit_entry("SM_Pine",{"P_LeafDark":"P_Olive"},1),(MESH["tree4"],1,None)]
@@ -81,24 +81,56 @@ def town_base(name,E,center=(0,0),road_mat=None):
 
 # ---- the art pass: regional house families from the kit (kit_builder timber_house / stone_house / adobe_house ...).
 # kit_entry recolours by palette name; keys the mesh does not use are ignored. Weights are relative within a town.
-def two_rivers_entries():
-    return [kit_entry("SM_TimberHouse",None,3),kit_entry("SM_TimberHouse",{"P_Plaster":"P_Cream","P_DarkGreen":"P_Brown"},2),
-            kit_entry("SM_ThatchedCottage",None,3),kit_entry("SM_ThatchedCottage",{"P_ThatchDark":"P_Straw","P_Stone":"P_Grey"},1),
-            kit_entry("SM_TimberHouseShingle",None,2),kit_entry("SM_TimberHouse2",{"P_Terracotta":"P_Straw","P_DarkGreen":"P_Olive"},1),
-            kit_entry("SM_Barn",None,1)]
+YARD_FOOTPRINT=(-800,-600,780,600)   # house sets with yard variants need this footprint (fences, laundry, coops around the house)
+def two_rivers_entries(yards=True):
+    """Two Rivers villages: timber and thatch with yards, dormered cottages, an L-shaped house, a long farmhouse, a barn."""
+    Y=lambda a,b: a if yards else b
+    return [kit_entry(Y("SM_TimberHouseYard","SM_TimberHouse"),None,3),kit_entry("SM_TimberHouse",{"P_Plaster":"P_Cream","P_DarkGreen":"P_Brown"},2),
+            kit_entry(Y("SM_CottageYard","SM_ThatchedCottage"),None,2),kit_entry("SM_ThatchedCottage",{"P_ThatchDark":"P_Straw","P_Stone":"P_Grey"},1),
+            kit_entry(Y("SM_CottageDormerYard","SM_CottageDormer"),None,2),kit_entry("SM_CottageDormer",{"P_Plaster":"P_Cream","P_Straw":"P_ThatchDark"},1),
+            kit_entry("SM_TimberHouseShingle",None,1),kit_entry(Y("SM_TimberHouse2Yard","SM_TimberHouse2"),{"P_Terracotta":"P_Straw","P_DarkGreen":"P_Olive"},1),
+            kit_entry(Y("SM_LHouseYard","SM_LHouse"),None,1),kit_entry(Y("SM_FarmhouseYard","SM_Farmhouse"),None,1),kit_entry("SM_Barn",None,1)]
 def andor_entries(white=False):
-    w={"P_Plaster":"P_White"} if white else {}
-    return [kit_entry("SM_TimberHouse2",w,3),kit_entry("SM_TimberHouseSlate",w,2),kit_entry("SM_StoneHouse",None,3),kit_entry("SM_StoneHouse3",{"P_Slate":"P_Terracotta"},1),
+    w={"P_Plaster":"P_White","P_Cream":"P_White"} if white else {}
+    return [kit_entry("SM_TimberHouse2",w,3),kit_entry("SM_TimberHouseSlate",w,2),kit_entry("SM_StoneHouse",None,2),kit_entry("SM_StoneHouse3",{"P_Slate":"P_Terracotta"},1),
+            kit_entry("SM_StoneTimberHouse",w,3),kit_entry("SM_StoneTimberHouse",dict(w,**{"P_Slate":"P_Terracotta"}),1),
             kit_entry("SM_Shop",{"P_Terracotta":"P_RedBrick"},2),kit_entry("SM_Shop",{"P_Terracotta":"P_Blue","P_Cream":"P_White"},1)]
 def stone_town_entries(wall="P_Stone",roof="P_Slate",quoin="P_LightGrey",shops=True):
-    e=[kit_entry("SM_StoneHouse",{"P_Stone":wall,"P_Slate":roof,"P_LightGrey":quoin},3),kit_entry("SM_StoneHouse3",{"P_Stone":wall,"P_Slate":roof,"P_LightGrey":quoin},2),
-       kit_entry("SM_TimberHouseSlate",{"P_Slate":roof},1)]
+    rc={"P_Stone":wall,"P_Slate":roof,"P_LightGrey":quoin}
+    e=[kit_entry("SM_StoneHouse",rc,3),kit_entry("SM_StoneHouse3",rc,2),kit_entry("SM_StoneTimberHouse",rc,2),kit_entry("SM_TimberHouseSlate",{"P_Slate":roof},1)]
     if shops: e.append(kit_entry("SM_Shop",{"P_Slate":roof},1))
     return e
 def adobe_entries(wall="P_Adobe",trim="P_Clay"):
     return [kit_entry("SM_AdobeHouse",{"P_Adobe":wall,"P_Clay":trim},3),kit_entry("SM_AdobeHouse2",{"P_Adobe":wall,"P_Clay":trim},2),kit_entry("SM_AdobeTower",{"P_Adobe":wall,"P_Clay":trim},2)]
-# plaza furniture extras: carts, hay, barrels, crates, benches, festival poles (plaza_furniture spreads unknown kinds on a grid)
+# plaza furniture extras: carts, hay, barrels, crates, benches, troughs, barrows, festival poles (plaza_furniture spreads unknown kinds on a grid)
 def market_extras(ratio=0.02,poles=False):
-    e=[(kit_mesh("SM_Cart"),ratio,0.9,1.1,None),(kit_mesh("SM_Barrel"),ratio*1.5,0.9,1.1,None),(kit_mesh("SM_CrateStack"),ratio,0.9,1.1,None),(kit_mesh("SM_HayBale"),ratio*0.7,0.9,1.1,None),(kit_mesh("SM_Bench"),ratio,1.0,1.0,None)]
+    e=[(kit_mesh("SM_Cart"),ratio,0.9,1.1,None),(kit_mesh("SM_Barrel"),ratio*1.5,0.9,1.1,None),(kit_mesh("SM_CrateStack"),ratio,0.9,1.1,None),(kit_mesh("SM_HayBale"),ratio*0.7,0.9,1.1,None),(kit_mesh("SM_Bench"),ratio,1.0,1.0,None),
+       (kit_mesh("SM_WaterTrough"),ratio*0.6,1.0,1.0,None),(kit_mesh("SM_Wheelbarrow"),ratio*0.6,1.0,1.0,None),(kit_mesh("SM_LogBench"),ratio*0.5,1.0,1.0,None)]
     if poles: e.append((kit_mesh("SM_FestivalPole"),ratio*0.5,1.0,1.0,None))
     return e
+# ---- ground cover and farmland (the "lived in" pass): one scatter per kind, all from the ground lattice
+def ground_extras(biome="temperate"):
+    """Dense ground cover: grass tufts, flower patches, small rocks, round bushes; the forest band gets stumps, fallen
+    logs and mushroom clusters. Snow and desert biomes get their own sparser mixes."""
+    if biome=="temperate":
+        return [{"name":"GroundTufts","band":(0.0,1.0),"ratio":0.12,"entries":[kit_entry("SM_GrassTuft",None,3),kit_entry("SM_GrassTuft",{"P_LeafPale":"P_LeafGreen"},1)],"scale":(0.7,1.3),"prune":40},
+                {"name":"GroundFlowers","band":(0.0,0.9),"ratio":0.05,"entries":[kit_entry("SM_FlowerPatch",None,2),kit_entry("SM_FlowerPatch",{"P_Rose":"P_Blue","P_Gold":"P_White"},1),kit_entry("SM_FlowerShrub",None,1)],"scale":(0.8,1.2),"prune":60},
+                {"name":"GroundRocks","band":(0.3,1.0),"ratio":0.03,"entries":[kit_entry("SM_RockSmall",None,3),kit_entry("SM_Boulder",None,1)],"scale":(0.6,1.3),"prune":80},
+                {"name":"GroundRoundBushes","band":(0.2,1.0),"ratio":0.04,"entries":[kit_entry("SM_BushRound",None,2),kit_entry("SM_BushRound",{"P_LeafGreen":"P_LeafDark"},1)],"scale":(0.7,1.3),"prune":90},
+                {"name":"GroundDeadfall","band":(0.75,1.0),"ratio":0.04,"entries":[kit_entry("SM_Stump",None,2),kit_entry("SM_FallenLog",None,2),kit_entry("SM_MushroomCluster",None,2)],"scale":(0.8,1.3),"prune":120}]
+    if biome=="snow":
+        return [{"name":"GroundTufts","band":(0.0,1.0),"ratio":0.05,"entries":[kit_entry("SM_GrassTuft",{"P_LeafPale":"P_Straw","P_LeafGreen":"P_LeafOlive"},1)],"scale":(0.6,1.0),"prune":40},
+                {"name":"GroundRocks","band":(0.3,1.0),"ratio":0.04,"entries":[kit_entry("SM_RockSmall",None,3),kit_entry("SM_Boulder",{"P_Grey":"P_LightGrey"},1)],"scale":(0.6,1.4),"prune":80},
+                {"name":"GroundDeadfall","band":(0.7,1.0),"ratio":0.04,"entries":[kit_entry("SM_Stump",None,2),kit_entry("SM_FallenLog",{"P_Olive":"P_Snow"},2)],"scale":(0.8,1.3),"prune":120}]
+    if biome=="desert":
+        return [{"name":"GroundTufts","band":(0.0,1.0),"ratio":0.03,"entries":[kit_entry("SM_GrassTuft",{"P_LeafPale":"P_Straw","P_LeafGreen":"P_LeafOlive"},1)],"scale":(0.6,1.0),"prune":40},
+                {"name":"GroundRocks","band":(0.2,1.0),"ratio":0.05,"entries":[kit_entry("SM_RockSmall",{"P_Grey":"P_Sand","P_DarkGrey":"P_Clay"},3),kit_entry("SM_Boulder",{"P_Grey":"P_Clay"},1)],"scale":(0.6,1.4),"prune":80}]
+    return []
+def field_extras(ratio=0.015,band=(0.55,0.85)):
+    """Tabac and vegetable plots, scarecrows and bee skeps in the farmland ring outside a Two Rivers village."""
+    return [{"name":"Fields","band":band,"ratio":ratio,"entries":[kit_entry("SM_CropRows",None,4),kit_entry("SM_CropRows",{"P_LeafGreen":"P_Olive","P_Olive":"P_Straw"},1),kit_entry("SM_Scarecrow",None,1),kit_entry("SM_Beehive",None,1)],"scale":(0.9,1.4),"prune":350}]
+def fence_line(step=300,offset=430,sides="both",mesh="SM_PicketFence"):
+    """A continuous fence / hedge / dry-stone wall along a road (relief leaves gaps at house fronts: line_house_clear)."""
+    return {"mesh":kit_mesh(mesh),"step":step,"offset":offset,"mat":None,"scale":(1,1,1),"sides":sides}
+def lantern_line(step=1600,offset=330,sides="both"):
+    return {"mesh":kit_mesh("SM_LanternPost"),"step":step,"offset":offset,"mat":None,"scale":(1,1,1),"sides":sides}

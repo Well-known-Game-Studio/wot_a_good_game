@@ -252,7 +252,7 @@ def tanchico_spec():
     s["exclusions"]=[(-7200,6100,1700,1600),(2600,-11000,500,700)]
     s["houses"]={"spacing":1300,"setback":850,"scale":(0.85,1.05),"keep":0.92,"entries":houses}
     s["house_sets"]={"medina":dense_set(houses,850,600,(0.55,0.72),0.97)}
-    s["foliage"]=dict(tree_scale=(0.55,0.8),**base_foliage(TREES_DESERT,forest_ratio=0.012,edge_ratio=0.006,town_ratio=0.002,bush=0.004,grass=0.03,extent=E,bands={"forest":(0.9,1.0),"edge":(0.8,0.9),"town":(0.3,0.8)},
+    s["foliage"]=dict(tree_scale=(0.55,0.8),**base_foliage(TREES_DESERT,forest_ratio=0.012,edge_ratio=0.006,town_ratio=0.002,bush=0.004,grass=0.03,extent=E,ground="desert",bands={"forest":(0.9,1.0),"edge":(0.8,0.9),"town":(0.3,0.8)},
                             extra=[{"name":"Cacti","band":(0.3,1.0),"ratio":0.012,"entries":[kit_entry("SM_Cactus",None,2),kit_entry("SM_Cactus",{"P_LeafOlive":"P_Green"},1)],"scale":(0.7,1.4)},
                                    {"name":"Rocks","band":(0.6,1.0),"ratio":0.01,"entries":[kit_entry("SM_Boulder",{"P_Grey":"P_Sand","P_DarkGrey":"P_Ochre"})],"scale":(0.6,1.3),"prune":150}]))
     s["pads"]=[(("rect",-2500,-1100,1500,1100),None),(("rect",-8900,4500,-5500,7700),None)]

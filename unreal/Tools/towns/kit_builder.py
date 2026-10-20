@@ -57,62 +57,127 @@ def courtyard_house(w=900,d=900,wall="P_Sand",roof="P_Terracotta",door="P_DarkWo
     return p
 # ---- the art pass (issues #34 #35 #51): regional building families and street props. Same rules: pivot floor centre,
 # door on -X, min z 0; every part a box/cyl in the palette so towns recolour them with kit_entry(name, {old: new}).
-def _roof_gable(p,d,w,z,mat,steps=5,step_h=55,eave=60,ridge="X",trim=None,thatch=False):
+# second shade of each roof material: every other course of tiles / thatch / shingle takes it, so roofs read as courses
+# instead of one flat slab (kit_entry recolours both shades together, see _expand_recolor)
+ALT={"P_Terracotta":"P_Terracotta2","P_RedBrick":"P_RedBrick2","P_Slate":"P_Slate2","P_Straw":"P_Straw2","P_ThatchDark":"P_ThatchDark2","P_Shingle":"P_Shingle2","P_Stone":"P_Stone2"}
+def _roof_gable(p,d,w,z,mat,steps=5,step_h=55,eave=60,ridge="X",trim=None,thatch=False,moss=None,patch=None):
     """A stepped voxel gable roof over a d x w footprint starting at height z. ridge "X": the roof steps shrink along Y
-    (gable ends face +-X, the street); "Y": they shrink along X. Thatch gets a fatter, rounder stack and deeper eaves."""
+    (gable ends face +-X, the street); "Y": they shrink along X. Courses alternate two shades; a ridge cap on top;
+    bargeboards on both gables when trim is given. Thatch gets a fatter, rounder stack, deeper eaves and a dark comb
+    ridge; moss puts a few green patches on the lower courses, patch a repaired patch in the second shade."""
     if thatch: steps,step_h,eave=steps+1,step_h+10,eave+40
+    alt=ALT.get(mat,mat)
     for i in range(steps):
-        f=1-(i/steps); hh=step_h
-        if ridge=="X": p.append(box(0,0,z+hh/2+i*hh,d+eave,w*f+90,hh,mat))
-        else: p.append(box(0,0,z+hh/2+i*hh,d*f+90,w+eave,hh,mat))
-    if trim: p.append(box(-d/2-5,0,z+step_h/2,d*0.05,w*0.92,step_h,trim))   # bargeboard on the street gable
-    return z+steps*step_h
-def _timber_frame(p,d,w,z0,h,beam,bay=190,proud=6):
-    """Dark posts, sills and diagonal braces standing proud of a plaster wall block (d x w x h from z0)."""
+        f=1-(i/steps); hh=step_h; m=mat if i%2==0 else alt
+        if ridge=="X": p.append(box(0,0,z+hh/2+i*hh,d+eave,w*f+90,hh,m))
+        else: p.append(box(0,0,z+hh/2+i*hh,d*f+90,w+eave,hh,m))
+    top=z+steps*step_h
+    if thatch:
+        if ridge=="X": p.append(box(0,0,top+5,d+eave-40,w*0.16+70,14,alt))
+        else: p.append(box(0,0,top+5,d*0.16+70,w+eave-40,14,alt))
+    else:
+        cap=trim or alt
+        if ridge=="X": p.append(box(0,0,top+6,d+eave-16,60,14,cap))
+        else: p.append(box(0,0,top+6,60,w+eave-16,14,cap))
+        if trim:
+            for sx in (-1,1): p.append(box(sx*(d/2+eave/2-6),0,z+step_h/2,16,w*0.92,step_h,trim))   # bargeboards
+    if moss:
+        for (fx,fy) in ((0.28,-0.42),(-0.2,0.4)): p.append(box(d*fx,w*fy,z+step_h+6,120,70,10,moss))
+    if patch:
+        p.append(box(d*0.15,w*0.3*(1 if ridge=="X" else -1),z+step_h*2+4,90,120,10,patch))
+    return top
+def _timber_frame(p,d,w,z0,h,beam,bay=190,proud=8,rail=True):
+    """Dark posts, sills, a mid rail and braces standing proud of a plaster wall block (d x w x h from z0): a brace
+    leans the other way in every second bay and every third bay gets a full X, so the frames read as real carpentry."""
     t=14; zc=z0+h/2
     for sx in (-1,1):   # corner posts
-        for sy in (-1,1): p.append(box(sx*d/2,sy*w/2,zc,t+proud,t+proud,h,beam))
-    for sy in (-1,1):   # posts along the long (+-Y) faces and braces between them
-        n=max(1,int(d//bay)); step=d/(n+1)
+        for sy in (-1,1): p.append(box(sx*d/2,sy*w/2,zc,t+proud+4,t+proud+4,h,beam))
+    for sy in (-1,1):   # posts along the long (+-Y) faces and braces between them (tilting in the wall's own plane)
+        n=max(1,int(d//bay)); step=d/(n+1); yy=sy*(w/2+proud/2)
         for i in range(1,n+1):
-            x=-d/2+i*step; p.append(box(x,sy*(w/2+proud/2),zc,t,t,h,beam))
-            if i<n: p.append(box(x+step/2,sy*(w/2+proud/2),zc,t,t,h*0.9,beam,roll=38))
-    for sx in (-1,1):   # the gable faces
-        n=max(1,int(w//bay)); step=w/(n+1)
+            x=-d/2+i*step; p.append(box(x,yy,zc,t,t,h,beam))
+        for i in range(0,n+1):
+            x=-d/2+(i+0.5)*step; k=(i+(1 if sy>0 else 0))%3
+            if k==2: p.append(box(x,yy,zc,t,t,h*0.78,beam,pitch=36)); p.append(box(x,yy,zc,t,t,h*0.78,beam,pitch=-36))
+            else: p.append(box(x,yy,zc,t,t,h*0.8,beam,pitch=36 if k==0 else -36))
+    for sx in (-1,1):   # the gable faces: posts and one pair of braces
+        n=max(1,int(w//bay)); step=w/(n+1); xx=sx*(d/2+proud/2)
         for i in range(1,n+1):
-            y=-w/2+i*step; p.append(box(sx*(d/2+proud/2),y,zc,t,t,h,beam))
-    for zz in (z0+h,):  # top plate
-        p.append(box(0,0,zz,d+proud,t,t,beam,)); 
-        for sy in (-1,1): p.append(box(0,sy*(w/2+proud/2),zz,d+proud,t,t,beam))
-        for sx in (-1,1): p.append(box(sx*(d/2+proud/2),0,zz,t,w+proud,t,beam))
-def _windows(p,d,w,z,n=2,size=(80,90),shutters=None,sill="P_LightGrey",glass="P_Glass",faces=("x","y")):
-    """Windows with sills (and shutters) on the street gable (-X) and the long faces."""
+            y=-w/2+i*step; p.append(box(xx,y,zc,t,t,h,beam))
+        if sx>0 or w>400:
+            for sy in (-1,1): p.append(box(xx,sy*w*0.3,zc,t,t,h*0.75,beam,roll=sy*34))
+    for zz in ((z0+t/2,),(z0+h,))+(((z0+h*0.52,),) if rail else ()):   # sill, top plate, mid rail
+        z_=zz[0]
+        for sy in (-1,1): p.append(box(0,sy*(w/2+proud/2),z_,d+proud,t,t,beam))
+        for sx in (-1,1): p.append(box(sx*(d/2+proud/2),0,z_,t,w+proud,t,beam))
+def _jetty_brackets(p,d,w,z,beam,n=3):
+    """Diagonal brackets under a jettied upper floor, along both long faces."""
+    for sy in (-1,1):
+        for i in range(n): p.append(box(-d/2+(i+0.5)*d/n,sy*(w/2+10),z-40,14,14,90,beam,roll=-sy*40))
+def _window(p,x,y,z,size,face,glass="P_Glass",sill="P_LightGrey",bar="P_DarkWood",shutters=None,flowers=None):
+    """One window: glass, a dark mullion cross, a lintel, a sill, optional shutters with an inset panel and a flower box."""
+    sw,sh=size
+    if face=="x":   # on a +-X face at x
+        p.append(box(x,y,z,10,sw,sh,glass)); p.append(box(x-2,y,z,12,6,sh,bar)); p.append(box(x-2,y,z,12,sw,6,bar))
+        p.append(box(x-4,y,z+sh/2+8,16,sw+30,14,bar)); p.append(box(x-5,y,z-sh/2-6,18,sw+24,12,sill))
+        if shutters:
+            for sy in (-1,1): p.append(box(x-2,y+sy*(sw/2+22),z,8,36,sh,shutters)); p.append(box(x-5,y+sy*(sw/2+22),z,4,22,sh*0.7,bar))
+        if flowers: p.append(box(x-18,y,z-sh/2-20,26,sw+10,24,"P_DarkWood")); p.append(box(x-20,y-sw*0.25,z-sh/2-2,22,24,16,flowers)); p.append(box(x-20,y+sw*0.2,z-sh/2-2,22,24,16,"P_Gold"))
+    else:   # on a +-Y face at y
+        p.append(box(x,y,z,sw,10,sh,glass)); p.append(box(x,y-2,z,6,12,sh,bar)); p.append(box(x,y-2,z,sw,12,6,bar))
+        p.append(box(x,y-4,z+sh/2+8,sw+30,16,14,bar)); p.append(box(x,y-5,z-sh/2-6,sw+24,18,12,sill))
+        if shutters:
+            for sx in (-1,1): p.append(box(x+sx*(sw/2+22),y-2,z,36,8,sh,shutters)); p.append(box(x+sx*(sw/2+22),y-5,z,22,4,sh*0.7,bar))
+def _windows(p,d,w,z,n=2,size=(80,90),shutters=None,sill="P_LightGrey",glass="P_Glass",faces=("x","y"),flowers=None,bar="P_DarkWood"):
+    """Windows with mullions, lintels and sills (and shutters, flower boxes) on the street gable (-X) and the long faces."""
     if "x" in faces:
-        for y in (-w*0.28,w*0.28):
-            p.append(box(-d/2-3,y,z,10,size[0],size[1],glass)); p.append(box(-d/2-8,y,z-size[1]/2-6,18,size[0]+24,12,sill))
-            if shutters:
-                for sy in (-1,1): p.append(box(-d/2-5,y+sy*(size[0]/2+22),z,8,36,size[1],shutters))
+        for y in (-w*0.28,w*0.28): _window(p,-d/2-3,y,z,size,"x",glass,sill,bar,shutters,flowers)
     if "y" in faces:
         for sy in (-1,1):
             for x in [(-d/2+(i+1)*d/(n+1)) for i in range(n)]:
-                p.append(box(x,sy*(w/2+3),z,size[0],10,size[1],glass)); p.append(box(x,sy*(w/2+8),z-size[1]/2-6,size[0]+24,18,12,sill))
-def _door(p,d,z=0,wd=120,ht=220,mat="P_DarkWood",lintel="P_DarkWood",step="P_LightGrey"):
-    p.append(box(-d/2-3,0,z+ht/2,20,wd,ht,mat)); p.append(box(-d/2-6,0,z+ht+8,26,wd+40,16,lintel)); p.append(box(-d/2-30,0,z+6,60,wd+60,12,step))
+                # a +Y face window is mirrored: build it on -Y and flip the small offsets by using the sign on y
+                sw,sh=size; yy=sy*(w/2+3)
+                p.append(box(x,yy,z,sw,10,sh,glass)); p.append(box(x,yy+sy*2,z,6,12,sh,bar)); p.append(box(x,yy+sy*2,z,sw,12,6,bar))
+                p.append(box(x,yy+sy*4,z+sh/2+8,sw+30,16,14,bar)); p.append(box(x,yy+sy*5,z-sh/2-6,sw+24,18,12,sill))
+                if shutters:
+                    for sx in (-1,1): p.append(box(x+sx*(sw/2+22),yy+sy*2,z,36,8,sh,shutters)); p.append(box(x+sx*(sw/2+22),yy+sy*5,z,22,4,sh*0.7,bar))
+def _door(p,d,z=0,wd=120,ht=220,mat="P_DarkWood",lintel="P_DarkWood",step="P_LightGrey",lantern="P_Gold",planks="P_Brown"):
+    """A plank door with a handle, lintel and doorstep, and a lantern on a bracket beside it."""
+    x=-d/2-3
+    p.append(box(x,0,z+ht/2,20,wd,ht,mat))
+    for k in range(1,3): p.append(box(x-10,-wd/2+k*wd/3,z+ht/2,4,6,ht-10,planks))
+    p.append(box(x-12,wd*0.3,z+ht*0.48,6,14,14,"P_DarkGrey"))   # handle
+    p.append(box(x-3,0,z+ht+8,26,wd+40,16,lintel)); p.append(box(x-27,0,z+6,60,wd+60,12,step))
+    if lantern:
+        p.append(box(x-18,wd/2+50,z+ht*0.85,30,8,8,"P_DarkGrey")); p.append(box(x-30,wd/2+50,z+ht*0.85-22,20,20,32,lantern)); p.append(box(x-30,wd/2+50,z+ht*0.85-2,26,26,8,"P_DarkGrey"))
 def _chimney(p,x,y,z,h=180,mat="P_Grey",cap="P_DarkGrey"):
-    p.append(box(x,y,z+h/2,70,70,h,mat)); p.append(box(x,y,z+h+8,90,90,16,cap))
-def timber_house(w=620,d=820,storeys=1,roof="thatch",wall="P_Plaster",beam="P_DarkWood",base="P_Grey",roofmat=None,shutters="P_DarkGreen",chimney=True,jetty=False):
+    p.append(box(x,y,z+h/2,70,70,h,mat)); p.append(box(x,y,z+h+8,90,90,16,cap)); p.append(box(x,y,z+h+30,40,40,28,"P_LightGrey"))   # a puff of smoke
+def _dormer(p,x,y,z,roofmat,wall="P_Plaster",sy=-1):
+    """A small gabled dormer on a long roof slope at (x, y) with its sill at z, window facing sy*Y."""
+    p.append(box(x,y,z+55,120,110,110,wall)); p.append(box(x,y+sy*58,z+58,60,8,60,"P_Glass")); p.append(box(x,y+sy*60,z+58,6,10,60,"P_DarkWood"))
+    for i in range(3): p.append(box(x,y,z+118+i*20,160-i*40,150,20,roofmat if i%2 else ALT.get(roofmat,roofmat)))
+def timber_house(w=620,d=820,storeys=1,roof="thatch",wall="P_Plaster",beam="P_DarkWood",base="P_Grey",roofmat=None,shutters="P_DarkGreen",chimney=True,jetty=False,dormers=0,wing=False,flowers="P_Rose"):
     """A Two Rivers / Andor house: stone base course, plaster walls in a dark timber frame, a stepped gable roof of
-    thatch, tile, slate or wood shingle, a chimney, shuttered windows. storeys 1-2; jetty overhangs the upper floor."""
+    thatch, tile, slate or wood shingle, a chimney, shuttered windows with flower boxes. storeys 1-2; jetty overhangs
+    the upper floor on brackets; dormers on the front slope; wing adds a cross wing at the back."""
     rm=roofmat or {"thatch":"P_Straw","tile":"P_Terracotta","slate":"P_Slate","shingle":"P_Shingle"}[roof]
     fh=250; p=[box(0,0,30,d+16,w+16,60,base)]
+    for i in range(int((d+16)//90)): p.append(box(-d/2-8+45+i*90,0,30,4,w+20,60,"P_DarkGrey"))   # stone courses in the base
     z=60
     for i in range(storeys):
         dd,ww=(d+40,w+40) if (jetty and i>0) else (d,w)
+        if jetty and i>0: _jetty_brackets(p,dd,ww,z,beam)
         p.append(box(0,0,z+fh/2,dd,ww,fh,wall)); _timber_frame(p,dd,ww,z,fh,beam)
-        _windows(p,dd,ww,z+150,n=2 if i>0 else 1,shutters=shutters if i==0 else None)
+        _windows(p,dd,ww,z+150,n=2 if i>0 else 1,shutters=shutters if i==0 else None,flowers=flowers if i==storeys-1 else None)
         z+=fh
-    _door(p,(d+40) if False else d)
-    top=_roof_gable(p,d,w,z,rm,steps=5,thatch=(roof=="thatch"),trim=beam if roof!="thatch" else None)
+    _door(p,d)
+    top=_roof_gable(p,d,w,z,rm,steps=5,thatch=(roof=="thatch"),trim=beam if roof!="thatch" else None,moss="P_Olive" if roof=="thatch" else None,patch=None if roof=="thatch" else ALT.get(rm))
+    for k in range(dormers): _dormer(p,-d*0.25+k*d*0.5,-w/2+95,z+60,rm,wall,-1)
+    if wing:
+        wx,wy,wd,ww=d*0.18,w*0.55,d*0.45,w*0.7
+        p.append(box(wx,wy,60+(z-60)/2,wd,ww,z-60,wall)); _timber_frame(p,wd,ww,60,z-60,beam,rail=False)
+        _window(p,wx,wy+ww/2+3,160,(70,80),"y")
+        for i in range(5): f=1-i/5; p.append(box(wx,wy,z+27+i*55,wd*f+90,ww+60,55,rm if i%2==0 else ALT.get(rm,rm)))
     if chimney: _chimney(p,d*0.28,w*0.18,top-60)
     return p
 def thatched_cottage(w=520,d=640,wall="P_Stone",thatch="P_ThatchDark",wood="P_DarkWood"):
@@ -120,9 +185,12 @@ def thatched_cottage(w=520,d=640,wall="P_Stone",thatch="P_ThatchDark",wood="P_Da
     h=210; p=[box(0,0,h/2,d,w,h,wall)]
     for y in (-w*0.3,w*0.3): p.append(box(-d/2-3,y,135,10,60,70,"P_Glass"))
     _door(p,d,ht=190,wd=100,mat=wood)
-    top=_roof_gable(p,d,w,h,thatch,steps=6,step_h=60,eave=110,thatch=True)
+    for i in range(int(d//70)):   # rough stone courses
+        p.append(box(-d/2+35+i*70,0,h*0.33,4,w+6,8,"P_DarkGrey")); p.append(box(-d/2+35+i*70,0,h*0.66,4,w+6,8,"P_DarkGrey"))
+    top=_roof_gable(p,d,w,h,thatch,steps=6,step_h=60,eave=110,thatch=True,moss="P_Olive")
     _chimney(p,d*0.3,0,top-80,h=150,mat="P_Grey")
     p.append(box(d/2+20,0,40,30,120,80,"P_Straw"))   # woodpile / straw heap at the back
+    p.append(box(-d/2-60,-w*0.3,24,40,120,8,wood)); p.append(box(-d/2-60,-w*0.3,10,8,100,20,wood))   # a bench by the door
     return p
 def inn(w=900,d=1300,roof="tile",wall="P_Plaster",beam="P_DarkWood",base="P_Grey",roofmat=None,sign="P_Rose"):
     """The village inn: two timber-framed storeys with a jettied upper floor, a cross wing, dormers, two chimneys, a
@@ -130,18 +198,18 @@ def inn(w=900,d=1300,roof="tile",wall="P_Plaster",beam="P_DarkWood",base="P_Grey
     rm=roofmat or {"thatch":"P_Straw","tile":"P_RedBrick","slate":"P_Slate","shingle":"P_Shingle"}[roof]
     fh=260; p=[box(0,0,30,d+16,w+16,60,base)]
     p.append(box(0,0,60+fh/2,d,w,fh,wall)); _timber_frame(p,d,w,60,fh,beam); _windows(p,d,w,210,n=3,shutters="P_DarkGreen")
-    z=60+fh; p.append(box(0,0,z+fh/2,d+40,w+40,fh,wall)); _timber_frame(p,d+40,w+40,z,fh,beam); _windows(p,d+40,w+40,z+150,n=3)
+    z=60+fh; _jetty_brackets(p,d+40,w+40,z,beam,4); p.append(box(0,0,z+fh/2,d+40,w+40,fh,wall)); _timber_frame(p,d+40,w+40,z,fh,beam); _windows(p,d+40,w+40,z+150,n=3,flowers="P_Rose")
     z+=fh; top=_roof_gable(p,d,w,z,rm,steps=6,step_h=55,trim=beam)
     # cross wing to the back-right, its own gable across the main ridge
     wx,wy,wd,ww=d*0.15,w*0.55,d*0.5,w*0.7
     p.append(box(wx,wy,60+fh,wd,ww,2*fh,wall)); _timber_frame(p,wd,ww,60,2*fh,beam)
-    for i in range(5): f=1-i/5; p.append(box(wx,wy,z+27+i*55,wd*f+90,ww+60,55,rm))
-    for x in (-d*0.25,d*0.1): p.append(box(x,-w/2+70,z+95,120,110,120,wall)); p.append(box(x,-w/2+70,z+170,160,150,40,rm))   # dormers
+    for i in range(5): f=1-i/5; p.append(box(wx,wy,z+27+i*55,wd*f+90,ww+60,55,rm if i%2==0 else ALT.get(rm,rm)))
+    for x in (-d*0.25,d*0.1): _dormer(p,x,-w/2+95,z+60,rm,wall,-1)
     _chimney(p,-d*0.3,0,top-40,h=220); _chimney(p,wx+wd*0.3,wy,top-40,h=200)
     _door(p,d,wd=150,ht=240); 
     for sy in (-1,1): p.append(box(-d/2-120,sy*130,100,24,24,200,beam))   # porch posts
     p.append(box(-d/2-70,0,215,170,340,30,rm))
-    p.append(box(-d/2-150,-w/2+60,300,20,20,320,beam)); p.append(box(-d/2-150,-w/2+60,470,24,140,90,sign))   # the sign
+    p.append(box(-d/2-150,-w/2+60,300,20,20,320,beam)); p.append(box(-d/2-150,-w/2+60,470,24,140,90,sign)); p.append(box(-d/2-150,-w/2+60,470,30,60,40,"P_Gold"))   # the sign and its painted grape
     for y in (w/2-90,w/2-200): p.append(cyl(-d/2-70,y,40,70,80,beam)); p.append(cyl(-d/2-70,y,45,74,10,"P_DarkGrey"))   # barrels
     return p
 def shop(w=640,d=700,wall="P_Cream",beam="P_DarkWood",roof="P_Slate",cloth="P_Terracotta",cloth2="P_Cream",goods="P_Ochre"):
@@ -156,13 +224,14 @@ def shop(w=640,d=700,wall="P_Cream",beam="P_DarkWood",roof="P_Slate",cloth="P_Te
 def stone_house(w=620,d=820,storeys=2,wall="P_Stone",quoin="P_LightGrey",roof="P_Slate",wood="P_DarkWood"):
     """A town house of dressed stone (Baerlon, Caemlyn, Tear): quoined corners, slate roof, tall windows, a chimney."""
     fh=270; H=storeys*fh; p=[box(0,0,H/2,d,w,H,wall)]
+    for i in range(1,int(H//90)): p.append(box(0,0,i*90,d+6,w+6,5,ALT.get(wall,"P_DarkGrey")))   # mortar courses
     for sx in (-1,1):
         for sy in (-1,1):
             for i in range(int(H//70)): p.append(box(sx*d/2,sy*w/2,35+i*70,40,40,36,quoin))
     for i in range(1,storeys): p.append(box(0,0,i*fh,d+20,w+20,18,quoin))
-    for i in range(storeys): _windows(p,d,w,i*fh+165,n=2,size=(70,110),sill=quoin,shutters=None if i else wood)
+    for i in range(storeys): _windows(p,d,w,i*fh+165,n=2,size=(70,110),sill=quoin,shutters=None if i else wood,flowers="P_Rose" if i==storeys-1 else None)
     _door(p,d,wd=120,ht=230,mat=wood,lintel=quoin,step=quoin)
-    top=_roof_gable(p,d,w,H,roof,steps=5,step_h=50,trim=wood)
+    top=_roof_gable(p,d,w,H,roof,steps=5,step_h=50,trim=wood,patch=ALT.get(roof))
     _chimney(p,d*0.3,-w*0.2,top-40,h=200,mat=wall,cap=quoin)
     return p
 def adobe_house(w=640,d=720,floors=1,wall="P_Adobe",trim="P_Clay",wood="P_DarkWood",canvas="P_Cream"):
@@ -243,6 +312,185 @@ def fence_segment(length=300,wood="P_Brown",post="P_DarkWood"):
     return p
 def flower_box(wood="P_DarkWood",flower="P_Rose",leaf="P_Green"):
     return [box(0,0,16,60,150,32,wood), box(0,0,42,50,140,20,leaf), box(0,-40,60,30,30,20,flower), box(0,30,62,30,30,20,flower)]
+
+# ---- yards, farm props and ground cover (the "lived in" pass: issues #34 / #35 references)
+def laundry_line(length=360,post="P_DarkWood",cloths=("P_White","P_Blue","P_Rose","P_Cream")):
+    p=[box(-length/2,0,100,16,16,200,post),box(length/2,0,100,16,16,200,post),box(0,0,186,length,4,4,"P_LightGrey")]
+    n=len(cloths)
+    for i,m in enumerate(cloths): p.append(box(-length/2+(i+0.5)*length/n,0,150,60,8,70-10*(i%2),m))
+    return p
+def water_trough(wood="P_DarkWood",water="P_Blue"):
+    return [box(0,0,30,70,170,60,wood),box(0,0,52,56,156,8,water),box(-28,-70,20,10,10,40,wood),box(28,70,20,10,10,40,wood)]
+def wheelbarrow(wood="P_Brown",dark="P_DarkWood",load="P_Straw"):
+    return [box(0,0,50,100,70,30,wood),box(0,0,70,80,54,16,load),box(60,0,30,34,10,34,dark),box(-80,0,52,70,10,10,dark,yaw=12),box(-80,0,52,70,10,10,dark,yaw=-12),box(-40,0,18,10,10,36,dark)]
+def lantern_post(h=220,post="P_DarkWood",lamp="P_Gold"):
+    return [box(0,0,h/2,16,16,h,post),box(14,0,h-8,40,8,8,"P_DarkGrey"),box(34,0,h-34,22,22,36,lamp),box(34,0,h-12,28,28,8,"P_DarkGrey")]
+def hedge(length=300,leaf="P_LeafGreen"):
+    """A clipped hedge run along Y (like fence_segment / picket_fence: posts at +-length/2 in y)."""
+    p=[box(0,0,55,80,length,110,leaf)]
+    for i in range(int(length//90)): p.append(box((i%2)*30-15,-length/2+45+i*90,118,60,60,24,leaf))
+    return p
+def stone_wall(length=300,stone="P_Grey",dark="P_DarkGrey",cap="P_LightGrey"):
+    """A dry-stone field wall run along Y: three staggered courses and a line of capstones."""
+    p=[]
+    for z,m in enumerate((stone,dark,stone)):
+        n=int(length//80)
+        for i in range(n): p.append(box(0,-length/2+40+i*80+(20 if z%2 else -20),z*38+19,60,76,38,m if (i+z)%3 else dark))
+    p.append(box(0,0,124,70,length,12,cap))
+    return p
+def gate(width=240,wood="P_Brown",post="P_DarkWood"):
+    p=[box(-width/2,0,70,20,20,140,post),box(width/2,0,70,20,20,140,post)]
+    for z in (30,70,110): p.append(box(0,0,z,width-30,10,12,wood))
+    p.append(box(0,0,70,width-40,8,10,wood,pitch=-32))
+    return p
+def scarecrow(pole="P_DarkWood",shirt="P_Brown",head="P_Straw",hat="P_DarkGrey"):
+    return [box(0,0,120,12,12,240,pole),box(0,0,200,12,150,12,pole),box(0,0,180,40,90,90,shirt),box(0,0,250,40,40,40,head),box(0,0,276,60,60,10,hat),box(0,0,290,36,36,22,hat),box(0,-70,186,30,30,30,shirt),box(0,70,186,30,30,30,shirt)]
+def crop_rows(w=600,d=420,soil="P_Brown",leaf="P_LeafGreen",leaf2="P_Olive",rows=5,per=6):
+    """A tabac / vegetable patch: a slab of turned earth with rows of plants (foliage material, so they stir in the wind)."""
+    p=[box(0,0,6,d,w,12,soil)]
+    for r in range(rows):
+        y=-w/2+(r+0.5)*w/rows
+        for i in range(per): p.append(box(-d/2+(i+0.5)*d/per,y,30+6*((i+r)%2),42,40,36+12*((i+r)%2),leaf if (i+r)%3 else leaf2))
+    return p
+def beehive(straw="P_Straw",band="P_ThatchDark",wood="P_DarkWood"):
+    return [box(0,0,16,90,90,32,wood),cyl(0,0,60,70,60,straw),cyl(0,0,96,56,24,straw),cyl(0,0,112,36,12,band),cyl(0,0,60,74,8,band)]
+def chicken_coop(wall="P_Brown",roof="P_Shingle",wood="P_DarkWood"):
+    p=[box(0,0,60,120,100,100,wall),box(0,0,114,150,130,16,roof),box(0,0,130,110,96,16,ALT.get(roof,roof)),box(-62,0,40,8,40,50,"P_Black"),box(-66,0,10,60,30,8,wood)]
+    for i in range(3): p.append(box(-110+i*20,-70+i*35,8,26,22,16,"P_White")); p.append(box(-100+i*20,-70+i*35,22,10,10,10,"P_Rose"))   # hens
+    return p
+def log_bench(wood="P_Trunk",dark="P_DarkWood"):
+    return [cyl(-70,0,16,40,32,dark),cyl(70,0,16,40,32,dark),box(0,0,46,220,50,28,wood)]
+def stump(wood="P_Trunk",top="P_Brown"):
+    return [cyl(0,0,22,80,44,wood),cyl(0,0,46,70,6,top),box(44,0,14,30,24,28,wood)]
+def fallen_log(wood="P_Trunk",moss="P_Olive"):
+    return [box(0,0,26,280,52,52,wood),box(60,36,40,40,40,40,wood),box(-40,0,54,90,40,8,moss),box(-150,0,20,24,30,30,"P_Brown")]
+def rock_small(mat="P_Grey",dark="P_DarkGrey"):
+    return [box(0,0,22,90,70,44,mat,yaw=20),box(40,20,16,50,40,32,dark,yaw=-15)]
+def flower_patch(leaf="P_LeafGreen",flowers=("P_Rose","P_Gold","P_White","P_Purple")):
+    p=[box(0,0,8,150,130,16,leaf)]
+    pts=((-40,-30),(30,-40),(45,30),(-30,40),(0,0),(-55,5))
+    for i,(x,y) in enumerate(pts): p.append(box(x,y,30,16,16,30,leaf)); p.append(box(x,y,48,24,24,14,flowers[i%len(flowers)]))
+    return p
+def grass_tuft(leaf="P_LeafPale",leaf2="P_LeafGreen"):
+    p=[]
+    for i,(x,y,h) in enumerate(((0,0,110),(28,14,80),(-24,20,90),(10,-30,70),(-30,-18,64),(34,-14,96))): p.append(box(x,y,h/2,12,12,h,leaf if i%2 else leaf2))
+    return p
+def oak(h=520,trunk="P_Trunk",leaf="P_LeafGreen",light="P_LeafPale"):
+    """A broad old oak: thick trunk, two limbs, a wide lumpy canopy with lighter crown blobs."""
+    p=[box(0,0,h*0.3,90,90,h*0.6,trunk),box(70,0,h*0.5,160,50,50,trunk,pitch=-35),box(-60,40,h*0.55,140,50,50,trunk,yaw=140,pitch=-30)]
+    p+=[box(0,0,h*0.78,460,420,200,leaf),box(90,60,h*0.92,300,280,160,leaf),box(-110,-70,h*0.9,280,300,150,leaf),box(20,-20,h*1.05,200,200,110,light),box(150,-90,h*0.72,160,150,100,leaf),box(-160,110,h*0.74,150,160,100,light)]
+    return p
+def apple_tree(h=380,trunk="P_Trunk",leaf="P_LeafGreen",fruit="P_Rose"):
+    p=[box(0,0,h*0.3,60,60,h*0.6,trunk),box(0,0,h*0.78,300,290,180,leaf),box(40,30,h*0.98,200,190,110,leaf)]
+    for (x,y,z) in ((120,60,h*0.75),(-110,80,h*0.85),(60,-130,h*0.8),(-40,-100,h*0.95),(140,-30,h*0.9)): p.append(box(x,y,z,24,24,24,fruit))
+    return p
+def bush_round(leaf="P_LeafGreen",light="P_LeafPale"):
+    return [box(0,0,60,170,150,120,leaf),box(50,40,100,110,100,80,light),box(-60,-30,96,100,110,70,leaf)]
+def mushroom_cluster(stem="P_Cream",cap="P_Brown",cap2="P_Rose"):
+    p=[]
+    for i,(x,y,h) in enumerate(((0,0,36),(40,20,26),(-30,30,22))): p.append(box(x,y,h/2,16,16,h,stem)); p.append(box(x,y,h+6,36-6*i,36-6*i,14,cap if i%2 else cap2))
+    return p
+def picket_fence(length=300,wood="P_Brown",post="P_DarkWood"):
+    p=[]
+    for y in (-length/2,length/2): p.append(box(0,y,50,16,16,100,post))
+    for z in (40,78): p.append(box(0,0,z,8,length,10,wood))
+    for i in range(int(length//46)): p.append(box(2,-length/2+23+i*46,52,10,22,96,wood))
+    return p
+def _place(parts,ox,oy,oz=0,oyaw=0):
+    """Parts of a sub-generator moved to (ox,oy,oz) and turned by oyaw."""
+    out=[]; c,s_=math.cos(math.radians(oyaw)),math.sin(math.radians(oyaw))
+    for mesh,(px,py,pz),pyaw,sc,m in parts:
+        rot=(pyaw[0],pyaw[1]+oyaw,pyaw[2]) if isinstance(pyaw,tuple) else pyaw+oyaw
+        out.append((mesh,(ox+px*c-py*s_,oy+px*s_+py*c,oz+pz),rot,sc,m))
+    return out
+def yard(parts,d,w,seed=1,fence="picket",n_extra=4):
+    """Wraps a house (door on -X) in the things a lived-in house has around it: a fence down both long sides and across
+    the back (a gap for a gate on one side), a lantern post by the path, and a seeded pick of woodpile, barrels,
+    laundry line, trough, vegetable patch, beehive, hen coop, wheelbarrow, bushes, crates and hay. Everything stays
+    inside x -d/2-230..d/2+210, y +-(w/2+210), so the house set footprint (-760,-560,760,560) covers it."""
+    r=_rnd.Random(seed); p=list(parts)
+    fy=w/2+200; fx0=-d/2-150; fx1=d/2+190
+    def run(L): return picket_fence(L) if fence=="picket" else (stone_wall(L) if fence=="stone" else hedge(L))
+    gate_side=r.choice((-1,1))
+    n=int((fx1-fx0)//300)
+    for sy in (-1,1):   # long sides, 300 cm runs (turned to lie along X) from the front post to the back
+        for i in range(n):
+            if sy==gate_side and i==1: continue   # the gate gap
+            p+=_place(run(300),fx0+150+i*300,sy*fy,0,90)
+    for i in range(int((2*fy)//300)): p+=_place(run(300),fx1,-fy+150+i*300,0,0)   # the back fence runs along Y
+    p+=_place(lantern_post(),fx0+40,-gate_side*(w/2+140),0,0)
+    extras=[("woodpile",(d/2+90,-w/2-90,30),woodpile),("barrels",(d/2+70,w/2+90,0),lambda:barrel()+_place(barrel(),95,-20)),
+            ("laundry",(d*0.05,w/2+130,90),laundry_line),("trough",(-d/2-170,-w/2-80,0),water_trough),("veg",(d/2+120,0,0),lambda:crop_rows(w*0.6,150,rows=3,per=3)),
+            ("beehive",(-d*0.15,-w/2-140,0),beehive),("coop",(d*0.3,w/2+140,0),chicken_coop),("barrow",(-d/2-130,w/2+60,0),wheelbarrow),
+            ("bush",(-d/2-120,-w/2-130,0),bush_round),("crates",(d/2+100,w*0.1,0),crate_stack),("hay",(d/2+110,-w*0.25,0),hay_bale),("tuft",(-d/2-200,w/2+150,0),grass_tuft)]
+    picks=[]; pool=list(extras)
+    while pool and len(picks)<n_extra:
+        e=pool.pop(r.randrange(len(pool)))
+        if any(abs(e[1][0]-q[1][0])<150 and abs(e[1][1]-q[1][1])<150 for q in picks): continue
+        picks.append(e)
+    for name,(ox,oy,oyaw),fn in picks: p+=_place(fn(),ox,oy,0,oyaw)
+    return p
+def cottage_dormer(**kw):
+    """A one-and-a-half storey Two Rivers house: thatch with two dormers in the front slope."""
+    return timber_house(w=640,d=860,storeys=1,roof="thatch",dormers=2,**kw)
+def l_house(**kw):
+    """A timber house with a cross wing at the back (the better-off Two Rivers farmers, Baerlon lanes)."""
+    return timber_house(w=620,d=880,storeys=2,roof="tile",jetty=True,wing=True,**kw)
+def stone_timber_house(w=640,d=820,wall="P_Stone",quoin="P_LightGrey",upper="P_Cream",beam="P_DarkWood",roof="P_Slate"):
+    """Stone ground floor under a jettied timber upper storey (Baerlon, Whitebridge, Caemlyn's older streets)."""
+    fh=260; p=[box(0,0,fh/2,d,w,fh,wall)]
+    for i in range(1,3): p.append(box(0,0,i*85,d+6,w+6,5,ALT.get(wall,"P_DarkGrey")))
+    for sx in (-1,1):
+        for sy in (-1,1):
+            for i in range(int(fh//70)): p.append(box(sx*d/2,sy*w/2,35+i*70,40,40,36,quoin))
+    _windows(p,d,w,165,n=2,size=(70,100),sill=quoin,shutters=beam)
+    _door(p,d,wd=120,ht=230,mat=beam,lintel=quoin,step=quoin)
+    z=fh; dd,ww=d+50,w+50
+    _jetty_brackets(p,dd,ww,z,beam,4); p.append(box(0,0,z+fh/2,dd,ww,fh,upper)); _timber_frame(p,dd,ww,z,fh,beam); _windows(p,dd,ww,z+150,n=2,flowers="P_Rose")
+    top=_roof_gable(p,d,w,z+fh,roof,steps=5,step_h=55,trim=beam,patch=ALT.get(roof))
+    _dormer(p,-d*0.2,-w/2+95,z+fh+60,roof,upper,-1)
+    _chimney(p,d*0.3,w*0.2,top-50,h=200,mat=wall,cap=quoin)
+    return p
+def farmhouse(w=560,d=1100,wall="P_Plaster",beam="P_DarkWood",thatch="P_Straw",byre="P_Brown"):
+    """A long Two Rivers farmhouse: the family end in timber and plaster, the byre end in planks under one thatch roof,
+    a dormer, hay by the byre door."""
+    fh=250; p=[box(0,0,30,d+16,w+16,60,"P_Grey")]
+    p.append(box(-d*0.2,0,60+fh/2,d*0.6,w,fh,wall))
+    hp=[]; _timber_frame(hp,d*0.6,w,60,fh,beam); _windows(hp,d*0.6,w,210,n=2,shutters="P_DarkGreen",flowers="P_Rose"); _door(hp,d*0.6)
+    p+=_place(hp,-d*0.2,0)   # the house end is built about its own centre, then slid to -X
+    p.append(box(d*0.3,0,60+fh/2,d*0.4,w,fh,byre))
+    for i in range(int((d*0.4)//60)): p.append(box(d*0.1+30+i*60,0,60+fh/2,4,w+6,fh,beam))
+    p.append(box(d*0.3,w/2+3,160,200,20,200,beam)); p.append(box(d*0.3,w/2+6,160,8,24,200,"P_Black"))   # byre double door on the side
+    top=_roof_gable(p,d,w,60+fh,thatch,steps=5,thatch=True,moss="P_Olive")
+    _dormer(p,-d*0.25,-w/2+95,60+fh+60,thatch,wall,-1)
+    _chimney(p,-d*0.3,w*0.15,top-60)
+    p+=_place(hay_bale(),d*0.3,w/2+160)
+    return p
+def watermill(w=700,d=900,wall="P_Stone",quoin="P_LightGrey",roof="P_Shingle",wood="P_DarkWood"):
+    """Jon Thane's mill: a stone mill house with a big paddle wheel on its +Y side, the axle housing and a sluice."""
+    p=stone_house(w=w,d=d,storeys=2,wall=wall,quoin=quoin,roof=roof,wood=wood)
+    R=230; cx,cy,cz=d*0.1,w/2+120,R+40
+    p.append(box(cx,cy-80,cz,60,160,60,wood))   # axle
+    for k in range(12):
+        a=k*30; x=cx+R*math.cos(math.radians(a)); z=cz+R*math.sin(math.radians(a))
+        p.append(box(x,cy,z,24,110,70,wood,pitch=-a))              # paddles
+        p.append(box((cx+x)/2,cy-40,(cz+z)/2,R,16,16,wood,pitch=-a)); p.append(box((cx+x)/2,cy+40,(cz+z)/2,R,16,16,wood,pitch=-a))   # spokes
+    p.append(box(cx,cy,30,2*R+140,200,60,"P_Blue"))                # the race under the wheel
+    p.append(box(cx-R-200,cy,120,300,120,16,wood,pitch=-10)); p.append(box(cx-R-200,cy-60,110,300,10,60,wood,pitch=-10)); p.append(box(cx-R-200,cy+60,110,300,10,60,wood,pitch=-10))   # sluice
+    p+=_place(crate_stack(),-d/2-120,w*0.3)
+    p.append(box(-d/2-90,-w*0.3,40,140,100,80,"P_Cream")); p.append(box(-d/2-90,-w*0.3,100,120,80,40,"P_Cream"))   # flour sacks
+    return p
+def stable(w=600,d=900,wall="P_Brown",roof="P_Shingle",wood="P_DarkWood",hay="P_Straw"):
+    """An open-fronted stable: a plank back wall, three stalls on posts, hay in the stalls, a trough out front."""
+    h=280; p=[box(d*0.2,0,h/2,d*0.6,w,h,wall)]
+    for i in range(int((d*0.6)//60)): p.append(box(-d*0.1+30+i*60,0,h/2,4,w+6,h,wood))
+    for sy in (-1,1): p.append(box(-d/2+30,sy*(w/2-20),h/2,30,30,h,wood))
+    for y in (-w/6,w/6): p.append(box(-d*0.1,y,80,d*0.5,10,160,wood))   # stall partitions
+    for y in (-w/3,0,w/3): p.append(box(0,y,50,160,140,100,hay))
+    top=_roof_gable(p,d,w,h,roof,steps=4,step_h=60,ridge="X",trim=wood)
+    p+=_place(water_trough(),-d/2-110,0)
+    p+=_place(laundry_line(),d*0.1,w/2+120)
+    return p
 
 def keep(w=1400,d=1400,h=700,wall="P_DarkGrey",cren="P_Grey",roof="P_Slate",tower_h=950):
     p=[box(0,0,h/2,d,w,h,wall), box(0,0,h+15,d+20,w+20,30,cren)]
@@ -411,6 +659,14 @@ KIT={
  "SM_WayBridge":way_bridge,"SM_WayBridge2":lambda:way_bridge(1200,500,8),"SM_Guiding":guiding,"SM_Waygate":waygate,
  "SM_WayPillar":way_pillar,"SM_WayPillar2":lambda:way_pillar(700,9),"SM_WayRubble":way_rubble,
  "SM_Pine":pine,"SM_Palm":palm,"SM_DeadTree":dead_tree,"SM_Boulder":boulder,"SM_Cactus":cactus,"SM_Reeds":reeds,"SM_FlowerShrub":shrub_flower,"SM_SnowPatch":snow_patch,"SM_Birch":birch,
+ # the lived-in pass: houses with yards, farm buildings, yard and field props, ground cover, more trees
+ "SM_TimberHouseYard":lambda:yard(timber_house(),820,620,seed=11),"SM_TimberHouse2Yard":lambda:yard(timber_house(storeys=2,roof="tile",jetty=True),820,620,seed=12,fence="hedge"),
+ "SM_CottageYard":lambda:yard(thatched_cottage(),640,520,seed=13,fence="stone",n_extra=3),"SM_CottageDormer":cottage_dormer,"SM_CottageDormerYard":lambda:yard(cottage_dormer(),860,640,seed=14),
+ "SM_LHouse":l_house,"SM_LHouseYard":lambda:yard(l_house(),880,620,seed=15,fence="hedge"),"SM_StoneTimberHouse":stone_timber_house,"SM_StoneTimberHouseYard":lambda:yard(stone_timber_house(),820,640,seed=16,fence="stone"),
+ "SM_Farmhouse":farmhouse,"SM_FarmhouseYard":lambda:yard(farmhouse(),1100,560,seed=17,n_extra=5),"SM_Watermill":watermill,"SM_Stable":stable,
+ "SM_LaundryLine":laundry_line,"SM_WaterTrough":water_trough,"SM_Wheelbarrow":wheelbarrow,"SM_LanternPost":lantern_post,"SM_Hedge":hedge,"SM_StoneWall":stone_wall,"SM_Gate":gate,"SM_PicketFence":picket_fence,
+ "SM_Scarecrow":scarecrow,"SM_CropRows":crop_rows,"SM_Beehive":beehive,"SM_ChickenCoop":chicken_coop,"SM_LogBench":log_bench,"SM_Stump":stump,"SM_FallenLog":fallen_log,"SM_RockSmall":rock_small,
+ "SM_FlowerPatch":flower_patch,"SM_GrassTuft":grass_tuft,"SM_Oak":oak,"SM_AppleTree":apple_tree,"SM_BushRound":bush_round,"SM_MushroomCluster":mushroom_cluster,
 }
 
 def stairs(rise=300,width=500,step_rise=20,step_run=40,mat="P_LightGrey",side="P_Grey"):
@@ -477,13 +733,20 @@ def kit_slot_mats(parts):
         m=part[4]
         if m not in order: order.append(m)
     return order
+def _expand_recolor(recolor):
+    """P_Terracotta -> P_Slate also sends the roof's second shade P_Terracotta2 -> P_Slate2 (or the plain target when it has none)."""
+    if not recolor: return recolor
+    out=dict(recolor)
+    for a,b in recolor.items():
+        if a in ALT and ALT[a] not in out: out[ALT[a]]=ALT.get(b,b)
+    return out
 def kit_entry(name,recolor=None,weight=1):
     """Weighted spawner entry for a kit mesh with optional {material->material} recolour."""
     parts=[box(0,0,1,20,20,2,KIT[name]()[0][4])]+list(KIT[name]())
-    order=kit_slot_mats(parts)
+    order=kit_slot_mats(parts); recolor=_expand_recolor(recolor)
     mats=[PM((recolor or {}).get(m,m)) for m in order] if recolor else None
     return (f"{KIT_FOLDER}/{name}.{name}",weight,mats)
 def kit_mesh(name): return f"{KIT_FOLDER}/{name}.{name}"
 def kit_mats(name,recolor=None):
-    parts=[box(0,0,1,20,20,2,KIT[name]()[0][4])]+list(KIT[name]())
+    parts=[box(0,0,1,20,20,2,KIT[name]()[0][4])]+list(KIT[name]()); recolor=_expand_recolor(recolor)
     return [PM((recolor or {}).get(m,m)) for m in kit_slot_mats(parts)]
