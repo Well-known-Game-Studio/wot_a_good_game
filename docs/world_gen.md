@@ -207,9 +207,38 @@ with collision, cloud cover and fog follow the preset, wind debris (leaves) ride
 Roughness and Normal through UDW's "Snow And Dust Weather Effects" and "Wet Weather Effects" (`wot.Mat.AddWeather`),
 with "Material Effects Take Time to Change" on, so snow and dust build up on roofs and ground while it falls and
 surfaces darken and gloss in rain, instead of being baked into the meshes (`P_Snow`, `SM_SnowPatch` remain for
-permanent drifts). `wot.Mat.Dump <Material>` prints a material's graph. Not done yet: the Overworld landscape material
-(Dynamic Landscape Weather Effects, which also gives footprints in snow) and the foliage wind function on the voxel
-trees and grass.
+permanent drifts). `wot.Mat.Dump <Material>` prints a material's graph.
+
+**Voxel weather particles.** UDW's own sprite rain / snow / dust / wind debris are switched off; the falling things are
+`AWotVoxelWeather` (`Source/.../Weather/WotVoxelWeather`), hand-made in the spirit of the fireflies: one instanced cube
+mesh per level, little palette-coloured cubes spawned around the player. Rain is long thin blue streaks that splash
+flat and vanish; snow drifts down, rests seven seconds where it lands and shrinks away; ash tumbles slowly and settles;
+sand blows low and fast across the ground; leaves tumble on the wind and lie a while. `weather.py` picks the kind and
+intensity per town (`VOXEL` table) and the wind follows the UDW wind direction; `wot.Weather.Voxel Snow 1` switches it
+in a play session. Sizes are tuned for the game's high camera (12 to 25 cm cubes).
+
+**Foliage wind.** Leafy kit parts use the leaf palette (`P_LeafDark`, `P_LeafGreen`, `P_LeafOlive`, `P_LeafPale`),
+instances of `voxel_foliage_base`: the base material with UDW's "Foliage Wind Movement" on World Position Offset
+(`wot.Mat.MakeFoliage`). The imported trees and bushes under `Meshes/Foliage/trees|small` were re-parented to
+`textured_voxel_foliage_material` the same way (`wot.Mat.SetParent`), so canopies sway with the weather's wind while
+houses stay still. Shutters and other green building parts keep the ordinary palette.
+
+**Ground: footprints and puddles.** The town terrain (`MI_Ground_*`, `MI_VoxelGrass`, and `G_Snow` for the snow band)
+sits on `voxel_ground_base`: the base material with UDW's "Dynamic Landscape Weather Effects" in place of the prop snow
+/ wet functions (`wot.Mat.AddLandscapeWeather <Base> <Copy>` makes it, bypassing the prop functions; the snow and dust
+colours are wired in with `wot.Mat.WireConst`, the function's own snow alpha is too faint on flat voxels).
+`wot.Mat.CloneMI` re-parents the instances and tags them with the `PM_Ground` physical material. Snow and dust gain
+depth with trails, rain leaves puddles with ripples. Every character attaches a UDW "DLWE Interaction" component to each
+foot bone at BeginPlay (`WotWeatherFeet::Attach`: `Foot_*` on the humanoid rigs, `leg_*_end` on the voxel rigs), so the
+player and NPCs press into Fal Dara's snow and ripple Tear's puddles. Two runtime details make that work: collision
+shapes ignore an instanced mesh's override material, so `WotWeatherFeet::TagGround` gives every ground instanced mesh
+(material under `voxel_ground_base`) the `PM_Ground` body override once per world; and the render target the trails
+draw into follows UDW's control point, which has to be the player *camera* (with the pawn it never recentres, the pawn
+spawns after UDW starts). `weather.py` sets that, lists `PM_Ground` on UDW, turns the override-volume target off (no
+volumes in the towns) and seeds each level's starting surface state (`MAT_STATE`: Fal Dara snowed in, Tear soaked,
+Tanchico dusty) because "Material Effects Take Time to Change" otherwise ramps from bare ground every session.
+`wot.Weather.Feet` (what the feet stand on) and `wot.Weather.MPC` (UDW's material parameter collection, settable) are
+the diagnostics. The Overworld landscape material is emissive-driven (the map texture) and keeps no surface effects.
 
 ## 6b. The Overworld portals
 

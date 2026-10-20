@@ -14,7 +14,7 @@ public class VoxelRPG : ModuleRules
 		if (Target.bBuildEditor)
 		{
 			// editor-only tooling (Testing/WotAnimBuilder.cpp): Blueprint compilation and asset creation
-			PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd", "MaterialEditor" });
+			PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd", "MaterialEditor", "EditorScriptingUtilities", "PhysicsCore" });
 		}
 
 		// Uncomment if you are using Slate UI

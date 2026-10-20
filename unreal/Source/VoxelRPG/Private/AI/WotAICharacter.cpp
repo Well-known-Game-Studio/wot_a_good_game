@@ -1,4 +1,5 @@
 #include "AI/WotAICharacter.h"
+#include "Weather/WotWeatherFeet.h"
 #include "AI/WotAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -63,6 +64,12 @@ int32 AWotAICharacter::ApplyRandomLook()
     M->SetAnimInstanceClass(RandomLookAnimClass);
   }
   return Index;
+}
+
+void AWotAICharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	WotWeatherFeet::Attach(this);   // footprints in snow, ripples in puddles
 }
 
 void AWotAICharacter::PostInitializeComponents()

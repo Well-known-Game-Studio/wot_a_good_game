@@ -3,7 +3,7 @@ H=MESH["house"]                       # the imported Two Rivers house: door on +
 HK=kit_mesh("SM_RandHouse")           # the same house turned to the kit convention (door -X): every street-house entry
 PORTAL_BP="/Game/Wot/Actors/Portal"; CHEST="/Game/Wot/Actors/Props/Chest"; CRATE="/Game/Wot/Actors/Props/BP_BreakableCrate"; CAMP="/Game/Wot/Actors/Props/Campfire"; FIRE="/Game/Wot/Actors/Fireflies"
 HORSE="/Game/Wot/NPCs/animals/horse/HorseBP"; SHEEP="/Game/Wot/NPCs/animals/sheep/Sheep_BP"; PEN="/Game/Wot/GeometryScripting/BP_AnimalPen"
-GRASS=MAT("MI_Ground_Lush"); ROCK=MAT("MI_Ground_Rock"); DARKROCK=MAT("MI_Ground_DarkRock"); CLIFF=MAT("MI_Ground_Cliff"); REDROCK=MAT("MI_Ground_RedRock"); SAND=MAT("MI_Ground_Sand"); SNOW=PM("P_Snow"); TUNDRA=MAT("MI_Ground_Tundra"); ASH=MAT("MI_Ground_Ash"); DIRT=MAT("MI_Ground_Dirt")
+GRASS=MAT("MI_Ground_Lush"); ROCK=MAT("MI_Ground_Rock"); DARKROCK=MAT("MI_Ground_DarkRock"); CLIFF=MAT("MI_Ground_Cliff"); REDROCK=MAT("MI_Ground_RedRock"); SAND=MAT("MI_Ground_Sand"); SNOW=PM("G_Snow"); TUNDRA=MAT("MI_Ground_Tundra"); ASH=MAT("MI_Ground_Ash"); DIRT=MAT("MI_Ground_Dirt")
 def grid_streets(x0,x1,y0,y1,nx,ny,width=5,houses=True,spacing=1300,setback=850,set_=None,prefix="st",wig=0,seed=1):
     """Rectilinear street grid between (x0,y0)-(x1,y1): nx vertical and ny horizontal streets (optionally meandering)."""
     out=[]
@@ -43,9 +43,9 @@ def base_foliage(trees,forest_ratio=0.2,edge_ratio=0.05,town_ratio=0.008,bush=0.
 TREES_TEMPERATE=[(MESH["tree1"],3,None),(MESH["tree2"],3,None),(MESH["tree3"],2,None),(MESH["tree4"],2,None),(MESH["oldtree"],1,None)]
 TREES_FORMAL=[(MESH["tree3"],3,None),(MESH["tree4"],3,None),(kit_mesh("SM_Birch"),2,None)]
 def TREES_PINE(snow=False):
-    if snow: return [kit_entry("SM_Pine",{"P_DarkGreen":"P_DarkGreen"},3),kit_entry("SM_Pine",{"P_DarkGreen":"P_Ice"},1),(MESH["tree4"],1,None)]
-    return [kit_entry("SM_Pine",{"P_DarkGreen":"P_DarkGreen"},3),kit_entry("SM_Pine",{"P_DarkGreen":"P_Olive"},1),(MESH["tree4"],1,None)]
-TREES_DESERT=[kit_entry("SM_Palm",None,3),kit_entry("SM_Palm",{"P_Green":"P_Olive"},2),(MESH["tree3"],1,None)]
+    if snow: return [kit_entry("SM_Pine",{"P_LeafDark":"P_DarkGreen"},3),kit_entry("SM_Pine",{"P_LeafDark":"P_Ice"},1),(MESH["tree4"],1,None)]
+    return [kit_entry("SM_Pine",{"P_LeafDark":"P_DarkGreen"},3),kit_entry("SM_Pine",{"P_LeafDark":"P_Olive"},1),(MESH["tree4"],1,None)]
+TREES_DESERT=[kit_entry("SM_Palm",None,3),kit_entry("SM_Palm",{"P_LeafGreen":"P_Olive"},2),(MESH["tree3"],1,None)]
 TREES_DEAD=[kit_entry("SM_DeadTree",None,4),kit_entry("SM_DeadTree",{"P_DarkGrey":"P_Black"},2)]
 def level_scale(size): return (size/200.0,size/200.0,10)
 def waygate(town,x,y,yaw,to_level,from_tag,to_tag,z=0):

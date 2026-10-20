@@ -293,7 +293,7 @@ def bridge_arch(span=1200,w=400,mat="P_LightGrey",rail="P_White"):
     for x in (-span/2+60,span/2-60): p.append(box(x,0,50,120,w,100,mat))
     return p
 # ---- foliage ----
-def pine(h=600,trunk="P_Trunk",leaf="P_DarkGreen",tiers=4,snow=None):
+def pine(h=600,trunk="P_Trunk",leaf="P_LeafDark",tiers=4,snow=None):
     p=[box(0,0,h*0.25,60,60,h*0.5,trunk)]
     z=h*0.35
     for i in range(tiers):
@@ -302,7 +302,7 @@ def pine(h=600,trunk="P_Trunk",leaf="P_DarkGreen",tiers=4,snow=None):
         if snow: p.append(box(0,0,z+hh,s*0.8,s*0.8,20,snow))
         z+=hh*0.8
     return p
-def palm(h=700,trunk="P_Trunk",leaf="P_Green"):
+def palm(h=700,trunk="P_Trunk",leaf="P_LeafGreen"):
     p=[]
     for i in range(6): p.append(box(0,0,i*h/6+h/12,70-i*5,70-i*5,h/6,trunk))
     for k in range(6):
@@ -313,16 +313,16 @@ def dead_tree(h=520,mat="P_DarkGrey"):
     return [box(0,0,h/2,55,55,h,mat), box(90,0,h*0.8,200,45,45,mat), box(-70,40,h*0.65,160,40,40,mat,yaw=30), box(150,0,h*0.95,45,45,120,mat)]
 def boulder(s=220,mat="P_Grey"):
     return [box(0,0,s*0.35,s,s*0.8,s*0.7,mat), box(s*0.3,s*0.2,s*0.3,s*0.6,s*0.6,s*0.6,mat,yaw=25), box(-s*0.25,-s*0.2,s*0.2,s*0.5,s*0.5,s*0.4,"P_DarkGrey",yaw=-20)]
-def cactus(h=300,mat="P_Olive"):
+def cactus(h=300,mat="P_LeafOlive"):
     return [box(0,0,h/2,60,60,h,mat), box(80,0,h*0.6,100,50,50,mat), box(100,0,h*0.75,50,50,120,mat), box(-70,0,h*0.45,80,50,50,mat), box(-90,0,h*0.6,50,50,100,mat)]
-def reeds(h=180,mat="P_Olive"):
+def reeds(h=180,mat="P_LeafOlive"):
     p=[]
     for i,(x,y) in enumerate([(0,0),(40,30),(-30,40),(20,-40),(-40,-20)]): p.append(box(x,y,h/2+i*8,16,16,h+i*16,mat))
     return p
-def shrub_flower(mat="P_Green",flower="P_Rose"):
+def shrub_flower(mat="P_LeafGreen",flower="P_Rose"):
     return [box(0,0,50,120,120,100,mat), box(40,30,110,40,40,30,flower), box(-40,-20,105,40,40,30,flower), box(10,-45,112,40,40,30,"P_Gold")]
 def snow_patch(): return [box(0,0,4,260,220,8,"P_Snow"), box(90,60,6,160,140,8,"P_Snow")]
-def birch(h=550,trunk="P_White",leaf="P_Olive"):
+def birch(h=550,trunk="P_White",leaf="P_LeafPale"):
     return [box(0,0,h/2,45,45,h,trunk), box(0,0,h*0.78,260,260,180,leaf), box(0,0,h*0.95,180,180,120,leaf), box(15,0,h*0.5,50,50,30,"P_DarkGrey")]
 
 # ---------------- the Ways: dark decayed stone built by Ogier and Aes Sedai, floating in a void ----------------
