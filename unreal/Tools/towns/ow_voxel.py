@@ -43,9 +43,10 @@ def blur(a,rad):
     k=2*rad+1; c=np.cumsum(np.cumsum(np.pad(a,rad+1),0),1)
     out=(c[k:,k:]-c[:-k,k:]-c[k:,:-k]+c[:-k,:-k])/(k*k)
     return out[:a.shape[0],:a.shape[1]]
-SEA,SAND,GRASS,FOREST,HILL,MOUNT,DRY,MEADOW,SNOW,RIVER=range(10)
-PALETTE={SAND:"MI_Ground_Sand",GRASS:"MI_Ground_Lush",FOREST:"MI_Ground_Lush",HILL:"MI_Ground_Dirt",MOUNT:"MI_Ground_Rock",DRY:"MI_Ground_Tundra",MEADOW:"MI_Ground_Tundra",SNOW:"G_Snow",RIVER:"MI_VoxelWater"}
-STRATA={MOUNT:"MI_Ground_DarkRock",HILL:"MI_Ground_Dirt",GRASS:"MI_Ground_Dirt",FOREST:"MI_Ground_Dirt",DRY:"MI_Ground_Dirt",SAND:"MI_Ground_Sand",MEADOW:"MI_Ground_Dirt",SNOW:"MI_Ground_Rock",RIVER:"MI_Ground_Dirt"}   # the exposed face below a terrace
+SEA,SAND,GRASS,FOREST,HILL,MOUNT,DRY,MEADOW,SNOW,RIVER,ROAD,LAKE=range(12)
+PALETTE={SAND:"MI_Ground_Sand",GRASS:"MI_Ground_Lush",FOREST:"MI_Ground_Lush",HILL:"MI_Ground_Dirt",MOUNT:"MI_Ground_Rock",DRY:"MI_Ground_Tundra",MEADOW:"MI_Ground_Tundra",SNOW:"G_Snow",RIVER:"MI_VoxelWater",ROAD:"MI_Ground_Dirt",LAKE:"MI_VoxelWater"}
+STRATA={MOUNT:"MI_Ground_DarkRock",HILL:"MI_Ground_Dirt",GRASS:"MI_Ground_Dirt",FOREST:"MI_Ground_Dirt",DRY:"MI_Ground_Dirt",SAND:"MI_Ground_Sand",MEADOW:"MI_Ground_Dirt",SNOW:"MI_Ground_Rock",RIVER:"MI_Ground_Dirt",ROAD:"MI_Ground_Dirt",LAKE:"MI_Ground_Dirt"}   # the exposed face below a terrace
+MIN_ROAD_CELLS=15; MAX_LAKE_CELLS=400
 BASE=os.path.join(ROOT,"maps","newwotbase-1.png"); BX,BY,SX,SY=20.0,-60.0,11.6,9.05   # texture texel -> base map pixel (ow_fit.py)
 MIN_RIVER_CELLS=12   # a connected run of river cells shorter than this is a blue place name, not a river
 SNOW_H=7            # mountain terraces at or above this wear snow
@@ -72,6 +73,44 @@ def classify():
     cls[mount&(h>=SNOW_H)]=SNOW                                  # snow on the high terraces
     h[~land]=-2
     return cls,h
+def components(mask,nx,ny):
+    """8-connected runs of true cells: a list of cell lists."""
+    seen=np.zeros_like(mask); out=[]
+    for j in range(ny):
+        for i in range(nx):
+            if not mask[j,i] or seen[j,i]: continue
+            comp=[(j,i)]; seen[j,i]=True; k=0
+            while k<len(comp):
+                cj,ci=comp[k]; k+=1
+                for dj in (-1,0,1):
+                    for di in (-1,0,1):
+                        jj,ii=cj+dj,ci+di
+                        if 0<=jj<ny and 0<=ii<nx and mask[jj,ii] and not seen[jj,ii]: seen[jj,ii]=True; comp.append((jj,ii))
+            out.append(comp)
+    return out
+def roads(nx,ny,x0,y0):
+    """Road cells from the base map: its roads are dotted brown lines (the borders are dark red dash-dots, dropped).
+    Dots are joined by taking any road pixel in a cell and keeping only long connected runs."""
+    im=np.asarray(Image.open(BASE).convert("RGB")); r=im[...,0].astype(int); g=im[...,1].astype(int); b=im[...,2].astype(int)
+    road=(r>100)&(r<200)&(g>35)&(g<140)&(b<95)&(r>g+25)&~((r>150)&(g<70)&(b<40))   # the dots run (120,50,0)..(150,110,60)
+    border=dilate((r>120)&(g<90)&(b>g-18)&(r>g+50),1)   # the borders' red has b about equal to g; the road dots' brown has b well under g
+    # only dots lying on open country count: the mountains' brown shading passes the colour test too
+    plain=((g>r+10)&(g>b+10))|((r>150)&(g>140)&(b<140)&(r<200)&(g<190))
+    p4=plain[::4,::4].astype(np.float64); o4=blur(p4,2)>0.55                     # at quarter resolution (window ~20 px)
+    open_=np.repeat(np.repeat(o4,4,axis=0),4,axis=1)[:plain.shape[0],:plain.shape[1]]
+    road&=~border; road&=open_; BH,BW=road.shape
+    mask=np.zeros((ny,nx),bool)
+    for j in range(ny):
+        for i in range(nx):
+            c0,r0=world_to_px(x0+i*CELL,y0+j*CELL); c1,r1=world_to_px(x0+(i+1)*CELL,y0+(j+1)*CELL)
+            bx0,by0=max(0,int(BX+SX*c0)),max(0,int(BY+SY*r0)); bx1,by1=min(BW,int(BX+SX*c1)),min(BH,int(BY+SY*r1))
+            if bx1>bx0 and by1>by0 and road[by0:by1,bx0:bx1].sum()>=3: mask[j,i]=True
+    keep=np.zeros_like(mask)
+    for comp in components(mask,nx,ny):   # dots are dense enough that a road is 8-connected at cell size; keep the long runs
+        js=[q[0] for q in comp]; is_=[q[1] for q in comp]; bw=max(is_)-min(is_)+1; bh=max(js)-min(js)+1
+        if len(comp)>=MIN_ROAD_CELLS and max(bw,bh)>=12:
+            for (jj,ii) in comp: keep[jj,ii]=True
+    return keep
 def rivers(nx,ny,x0,y0):
     """River cells from the base map: its rivers are thin saturated blue lines (the sea is a paler blue). For every
     1 m cell the matching block of base pixels is tested for river blue; runs of connected river cells shorter than
@@ -115,14 +154,28 @@ def main():
             c0,r0=world_to_px(x0+i*CELL,y0+j*CELL); c1,r1=world_to_px(x0+(i+1)*CELL,y0+(j+1)*CELL)
             cs,ce=max(0,int(c0)),min(W,int(math.ceil(c1))); rs,re=max(0,int(r0)),min(H,int(math.ceil(r1)))
             if ce<=cs or re<=rs: cc[j,i]=SEA; ch[j,i]=-2; continue
-            blk=cls[rs:re,cs:ce]; counts=np.bincount(blk.ravel(),minlength=10); k=int(counts.argmax())
+            blk=cls[rs:re,cs:ce]; counts=np.bincount(blk.ravel(),minlength=12); k=int(counts.argmax())
             cc[j,i]=k; ch[j,i]=int(round(h[rs:re,cs:ce].mean())) if k!=SEA else -2
+    # lakes: enclosed sea-class cells (not connected to the map edge, small) sit one terrace below their shore, not two
+    seacells=(cc==SEA)
+    for comp in components(seacells,nx,ny):
+        edge=any(j==0 or i==0 or j==ny-1 or i==nx-1 for (j,i) in comp)
+        if not edge and len(comp)<=MAX_LAKE_CELLS:
+            shore=[ch[jj,ii] for (j,i) in comp for (jj,ii) in ((j-1,i),(j+1,i),(j,i-1),(j,i+1)) if 0<=jj<ny and 0<=ii<nx and cc[jj,ii]!=SEA]
+            lvl=max(-1,(min(shore) if shore else 0)-1)
+            for (j,i) in comp: cc[j,i]=LAKE; ch[j,i]=lvl
     # rivers: carved one terrace into whatever they cross (never below the coast), water on top
     rv=rivers(nx,ny,x0,y0)
     for j in range(ny):
         for i in range(nx):
-            if rv[j,i] and cc[j,i]!=SEA: cc[j,i]=RIVER; ch[j,i]=max(-1,ch[j,i]-1)
+            if rv[j,i] and cc[j,i] not in (SEA,LAKE): cc[j,i]=RIVER; ch[j,i]=max(-1,ch[j,i]-1)
     print("river cells",int(rv.sum()))
+    # roads: a dirt line at ground level across grass, meadow, dry plain and forest (fords across rivers)
+    rd=roads(nx,ny,x0,y0)
+    for j in range(ny):
+        for i in range(nx):
+            if rd[j,i] and cc[j,i] in (GRASS,MEADOW,DRY,FOREST,HILL): cc[j,i]=ROAD
+    print("road cells",int(rd.sum()))
     # boxes: for each row, runs of equal (class, height) -> one top slab (STEP thick, the terrace's material) plus, where
     # a neighbour is lower, the exposed strata face as a darker slab below (down to the lowest neighbour)
     boxes=[]
@@ -153,12 +206,13 @@ def main():
         for i in range(nx):
             k=int(cc[j,i])
             p=0.55 if k==FOREST else (0.03 if k in (GRASS,MEADOW) else (0.06 if k==HILL else 0.0))
+            if k in (ROAD,LAKE,RIVER): p=0.0
             n=int(p)+ (1 if rng.random()<(p-int(p)) else 0)
             for _ in range(n):
                 x,y=world(i,j); x+=rng.uniform(-45,45); y+=rng.uniform(-45,45)
                 kind="SM_Pine" if (k==HILL or rng.random()<0.25) else ("SM_Oak" if rng.random()<0.6 else "SM_BushRound")
                 trees.append((round(x),round(y),int(ch[j,i])*STEP,kind,round(float(rng.uniform(0.35,0.55)),2)))
-    pal={SEA:(70,120,200),SAND:(222,205,150),GRASS:(120,180,90),FOREST:(60,120,60),HILL:(170,150,110),MOUNT:(190,175,150),DRY:(175,165,95),MEADOW:(160,200,120),SNOW:(240,240,245),RIVER:(60,110,220)}
+    pal={ROAD:(150,110,70),LAKE:(80,140,230),SEA:(70,120,200),SAND:(222,205,150),GRASS:(120,180,90),FOREST:(60,120,60),HILL:(170,150,110),MOUNT:(190,175,150),DRY:(175,165,95),MEADOW:(160,200,120),SNOW:(240,240,245),RIVER:(60,110,220)}
     pv=np.zeros((ny,nx,3),np.uint8)
     for k,c in pal.items(): pv[cc==k]=c
     pv=np.clip(pv.astype(int)+(ch[...,None]*7),0,255).astype(np.uint8)
@@ -172,5 +226,5 @@ def main():
     for i in range(0,len(text),70000):
         open(os.path.join(parts,f"{n:04d}.txt"),"w").write(text[i:i+70000]); n+=1
     open(os.path.join(parts,"count.txt"),"w").write(str(n))
-    print(f"cells {nx}x{ny}, boxes {len(boxes)}, trees {len(trees)}, classes {np.bincount(cc.ravel(),minlength=10).tolist()} -> {OUT} ({n} parts staged)")
+    print(f"cells {nx}x{ny}, boxes {len(boxes)}, trees {len(trees)}, classes {np.bincount(cc.ravel(),minlength=12).tolist()} -> {OUT} ({n} parts staged)")
 if __name__=="__main__": main()

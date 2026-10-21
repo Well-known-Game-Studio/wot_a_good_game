@@ -53,6 +53,8 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   towns to the PCG map texture and those settlements (`ow_sites.json`), place/move portals, starts and landmarks.
 * `run_town.py <Town>...|--all|--dry|--kit [SM_Name ...]|--overworld` – regenerate towns, dry-run the relief locally, rebuild the kit,
   or re-place the Overworld portals.
+* `ow_voxel.py` (python/env: Pillow + numpy) + `run_town.py --overworld2` – the voxel Overworld2 diorama: terrain, rivers, roads, lakes
+  and tiny cities from the map textures (docs/world_gen.md 6d); `ow_voxel_preview.png` shows the cell map it will build.
 
 Portals: the Portal blueprint now has a `ToLevel` string (used when set, otherwise the old
 `ToMap` enum). Overworld portals are named `Overworld<Town>` and each town's return portal

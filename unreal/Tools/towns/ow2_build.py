@@ -79,6 +79,20 @@ def run():
             move_actor(p,(loc["x"],loc["y"],z),rot["yaw"]); moved+=1
         except Exception as e: out["move_err_"+cls]=str(e)[:80]
     out["moved"]=moved
+    # the tiny cities: one model per town with a level, a generic walled city for the cities without one, on the
+    # ground beside each portal; the old big-building landmarks go
+    TINY={"EmondsField","Baerlon","Whitebridge","ShadarLogoth","FalDara","Caemlyn","TarValon","Cairhien","Tear","Illian","Tanchico"}
+    for p in keep:
+        try:
+            if str(T(AC+"get_label",{"actor":ref(p)})).endswith("Landmark"): remove(p)
+        except Exception: pass
+    k=0
+    for town,st in sites.items():
+        x,yy,yaw=st["x"],st["y"],st["yaw"]
+        name=f"SM_Tiny_{town}" if town in TINY else ("SM_Tiny_City" if k%2==0 else "SM_Tiny_City2")
+        dx=math.cos(math.radians(yaw)); dy=math.sin(math.radians(yaw)); tx,ty=x-dx*420,yy-dy*420
+        place_mesh(kit_mesh(name),f"{town}Tiny",(tx,ty,hz(tx,ty)),yaw+180,1.0,None,tag="OwHouse"); k+=1
+    out["tiny"]=k
     for i,h in enumerate(houses):
         x,yy=h["x"],h["y"]; mesh=BIG if "big" in h["mesh"] else HOUSE
         place_mesh(mesh,f"OwHouse{i}",(x,yy,hz(x,yy)),float((int(x)*7+int(yy)*13)%360),1.0,None,tag="OwHouse")

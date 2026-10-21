@@ -325,9 +325,19 @@ its landscape, mountain / tree props and foliage houses, spawns the slabs and tr
 portals, player starts, landmarks, enemies and the hand-placed settlement houses (`ow_houses.json`) on the new ground,
 and fences the table with a level-bounds box. The editor's `read_file` tool takes 80 KB a call, so `ow_voxel.py` stages
 its JSON as numbered parts under `Saved/PlayTest/ow_voxel_parts` (regenerate: run `ow_voxel.py`, then the build).
-Cost: about 24,000 slab instances and 2,300 trees, 2 M LOD0 triangles, against the old level's 12,000 Nanite props and
-19 M. Still to do: rivers, lakes and roads (the map texture has none; they would be carved from the base map), and the
-towns' hand-placed clusters as real kit houses.
+Rivers, roads and lakes come from the base map `maps/newwotbase-1.png` through the same texel mapping (`BX, BY, SX,
+SY` in `ow_voxel.py`): rivers are its thin saturated-blue lines (runs of 12+ cells; filled blobs are sigils, short runs
+lettering), carved one terrace into whatever they cross with voxel water on top; roads are its dotted brown lines
+(dots on open country only, the borders' red told apart by its blue level, runs of 15+ cells), a dirt line at ground
+level; lakes are enclosed sea-class cells, set one terrace below their shore instead of two. The tiny cities
+(`kit_builder.py`: `SM_Tiny_<Town>` for the eleven towns, `SM_Tiny_City` / `SM_Tiny_City2` for the cities without a
+level) stand beside each portal: Caemlyn's white Inner City on its hill, Tar Valon's island and Tower, the Stone of
+Tear, Cairhien's topless towers, Illian's canals, Tanchico's round harbour, Fal Dara's keep, Shadar Logoth's
+blackened ruin, Baerlon's wall and gate, Whitebridge's bridge, the Green and inn of Emond's Field.
+Cost: about 29,000 slab instances and 2,100 trees, 2 M LOD0 triangles, against the old level's 12,000 Nanite props and
+19 M. `wot.Perf.Primitives [N]` lists a world's heaviest mesh components and `wot.Perf.Frame [seconds]` logs average
+frame and GPU milliseconds; the Overworld2 numbers in PR #140 come from both levels in simulate mode from the same two
+camera poses. Still to do: the settlement clusters as kit houses, subtler meadow patches.
 
 ## 7. Building with it: recipes
 

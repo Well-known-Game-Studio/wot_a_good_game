@@ -154,3 +154,28 @@ static FAutoConsoleCommandWithWorldAndArgs GWotPerfPrimitives(
 		UE_LOG(LogTemp, Display, TEXT("[PERF] %d mesh components, %d instances, %lld triangles (LOD0 x instances)"), NumComps, TotalInst, TotalTris);
 		for (int32 i = 0; i < FMath::Min(N, Rows.Num()); ++i) { const FRow& R = Rows[i]; UE_LOG(LogTemp, Display, TEXT("[PERF]   %10lld tris %6d inst coll=%d nanite=%d  %s"), R.Tris, R.Instances, R.bCollision ? 1 : 0, R.bNanite ? 1 : 0, *R.Name); }
 	}));
+
+// wot.Perf.Frame [seconds=5] : average frame / game / render / GPU milliseconds and draw calls over the next N seconds,
+// logged as one [PERF] line (works in PIE and simulate: the numbers are the engine's own averages)
+#include "Engine/Engine.h"
+#include "RenderCore.h"
+#include "Misc/App.h"
+#include "TimerManager.h"
+static FAutoConsoleCommandWithWorldAndArgs GWotPerfFrame(
+	TEXT("wot.Perf.Frame"), TEXT("Log average frame and GPU ms over N seconds: wot.Perf.Frame [N=5]"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		if (!World) { return; }
+		const float Seconds = Args.Num() > 0 ? FCString::Atof(*Args[0]) : 5.0f;
+		struct FAcc { double Frame = 0, Gpu = 0; int32 N = 0; };
+		TSharedPtr<FAcc> Acc = MakeShared<FAcc>();
+		TSharedPtr<FTimerHandle> Handle = MakeShared<FTimerHandle>();
+		World->GetTimerManager().SetTimer(*Handle, FTimerDelegate::CreateLambda([Acc, World, Seconds, Handle]() {
+			Acc->Frame += FApp::GetDeltaTime() * 1000.0; Acc->Gpu += FPlatformTime::ToMilliseconds(RHIGetGPUFrameCycles()); ++Acc->N;
+			if (Acc->N * 0.25f >= Seconds) {
+				const double n = FMath::Max(1, Acc->N);
+				UE_LOG(LogTemp, Display, TEXT("[PERF] %s over %.1fs: frame %.1f ms (%.0f fps), gpu %.1f ms"),
+					*World->GetMapName(), Acc->N * 0.25f, Acc->Frame / n, 1000.0 / FMath::Max(0.01, Acc->Frame / n), Acc->Gpu / n);
+				World->GetTimerManager().ClearTimer(*Handle);
+			}
+		}), 0.25f, true);
+	}));
