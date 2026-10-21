@@ -76,7 +76,7 @@ def baerlon_spec():
     houses=rand_house_entries(["MI_Wall_Cream","MI_Wall_Tan"],["MI_Roof_Thatch","MI_Roof_Slate"])+stone_town_entries()+[kit_entry("SM_StoneTimberHouseYard",None,3),kit_entry("SM_LHouse",{"P_Terracotta":"P_Slate"},1),kit_entry("SM_TimberHouseYard",{"P_Straw":"P_Shingle"},2),kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_Slate"},1),kit_entry("SM_GableHouse",{"P_Plaster":"P_Cream","P_Terracotta":"P_Ochre"},2),kit_entry("SM_Longhouse",None,1)]
     miners=[kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_DarkGrey"},3),kit_entry("SM_Longhouse",{"P_Brown":"P_DarkWood","P_Olive":"P_DarkGrey"},2)]
     s=town_base("Baerlon",E,road_mat=MAT("MI_Tile_DirtRoad"))
-    streets=grid_streets(-3600,3600,-3600,3600,4,4,width=5,spacing=1200,setback=820,prefix="st",wig=160,seed=11)
+    streets=grid_streets(-3600,3600,-3600,3600,4,4,width=5,spacing=1900,setback=760,set_="rows",prefix="st",wig=160,seed=11)
     camp=grid_streets(-7000,-4600,-7000,-4400,2,3,width=3,spacing=900,setback=620,set_="miners",prefix="camp",wig=120,seed=21)
     s["roads"]=[{"name":"Palisade","kind":"wall","pts":circle(0,0,4800,36),"closed":True,"width":1,"tile_scale":(1,1,2.6),"tile_z":130,"mat":MAT("MI_Wood_Dark"),"towers":{"step":2400,"scale":(2.2,2.2,4.0),"z":200,"mat":MAT("MI_Wood_Grey")}},
            {"name":"South road","pts":wiggle([(0,4800),(100,6200),(0,7600)],200,2,2),"width":7,"houses":False},{"name":"North road","pts":wiggle([(0,-4800),(-200,-6200),(0,-7600)],200,3,2),"width":7,"houses":False},
@@ -139,6 +139,7 @@ def whitebridge_spec():
               {"name":"Upper lane","pts":wiggle([(-5400,0),(-5800,-2200),(-6400,-4400)],200,5,2),"width":5,"houses":True,"spacing":1300,"setback":880}]
     s["roads"]+=pier_roads("Pier",300,(-4800,-3400),1100,WL)+pier_roads("FerryPier",4700,(-3700,),-900,WL)
     s["houses"]={"spacing":1300,"setback":900,"scale":(0.75,0.95),"keep":0.9,"footprint":YARD_FOOTPRINT,"entries":houses}
+    s["house_sets"]={"rows":row_set(ROWS_TIMBER)}   # the main street: packed timber rows
     s["foliage"]=base_foliage(TREES_TEMPERATE,forest_ratio=0.22,edge_ratio=0.05,town_ratio=0.008,bush=0.02,grass=0.3,mush=0.01,extent=E,
                               extra=[{"name":"Reeds","band":(0.0,1.0),"ratio":0.0,"entries":[],"scale":(1,1)}])
     s["pads"]=[(("rect",-3000,900,-1600,2200),None),(("rect",-900,-700,-300,700),0),(("rect",5000,-700,5800,700),0),(("rect",-200,-6000,800,-900),-40)]
