@@ -201,6 +201,11 @@ def main():
     # the sea: one slab under everything (its top at SEA_Z); the land sits on strata down to -2 so coasts read as cliffs
     boxes.append(("MI_VoxelWater",(x0+x1)/2,(y0+y1)/2,SEA_Z-50,x1-x0,y1-y0,100))
     # trees: dense on forest cells, sparse on grass, seeded; the kit's oaks, round bushes and pines
+    # no trees on the city sites (ow_sites.json: the tiny models stand 420 cm behind each portal)
+    try:
+        sites=json.load(open(os.path.join(HERE,"ow_sites.json")))
+        clear=[(st["x"]-420*math.cos(math.radians(st["yaw"])),st["y"]-420*math.sin(math.radians(st["yaw"]))) for st in sites.values()]
+    except Exception: clear=[]
     rng=np.random.default_rng(7); trees=[]
     for j in range(ny):
         for i in range(nx):
@@ -210,6 +215,7 @@ def main():
             n=int(p)+ (1 if rng.random()<(p-int(p)) else 0)
             for _ in range(n):
                 x,y=world(i,j); x+=rng.uniform(-45,45); y+=rng.uniform(-45,45)
+                if any(abs(x-cx)<700 and abs(y-cy)<700 for (cx,cy) in clear): continue
                 kind="SM_Pine" if (k==HILL or rng.random()<0.25) else ("SM_Oak" if rng.random()<0.6 else "SM_BushRound")
                 trees.append((round(x),round(y),int(ch[j,i])*STEP,kind,round(float(rng.uniform(0.35,0.55)),2)))
     pal={ROAD:(150,110,70),LAKE:(80,140,230),SEA:(70,120,200),SAND:(222,205,150),GRASS:(120,180,90),FOREST:(60,120,60),HILL:(170,150,110),MOUNT:(190,175,150),DRY:(175,165,95),MEADOW:(160,200,120),SNOW:(240,240,245),RIVER:(60,110,220)}
