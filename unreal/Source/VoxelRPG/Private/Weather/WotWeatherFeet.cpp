@@ -179,3 +179,24 @@ static FAutoConsoleCommandWithWorldAndArgs GWotPerfFrame(
 			}
 		}), 0.25f, true);
 	}));
+
+// wot.Perf.Realtime <0|1> : force every level-editor viewport to redraw each frame (a temporary realtime override), so
+// the editor renders the scene between scripted commands and wot.Perf.Frame / ProfileGPU measure real editor frames
+#if WITH_EDITOR
+#include "Editor.h"
+#include "EditorViewportClient.h"
+static FAutoConsoleCommand GWotPerfRealtime(
+	TEXT("wot.Perf.Realtime"), TEXT("Force editor viewports realtime: wot.Perf.Realtime 1|0"),
+	FConsoleCommandWithArgsDelegate::CreateStatic([](const TArray<FString>& Args) {
+		if (!GEditor) { return; }
+		const bool bOn = Args.Num() == 0 || FCString::Atoi(*Args[0]) != 0;
+		const FText Who = FText::FromString(TEXT("wot.Perf"));
+		int32 N = 0;
+		for (FEditorViewportClient* VC : GEditor->GetAllViewportClients()) {
+			if (!VC) { continue; }
+			if (bOn) { VC->AddRealtimeOverride(true, Who); } else { VC->RemoveRealtimeOverride(Who, false); }
+			++N;
+		}
+		UE_LOG(LogTemp, Display, TEXT("[PERF] realtime override %s on %d level viewports"), bOn ? TEXT("ON") : TEXT("off"), N);
+	}));
+#endif

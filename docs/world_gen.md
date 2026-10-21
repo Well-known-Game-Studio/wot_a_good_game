@@ -337,11 +337,20 @@ blackened ruin, Baerlon's wall and gate, Whitebridge's bridge, the Green and inn
 Cost: about 29,000 slab instances and 2,100 trees, 2 M LOD0 triangles, against the old level's 12,000 Nanite props and
 19 M. The settlement clusters (`ow_houses.json`) are map-scale kit houses too (`SM_Tiny_House`, `_House2`, `_House3`,
 `SM_Tiny_Barn`). Top slabs are merged into 2D rectangles (a row run grown downwards while the rows below match), and
-every Overworld2 spawner entry has `bAffectDistanceFieldLighting` and `bAffectDynamicIndirectLighting` off: with tens
-of thousands of instances the global distance field and the Lumen scene re-track them on every camera move, which is
-what made flying the level in the editor crawl (shadows stay). `wot.Perf.Primitives [N]` lists a world's heaviest mesh
-components and `wot.Perf.Frame [seconds]` logs average frame and GPU milliseconds in a play session; driven from the
-harness the editor does not render between commands, so those readings only mean something with the editor in front.
+every Overworld2 spawner entry has `bAffectDistanceFieldLighting` and `bAffectDynamicIndirectLighting` off so the
+global distance field and the Lumen scene do not track tens of thousands of instances (shadows stay).
+
+Measuring it: editor viewports only redraw on demand, so `wot.Perf.Frame` or `ProfileGPU` sent from the harness
+see idle Slate-only frames unless `wot.Perf.Realtime 1` is sent first (a realtime override on every level viewport;
+`0` removes it). With it on, `stat dumpframe -ms=20` writes the game- and render-thread stat tree to the log.
+`wot.Perf.Primitives [N]` lists a world's heaviest mesh components and `wot.Perf.Frame [seconds]` logs average frame
+and GPU milliseconds (editor, simulate or PIE). That is how the real Overworld slowness was found: both Overworld
+levels hold 23 portals, and the portal's `PortalParticleEffect` Niagara system had a Collision module tracing every
+CPU particle against the scene, about 115,000 raycasts a frame, which held the editor at 3 fps with the GPU idle.
+`wot.FX.Module /Game/Wot/Effects/PortalParticleEffect Collision 0` switched the module off (the swirl needs no
+collision); Overworld2 now runs at 26 fps in the editor and 19 fps in simulate, GPU-bound like Emond's Field, while
+the old Overworld stays GPU-bound at about 250 ms from its 19 M Nanite triangles. `wot.FX.Dump <system>` lists a
+Niagara system's emitters and modules with their enabled state.
 Still to do: subtler meadow patches.
 
 ### Dense town rows (second round on the #35 town references)
