@@ -495,6 +495,51 @@ def stable(w=600,d=900,wall="P_Brown",roof="P_Shingle",wood="P_DarkWood",hay="P_
     p+=_place(laundry_line(),d*0.1,w/2+120)
     return p
 
+# ---- dense town rows (the issue #35 town references: houses shoulder to shoulder, two or three storeys, jetties,
+# dormers, lit windows). A row is one kit mesh of 3-5 houses sharing walls, each a different height, colour and roof,
+# so a street of rows reads as a packed terrace rather than detached houses with gaps.
+def row_houses(n=4,seed=1,fronts=("P_Plaster","P_Cream","P_White","P_Plaster"),beam="P_DarkWood",roofs=("P_Slate","P_Terracotta","P_Shingle","P_Slate"),glass="P_GlassLit"):
+    """n houses in a row along +-Y, doors on -X, no gaps: shared party walls, different storeys (2-3), jettied upper
+    floors on some, a dormer or two, chimneys, lit windows. Pivot at the row's floor centre."""
+    r=_rnd.Random(seed); p=[]; fh=250; d=720
+    widths=[r.uniform(380,520) for _ in range(n)]; total=sum(widths); y=-total/2
+    for k in range(n):
+        w=widths[k]; cy=y+w/2; y+=w
+        storeys=r.choice((2,2,3)); wall=fronts[k%len(fronts)]; rm=roofs[k%len(roofs)]; jetty=r.random()<0.5
+        p.append(box(0,cy,30,d+16,w,60,"P_Grey"))
+        z=60
+        for i in range(storeys):
+            dd=d+40 if (jetty and i>0) else d
+            if jetty and i>0: _jetty_brackets(p,dd,w,z,beam,2)
+            p.append(box(0,cy,z+fh/2,dd,w,fh,wall))
+            # a frame only on the street face (the sides are shared)
+            xx=-dd/2-4
+            for sy in (-1,1): p.append(box(xx,cy+sy*(w/2-7),z+fh/2,14,14,fh,beam))
+            p.append(box(xx-1,cy,z+fh-7,16,w,14,beam)); p.append(box(xx-1,cy,z+7,16,w,14,beam))
+            p.append(box(xx+2,cy,z+fh/2,12,12,fh*0.8,beam,roll=34 if k%2 else -34))
+            wz=z+150
+            if i==0:
+                _door(p,dd,z=z,wd=100,ht=200,mat=beam,lantern="P_Gold" if k%2==0 else None)
+                _window(p,-dd/2-3,cy+w*0.28,wz,(70,80),"x",glass=glass,shutters=beam)
+            else:
+                for yy in (cy-w*0.26,cy+w*0.26): _window(p,-dd/2-3,yy,wz,(70,90),"x",glass=glass,flowers="P_Rose" if (i==storeys-1 and r.random()<0.5) else None)
+            z+=fh
+        # a gable roof per house, ridge along X (into the row), so neighbours' roofs step up and down
+        rm2=ALT.get(rm,rm)
+        for st in range(4):
+            f=1-st/4; p.append(box(0,cy,z+27+st*55,d+60,w*f+30,55,rm if st%2==0 else rm2))
+        p.append(box(0,cy,z+4*55+6,d+40,50,14,beam))
+        if r.random()<0.5: _dormer(p,-d*0.2,cy,z+60,rm,wall,-1 if r.random()<0.5 else 1)
+        if r.random()<0.7: _chimney(p,d*0.25,cy+w*0.2,z+4*55-40,h=180)
+    # a few things against the street fronts: a barrel, a crate, a hanging sign
+    p+=_place(barrel(),-d/2-70,-total/2+90); p+=_place(crate_stack(),-d/2-80,total/2-120)
+    p.append(box(-d/2-60,0,320,20,20,16,beam)); p.append(box(-d/2-90,0,290,24,120,70,"P_Gold"))
+    return p
+def row_houses_stone(n=4,seed=1):
+    return row_houses(n,seed,fronts=("P_Stone","P_LightGrey","P_Stone","P_Grey"),beam="P_DarkWood",roofs=("P_Slate","P_Slate","P_DarkGrey","P_Slate"))
+def row_houses_timber(n=4,seed=1):
+    return row_houses(n,seed,fronts=("P_Plaster","P_Cream","P_Plaster","P_White"),roofs=("P_Shingle","P_Terracotta","P_Straw","P_Shingle"))
+
 # ---- tiny city models for the Overworld table (1 voxel = 1 m on the map, so a city is a few metres across). Pivot at
 # the ground centre; each is the city's silhouette from the books, not a plan: Caemlyn's white Inner City on its hill,
 # Tar Valon's island and White Tower, the Stone of Tear, Cairhien's topless towers, Illian's canals, Tanchico's harbour
@@ -582,6 +627,12 @@ def tiny_tanchico(v=40):
     _tiny_houses(p,[(x*v,y*v) for x in (-7,-4.5,-2) for y in (-6,-3,0,3,6)],v,"P_Adobe","P_Clay",h=1.4,seed=13)
     p.append(box(-v*5,0,v*2.2,v*3,v*3,v*4.4,"P_Cream")); p.append(box(-v*5,0,v*4.8,v*2,v*2,v*1.2,"P_Gold"))   # the Panarch's palace
     for a in range(0,360,45): p.append(box(v*5+v*4.6*math.cos(math.radians(a)),v*4.6*math.sin(math.radians(a)),v*0.5,v*1.2,v*1.2,v*1.0,"P_Sand"))
+    return p
+def tiny_house(v=40,seed=1,wall="P_Plaster",roof="P_Straw"):
+    """One map-scale house for the settlement clusters (ow_houses.json): the same voxel language as the tiny cities."""
+    r=_rnd.Random(seed); w=v*r.uniform(1.6,2.4); d=v*r.uniform(1.8,2.8); hh=v*r.uniform(1.0,1.5)
+    p=[box(0,0,hh/2,d,w,hh,wall),box(0,0,hh+v*0.35,d+v*0.3,w+v*0.3,v*0.7,roof),box(0,0,hh+v*0.9,d*0.6,w*0.4,v*0.4,ALT.get(roof,roof))]
+    p.append(box(d*0.3,w*0.3,hh+v*1.1,v*0.4,v*0.4,v*0.9,"P_Grey"))   # chimney
     return p
 def tiny_village(v=40,seed=1):
     """A nameless town or village on the map: a handful of thatched houses round a well."""
@@ -768,10 +819,14 @@ KIT={
  "SM_LaundryLine":laundry_line,"SM_WaterTrough":water_trough,"SM_Wheelbarrow":wheelbarrow,"SM_LanternPost":lantern_post,"SM_Hedge":hedge,"SM_StoneWall":stone_wall,"SM_Gate":gate,"SM_PicketFence":picket_fence,
  "SM_Scarecrow":scarecrow,"SM_CropRows":crop_rows,"SM_Beehive":beehive,"SM_ChickenCoop":chicken_coop,"SM_LogBench":log_bench,"SM_Stump":stump,"SM_FallenLog":fallen_log,"SM_RockSmall":rock_small,
  "SM_FlowerPatch":flower_patch,"SM_GrassTuft":grass_tuft,"SM_Oak":oak,"SM_AppleTree":apple_tree,"SM_BushRound":bush_round,"SM_MushroomCluster":mushroom_cluster,
+ # dense town rows
+ "SM_Row3":lambda:row_houses(3,1),"SM_Row4":lambda:row_houses(4,2),"SM_Row5":lambda:row_houses(5,3),"SM_RowStone4":lambda:row_houses_stone(4,4),"SM_RowStone5":lambda:row_houses_stone(5,5),
+ "SM_RowTimber4":lambda:row_houses_timber(4,6),"SM_RowTimber3":lambda:row_houses_timber(3,7),
  # the Overworld table's tiny cities
  "SM_Tiny_EmondsField":tiny_emondsfield,"SM_Tiny_Baerlon":tiny_baerlon,"SM_Tiny_Whitebridge":tiny_whitebridge,"SM_Tiny_ShadarLogoth":tiny_shadarlogoth,"SM_Tiny_FalDara":tiny_faldara,
  "SM_Tiny_Caemlyn":tiny_caemlyn,"SM_Tiny_TarValon":tiny_tarvalon,"SM_Tiny_Cairhien":tiny_cairhien,"SM_Tiny_Tear":tiny_tear,"SM_Tiny_Illian":tiny_illian,"SM_Tiny_Tanchico":tiny_tanchico,
  "SM_Tiny_Village":tiny_village,"SM_Tiny_Village2":lambda:tiny_village(seed=2),"SM_Tiny_City":tiny_city,"SM_Tiny_City2":lambda:tiny_city(seed=2),
+ "SM_Tiny_House":tiny_house,"SM_Tiny_House2":lambda:tiny_house(seed=2,wall="P_Cream",roof="P_ThatchDark"),"SM_Tiny_House3":lambda:tiny_house(seed=3,wall="P_Stone",roof="P_Slate"),"SM_Tiny_Barn":lambda:tiny_house(seed=4,wall="P_Brown",roof="P_Shingle"),
 }
 
 def stairs(rise=300,width=500,step_rise=20,step_run=40,mat="P_LightGrey",side="P_Grey"):

@@ -134,3 +134,9 @@ def fence_line(step=300,offset=430,sides="both",mesh="SM_PicketFence"):
     return {"mesh":kit_mesh(mesh),"step":step,"offset":offset,"mat":None,"scale":(1,1,1),"sides":sides}
 def lantern_line(step=1600,offset=330,sides="both"):
     return {"mesh":kit_mesh("SM_LanternPost"),"step":step,"offset":offset,"mat":None,"scale":(1,1,1),"sides":sides}
+# ---- dense rows (the #35 town references): one kit mesh of 3-5 houses sharing walls per slot, slots 1900 apart
+def row_set(entries,spacing=1900,setback=760,scale=(0.9,1.05),keep=0.97):
+    return {"spacing":spacing,"setback":setback,"scale":scale,"keep":keep,"footprint":(-520,-900,260,900),"jitter":30,"entries":entries}
+ROWS_TIMBER=[kit_entry("SM_Row3",None,2),kit_entry("SM_Row4",None,3),kit_entry("SM_RowTimber4",None,3),kit_entry("SM_RowTimber3",None,2)]
+ROWS_STONE=[kit_entry("SM_RowStone4",None,3),kit_entry("SM_RowStone5",{"P_Slate":"P_DarkGrey"},1),kit_entry("SM_Row4",{"P_Plaster":"P_LightGrey","P_Cream":"P_Stone"},2),kit_entry("SM_Row3",None,1)]
+ROWS_WHITE=[kit_entry("SM_Row4",{"P_Plaster":"P_White","P_Cream":"P_White","P_Terracotta":"P_Blue","P_Shingle":"P_Blue"},3),kit_entry("SM_RowStone4",{"P_Stone":"P_White","P_LightGrey":"P_White","P_Grey":"P_White","P_Slate":"P_Blue"},2)]

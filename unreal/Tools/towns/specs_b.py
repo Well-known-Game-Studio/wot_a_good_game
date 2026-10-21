@@ -22,8 +22,8 @@ def caemlyn_spec():
     ]+radial_streets(0,0,2500,12600,12,width=7,spacing=1400,setback=950)
     for r in roads[6:]: r["lines"]=[lamp_line(1400,480)]
     # cramped quarters between the middle and outer rings (NW and SE) and the shanties of Low Caemlyn beyond the wall
-    nw=grid_streets(-8700,-4900,-8700,-4900,4,4,width=3,spacing=850,setback=600,set_="alley",prefix="nw alley",wig=80,seed=3)
-    se=grid_streets(4900,8700,4900,8700,4,4,width=3,spacing=850,setback=600,set_="alley",prefix="se alley",wig=80,seed=5)
+    nw=grid_streets(-8700,-4900,-8700,-4900,4,4,width=3,spacing=1900,setback=760,set_="alley",prefix="nw alley",wig=80,seed=3)
+    se=grid_streets(4900,8700,4900,8700,4,4,width=3,spacing=1900,setback=760,set_="alley",prefix="se alley",wig=80,seed=5)
     roads+=nw+se+[{"name":"Market lane","pts":[(6400,-1600),(7600,-1500),(8300,-900)],"width":5,"houses":True,"spacing":1300,"setback":850}]
     s["roads"]=roads
     s["plazas"]=[{"pts":circle(0,0,2200,28),"mat":PL,"scatter":[(kit_mesh("SM_LampPost"),0.01,1,1,None)]},
@@ -33,7 +33,7 @@ def caemlyn_spec():
                {"pts":circle(-5000,-5000,1300,16),"mat":GRASS,"scatter":[(MESH["tree4"],0.03,0.9,1.2,None),(kit_mesh("SM_FlowerShrub"),0.05,0.9,1.3,None)]}]
     s["exclusions"]=[(0,0,1500,1500),(12500,0,600,800)]
     s["houses"]={"spacing":1300,"setback":900,"scale":(0.8,1.0),"keep":0.94,"footprint":(-660,-380,520,480),"entries":houses}
-    s["house_sets"]={"inner":{"spacing":1700,"setback":950,"scale":(0.9,1.15),"keep":0.95,"entries":inner},"alley":dense_set(houses,850,600,(0.55,0.7),0.97),"low":dense_set(poor,1000,700,(0.6,0.8),0.95)}
+    s["house_sets"]={"inner":{"spacing":1700,"setback":950,"scale":(0.9,1.15),"keep":0.95,"entries":inner},"alley":row_set(ROWS_STONE),"low":dense_set(poor,1000,700,(0.6,0.8),0.95)}
     s["foliage"]=base_foliage(TREES_TEMPERATE,forest_ratio=0.1,edge_ratio=0.02,town_ratio=0.004,bush=0.012,grass=0.22,extent=E,town_trees=TREES_FORMAL,bands={"forest":(0.95,1.0),"edge":(0.9,0.95),"town":(0.3,0.9)})
     s["pads"]=[(("circle",0,0,2300),None),(("rect",8600,-2400,10000,-700),None),(("rect",-9600,-3000,-8100,-1400),None)]
     s["props"]=[("mesh",kit_mesh("SM_Keep"),"RoyalPalace",(-600,0,0),180,2.3,kit_mats("SM_Keep",{"P_DarkGrey":"P_White","P_Grey":"P_LightGrey","P_Slate":"P_Gold"})),
@@ -77,7 +77,7 @@ def cairhien_spec():
     s=town_base("Cairhien",E,road_mat=COB)
     roads=grid_streets(-8500,8500,-8500,8500,9,9,width=5,spacing=1150,setback=800)
     for r in roads: r["lines"]=[lamp_line(1150,400,"P_Gold")]
-    fg=grid_streets(-7000,7000,9800,11400,8,2,width=3,spacing=800,setback=560,set_="foregate",prefix="foregate",wig=120,seed=7)
+    fg=grid_streets(-7000,7000,9800,11400,8,2,width=3,spacing=1900,setback=760,set_="foregate",prefix="foregate",wig=120,seed=7)
     roads+=[{"name":"City wall","kind":"wall","pts":rect(-9200,-9200,9200,9200),"closed":True,"linear":True,"width":2,"tile_scale":(1,1,3.4),"tile_z":170,"mat":MAT("MI_Wall_Stone"),"towers":{"step":2300,"scale":(2.8,2.8,5.6),"z":280,"mat":MAT("MI_Wall_DarkStone")}},
             {"name":"Sun avenue","pts":[(-9800,0),(0,0),(9800,0),(10800,0)],"width":11,"houses":False,"mat":WS,"lines":[tree_line(1000,700,MESH["tree3"]),lamp_line(1000,560)]},
             {"name":"South avenue","pts":[(0,9200),(0,10500),(0,11600)],"width":7,"houses":False},
@@ -89,7 +89,7 @@ def cairhien_spec():
                {"pts":rect(5200,5200,8000,8000),"mat":MAT("MI_Tile_PlazaDark"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,None)]}]
     s["exclusions"]=[(0,0,1900,1900)]+[(math.cos(math.radians(45+90*k))*3400,math.sin(math.radians(45+90*k))*3400,700,700) for k in range(4)]+[(10400,0,500,800)]
     s["houses"]={"spacing":1150,"setback":800,"scale":(0.9,1.2),"keep":0.96,"footprint":(-460,-380,380,380),"jitter":40,"entries":houses}
-    s["house_sets"]={"foregate":dense_set(foregate,800,560,(0.5,0.68),0.97)}
+    s["house_sets"]={"foregate":row_set(ROWS_TIMBER)}
     s["foliage"]=base_foliage(TREES_FORMAL+TREES_PINE()[:1],forest_ratio=0.12,edge_ratio=0.03,town_ratio=0.003,bush=0.008,grass=0.18,extent=E,bands={"forest":(0.93,1.0),"edge":(0.88,0.93),"town":(0.3,0.88)},
                               extra=[boulders_extra((0.9,1.0),0.02)])
     s["pads"]=[(("rect",-2700,-2700,2700,2700),None),(("rect",5200,5200,8000,8000),None)]+[(("circle",math.cos(math.radians(45+90*k))*3400,math.sin(math.radians(45+90*k))*3400,750),None) for k in range(4)]
@@ -130,7 +130,7 @@ def tear_spec():
     rich=rand_house_entries(["MI_Wall_Stone","MI_Wall_Plaster"],["MI_Roof_Slate","MI_Roof_RedTile"])+stone_town_entries(roof="P_Slate")+[kit_entry("SM_TowerHouse",{"P_Plaster":"P_Plaster","P_Slate":"P_Slate"},2),kit_entry("SM_CourtyardHouse",{"P_Sand":"P_Plaster","P_Terracotta":"P_Slate"},2)]
     poor=[kit_entry("SM_GableHouse",{"P_Plaster":"P_Brown","P_Terracotta":"P_DarkGrey"},3),kit_entry("SM_GableHouse",{"P_Plaster":"P_Ochre","P_Terracotta":"P_Slate"},2),kit_entry("SM_Longhouse",{"P_Brown":"P_DarkWood","P_Olive":"P_DarkGrey"},1)]
     s=town_base("Tear",E,center=(-1500,0),road_mat=COB)
-    alleys=grid_streets(1800,5000,-9000,9000,3,11,width=3,spacing=900,setback=620,set_="docks",prefix="alley",wig=70,seed=9)
+    alleys=grid_streets(1800,5000,-9000,9000,3,11,width=3,spacing=1900,setback=760,set_="docks",prefix="alley",wig=70,seed=9)
     hi=grid_streets(-10500,-1200,-10500,10500,6,7,width=7,spacing=1400,setback=950,prefix="ave")
     for r in hi: r["lines"]=[lamp_line(1600,520)]
     roads=[{"name":"Stone wall","kind":"wall","pts":rect(-5200,-2600,-300,2600),"closed":True,"linear":True,"width":2,"tile_scale":(1,1,2.8),"tile_z":140,"mat":MAT("MI_Wall_DarkStone"),"towers":{"step":2000,"scale":(2.6,2.6,4.6),"z":230,"mat":MAT("MI_Wall_Stone")}},
@@ -144,7 +144,7 @@ def tear_spec():
                {"pts":rect(2200,-9000,4800,-6800),"mat":MAT("MI_Tile_PlazaDark"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.06,0.9,1.1,kit_mats("SM_MarketStall",{"P_Terracotta":"P_Olive"}))]}]
     s["exclusions"]=[(-2750,0,2600,2600),(8000,0,2600,12000),(5300,-11000,500,700)]
     s["houses"]={"spacing":1400,"setback":950,"scale":(0.85,1.05),"keep":0.94,"footprint":(-660,-380,520,480),"entries":rich}
-    s["house_sets"]={"docks":dense_set(poor,900,620,(0.55,0.72),0.95)}
+    s["house_sets"]={"docks":row_set(ROWS_TIMBER)}
     s["foliage"]=base_foliage(TREES_TEMPERATE,forest_ratio=0.08,edge_ratio=0.02,town_ratio=0.004,bush=0.012,grass=0.22,extent=E,bands={"forest":(0.95,1.0),"edge":(0.88,0.95),"town":(0.3,0.88)},
                               extra=[{"name":"Reeds","band":(0.0,1.0),"ratio":0.0,"entries":[],"scale":(1,1)}])
     s["pads"]=[(("rect",-200,-1200,1700,1200),None),(("rect",2200,-9000,4800,-6800),None)]
@@ -187,7 +187,7 @@ def tarvalon_spec():
     posts={"step":500,"scale":(1.2,1.2,2.6),"z":-130,"mat":MAT("MI_Wall_Stone")}
     bridges=[{"name":f"Bridge {k}","pts":[(math.cos(th)*8900,math.sin(th)*8900,6),(math.cos(th)*10100,math.sin(th)*10100,6),(math.cos(th)*11400,math.sin(th)*11400,6)],"width":5,"houses":False,"mat":WS,"tile_z":0,"towers":posts,"nocarve":True,"linear":True} for k,th in enumerate([0,math.pi/2,math.pi,3*math.pi/2])]
     parks=[{"pts":circle(math.cos(th)*5600,math.sin(th)*5600,1100,14),"mat":GRASS,"scatter":[(kit_mesh("SM_Birch"),0.04,0.9,1.2,None),(kit_mesh("SM_FlowerShrub"),0.06,0.9,1.3,None)]} for th in [math.pi/8+k*math.pi/2 for k in range(4)]]
-    q1=grid_streets(3200,7800,-7800,-3200,4,4,width=3,spacing=850,setback=600,set_="tight",prefix="ne alley",wig=60,seed=13)
+    q1=grid_streets(3200,7800,-7800,-3200,4,4,width=3,spacing=1900,setback=760,set_="tight",prefix="ne alley",wig=60,seed=13)
     q2=grid_streets(-7800,-3200,3200,7800,4,4,width=3,spacing=850,setback=600,set_="tight",prefix="sw alley",wig=60,seed=17)
     s["roads"]=[{"name":"Tower ring","pts":circle(0,0,2700,32),"closed":True,"width":5,"houses":False,"lines":[tree_line(900,-380,MESH["tree3"])]},
               {"name":"Inner ring","pts":circle(0,0,4500,36),"closed":True,"width":5,"houses":True,"sides":"both","spacing":1500,"setback":900},
@@ -198,7 +198,7 @@ def tarvalon_spec():
     s["plazas"]=[{"pts":circle(0,0,2400,32),"mat":WS,"scatter":[(kit_mesh("SM_LampPost"),0.01,1,1,None),(kit_mesh("SM_Obelisk"),0.004,0.6,0.8,None)]}]+parks
     s["exclusions"]=[(0,0,1500,1500)]+[(math.cos(th)*9400,math.sin(th)*9400,500,700) for th in [0,math.pi/2,math.pi,3*math.pi/2]]+[(12700,0,500,700)]
     s["houses"]={"spacing":1400,"setback":900,"scale":(0.8,1.0),"keep":0.93,"footprint":(-660,-380,520,480),"entries":white}
-    s["house_sets"]={"tight":dense_set(tight,850,600,(0.55,0.72),0.97)}
+    s["house_sets"]={"tight":row_set(ROWS_WHITE)}
     s["foliage"]=base_foliage(TREES_FORMAL+TREES_PINE()[:1],forest_ratio=0.1,edge_ratio=0.03,town_ratio=0.008,bush=0.018,grass=0.28,extent=E,fr=12000,clip=1.0,bands={"forest":(0.9,1.0),"edge":(0.78,0.9),"town":(0.3,0.78)},
                               extra=[boulders_extra((0.85,1.0),0.03,{"P_Grey":"P_DarkGrey"})])
     s["pads"]=[(("circle",0,0,2500),None)]+[(("circle",math.cos(th)*5600,math.sin(th)*5600,1200),None) for th in [math.pi/8+k*math.pi/2 for k in range(4)]]

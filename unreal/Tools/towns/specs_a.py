@@ -87,7 +87,7 @@ def baerlon_spec():
     s["plazas"]=[{"pts":rect(-1300,-1300,1300,1300),"mat":MAT("MI_Tile_Plaza"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,None)]+market_extras(0.02)}]
     s["exclusions"]=[(0,6900,500,700),(-4000,4000,800,800),(-6700,-7000,600,600)]
     s["houses"]={"spacing":1200,"setback":820,"scale":(0.7,0.92),"keep":0.92,"footprint":YARD_FOOTPRINT,"entries":houses}
-    s["house_sets"]={"miners":dense_set(miners,900,620,(0.6,0.78),0.95)}
+    s["house_sets"]={"miners":dense_set(miners,900,620,(0.6,0.78),0.95),"rows":row_set(ROWS_TIMBER)}
     s["foliage"]=base_foliage(TREES_PINE()+TREES_TEMPERATE[:2],forest_ratio=0.26,edge_ratio=0.06,town_ratio=0.006,bush=0.02,grass=0.3,mush=0.012,extent=E,bands={"forest":(0.86,1.0),"edge":(0.78,0.86),"town":(0.25,0.78)},
                               extra=[boulders_extra((0.5,1.0),0.025)])
     s["pads"]=[(("rect",-1800,-3000,0,-1500),None),(("circle",-4000,4000,900),None)]
@@ -127,7 +127,7 @@ def whitebridge_spec():
     s=town_base("Whitebridge",E,center=(-2500,0),road_mat=MAT("MI_Tile_DirtRoad"))
     s["plazas"]=[{"pts":rect(-3300,-1100,-1300,1100),"mat":MAT("MI_Tile_Plaza"),"linear":True,"scatter":[(kit_mesh("SM_MarketStall"),0.05,0.9,1.1,None)]+market_extras(0.02)}]
     s["exclusions"]=[(-2300,0,1100,1200),(-7200,0,500,700),(2600,0,2400,8000),(-300,0,500,800),(5400,0,500,800)]
-    s["roads"]=[{"name":"Main street","pts":[(-7700,0),(-5400,0),(-3400,0),(-1200,0),(-500,0)],"width":7,"houses":True,"spacing":1300,"setback":900,"lines":[lamp_line(1600,480,"P_Copper")]},
+    s["roads"]=[{"name":"Main street","pts":[(-7700,0),(-5400,0),(-3400,0),(-1200,0),(-500,0)],"width":7,"houses":True,"spacing":1900,"setback":760,"set":"rows","lines":[lamp_line(1600,480,"P_Copper")]},
               {"name":"East road","pts":wiggle([(5600,0),(6800,100),(7800,0)],150,2,2),"width":7,"houses":True,"spacing":1300,"setback":900},
               {"name":"River street N","pts":[(-700,700),(-800,2500),(-600,4500),(-900,7600)],"width":5,"houses":True,"sides":"left","spacing":1200,"setback":850},
               {"name":"River street S","pts":[(-700,-700),(-800,-2500),(-600,-4500),(-900,-7600)],"width":5,"houses":True,"sides":"right","spacing":1200,"setback":850},

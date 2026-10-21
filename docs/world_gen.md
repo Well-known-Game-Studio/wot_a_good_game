@@ -335,9 +335,24 @@ level) stand beside each portal: Caemlyn's white Inner City on its hill, Tar Val
 Tear, Cairhien's topless towers, Illian's canals, Tanchico's round harbour, Fal Dara's keep, Shadar Logoth's
 blackened ruin, Baerlon's wall and gate, Whitebridge's bridge, the Green and inn of Emond's Field.
 Cost: about 29,000 slab instances and 2,100 trees, 2 M LOD0 triangles, against the old level's 12,000 Nanite props and
-19 M. `wot.Perf.Primitives [N]` lists a world's heaviest mesh components and `wot.Perf.Frame [seconds]` logs average
-frame and GPU milliseconds; the Overworld2 numbers in PR #140 come from both levels in simulate mode from the same two
-camera poses. Still to do: the settlement clusters as kit houses, subtler meadow patches.
+19 M. The settlement clusters (`ow_houses.json`) are map-scale kit houses too (`SM_Tiny_House`, `_House2`, `_House3`,
+`SM_Tiny_Barn`). Top slabs are merged into 2D rectangles (a row run grown downwards while the rows below match), and
+every Overworld2 spawner entry has `bAffectDistanceFieldLighting` and `bAffectDynamicIndirectLighting` off: with tens
+of thousands of instances the global distance field and the Lumen scene re-track them on every camera move, which is
+what made flying the level in the editor crawl (shadows stay). `wot.Perf.Primitives [N]` lists a world's heaviest mesh
+components and `wot.Perf.Frame [seconds]` logs average frame and GPU milliseconds in a play session; driven from the
+harness the editor does not render between commands, so those readings only mean something with the editor in front.
+Still to do: subtler meadow patches.
+
+### Dense town rows (second round on the #35 town references)
+
+The references pack houses shoulder to shoulder in rows of mixed height. `row_houses(n, seed, ...)` in `kit_builder.py`
+builds one kit mesh of 3 to 5 houses sharing party walls along Y, each with its own storeys (2 or 3), wall colour,
+roof, jetty, dormer and chimney, a frame only on the street face, and lit windows (`P_GlassLit`: the glass instance with
+a warm "Emissive Color"); a barrel, crates and a hanging sign sit against the fronts. `SM_Row3/4/5`, `SM_RowStone4/5`,
+`SM_RowTimber3/4` go into `row_set(entries)` house sets (slots 1900 apart, footprint (-520,-900,260,900)):
+`ROWS_TIMBER` on Baerlon's main street, Cairhien's foregate and Tear's dock alleys, `ROWS_STONE` in Caemlyn's alleys,
+`ROWS_WHITE` in Tar Valon's quarter.
 
 ## 7. Building with it: recipes
 

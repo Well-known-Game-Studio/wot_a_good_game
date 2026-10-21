@@ -180,21 +180,36 @@ def main():
     # a neighbour is lower, the exposed strata face as a darker slab below (down to the lowest neighbour)
     boxes=[]
     def world(i,j): return x0+(i+0.5)*CELL, y0+(j+0.5)*CELL
+    # top slabs: greedy rectangles of equal (class, height) - a row run first, then grown downwards while the rows
+    # below match exactly, so plains become a few big slabs instead of hundreds of strips (far fewer instances for the
+    # distance field and Lumen to track)
+    done=np.zeros((ny,nx),bool)
+    for j in range(ny):
+        i=0
+        while i<nx:
+            if done[j,i] or cc[j,i]==SEA: i+=1; continue
+            k=int(cc[j,i]); z=int(ch[j,i]); i2=i
+            while i2+1<nx and not done[j,i2+1] and cc[j,i2+1]==k and ch[j,i2+1]==z: i2+=1
+            j2=j
+            while j2+1<ny and j2-j<40 and all((not done[j2+1,ii]) and cc[j2+1,ii]==k and ch[j2+1,ii]==z for ii in range(i,i2+1)): j2+=1
+            done[j:j2+1,i:i2+1]=True
+            xa,ya=world(i,j); xb,yb=world(i2,j2)
+            boxes.append((PALETTE[k],(xa+xb)/2,(ya+yb)/2,z*STEP-STEP/2,(i2-i+1)*CELL,(j2-j+1)*CELL,STEP))
+            i=i2+1
+    # strata under terrace edges: per row run, the drop to the lowest of the four neighbours along the run
     for j in range(ny):
         i=0
         while i<nx:
             k=int(cc[j,i]); z=int(ch[j,i]); i2=i
             while i2+1<nx and cc[j,i2+1]==k and ch[j,i2+1]==z: i2+=1
             if k!=SEA:
-                xa,_=world(i,j); xb,yb=world(i2,j)
-                boxes.append((PALETTE[k],(xa+xb)/2,yb,z*STEP-STEP/2,(i2-i+1)*CELL,CELL,STEP))
-                # strata under the terrace edge: the drop to the lowest of the four neighbours along this run
                 lows=[]
                 for ii in range(i,i2+1):
                     nb=[ch[jj,ii2] for jj,ii2 in ((j-1,ii),(j+1,ii),(j,ii-1),(j,ii+1)) if 0<=jj<ny and 0<=ii2<nx]
                     lows.append(min(nb) if nb else z)
                 lo=min(lows)
                 if lo<z-1 or (lo<z and k in (MOUNT,HILL)):
+                    xa,_=world(i,j); xb,yb=world(i2,j)
                     top=z*STEP-STEP; bot=max(lo,-2)*STEP
                     boxes.append((STRATA[k],(xa+xb)/2,yb,(top+bot)/2,(i2-i+1)*CELL,CELL,top-bot))
             i=i2+1
