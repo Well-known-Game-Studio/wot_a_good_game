@@ -90,6 +90,7 @@ protected:
 	void OnKilled(AActor* InstigatorActor, UWotAttributeComponent* OwningComp);
 
 	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetBlackboardActor(const FString BlackboardKeyName, AActor* Actor);

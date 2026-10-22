@@ -13,11 +13,16 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   scatter bands (boulders, snow, cacti, rubble). Then places landmark props, wires the level's
   portal/player-start tags and scales the level/nav bounds.
 * `kit_builder.py` – procedural voxel-style building and foliage kit assembled from primitives and merged
+  (helpers `_timber_frame`, `_roof_gable` with two-shade courses, `_window`, `_door`, `_dormer`; `yard()` wraps a house in a fence and
+  yard props; `oak`, `apple_tree`, `crop_rows`, `watermill`, `stable`, `farmhouse` ... see docs/world_gen.md "The lived-in pass")
   into static meshes under `/Game/Wot/Towns/Common/Buildings` (SM_GableHouse, SM_TowerHouse,
   SM_DomeHouse, SM_CourtyardHouse, SM_Keep, SM_Longhouse, SM_MarketStall, SM_StoneWell, SM_LampPost,
   SM_Obelisk, SM_GateHouse, SM_RuinWall, SM_BridgeArch, SM_Pine, SM_Palm, SM_DeadTree, SM_Boulder,
   SM_Cactus, SM_Reeds, SM_FlowerShrub, SM_SnowPatch, SM_Birch, SM_Stairs200…600, SM_Ladder600/900, SM_WhiteBridge,
-  SM_RandHouse = the imported `rand_house` re-merged with a half turn). Material slots follow the first-appearance
+  SM_RandHouse = the imported `rand_house` re-merged with a half turn; the art-pass families SM_TimberHouse*,
+  SM_ThatchedCottage, SM_Inn*, SM_Shop, SM_StoneHouse*, SM_AdobeHouse*, SM_AdobeTower, SM_Barn, SM_Smithy and the
+  street props SM_Cart, SM_HayBale, SM_Barrel, SM_CrateStack, SM_FestivalPole, SM_Woodpile, SM_Signpost, SM_Bench,
+  SM_FenceSegment, SM_FlowerBox; see docs/world_gen.md 6 for which town uses which). Material slots follow the first-appearance
   order of the part colours; `kit_entry(name, {"P_Plaster":"P_White"})` recolours per town. Every building's door is
   on -X and house slots point +X away from the street, so doors face the road; `wot.Mesh.Dump <Mesh>` (editor console)
   prints per-section vertex centroids to check a mesh's door side. `--kit` also gives every non-stairs piece convex
@@ -48,6 +53,8 @@ Launch the editor with `-ModelContextProtocolStartServer -ModelContextProtocolPo
   towns to the PCG map texture and those settlements (`ow_sites.json`), place/move portals, starts and landmarks.
 * `run_town.py <Town>...|--all|--dry|--kit [SM_Name ...]|--overworld` – regenerate towns, dry-run the relief locally, rebuild the kit,
   or re-place the Overworld portals.
+* `ow_voxel.py` (python/env: Pillow + numpy) + `run_town.py --overworld2` – the voxel Overworld2 diorama: terrain, rivers, roads, lakes
+  and tiny cities from the map textures (docs/world_gen.md 6d); `ow_voxel_preview.png` shows the cell map it will build.
 
 Portals: the Portal blueprint now has a `ToLevel` string (used when set, otherwise the old
 `ToMap` enum). Overworld portals are named `Overworld<Town>` and each town's return portal

@@ -818,8 +818,15 @@ def lines(prefix,texts):
     return d
 def potion(label,x,y,z=0): return ("mesh",POTION,label,(x,y,z),0,1.0,None)
 def chest(label,x,y,z=0,yaw=0): return ("mesh",CHEST,label,(x,y,z),yaw,1.0,None)
-def waterfall(label,x,y,yaw,z_top,z_bottom):
-    return [("mesh",WF_TOP,label+"_top",(x,y,z_top),yaw,1.0,None,"abs"),("mesh",WF_FOAM,label+"_foam",(x,y,z_bottom+20),yaw,1.0,None,"abs")]
+WATER_SHEET="/Engine/BasicShapes/Cube.Cube"; WATER_SHEET_MAT="/Game/Wot/Materials/MI_VoxelWater.MI_VoxelWater"
+def waterfall(label,x,y,yaw,z_top,z_bottom,width=300):
+    """A fall over a lip at (x, y) (absolute z_top) dropping to z_bottom, flowing along yaw: the top emitter on the lip,
+    a sheet of water the whole drop, foam where it lands (and a second, smaller foam at the lip)."""
+    dx=math.cos(math.radians(yaw)); dy=math.sin(math.radians(yaw)); h=max(100.0,z_top-z_bottom)
+    return [("mesh",WF_TOP,label+"_top",(x,y,z_top+10),yaw,1.0,None,"abs"),
+            ("mesh",WATER_SHEET,label+"_sheet",(x+dx*40,y+dy*40,(z_top+z_bottom)/2),yaw,(width/100.0,0.5,h/100.0),[WATER_SHEET_MAT],"abs"),
+            ("mesh",WF_FOAM,label+"_foam",(x+dx*150,y+dy*150,z_bottom+20),yaw,1.0,None,"abs"),
+            ("mesh",WF_FOAM,label+"_lipfoam",(x+dx*10,y+dy*10,z_top+6),yaw,0.6,None,"abs")]
 def ring_excl(cx,cy,r,n=24,w=420):
     return [(cx+r*math.cos(2*math.pi*k/n),cy+r*math.sin(2*math.pi*k/n),w,w) for k in range(n)]
 def rect_excl(x0,y0,x1,y1,w=380):

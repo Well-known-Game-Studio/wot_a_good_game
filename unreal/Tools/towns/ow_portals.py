@@ -16,9 +16,9 @@ def run():
         T(OB+"set_properties",{"instance":ref(p),"values":json.dumps({"ToLevel":town if has_level else "","PortalName":f"Overworld{town}","Enabled":bool(has_level)})})
         st=find_by_label(f"{town}PlayerStart")
         if has_level:
-            if st: move_actor(st[0],(x+dx*80,y+dy*80,100),yaw)
+            if st: move_actor(st[0],(x+dx*420,y+dy*420,100),yaw)
             else:
-                a=place_class("/Script/Engine.PlayerStart",f"{town}PlayerStart",(x+dx*80,y+dy*80,100),yaw,1.0,tag="OverworldPortal")
+                a=place_class("/Script/Engine.PlayerStart",f"{town}PlayerStart",(x+dx*420,y+dy*420,100),yaw,1.0,tag="OverworldPortal")
                 T(OB+"set_properties",{"instance":ref(a),"values":json.dumps({"PlayerStartTag":f"{town}Overworld"})})
         else:
             for a in st: remove(a)

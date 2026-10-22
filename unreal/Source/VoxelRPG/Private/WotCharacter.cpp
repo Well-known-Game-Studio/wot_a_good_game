@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "WotCharacter.h"
+#include "Weather/WotWeatherFeet.h"
 #include "WotAttributeComponent.h"
 #include "WotEquipmentComponent.h"
 #include "WotInventoryComponent.h"
@@ -88,6 +89,7 @@ void AWotCharacter::BeginPlay()
 	Super::BeginPlay();
 	SetupSpringArm();
 	SetupCineCamera();
+	WotWeatherFeet::Attach(this);   // footprints in snow, ripples in puddles
 	// start the interaction check timer
 	GetWorldTimerManager().SetTimer(TimerHandle_InteractionCheck, this, &AWotCharacter::InteractionCheck_TimeElapsed, InteractionCheckPeriod, true);
 	// quest tracker for the local player

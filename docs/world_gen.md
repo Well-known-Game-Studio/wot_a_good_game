@@ -180,6 +180,135 @@ them. `build_level` places `WotForagePickup` actors (`Source/.../Items/WotForage
 builds its item from `ItemClass`) on forest-band lattice points at `mush_ratio`, tagged `Forage`, seeded by the town
 name. Interacting picks the mushroom up like the Diorama's.
 
+### The building families (art pass, issues #34 #35 #51)
+
+The kit now has regional families, all built from the same box/cylinder DSL and recoloured per town with
+`kit_entry(name, {palette: palette})`:
+
+| family | pieces | where |
+|---|---|---|
+| Two Rivers / Andor timber | `SM_TimberHouse` (thatch), `SM_TimberHouse2` (two storeys, jettied, tile), `SM_TimberHouseSlate`, `SM_TimberHouseShingle`, `SM_ThatchedCottage`, `SM_Barn`, `SM_Smithy` | Emond's Field, Whitebridge, Baerlon, Caemlyn, Fal Dara |
+| inns and shops | `SM_Inn` (two storeys, cross wing, dormers, porch, sign, barrels; red tile), `SM_InnThatch`, `SM_Shop` (striped awning, counter of goods, sign board) | the hand-placed inns; markets |
+| dressed stone | `SM_StoneHouse`, `SM_StoneHouse3` (quoins, slate, chimney) | Baerlon, Caemlyn, Cairhien, Tear, Tar Valon (white / blue / gold), Illian, Shadar Logoth (blackened) |
+| adobe | `SM_AdobeHouse`, `SM_AdobeHouse2`, `SM_AdobeTower` (flat roof, parapet, pergola, outside stair, canvas awning) | Tanchico, Tear's lowlands, the Waste |
+| street props | `SM_Cart`, `SM_HayBale`, `SM_Barrel`, `SM_CrateStack`, `SM_FestivalPole`, `SM_Woodpile`, `SM_Signpost`, `SM_Bench`, `SM_FenceSegment`, `SM_FlowerBox` | `market_extras()` in plaza scatter lists; hand-placed on the Green |
+
+`specs_common.py` groups them: `two_rivers_entries()`, `andor_entries()`, `stone_town_entries(wall, roof, quoin)`,
+`adobe_entries(wall, trim)`, `market_extras(ratio)`. New palette colours: `P_Straw`, `P_ThatchDark`, `P_Shingle`,
+`P_Stone`, `P_Adobe`, `P_Clay` (instances of `MI_VoxelStone`, "Color" parameter).
+
+### The lived-in pass (second round on #34 / #35)
+
+The references are crowded: yards full of things, real carpentry on the frames, roofs in courses, ground cover
+everywhere. What changed:
+
+- **Detail on every building.** `_timber_frame` has a sill, mid rail and top plate on all faces, a brace that leans
+  the other way in every second bay and a full X every third (braces now tilt in the wall's own plane; they used to
+  stick out of it). Windows get a mullion cross, lintel and sill, shutters with an inset panel, flower boxes under the
+  top-floor windows. Doors are planked with a handle, a doorstep and a lantern on a bracket. Roof courses alternate
+  two shades (`ALT`: `P_Terracotta2`, `P_Slate2`, `P_Straw2` ... darker or lighter twins of the roof colours), with a
+  ridge cap, bargeboards on both gables, moss on thatch, a repaired patch on tile, smoke above chimneys, brackets
+  under jetties, stone courses in the base. `kit_entry` recolours a roof's twin shade along with it.
+- **Yards.** `yard(parts, d, w, seed, fence)` wraps a house in a picket fence, hedge or dry-stone wall with a gate
+  gap, a lantern post by the path and a seeded pick of woodpile, barrels, laundry line, trough, vegetable patch, bee
+  skep, hen coop, wheelbarrow, bushes, crates and hay: `SM_TimberHouseYard`, `SM_TimberHouse2Yard`, `SM_CottageYard`,
+  `SM_CottageDormerYard`, `SM_LHouseYard`, `SM_StoneTimberHouseYard`, `SM_FarmhouseYard`. A house set using them
+  needs `"footprint": YARD_FOOTPRINT` (Emond's Field, Baerlon, Whitebridge do).
+- **New buildings.** `SM_CottageDormer` (thatch with two dormers), `SM_LHouse` (cross wing), `SM_StoneTimberHouse`
+  (stone ground floor, jettied timber upper, dormer), `SM_Farmhouse` (house end and plank byre under one thatch roof),
+  `SM_Watermill` (Jon Thane's mill: paddle wheel, race, sluice, flour sacks; on the Winespring brook), `SM_Stable`
+  (open stalls by the inn).
+- **Yard, field and ground props.** `SM_LaundryLine`, `SM_WaterTrough`, `SM_Wheelbarrow`, `SM_LanternPost`,
+  `SM_Hedge`, `SM_StoneWall`, `SM_PicketFence`, `SM_Gate`, `SM_Scarecrow`, `SM_CropRows` (tabac rows in the foliage
+  material, so they stir), `SM_Beehive`, `SM_ChickenCoop`, `SM_LogBench`, `SM_Stump`, `SM_FallenLog`,
+  `SM_RockSmall`, `SM_FlowerPatch`, `SM_GrassTuft`, `SM_BushRound`, `SM_MushroomCluster`, and two new trees,
+  `SM_Oak` (broad lumpy canopy) and `SM_AppleTree` (red fruit), now in `TREES_TEMPERATE`.
+- **Density.** `base_foliage` doubles bush and town-tree ratios and raises grass by 1.6, and every town gets
+  `ground_extras(biome)` (tufts, flowers, rocks, round bushes, deadfall in the forest band; sparser snow and desert
+  mixes). Two Rivers villages add `field_extras()` (crop plots, scarecrows, skeps in the farmland ring). Streets
+  take `fence_line(step, offset, sides, mesh)` and `lantern_line()`: hedges and lanterns round the Green, fences
+  along the roads out of Emond's Field, dry-stone walls on the lanes; `line_house_clear` keeps them off house
+  fronts. Market scatters gained troughs, barrows and log benches.
+
+### Third pass on the town references (#35: dense, tall, glowing)
+
+Against the voxel-town references the kit read as stacked slabs: roofs stepped in five 55 cm courses, windows were
+plain glass, fronts were bare. `_roof_gable` and the row-house roofs now lay twice as many half-height courses, each
+with an 8 cm lip standing 5 cm proud of the course below (2 cm lower than the course so the two never share a face),
+which reads as rows of shingle, tile or thatch; the inn and timber-house cross wings use the same fine courses.
+Every window in the kit is `P_GlassLit`, so towns glow at dusk the way the references do. Stand-alone timber and stone
+houses carry a barrel and a crate stack against the street wall (`clutter=True`), and the dense row streets of
+Baerlon, Caemlyn, Cairhien, Tear and Tar Valon get street lanterns on both sides (`lit(...)` in the specs, 1400 cm
+apart). Kit meshes are shared assets, but the kit build deletes and recreates each asset, which clears the reference in
+whatever level is loaded (Emond's Field lost every house after a house-kit rebuild until it was regenerated): after
+`run_town.py --kit ...` (three chunks of about eleven names) regenerate every town, then `weather.py <Town>` and
+`Tools/playtest/nav_rebuild_all.py <Town>`.
+
+## 6c. Weather
+
+Every level carries an `Ultra_Dynamic_Weather` actor (`Tools/playtest/weather.py`, preset per town: rain in Tear and
+Illian, snow in Fal Dara, blowing sand in Tanchico, ash in Shadar Logoth as the dust preset with near-black particles,
+clear skies over Tar Valon and Caemlyn, random variation on the Overworld). Rain, snow and dust spawn around the camera
+with collision, cloud cover and fog follow the preset, wind debris (leaves) rides the wind. The voxel base material
+(`/Game/Wot/Materials/voxel_subsurface_material_base`, parent of every kit, ground and prop colour) routes Base Color,
+Roughness and Normal through UDW's "Snow And Dust Weather Effects" and "Wet Weather Effects" (`wot.Mat.AddWeather`),
+with "Material Effects Take Time to Change" on, so snow and dust build up on roofs and ground while it falls and
+surfaces darken and gloss in rain, instead of being baked into the meshes (`P_Snow`, `SM_SnowPatch` remain for
+permanent drifts). `wot.Mat.Dump <Material>` prints a material's graph.
+
+**Voxel weather particles.** UDW's own sprite rain / snow / dust / wind debris are switched off; the falling things are
+`AWotVoxelWeather` (`Source/.../Weather/WotVoxelWeather`), hand-made in the spirit of the fireflies: one instanced cube
+mesh per level, little palette-coloured cubes spawned around the player. Rain is long thin blue streaks that splash
+flat and vanish; snow drifts down, rests seven seconds where it lands and shrinks away; ash tumbles slowly and settles;
+sand blows low and fast across the ground; leaves tumble on the wind and lie a while. `weather.py` picks the kind and
+intensity per town (`VOXEL` table) and the wind follows the UDW wind direction; `wot.Weather.Voxel Snow 1` switches it
+in a play session. Sizes are tuned for the game's high camera (12 to 25 cm cubes).
+
+**Foliage wind.** Leafy kit parts use the leaf palette (`P_LeafDark`, `P_LeafGreen`, `P_LeafOlive`, `P_LeafPale`),
+instances of `voxel_foliage_base`: the base material with UDW's "Foliage Wind Movement" on World Position Offset
+(`wot.Mat.MakeFoliage`). Only its medium (branch clusters) and large (whole tree sway) layers are on: the small layer
+moves each vertex along its own normal, and voxel meshes have split vertices on every edge, so it tears the faces
+apart (`wot.Mat.WireConst ... "Apply Small Movement (Grass / Leaves)" false`). The imported trees and bushes under `Meshes/Foliage/trees|small` were re-parented to
+`textured_voxel_foliage_material` the same way (`wot.Mat.SetParent`), so canopies sway with the weather's wind while
+houses stay still. Shutters and other green building parts keep the ordinary palette.
+
+**Ground: footprints and puddles.** The town terrain (`MI_Ground_*`, `MI_VoxelGrass`, and `G_Snow` for the snow band)
+sits on `voxel_ground_base`: the base material with UDW's "Dynamic Landscape Weather Effects" in place of the prop snow
+/ wet functions (`wot.Mat.AddLandscapeWeather <Base> <Copy>` makes it, bypassing the prop functions; the snow and dust
+colours are wired in with `wot.Mat.WireConst`, the function's own snow alpha is too faint on flat voxels).
+`wot.Mat.CloneMI` re-parents the instances and tags them with the `PM_Ground` physical material. Snow and dust gain
+depth with trails, rain leaves puddles with ripples. Every character attaches a UDW "DLWE Interaction" component to each
+foot bone at BeginPlay (`WotWeatherFeet::Attach`: `Foot_*` on the humanoid rigs, `leg_*_end` on the voxel rigs), so the
+player and NPCs press into Fal Dara's snow and ripple Tear's puddles. Two runtime details make that work: collision
+shapes ignore an instanced mesh's override material, so `WotWeatherFeet::TagGround` gives every ground instanced mesh
+(material under `voxel_ground_base`) the `PM_Ground` body override once per world; and the render target the trails
+draw into follows UDW's control point, which has to be the player *camera* (with the pawn it never recentres, the pawn
+spawns after UDW starts). `weather.py` sets that, lists `PM_Ground` on UDW, turns the override-volume target off (no
+volumes in the towns) and seeds each level's starting surface state (`MAT_STATE`: Fal Dara snowed in, Tear soaked,
+Tanchico dusty) because "Material Effects Take Time to Change" otherwise ramps from bare ground every session.
+`wot.Weather.Feet` (what the feet stand on) and `wot.Weather.MPC` (UDW's material parameter collection, settable) are
+the diagnostics. The Overworld landscape material is emissive-driven (the map texture) and keeps no surface effects.
+
+**Water: flow lines, ripples, falls.** `AWotVoxelWater` (`Source/.../Weather/WotVoxelWater`), one per level from
+`weather.py` (`WATER_FLOW` gives each town a downstream hint), is the water's own voxel particle system. At BeginPlay
+it finds every water voxel (instanced meshes whose material is `MI_VoxelWater`, big tiles split into 200 cm cells),
+works out the local run of the water per cell (principal axis of the neighbouring cells, signed by the hint) and
+notes fall edges (a neighbour more than 150 cm lower). Then pale flat streaks drift downstream over every surface
+and fade in and out, flecks pour over the fall edges, and anyone whose feet are under a surface gets rings of
+flecks spreading out from them (fast rings and a few kicked-up drops when they move, slow ones when they stand).
+`wot.Water.Status` logs what it found. Waterfalls themselves come from `waterfall(label, x, y, yaw, z_top, z_bottom)`
+in `relief.py`: the top emitter on the lip, a sheet of voxel water the whole drop, foam where it lands and a smaller
+foam at the lip (the Winespring: lip at relief 480, brook at -160).
+
+**NPCs and rebuilt towns.** Villagers and heroes are hand-placed by coordinate while the houses are generated, so a
+rebuild can drop a house on top of one. `AWotAICharacter::BeginPlay` projects the start point to the navmesh with a
+tight extent and, if that fails, steps the NPC out to the nearest navigable spot within 14 m (logged as `[NPC]`).
+
+**Coplanar faces.** Two kit parts that share a face plane z-fight (frame rails crossing posts, pickets on rails, a
+slab resting exactly on another). The rule in `kit_builder.py`: every member stands a different distance proud of
+its wall (posts 11, braces 12 / 14, rails 13, corners 14 cm), trims sink a few centimetres into what they sit on
+rather than touching it, and nothing is built as a slab hidden inside a solid.
+
 ## 6b. The Overworld portals
 
 The Overworld terrain is a landscape whose PCG graph (`PCG_Landscape`) samples `blender/overworld-full.png` through a
@@ -194,6 +323,95 @@ places or moves the portals, player starts and landmarks. Cities without a level
 Amador, Bandar Eban, Jehannah, Lugard, Chachin, Maradon) get a disabled marker portal; Mayene and Fal Moran lie east of
 the cut and are skipped, Fal Dara is held at the landscape edge. Check a fit by drawing `ow_sites.json` and
 `ow_houses.json` over the texture with the same transform.
+
+
+### Why PIE in the Overworlds used to jump to the Diorama
+
+Each Overworld holds a `DioramaOverworld` portal (back to the test diorama) with its player start 30 cm away, inside
+the portal's trigger box, and the game mode falls back to the first player start when no portal name is set (a direct
+PIE start). The player spawned inside the trigger and the portal fired on the first frame. Two fixes: the portal
+blueprint now arms itself one second after begin-play only if the player is not inside its trigger (`Armed`,
+`ArmIfClear`, re-armed by `OnTriggerExit` when the player steps out), so spawning inside any portal never fires it;
+and every Overworld player start now sits 420 cm in front of its portal (`ow_portals.py` places new ones there too).
+The game mode logs `[SPAWN]` with the start it picked, which is the first thing to read when a level opens somewhere
+unexpected. Verified in PIE: a direct Overworld2 start stays in Overworld2, walking into its Emond's Field portal
+opens Emond's Field, and the Emond's Field portal opens the Overworld. Town portals still target the old `Overworld`;
+switch their `ToLevel` to `Overworld2` once it replaces the old map. In the old Overworld the walk from the
+Emond's Field start to its portal is blocked by terrain (no navmesh route), a reason not to keep it.
+
+## 6d. Overworld2: the voxel diorama
+
+The second Overworld (`/Game/Wot/Maps/Overworld2`) is the issue #35 / #51 "diorama" reading of the map, built beside
+the old landscape level so the two can be compared. `Tools/towns/ow_voxel.py` (Pillow + numpy, `python/env`) classifies
+every texel of `blender/overworld-full.png` into sea, coast sand, grass, meadow, dry plain, forest, hill skirt,
+mountain and snow, resamples that to 1 m cells on the same texture-to-world mapping the old level used (`ow_fit.py`),
+and gives each cell a terrace: mountains rise one voxel per two texels into their mass (2 to 9), snow from terrace 7,
+hill skirts 1, two gentle terraces roll across the plains, the sea sits two below. Rows of equal material and height
+run-merge into slabs, with a darker strata slab wherever a neighbour is lower, so coasts and mountains read as stepped
+cliffs; the sea is one slab of voxel water. Trees are the kit's oaks, round bushes and pines, dense on the forest mask
+and sparse elsewhere, scaled to the table. `ow2_build.py` (`run_town.py --overworld2`) copies the Overworld level, strips
+its landscape, mountain / tree props and foliage houses, spawns the slabs and trees through `PCG_Overworld2`, sets the
+portals, player starts, landmarks, enemies and the hand-placed settlement houses (`ow_houses.json`) on the new ground,
+and fences the table with a level-bounds box. The editor's `read_file` tool takes 80 KB a call, so `ow_voxel.py` stages
+its JSON as numbered parts under `Saved/PlayTest/ow_voxel_parts` (regenerate: run `ow_voxel.py`, then the build).
+Rivers, roads and lakes come from the base map `maps/newwotbase-1.png` through the same texel mapping (`BX, BY, SX,
+SY` in `ow_voxel.py`): rivers are its thin saturated-blue lines (runs of 12+ cells; filled blobs are sigils, short runs
+lettering), carved one terrace into whatever they cross with voxel water on top; roads are its dotted brown lines
+(dots on open country only, the borders' red told apart by its blue level, runs of 15+ cells), a dirt line at ground
+level; lakes are enclosed sea-class cells, set one terrace below their shore instead of two. The tiny cities
+(`kit_builder.py`: `SM_Tiny_<Town>` for the eleven towns, `SM_Tiny_City` / `SM_Tiny_City2` for the cities without a
+level) stand beside each portal: Caemlyn's white Inner City on its hill, Tar Valon's island and Tower, the Stone of
+Tear, Cairhien's topless towers, Illian's canals, Tanchico's round harbour, Fal Dara's keep, Shadar Logoth's
+blackened ruin, Baerlon's wall and gate, Whitebridge's bridge, the Green and inn of Emond's Field.
+Cost: about 29,000 slab instances and 2,100 trees, 2 M LOD0 triangles, against the old level's 12,000 Nanite props and
+19 M. The settlement clusters (`ow_houses.json`) are map-scale kit houses too (`SM_Tiny_House`, `_House2`, `_House3`,
+`SM_Tiny_Barn`). Top slabs are merged into 2D rectangles (a row run grown downwards while the rows below match), and
+every Overworld2 spawner entry has `bAffectDistanceFieldLighting` and `bAffectDynamicIndirectLighting` off so the
+global distance field and the Lumen scene do not track tens of thousands of instances (shadows stay).
+
+Measuring it: editor viewports only redraw on demand, so `wot.Perf.Frame` or `ProfileGPU` sent from the harness
+see idle Slate-only frames unless `wot.Perf.Realtime 1` is sent first (a realtime override on every level viewport;
+`0` removes it). With it on, `stat dumpframe -ms=20` writes the game- and render-thread stat tree to the log.
+`wot.Perf.Primitives [N]` lists a world's heaviest mesh components and `wot.Perf.Frame [seconds]` logs average frame
+and GPU milliseconds (editor, simulate or PIE). That is how the real Overworld slowness was found: both Overworld
+levels hold 23 portals, and the portal's `PortalParticleEffect` Niagara system had a Collision module tracing every
+CPU particle against the scene, about 115,000 raycasts a frame, which held the editor at 3 fps with the GPU idle.
+The fix keeps the collision but gates it: the Collision module's `Collision Enabled` input is driven by a new
+`User.CollisionEnabled` parameter (default false), so portals play in the editor viewport without tracing, and the
+Portal blueprint only turns it on while a portal is open. `ScaleUp` (the VisibilityBox overlap, 5 m around the
+portal) activates the `Particles` component and sets the parameter true; `ScaleDown` and the begin-play init
+deactivate the component and set it false, so in play only the portal the player can see simulates and traces.
+Overworld2 runs at 26 fps in the editor with all 23 portals showing and 19 fps in simulate, GPU-bound like Emond's
+Field, while the old Overworld stays GPU-bound at about 250 ms from its 19 M Nanite triangles. Tooling:
+`wot.FX.Dump <system>` lists a Niagara system's emitters and modules with their enabled state, `wot.FX.Inputs
+<system> <module>` a module's inputs, static switches, overrides and constants, `wot.FX.Module` toggles a module,
+`wot.FX.BindUser <system> <module> <input> <User.Param> <default>` drives a bool input from a user parameter, and
+`wot.FX.Status [substring]` lists the Niagara components of the current world with their active state and bool
+user parameters (how the portal behaviour was verified in PIE).
+Still to do: subtler meadow patches.
+
+### Z-fighting pass on Overworld2
+
+Two sources, both structural. The strata emitter produced a zero-thickness box under every one-step hill or mountain
+drop (top and bottom face in the same plane: a flickering line at the foot of each step); hills and mountains now
+carry a half-thick cap (`CAP`, 50 cm) with a real strata band below it on every drop, other classes keep the full
+100 cm slab and only get strata for drops of two steps or more, and a band is never emitted unless it has height.
+The tiny city models stacked houses on each other, so coplanar roofs and walls fought; `_tiny_houses` now refuses a
+house whose footprint (roof overhang included) would overlap one already placed or the `avoid` boxes (an inn, keep,
+tower or hall), shrinking it once before skipping it, and `z0` puts Tar Valon's houses on its island. Meadow cells
+use the new `MI_Ground_Meadow` (a grass clone at 0.16 0.42 0.08) instead of the pale tundra, so the patches read as
+richer grass rather than blotches. Rebuild order after such a change: `ow_voxel.py`, `run_town.py --kit SM_Tiny_*`,
+`run_town.py --overworld2`, `weather.py Overworld2`, `Tools/playtest/nav_rebuild_all.py Overworld2`.
+
+### Dense town rows (second round on the #35 town references)
+
+The references pack houses shoulder to shoulder in rows of mixed height. `row_houses(n, seed, ...)` in `kit_builder.py`
+builds one kit mesh of 3 to 5 houses sharing party walls along Y, each with its own storeys (2 or 3), wall colour,
+roof, jetty, dormer and chimney, a frame only on the street face, and lit windows (`P_GlassLit`: the glass instance with
+a warm "Emissive Color"); a barrel, crates and a hanging sign sit against the fronts. `SM_Row3/4/5`, `SM_RowStone4/5`,
+`SM_RowTimber3/4` go into `row_set(entries)` house sets (slots 1900 apart, footprint (-520,-900,260,900)):
+`ROWS_TIMBER` on Baerlon's main street, Cairhien's foregate and Tear's dock alleys, `ROWS_STONE` in Caemlyn's alleys,
+`ROWS_WHITE` in Tar Valon's quarter.
 
 ## 7. Building with it: recipes
 

@@ -82,8 +82,13 @@ AActor* AWotGameModeBase::FindPlayerStart_Implementation(AController* Player, co
   for (AActor* Actor : PlayerStarts) {
     APlayerStart* PS = Cast<APlayerStart>(Actor);
     if (PS && PS->PlayerStartTag == PortalName) {
+      UE_LOG(LogTemp, Display, TEXT("[SPAWN] %s: player start '%s' (tag %s) at %s for portal %s"), *GetWorld()->GetMapName(), *PS->GetName(), *PS->PlayerStartTag.ToString(), *PS->GetActorLocation().ToCompactString(), *PortalName.ToString());
       return PS;
     }
+  }
+  if (PlayerStarts.Num() > 0) {
+    const APlayerStart* PS = Cast<APlayerStart>(PlayerStarts[0]);
+    UE_LOG(LogTemp, Display, TEXT("[SPAWN] %s: no player start tagged '%s'; falling back to '%s' (tag %s) at %s"), *GetWorld()->GetMapName(), *PortalName.ToString(), *GetNameSafe(PlayerStarts[0]), PS ? *PS->PlayerStartTag.ToString() : TEXT("?"), *PlayerStarts[0]->GetActorLocation().ToCompactString());
   }
   // if we didn't find a player start with the matching name, just return the
   // first one (falling back to the engine's search if the level has none)
