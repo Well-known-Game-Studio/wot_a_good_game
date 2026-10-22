@@ -230,6 +230,20 @@ everywhere. What changed:
   along the roads out of Emond's Field, dry-stone walls on the lanes; `line_house_clear` keeps them off house
   fronts. Market scatters gained troughs, barrows and log benches.
 
+### Third pass on the town references (#35: dense, tall, glowing)
+
+Against the voxel-town references the kit read as stacked slabs: roofs stepped in five 55 cm courses, windows were
+plain glass, fronts were bare. `_roof_gable` and the row-house roofs now lay twice as many half-height courses, each
+with an 8 cm lip standing 5 cm proud of the course below (2 cm lower than the course so the two never share a face),
+which reads as rows of shingle, tile or thatch; the inn and timber-house cross wings use the same fine courses.
+Every window in the kit is `P_GlassLit`, so towns glow at dusk the way the references do. Stand-alone timber and stone
+houses carry a barrel and a crate stack against the street wall (`clutter=True`), and the dense row streets of
+Baerlon, Caemlyn, Cairhien, Tear and Tar Valon get street lanterns on both sides (`lit(...)` in the specs, 1400 cm
+apart). Kit meshes are shared assets, but the kit build deletes and recreates each asset, which clears the reference in
+whatever level is loaded (Emond's Field lost every house after a house-kit rebuild until it was regenerated): after
+`run_town.py --kit ...` (three chunks of about eleven names) regenerate every town, then `weather.py <Town>` and
+`Tools/playtest/nav_rebuild_all.py <Town>`.
+
 ## 6c. Weather
 
 Every level carries an `Ultra_Dynamic_Weather` actor (`Tools/playtest/weather.py`, preset per town: rain in Tear and

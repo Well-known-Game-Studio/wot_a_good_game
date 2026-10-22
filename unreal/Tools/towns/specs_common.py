@@ -132,6 +132,10 @@ def field_extras(ratio=0.015,band=(0.55,0.85)):
 def fence_line(step=300,offset=430,sides="both",mesh="SM_PicketFence"):
     """A continuous fence / hedge / dry-stone wall along a road (relief leaves gaps at house fronts: line_house_clear)."""
     return {"mesh":kit_mesh(mesh),"step":step,"offset":offset,"mat":None,"scale":(1,1,1),"sides":sides}
+def lit(streets,step=1400,offset=330):
+    """Street lanterns on both sides of every street in the list (the dense rows glow at night like the references)."""
+    for r in streets: r.setdefault("lines",[]).append(lantern_line(step,offset,"both"))
+    return streets
 def lantern_line(step=1600,offset=330,sides="both"):
     return {"mesh":kit_mesh("SM_LanternPost"),"step":step,"offset":offset,"mat":None,"scale":(1,1,1),"sides":sides}
 # ---- dense rows (the #35 town references): one kit mesh of 3-5 houses sharing walls per slot, slots 1900 apart
