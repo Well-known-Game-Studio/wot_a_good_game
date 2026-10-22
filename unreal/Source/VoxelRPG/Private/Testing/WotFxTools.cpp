@@ -1,6 +1,7 @@
 // Editor-only console commands to inspect and trim Niagara systems from the playtest harness:
 //   wot.FX.Dump   <system>                              emitters, sim target and every module with its enabled state
 //   wot.FX.Module <system> <module substring> 0|1 [emitter substring]
+//   wot.FX.Status [substring]                        every Niagara component in this world: owner, asset, active, visible
 //                                                       enable / disable matching modules, recompile and save the asset
 // (used to switch off the per-particle scene-trace Collision module of the portal effect: with 23 portals in a level it
 // issued ~115k raycasts per frame and held the editor and PIE to ~3 fps)
@@ -16,6 +17,9 @@
 #include "UObject/SavePackage.h"
 #include "UObject/SoftObjectPath.h"
 #include "Misc/PackageName.h"
+#include "NiagaraComponent.h"
+#include "Engine/World.h"
+#include "UObject/UObjectIterator.h"
 
 namespace
 {
@@ -94,5 +98,22 @@ static FAutoConsoleCommand GWotFxModule(
 		Sys->WaitForCompilationComplete(false, false);
 		const bool bSaved = SaveAsset(Sys);
 		UE_LOG(LogTemp, Display, TEXT("[FX] %s: %d modules changed, recompiled, saved=%d"), *Sys->GetName(), Changed, bSaved ? 1 : 0);
+	}));
+static FAutoConsoleCommandWithWorldAndArgs GWotFxStatus(
+	TEXT("wot.FX.Status"), TEXT("List Niagara components in this world: wot.FX.Status [name substring]"),
+	FConsoleCommandWithWorldAndArgsDelegate::CreateStatic([](const TArray<FString>& Args, UWorld* World) {
+		if (!World) { return; }
+		const FString Filter = Args.Num() > 0 ? Args[0] : FString();
+		int32 N = 0, Active = 0;
+		for (TObjectIterator<UNiagaraComponent> It; It; ++It)
+		{
+			UNiagaraComponent* C = *It;
+			if (!IsValid(C) || C->GetWorld() != World || !C->IsRegistered()) { continue; }
+			const FString Owner = GetNameSafe(C->GetOwner());
+			if (!Filter.IsEmpty() && !Owner.Contains(Filter) && !GetNameSafe(C->GetAsset()).Contains(Filter)) { continue; }
+			++N; if (C->IsActive()) { ++Active; }
+			UE_LOG(LogTemp, Display, TEXT("[FX]   %-28s %-26s active=%d visible=%d autoActivate=%d"), *Owner, *GetNameSafe(C->GetAsset()), C->IsActive() ? 1 : 0, C->IsVisible() ? 1 : 0, C->bAutoActivate ? 1 : 0);
+		}
+		UE_LOG(LogTemp, Display, TEXT("[FX] %s: %d Niagara components, %d active"), *World->GetMapName(), N, Active);
 	}));
 #endif

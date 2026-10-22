@@ -347,10 +347,13 @@ see idle Slate-only frames unless `wot.Perf.Realtime 1` is sent first (a realtim
 and GPU milliseconds (editor, simulate or PIE). That is how the real Overworld slowness was found: both Overworld
 levels hold 23 portals, and the portal's `PortalParticleEffect` Niagara system had a Collision module tracing every
 CPU particle against the scene, about 115,000 raycasts a frame, which held the editor at 3 fps with the GPU idle.
-`wot.FX.Module /Game/Wot/Effects/PortalParticleEffect Collision 0` switched the module off (the swirl needs no
-collision); Overworld2 now runs at 26 fps in the editor and 19 fps in simulate, GPU-bound like Emond's Field, while
-the old Overworld stays GPU-bound at about 250 ms from its 19 M Nanite triangles. `wot.FX.Dump <system>` lists a
-Niagara system's emitters and modules with their enabled state.
+The fix keeps the collision but only simulates portals the player can see: the Portal blueprint's `Particles`
+component no longer auto-activates, `ScaleUp` (the VisibilityBox overlap, 5 m around the portal) activates it and
+`ScaleDown` / the begin-play init deactivate it, so a level's other 22 portals cost nothing. Overworld2 now runs at
+22 fps in the editor and 19 fps in simulate, GPU-bound like Emond's Field, while the old Overworld stays GPU-bound at
+about 250 ms from its 19 M Nanite triangles. `wot.FX.Dump <system>` lists a Niagara system's emitters and modules
+with their enabled state, `wot.FX.Module` toggles one, and `wot.FX.Status [substring]` lists the Niagara components
+of the current world with their active state (how the portal activation was verified in PIE).
 Still to do: subtler meadow patches.
 
 ### Dense town rows (second round on the #35 town references)
