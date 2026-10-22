@@ -545,11 +545,19 @@ def row_houses_timber(n=4,seed=1):
 # Tar Valon's island and White Tower, the Stone of Tear, Cairhien's topless towers, Illian's canals, Tanchico's harbour
 # and Panarch's palace, Fal Dara's keep, Shadar Logoth's blackened ruin, Baerlon's wall and gate, Whitebridge's bridge,
 # Emond's Field's green with its thatched roofs and the inn. Unit: v (one voxel, 40 cm).
-def _tiny_houses(p,pts,v,wall="P_Plaster",roof="P_Terracotta",h=1.2,seed=1):
-    r=_rnd.Random(seed)
+def _tiny_houses(p,pts,v,wall="P_Plaster",roof="P_Terracotta",h=1.2,seed=1,z0=0.0,avoid=()):
+    """Little gabled blocks at pts (centre, metres as voxels). Houses never overlap each other or the footprints in
+    `avoid` ((x,y,d,w) boxes such as an inn or a tower): a house that would is shrunk once, then skipped, so no two
+    roofs or walls share a plane. z0 raises the bases (Tar Valon's houses stand on the island)."""
+    r=_rnd.Random(seed); taken=list(avoid)
+    def clash(x,y,d,w): return any(abs(x-tx)<(d+td)/2+v*0.25 and abs(y-ty)<(w+tw)/2+v*0.25 for (tx,ty,td,tw) in taken)
     for (x,y) in pts:
         w=v*r.uniform(1.4,2.2); d=v*r.uniform(1.4,2.4); hh=v*h*r.uniform(0.8,1.3)
-        p.append(box(x,y,hh/2,d,w,hh,wall)); p.append(box(x,y,hh+v*0.35,d+v*0.3,w+v*0.3,v*0.7,roof))
+        if clash(x,y,d,w):
+            w*=0.7; d*=0.7
+            if clash(x,y,d,w): continue
+        taken.append((x,y,d+v*0.3,w+v*0.3))
+        p.append(box(x,y,z0+hh/2,d,w,hh,wall)); p.append(box(x,y,z0+hh+v*0.35,d+v*0.3,w+v*0.3,v*0.7,roof))
 def _tiny_wall(p,pts,v,h=1.6,mat="P_LightGrey",tower="P_Grey",closed=True):
     n=len(pts)
     for i in range(n if closed else n-1):
@@ -559,8 +567,9 @@ def _tiny_wall(p,pts,v,h=1.6,mat="P_LightGrey",tower="P_Grey",closed=True):
 def _ring(cx,cy,r,n,start=0.0): return [(cx+r*math.cos(start+2*math.pi*k/n),cy+r*math.sin(start+2*math.pi*k/n)) for k in range(n)]
 def tiny_emondsfield(v=40):
     p=[box(0,0,v*0.1,v*14,v*14,v*0.2,"P_Green")]
-    _tiny_houses(p,_ring(0,0,v*4.5,9),v,"P_Plaster","P_Straw",seed=2); _tiny_houses(p,_ring(0,0,v*2.5,5,0.3),v,"P_Cream","P_ThatchDark",h=1.0,seed=3)
-    p.append(box(v*3,v*3,v*1.2,v*3,v*2.2,v*2.4,"P_Plaster")); p.append(box(v*3,v*3,v*2.8,v*3.4,v*2.6,v*0.8,"P_RedBrick"))   # the Winespring Inn
+    inn=[(v*3.5,v*3.5,v*3.4,v*2.6)]; oak=[(0,0,v*2.8,v*2.8)]
+    _tiny_houses(p,_ring(0,0,v*5.2,9),v,"P_Plaster","P_Straw",seed=2,avoid=inn+oak); _tiny_houses(p,_ring(0,0,v*3.0,5,0.3),v,"P_Cream","P_ThatchDark",h=1.0,seed=3,avoid=inn+oak)
+    p.append(box(v*3.5,v*3.5,v*1.2,v*3,v*2.2,v*2.4,"P_Plaster")); p.append(box(v*3.5,v*3.5,v*2.8,v*3.4,v*2.6,v*0.8,"P_RedBrick"))   # the Winespring Inn
     p.append(box(0,0,v*1.4,v*0.6,v*0.6,v*2.8,"P_Trunk")); p.append(box(0,0,v*3.2,v*2.6,v*2.6,v*1.6,"P_LeafGreen"))             # the old oak on the Green
     return p
 def tiny_baerlon(v=40):
@@ -586,12 +595,12 @@ def tiny_faldara(v=40):
     p=[box(0,0,v*0.1,v*14,v*14,v*0.2,"P_Olive")]
     _tiny_wall(p,[(-v*6,-v*6),(v*6,-v*6),(v*6,v*6),(-v*6,v*6)],v,2.2,"P_Grey","P_DarkGrey")
     p.append(box(0,0,v*2.5,v*5,v*5,v*5,"P_Grey")); p.append(box(0,0,v*5.6,v*2.4,v*2.4,v*1.2,"P_Slate"))   # the keep
-    _tiny_houses(p,[(x*v,y*v) for x in (-4,4) for y in (-4,-1.5,1.5,4)],v,"P_Stone","P_Slate",h=1.0,seed=6)
+    _tiny_houses(p,[(x*v,y*v) for x in (-4,4) for y in (-4,-1.5,1.5,4)],v,"P_Stone","P_Slate",h=1.0,seed=6,avoid=[(0,0,v*5,v*5)])
     return p
 def tiny_caemlyn(v=40):
     p=[box(0,0,v*0.1,v*20,v*20,v*0.2,"P_Olive")]
     _tiny_wall(p,_ring(0,0,v*9,14),v,1.6,"P_LightGrey","P_Grey")                       # the outer wall
-    _tiny_houses(p,_ring(0,0,v*6.5,16)+_ring(0,0,v*4.8,10,0.2),v,"P_Cream","P_Terracotta",seed=7)
+    _tiny_houses(p,_ring(0,0,v*6.5,16)+_ring(0,0,v*4.8,10,0.2),v,"P_Cream","P_Terracotta",seed=7,avoid=[(0,0,v*7,v*7)])
     p.append(box(0,0,v*1.0,v*7,v*7,v*2.0,"P_Grey")); _tiny_wall(p,_ring(0,0,v*3.4,8),v,1.6,"P_White","P_White")   # the hill and the Inner City wall
     for (x,y) in _ring(0,0,v*2.2,5): p.append(box(x,y,v*3.6,v*1.2,v*1.2,v*3.2,"P_White")); p.append(box(x,y,v*5.4,v*0.8,v*0.8,v*0.8,"P_Gold"))
     p.append(box(0,0,v*4.0,v*2.4,v*2.4,v*4.0,"P_White")); p.append(box(0,0,v*6.3,v*1.2,v*1.2,v*0.6,"P_Gold"))   # the palace
@@ -599,7 +608,7 @@ def tiny_caemlyn(v=40):
 def tiny_tarvalon(v=40):
     p=[box(0,0,v*0.1,v*22,v*16,v*0.2,"P_Blue"),box(0,0,v*0.5,v*14,v*9,v*0.6,"P_Olive")]   # the island in the Erinin
     _tiny_wall(p,[(-v*7,-v*4.5),(v*7,-v*4.5),(v*7,v*4.5),(-v*7,v*4.5)],v,1.4,"P_White","P_White")
-    _tiny_houses(p,[(x*v,y*v) for x in (-5,-3,-1,1,3,5) for y in (-3,3)],v,"P_White","P_Blue",h=1.3,seed=8)
+    _tiny_houses(p,[(x*v,y*v) for x in (-5,-3,-1,1,3,5) for y in (-3,3)],v,"P_White","P_Slate",h=1.1,seed=8,z0=v*0.8,avoid=[(0,0,v*2.6,v*2.6)])
     p.append(box(0,0,v*4.5,v*2.6,v*2.6,v*9,"P_White")); p.append(box(0,0,v*9.3,v*1.6,v*1.6,v*0.6,"P_White"))   # the White Tower
     for sx in (-1,1): p.append(box(sx*v*9,0,v*0.9,v*4,v*1.2,v*0.6,"P_LightGrey"))   # the bridges
     return p
@@ -611,7 +620,7 @@ def tiny_cairhien(v=40):
     return p
 def tiny_tear(v=40):
     p=[box(0,0,v*0.1,v*18,v*16,v*0.2,"P_Olive"),box(0,v*7,v*0.2,v*18,v*3,v*0.3,"P_Blue")]   # the Erinin mouth
-    _tiny_houses(p,[(x*v,y*v) for x in (-6,-3.5,-1,1.5,4,6.5) for y in (-5,-2.5,0,2.5)],v,"P_Cream","P_Terracotta",seed=11)
+    _tiny_houses(p,[(x*v,y*v) for x in (-6,-3.5,-1,1.5,4,6.5) for y in (-5,-2.5,0,2.5)],v,"P_Cream","P_Terracotta",seed=11,avoid=[(-v*5,v*3,v*5,v*4)])
     p.append(box(-v*5,v*3,v*3,v*5,v*4,v*6,"P_DarkGrey")); p.append(box(-v*5,v*3,v*6.4,v*3,v*2.4,v*0.8,"P_Grey"))   # the Stone of Tear
     for i in range(4): p.append(box(v*2+i*v*2,v*6,v*0.5,v*1.2,v*3,v*0.4,"P_DarkWood"))   # docks
     return p
@@ -619,12 +628,12 @@ def tiny_illian(v=40):
     p=[box(0,0,v*0.1,v*18,v*16,v*0.2,"P_Olive")]
     for x in (-v*4,0,v*4): p.append(box(x,0,v*0.15,v*1.2,v*16,v*0.3,"P_Blue"))   # the canals
     p.append(box(0,0,v*0.15,v*18,v*1.2,v*0.3,"P_Blue"))
-    _tiny_houses(p,[(x*v,y*v) for x in (-6,-2,2,6) for y in (-6,-3,3,6)],v,"P_White","P_Teal",seed=12)
+    _tiny_houses(p,[(x*v,y*v) for x in (-6,-2,2,6) for y in (-6,-3,3,6)],v,"P_White","P_Teal",seed=12,avoid=[(0,v*0.5,v*4.6,v*3.6)])
     p.append(box(0,v*0.5,v*1.5,v*4,v*3,v*3,"P_White")); p.append(box(0,v*0.5,v*3.4,v*4.6,v*3.6,v*0.8,"P_Gold"))   # the Great Hall of the Council
     return p
 def tiny_tanchico(v=40):
     p=[box(0,0,v*0.1,v*18,v*16,v*0.2,"P_Sand"),box(v*5,0,v*0.2,v*8,v*8,v*0.3,"P_Blue")]   # the circular harbour
-    _tiny_houses(p,[(x*v,y*v) for x in (-7,-4.5,-2) for y in (-6,-3,0,3,6)],v,"P_Adobe","P_Clay",h=1.4,seed=13)
+    _tiny_houses(p,[(x*v,y*v) for x in (-7,-4.5,-2) for y in (-6,-3,0,3,6)],v,"P_Adobe","P_Clay",h=1.4,seed=13,avoid=[(-v*5,0,v*3,v*3)])
     p.append(box(-v*5,0,v*2.2,v*3,v*3,v*4.4,"P_Cream")); p.append(box(-v*5,0,v*4.8,v*2,v*2,v*1.2,"P_Gold"))   # the Panarch's palace
     for a in range(0,360,45): p.append(box(v*5+v*4.6*math.cos(math.radians(a)),v*4.6*math.sin(math.radians(a)),v*0.5,v*1.2,v*1.2,v*1.0,"P_Sand"))
     return p
@@ -641,7 +650,7 @@ def tiny_village(v=40,seed=1):
 def tiny_city(v=40,seed=1):
     """A nameless city on the map: a walled square of stone houses with a hall in the middle."""
     p=[]; _tiny_wall(p,[(-v*5,-v*5),(v*5,-v*5),(v*5,v*5),(-v*5,v*5)],v,1.4,"P_LightGrey","P_Grey")
-    _tiny_houses(p,[(x*v,y*v) for x in (-3,0,3) for y in (-3,0,3) if (x,y)!=(0,0)],v,"P_Stone","P_Slate",seed=seed); p.append(box(0,0,v*1.5,v*2.4,v*2.4,v*3,"P_LightGrey"))
+    _tiny_houses(p,[(x*v,y*v) for x in (-3,0,3) for y in (-3,0,3) if (x,y)!=(0,0)],v,"P_Stone","P_Slate",seed=seed,avoid=[(0,0,v*2.4,v*2.4)]); p.append(box(0,0,v*1.5,v*2.4,v*2.4,v*3,"P_LightGrey"))
     return p
 
 def keep(w=1400,d=1400,h=700,wall="P_DarkGrey",cren="P_Grey",roof="P_Slate",tower_h=950):

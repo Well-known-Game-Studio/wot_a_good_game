@@ -44,7 +44,8 @@ def blur(a,rad):
     out=(c[k:,k:]-c[:-k,k:]-c[k:,:-k]+c[:-k,:-k])/(k*k)
     return out[:a.shape[0],:a.shape[1]]
 SEA,SAND,GRASS,FOREST,HILL,MOUNT,DRY,MEADOW,SNOW,RIVER,ROAD,LAKE=range(12)
-PALETTE={SAND:"MI_Ground_Sand",GRASS:"MI_Ground_Lush",FOREST:"MI_Ground_Lush",HILL:"MI_Ground_Dirt",MOUNT:"MI_Ground_Rock",DRY:"MI_Ground_Tundra",MEADOW:"MI_Ground_Tundra",SNOW:"G_Snow",RIVER:"MI_VoxelWater",ROAD:"MI_Ground_Dirt",LAKE:"MI_VoxelWater"}
+PALETTE={SAND:"MI_Ground_Sand",GRASS:"MI_Ground_Lush",FOREST:"MI_Ground_Lush",HILL:"MI_Ground_Dirt",MOUNT:"MI_Ground_Rock",DRY:"MI_Ground_Tundra",MEADOW:"MI_Ground_Meadow",SNOW:"G_Snow",RIVER:"MI_VoxelWater",ROAD:"MI_Ground_Dirt",LAKE:"MI_VoxelWater"}
+CAP={MOUNT:STEP/2,HILL:STEP/2}   # cap thickness per class (default STEP)
 STRATA={MOUNT:"MI_Ground_DarkRock",HILL:"MI_Ground_Dirt",GRASS:"MI_Ground_Dirt",FOREST:"MI_Ground_Dirt",DRY:"MI_Ground_Dirt",SAND:"MI_Ground_Sand",MEADOW:"MI_Ground_Dirt",SNOW:"MI_Ground_Rock",RIVER:"MI_Ground_Dirt",ROAD:"MI_Ground_Dirt",LAKE:"MI_Ground_Dirt"}   # the exposed face below a terrace
 MIN_ROAD_CELLS=15; MAX_LAKE_CELLS=400
 BASE=os.path.join(ROOT,"maps","newwotbase-1.png"); BX,BY,SX,SY=20.0,-60.0,11.6,9.05   # texture texel -> base map pixel (ow_fit.py)
@@ -194,7 +195,8 @@ def main():
             while j2+1<ny and j2-j<40 and all((not done[j2+1,ii]) and cc[j2+1,ii]==k and ch[j2+1,ii]==z for ii in range(i,i2+1)): j2+=1
             done[j:j2+1,i:i2+1]=True
             xa,ya=world(i,j); xb,yb=world(i2,j2)
-            boxes.append((PALETTE[k],(xa+xb)/2,(ya+yb)/2,z*STEP-STEP/2,(i2-i+1)*CELL,(j2-j+1)*CELL,STEP))
+            cap=CAP.get(k,STEP)   # hills and mountains carry a thin cap so even a one-step drop shows a band of strata
+            boxes.append((PALETTE[k],(xa+xb)/2,(ya+yb)/2,z*STEP-cap/2,(i2-i+1)*CELL,(j2-j+1)*CELL,cap))
             i=i2+1
     # strata under terrace edges: per row run, the drop to the lowest of the four neighbours along the run
     for j in range(ny):
@@ -208,9 +210,9 @@ def main():
                     nb=[ch[jj,ii2] for jj,ii2 in ((j-1,ii),(j+1,ii),(j,ii-1),(j,ii+1)) if 0<=jj<ny and 0<=ii2<nx]
                     lows.append(min(nb) if nb else z)
                 lo=min(lows)
-                if lo<z-1 or (lo<z and k in (MOUNT,HILL)):
+                top=z*STEP-CAP.get(k,STEP); bot=max(lo,-2)*STEP   # from the lowest neighbour's top up to the cap
+                if top-bot>=1.0:   # never a zero-thickness box: its two faces fight at the foot of every step
                     xa,_=world(i,j); xb,yb=world(i2,j)
-                    top=z*STEP-STEP; bot=max(lo,-2)*STEP
                     boxes.append((STRATA[k],(xa+xb)/2,yb,(top+bot)/2,(i2-i+1)*CELL,CELL,top-bot))
             i=i2+1
     # the sea: one slab under everything (its top at SEA_Z); the land sits on strata down to -2 so coasts read as cliffs

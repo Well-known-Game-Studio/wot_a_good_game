@@ -376,6 +376,19 @@ Field, while the old Overworld stays GPU-bound at about 250 ms from its 19 M Nan
 user parameters (how the portal behaviour was verified in PIE).
 Still to do: subtler meadow patches.
 
+### Z-fighting pass on Overworld2
+
+Two sources, both structural. The strata emitter produced a zero-thickness box under every one-step hill or mountain
+drop (top and bottom face in the same plane: a flickering line at the foot of each step); hills and mountains now
+carry a half-thick cap (`CAP`, 50 cm) with a real strata band below it on every drop, other classes keep the full
+100 cm slab and only get strata for drops of two steps or more, and a band is never emitted unless it has height.
+The tiny city models stacked houses on each other, so coplanar roofs and walls fought; `_tiny_houses` now refuses a
+house whose footprint (roof overhang included) would overlap one already placed or the `avoid` boxes (an inn, keep,
+tower or hall), shrinking it once before skipping it, and `z0` puts Tar Valon's houses on its island. Meadow cells
+use the new `MI_Ground_Meadow` (a grass clone at 0.16 0.42 0.08) instead of the pale tundra, so the patches read as
+richer grass rather than blotches. Rebuild order after such a change: `ow_voxel.py`, `run_town.py --kit SM_Tiny_*`,
+`run_town.py --overworld2`, `weather.py Overworld2`, `Tools/playtest/nav_rebuild_all.py Overworld2`.
+
 ### Dense town rows (second round on the #35 town references)
 
 The references pack houses shoulder to shoulder in rows of mixed height. `row_houses(n, seed, ...)` in `kit_builder.py`
