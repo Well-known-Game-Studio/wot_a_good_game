@@ -3,6 +3,7 @@
 //   wot.Mat.AddWeather <MaterialPath>  routes Base Color / Roughness / Normal through Ultra Dynamic Weather's
 //                                      "Snow And Dust Weather Effects" and "Wet Weather Effects" functions (idempotent),
 //                                      so every instance of the material gathers snow / dust and gets wet with the weather
+//   wot.Mat.WindLayers <MaterialPath> l m s  switch the large / medium / small layers of the UDW foliage wind (cubes: large only)
 #include "CoreMinimal.h"
 #if WITH_EDITOR
 #include "HAL/IConsoleManager.h"
@@ -267,6 +268,53 @@ static FAutoConsoleCommand GWotMatMakeFoliage(
 		TArray<FString> Errors = UMaterialEditingLibrary::RecompileMaterial(M);
 		for (const FString& E : Errors) { MT_LOG("  compile: %s", *E); }
 		MT_LOG("%s: WPO <- wind.%s (%d), saved=%d, errors=%d", *M->GetName(), *Out, bOut ? 1 : 0, Save(M) ? 1 : 0, Errors.Num());
+	}));
+
+// wot.Mat.WindLayers <MaterialPath> <large 0|1> <medium 0|1> <small 0|1> : switch the three layers of the UDW foliage wind
+// on a material made by wot.Mat.MakeFoliage. The medium and small layers push every vertex by 3D noise and its own normal,
+// so on the kit's hard-edged cubes the coincident corners of a face part ways and one triangle of the face folds into the
+// box, where back-face culling hides it from most angles (the "holes" in Overworld2's 0.4-scale trees). The large layer
+// sways by height above the pivot only, so a flat face stays flat and the whole tree leans together.
+static FAutoConsoleCommand GWotMatWindLayers(
+	TEXT("wot.Mat.WindLayers"), TEXT("Switch the UDW foliage wind layers of a material: wot.Mat.WindLayers /Game/Path/Material <large 0|1> <medium 0|1> <small 0|1>"),
+	FConsoleCommandWithArgsDelegate::CreateStatic([](const TArray<FString>& Args) {
+		using namespace WotMat;
+		if (Args.Num() < 4) { MT_LOG("usage: wot.Mat.WindLayers /Game/Path/Material <large 0|1> <medium 0|1> <small 0|1>"); return; }
+		UMaterial* M = Load(Args[0]);
+		if (!M) { MT_LOG("material not found: %s", *Args[0]); return; }
+		UMaterialExpressionMaterialFunctionCall* Wind = nullptr;
+		for (UMaterialExpression* E : M->GetExpressions()) {
+			if (UMaterialExpressionMaterialFunctionCall* C = Cast<UMaterialExpressionMaterialFunctionCall>(E)) {
+				if (C->MaterialFunction && C->MaterialFunction->GetName() == TEXT("Foliage_Wind_Movement")) { Wind = C; }
+			}
+		}
+		if (!Wind) { MT_LOG("%s has no Foliage_Wind_Movement call (wot.Mat.MakeFoliage first)", *M->GetName()); return; }
+		M->Modify();
+		const TCHAR* Names[3] = { TEXT("Apply Large Movement"), TEXT("Apply Medium Movement"), TEXT("Apply Small Movement") };
+		TSet<UMaterialExpression*> Used;
+		for (int32 i = 0; i < 3; ++i) {
+			const bool bOn = FCString::Atoi(*Args[1 + i]) != 0;
+			int32 Idx = INDEX_NONE;
+			for (int32 k = 0; k < Wind->FunctionInputs.Num(); ++k) { if (Wind->FunctionInputs[k].Input.InputName.ToString().StartsWith(Names[i])) { Idx = k; break; } }   // "Apply Large Movement (Whole Tree Sway)"
+			if (Idx == INDEX_NONE) {
+				MT_LOG("  no input '%s' among [%s]", Names[i], *FString::JoinBy(Wind->FunctionInputs, TEXT(", "), [](const FFunctionExpressionInput& I) { return I.Input.InputName.ToString(); }));
+				continue;
+			}
+			// reuse a static bool already feeding this input unless another layer shares it
+			UMaterialExpressionStaticBool* B = Cast<UMaterialExpressionStaticBool>(Wind->FunctionInputs[Idx].Input.Expression);
+			if (!B || Used.Contains(B)) {
+				B = Cast<UMaterialExpressionStaticBool>(UMaterialEditingLibrary::CreateMaterialExpression(M, UMaterialExpressionStaticBool::StaticClass(), -100, 250 + 70 * i));
+				if (!B) { MT_LOG("  could not create a static bool for '%s'", Names[i]); continue; }
+				UMaterialEditingLibrary::ConnectMaterialExpressions(B, TEXT(""), Wind, Wind->FunctionInputs[Idx].Input.InputName.ToString());
+			}
+			Used.Add(B);
+			B->Modify(); B->Value = bOn;
+			MT_LOG("  %s <- %d", Names[i], bOn ? 1 : 0);
+		}
+		UMaterialEditingLibrary::LayoutMaterialExpressions(M);
+		TArray<FString> Errors = UMaterialEditingLibrary::RecompileMaterial(M);
+		for (const FString& E : Errors) { MT_LOG("  compile: %s", *E); }
+		MT_LOG("%s: wind layers large=%s medium=%s small=%s saved=%d errors=%d", *M->GetName(), *Args[1], *Args[2], *Args[3], Save(M) ? 1 : 0, Errors.Num());
 	}));
 
 // wot.Mat.SetParent <MaterialInstancePath> <MaterialPath> : re-parent an instance (keeps its parameter overrides) and save

@@ -266,11 +266,16 @@ in a play session. Sizes are tuned for the game's high camera (12 to 25 cm cubes
 
 **Foliage wind.** Leafy kit parts use the leaf palette (`P_LeafDark`, `P_LeafGreen`, `P_LeafOlive`, `P_LeafPale`),
 instances of `voxel_foliage_base`: the base material with UDW's "Foliage Wind Movement" on World Position Offset
-(`wot.Mat.MakeFoliage`). Only its medium (branch clusters) and large (whole tree sway) layers are on: the small layer
-moves each vertex along its own normal, and voxel meshes have split vertices on every edge, so it tears the faces
-apart (`wot.Mat.WireConst ... "Apply Small Movement (Grass / Leaves)" false`). The imported trees and bushes under `Meshes/Foliage/trees|small` were re-parented to
-`textured_voxel_foliage_material` the same way (`wot.Mat.SetParent`), so canopies sway with the weather's wind while
-houses stay still. Shutters and other green building parts keep the ordinary palette.
+(`wot.Mat.MakeFoliage`). Only its large layer (whole tree sway, by height above the pivot) is on: the medium and small
+layers move each vertex by 3D noise and its own normal, and voxel meshes have split vertices on every edge, so the
+coincident corners of a face part ways and one triangle of the face folds into the box, where back-face culling hides
+it from most angles. On the towns' full-size trees that read as cracks; on Overworld2's 0.35 to 0.55 scale trees the
+medium layer alone opened a hole in nearly every canopy top (the displacement is in world centimetres, so a smaller
+tree gets relatively more of it). `wot.Mat.WindLayers <material> 1 0 0` switches the layers (static bools on the
+function call) and is what both foliage materials run with. The imported trees and bushes under
+`Meshes/Foliage/trees|small` were re-parented to `textured_voxel_foliage_material` the same way (`wot.Mat.SetParent`),
+so canopies sway with the weather's wind while houses stay still. Shutters and other green building parts keep the
+ordinary palette.
 
 **Ground: footprints and puddles.** The town terrain (`MI_Ground_*`, `MI_VoxelGrass`, and `G_Snow` for the snow band)
 sits on `voxel_ground_base`: the base material with UDW's "Dynamic Landscape Weather Effects" in place of the prop snow
