@@ -310,6 +310,21 @@ Amador, Bandar Eban, Jehannah, Lugard, Chachin, Maradon) get a disabled marker p
 the cut and are skipped, Fal Dara is held at the landscape edge. Check a fit by drawing `ow_sites.json` and
 `ow_houses.json` over the texture with the same transform.
 
+
+### Why PIE in the Overworlds used to jump to the Diorama
+
+Each Overworld holds a `DioramaOverworld` portal (back to the test diorama) with its player start 30 cm away, inside
+the portal's trigger box, and the game mode falls back to the first player start when no portal name is set (a direct
+PIE start). The player spawned inside the trigger and the portal fired on the first frame. Two fixes: the portal
+blueprint now arms itself one second after begin-play only if the player is not inside its trigger (`Armed`,
+`ArmIfClear`, re-armed by `OnTriggerExit` when the player steps out), so spawning inside any portal never fires it;
+and every Overworld player start now sits 420 cm in front of its portal (`ow_portals.py` places new ones there too).
+The game mode logs `[SPAWN]` with the start it picked, which is the first thing to read when a level opens somewhere
+unexpected. Verified in PIE: a direct Overworld2 start stays in Overworld2, walking into its Emond's Field portal
+opens Emond's Field, and the Emond's Field portal opens the Overworld. Town portals still target the old `Overworld`;
+switch their `ToLevel` to `Overworld2` once it replaces the old map. In the old Overworld the walk from the
+Emond's Field start to its portal is blocked by terrain (no navmesh route), a reason not to keep it.
+
 ## 6d. Overworld2: the voxel diorama
 
 The second Overworld (`/Game/Wot/Maps/Overworld2`) is the issue #35 / #51 "diorama" reading of the map, built beside
